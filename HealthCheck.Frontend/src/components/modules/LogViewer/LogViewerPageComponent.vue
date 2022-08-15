@@ -1,35 +1,39 @@
 <!-- src/components/modules/LogViewer/LogViewerPageComponent.vue -->
 <template>
     <div>
-        <v-content class="pl-0">
-        <v-container fluid fill-height class="content-root">
-        <v-layout>
-        <v-flex class="pl-4 pr-4 pb-4">
-          <!-- CONTENT BEGIN -->
+       <h2 class="warning pa-4">Module currently not implemented, might be deprecated.</h2>
+    </div>
+</template>
+
+<script lang="ts">
+/*
+ <div>
+        <div fluid fill-height class="content-root">
+        <div>
+        <div class="pl-4 pr-4 pb-4">
+          
           
             <!-- FILTER -->
-            <v-container grid-list-md>
+            <div grid-list-md>
                 <h1 class="mb-4">Log Search</h1>
 
-                <v-layout row wrap>
-                    <v-flex xs12 sm12 md8 style="position:relative">
-                        <v-menu
+                <div row wrap>
+                    <div xs12 sm12 md8 style="position:relative">
+                        <menu-component
                             transition="slide-y-transition"
                             bottom>
-                            <template v-slot:activator="{ on }">
-                                <v-btn flat icon color="primary" class="datepicker-button" v-on="on">
-                                    <v-icon>date_range</v-icon>
-                                </v-btn>
-                            </template>
-                            <v-list>
-                                <v-list-tile
+                            <btn-component flat icon color="primary" class="datepicker-button">
+                                <icon-component>date_range</icon-component>
+                            </btn-component>
+                            <div>
+                                <div
                                     v-for="(preset, i) in datePickerPresets"
                                     :key="`datepicker-preset-${i}`"
                                     @click="setDatePickerValue(preset)">
-                                    <v-list-tile-title>{{ preset.name }}</v-list-tile-title>
-                                </v-list-tile>
-                            </v-list>
-                        </v-menu>
+                                    <div>{{ preset.name }}</div>
+                                </div>
+                            </div>
+                        </menu-component>
 
                         <date-time-picker
                             ref="filterDate"
@@ -40,266 +44,262 @@
                             timeFormat="HH:mm"
                             @onChange="onDateRangeChanged"
                         />
-                    </v-flex>
+                    </div>
 
-                    <v-flex xs12 sm12 md4 style="text-align: right;">
-                        <v-btn ripple color="error"
+                    <div xs12 sm12 md4 style="text-align: right;">
+                        <btn-component color="error"
                             @click.stop.prevent="cancelSearch(currentSearchId)"
                             v-if="searchLoadStatus.inProgress && currentSearchId != ''"
                             :disabled="cancelSearchStatus.inProgress">
-                            <v-icon color="white">cancel</v-icon>
+                            <icon-component color="white">cancel</icon-component>
                             Cancel
-                        </v-btn>
-                        <v-btn @click="currentPage=1;loadData()" :disabled="searchLoadStatus.inProgress" class="primary">Search</v-btn>
-                        <v-btn @click="resetFilters" :disabled="searchLoadStatus.inProgress">Reset</v-btn>
-                    </v-flex>
+                        </btn-component>
+                        <btn-component @click="currentPage=1;loadData()" :disabled="searchLoadStatus.inProgress" class="primary">Search</btn-component>
+                        <btn-component @click="resetFilters" :disabled="searchLoadStatus.inProgress">Reset</btn-component>
+                    </div>
                     
                     <!-- QUERY -->
-                    <v-flex xs12>
-                        <v-layout row xs12>
-                            <v-flex xs10 sm10>
-                                <v-text-field type="text" clearable
+                    <div xs12>
+                        <div row xs12>
+                            <div xs10 sm10>
+                                <text-field-component type="text" clearable
                                     label="Content filter"
-                                    v-model="filterQuery"
+                                    v-model:value="filterQuery"
                                     :disabled="searchLoadStatus.inProgress"
                                     :error-messages="searchResultData.ParsedQuery.ParseError"
-                                ></v-text-field>
-                            </v-flex>
-                            <v-flex xs2 sm2 class="pa-3">
-                                <v-checkbox
+                                ></text-field-component>
+                            </div>
+                            <div xs2 sm2 class="pa-3">
+                                <checkbox-component
                                     class="options-checkbox"
-                                    v-model="filterQueryIsRegex"
+                                    v-model:value="filterQueryIsRegex"
                                     label="Regex"
-                                ></v-checkbox>
-                            </v-flex>
-                        </v-layout>
-                    </v-flex>
+                                ></checkbox-component>
+                            </div>
+                        </div>
+                    </div>
                     
                     <!-- EXCLUDED QUERY -->
-                    <v-flex xs12 v-if="showExcludedQuery">
-                        <v-layout row xs12>
-                            <v-flex xs10 sm10>
-                                <v-text-field type="text" clearable
+                    <div xs12 v-if="showExcludedQuery">
+                        <div row xs12>
+                            <div xs10 sm10>
+                                <text-field-component type="text" clearable
                                     label="Content exclusion filter"
-                                    v-model="filterExcludedQuery"
+                                    v-model:value="filterExcludedQuery"
                                     :disabled="searchLoadStatus.inProgress"
                                     :error-messages="searchResultData.ParsedExcludedQuery.ParseError"
-                                ></v-text-field>
-                            </v-flex>
-                            <v-flex xs2 sm2 class="pa-3">
-                                <v-checkbox
+                                ></text-field-component>
+                            </div>
+                            <div xs2 sm2 class="pa-3">
+                                <checkbox-component
                                     class="options-checkbox"
-                                    v-model="filterExcludedQueryIsRegex"
+                                    v-model:value="filterExcludedQueryIsRegex"
                                     label="Regex"
-                                ></v-checkbox>
-                            </v-flex>
-                        </v-layout>
-                    </v-flex>
+                                ></checkbox-component>
+                            </div>
+                        </div>
+                    </div>
                     
                     <!-- LOG PATH QUERY -->
-                    <v-flex xs12 v-if="showLogPathQuery">
-                        <v-layout row xs12>
-                            <v-flex xs10 sm10>
-                                <v-text-field type="text" clearable
+                    <div xs12 v-if="showLogPathQuery">
+                        <div row xs12>
+                            <div xs10 sm10>
+                                <text-field-component type="text" clearable
                                     label="File path filter"
-                                    v-model="filterLogPathQuery"
+                                    v-model:value="filterLogPathQuery"
                                     :disabled="searchLoadStatus.inProgress"
                                     :error-messages="searchResultData.ParsedLogPathQuery.ParseError"
-                                ></v-text-field>
-                            </v-flex>
-                            <v-flex xs2 sm2 class="pa-3">
-                                <v-checkbox
+                                ></text-field-component>
+                            </div>
+                            <div xs2 sm2 class="pa-3">
+                                <checkbox-component
                                     class="options-checkbox"
-                                    v-model="filterLogPathQueryIsRegex"
+                                    v-model:value="filterLogPathQueryIsRegex"
                                     label="Regex"
-                                ></v-checkbox>
-                            </v-flex>
-                        </v-layout>
-                    </v-flex>
+                                ></checkbox-component>
+                            </div>
+                        </div>
+                    </div>
                     
                     <!-- EXCLUDED LOG PATH QUERY -->
-                    <v-flex xs12 v-if="showExcludedLogPathQuery">
-                        <v-layout row xs12>
-                            <v-flex xs10 sm10>
-                                <v-text-field type="text" clearable
+                    <div xs12 v-if="showExcludedLogPathQuery">
+                        <div row xs12>
+                            <div xs10 sm10>
+                                <text-field-component type="text" clearable
                                     label="File path exclusion filter"
-                                    v-model="filterExcludedLogPathQuery"
+                                    v-model:value="filterExcludedLogPathQuery"
                                     :disabled="searchLoadStatus.inProgress"
                                     :error-messages="searchResultData.ParsedExcludedLogPathQuery.ParseError"
-                                ></v-text-field>
-                            </v-flex>
-                            <v-flex xs2 sm2 class="pa-3">
-                                <v-checkbox
+                                ></text-field-component>
+                            </div>
+                            <div xs2 sm2 class="pa-3">
+                                <checkbox-component
                                     class="options-checkbox"
-                                    v-model="filterExcludedLogPathQueryIsRegex"
+                                    v-model:value="filterExcludedLogPathQueryIsRegex"
                                     label="Regex"
-                                ></v-checkbox>
-                            </v-flex>
-                        </v-layout>
-                    </v-flex>
+                                ></checkbox-component>
+                            </div>
+                        </div>
+                    </div>
                     
                     <!-- CUSTOM COLUMNS -->
-                    <v-flex xs12 v-if="showcustomColumnRule">
-                        <v-layout row xs12>
-                            <v-flex xs10 sm10>
-                                <v-text-field type="text" clearable
-                                    v-model="customColumnRule"
+                    <div xs12 v-if="showcustomColumnRule">
+                        <div row xs12>
+                            <div xs10 sm10>
+                                <text-field-component type="text" clearable
+                                    v-model:value="customColumnRule"
                                     :label="getDelimiterLabel()"
                                     :disabled="searchLoadStatus.inProgress"
                                     :error-messages="getCustomColumnRuleError()"
                                     append-icon="keyboard_tab"
                                     @click:append="customColumnRule = (customColumnRule || '') +'\t'"
-                                ></v-text-field>
-                            </v-flex>
-                            <v-flex xs2 sm2>
-                                <v-select
-                                    v-model="customColumnMode"
+                                ></text-field-component>
+                            </div>
+                            <div xs2 sm2>
+                                <select-component
+                                    v-model:value="customColumnMode"
                                     :items="customColumnModeOptions"
                                     :disabled="searchLoadStatus.inProgress"
-                                    item-text="text" item-value="value" color="secondary">
-                                </v-select>
-                            </v-flex>
-                        </v-layout>
-                    </v-flex>
-                </v-layout>
+                                    item-text="text" item-value="value">
+                                </select-component>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <div>
-                    <v-layout row wrap xs12>
-                        <v-flex xs6 sm4 lg4 v-if="!showExcludedQuery">
-                            <v-btn depressed small class="extra-filter-btn"
+                    <div row wrap xs12>
+                        <div xs6 sm4 lg4 v-if="!showExcludedQuery">
+                            <btn-component depressed small class="extra-filter-btn"
                                 @click="showExcludedQuery = true">
-                                <v-icon >add</v-icon>
+                                <icon-component >add</icon-component>
                                 Exclude content
-                            </v-btn>
-                        </v-flex>
-                        <v-flex xs6 sm4 lg4 v-if="!showLogPathQuery">
-                            <v-btn depressed small class="extra-filter-btn"
+                            </btn-component>
+                        </div>
+                        <div xs6 sm4 lg4 v-if="!showLogPathQuery">
+                            <btn-component depressed small class="extra-filter-btn"
                                 @click="showLogPathQuery = true">
-                                <v-icon >add</v-icon>
+                                <icon-component >add</icon-component>
                                 Filter log filepaths
-                            </v-btn>
-                        </v-flex>
-                        <v-flex xs12 sm4 lg4 v-if="!showExcludedLogPathQuery">
-                            <v-btn depressed small class="extra-filter-btn"
+                            </btn-component>
+                        </div>
+                        <div xs12 sm4 lg4 v-if="!showExcludedLogPathQuery">
+                            <btn-component depressed small class="extra-filter-btn"
                                 @click="showExcludedLogPathQuery = true">
-                                <v-icon >add</v-icon>
+                                <icon-component >add</icon-component>
                                 Exclude log filepaths
-                            </v-btn>
-                        </v-flex>
-                        <v-flex xs6 sm2 style="padding-left: 22px;">
-                            <v-text-field type="number" label="Page size"
+                            </btn-component>
+                        </div>
+                        <div xs6 sm2 style="padding-left: 22px;">
+                            <text-field-component type="number" label="Page size"
                                 class="options-input"
-                                v-model.number="filterTake" />
-                        </v-flex>
-                        <v-flex xs6 sm2 style="padding-left: 22px;">
-                            <v-text-field type="number" label="Margin (ms)"
+                                v-model:value.number="filterTake" />
+                        </div>
+                        <div xs6 sm2 style="padding-left: 22px;">
+                            <text-field-component type="number" label="Margin (ms)"
                                 class="options-input"
-                                v-model.number="filterMargin" />
-                        </v-flex>          
-                        <v-flex xs6 sm4 lg2 style="padding-left: 22px;">
-                            <v-checkbox
+                                v-model:value.number="filterMargin" />
+                        </div>          
+                        <div xs6 sm4 lg2 style="padding-left: 22px;">
+                            <checkbox-component
                                 class="options-checkbox"
-                                v-model="filterOrderDescending"
+                                v-model:value="filterOrderDescending"
                                 :label="`Newest first`"
-                            ></v-checkbox>
-                        </v-flex>            
-                        <v-flex xs6 sm4 lg2 style="padding-left: 22px;">
-                            <v-checkbox
+                            ></checkbox-component>
+                        </div>            
+                        <div xs6 sm4 lg2 style="padding-left: 22px;">
+                            <checkbox-component
                                 class="options-checkbox"
-                                v-model="expandAllRows"
+                                v-model:value="expandAllRows"
                                 :label="`Expand all rows`"
-                            ></v-checkbox>
-                        </v-flex>
-                        <v-flex xs6 sm4 lg4 v-if="!showcustomColumnRule">
-                            <v-btn depressed small class="extra-filter-btn"
+                            ></checkbox-component>
+                        </div>
+                        <div xs6 sm4 lg4 v-if="!showcustomColumnRule">
+                            <btn-component depressed small class="extra-filter-btn"
                                 @click="showcustomColumnRule = true; customColumnRule=options.Options.DefaultColumnRule">
-                                <v-icon >add</v-icon>
+                                <icon-component >add</icon-component>
                                 Custom columns
-                            </v-btn>
-                        </v-flex>
-                    </v-layout>
+                            </btn-component>
+                        </div>
+                    </div>
                     
                 </div>
 
                 <!-- METADATA -->
                 <div>
-                    <v-chip v-if="hasSearched" class="mb-4">
+                    <chip-component v-if="hasSearched" class="mb-4">
                         Last searched used {{ prettifyDuration(searchResultData.DurationInMilliseconds) }}
-                    </v-chip>
-                    <v-chip v-if="searchResultData.WasCancelled" class="mb-4">
+                    </chip-component>
+                    <chip-component v-if="searchResultData.WasCancelled" class="mb-4">
                         <b>Search was cancelled</b>
-                    </v-chip>
-                    <v-chip v-if="searchResultData.HighestDate != null" class="mb-4">
+                    </chip-component>
+                    <chip-component v-if="searchResultData.HighestDate != null" class="mb-4">
                         Total results: {{ searchResultData.TotalCount }}
-                    </v-chip>
-                    <v-chip v-if="searchResultData.LowestDate != null" class="mb-4">
+                    </chip-component>
+                    <chip-component v-if="searchResultData.LowestDate != null" class="mb-4">
                         First matching entry @ {{ formatDateForChip(new Date(searchResultData.LowestDate)) }}
-                    </v-chip>
-                    <v-chip v-if="searchResultData.HighestDate != null" class="mb-4">
+                    </chip-component>
+                    <chip-component v-if="searchResultData.HighestDate != null" class="mb-4">
                         Last matching entry @ {{ formatDateForChip(new Date(searchResultData.HighestDate)) }}
-                    </v-chip>
-                    <v-btn ripple color="error"
+                    </chip-component>
+                    <btn-component color="error"
                         @click.stop.prevent="cancelAllSearches()"
                         v-if="options.Options.CurrentlyRunningLogSearchCount > 0 && !hasCancelledAll"
                         :disabled="cancelAllSearchesStatus.inProgress"
                         class="mb-4">
-                        <v-icon color="white">cancel</v-icon>
+                        <icon-component color="white">cancel</icon-component>
                         {{ cancelAllSearchesButtonText }}
-                    </v-btn>
+                    </btn-component>
                 </div>
 
                 <!-- CHARTS -->
-                <v-expansion-panel popout v-if="chartEntries.length > 0" class="mb-4">
-                    <v-expansion-panel-content>
-                        <template v-slot:header>
-                            <div>{{insightsTitle}}</div>
-                        </template>
-                        <v-card>
+                <expansion-panel-component popout v-if="chartEntries.length > 0" class="mb-4">
+                    <template #header><div>{{insightsTitle}}</div></template>
+                    <template #content>
+                        <div>
                             <item-per-date-chart-component :entries="chartEntries" />
-                            <!-- <v-card-text></v-card-text> -->
-                        </v-card>
-                    </v-expansion-panel-content>
-                </v-expansion-panel>
+                        </div>
+                    </template>
+                </expansion-panel-component>
 
                 <!-- GROUPED ENTRIES //todo -->
-                <v-expansion-panel popout v-if="Object.keys(searchResultData.GroupedEntries).length > 0" class="mb-4">
-                    <v-expansion-panel-content>
-                        <template v-slot:header>
-                            <div>Grouped entries (work in progress)</div>
-                        </template>
-                        <v-card>
+                <expansion-panel-component popout v-if="Object.keys(searchResultData.GroupedEntries).length > 0" class="mb-4">
+                    <template #header><div>Grouped entries (work in progress)</div></template>
+                    <template #content>
+                        <div>
                             <ul class="ma-4">
                                 <li v-for="(groupKey, index) in Object.keys(searchResultData.GroupedEntries)"
                                     :key="`grouped-entries-${index}`">
                                     {{ groupKey }}: {{ searchResultData.GroupedEntries[groupKey].length }}
                                 </li>
                             </ul>
-                        </v-card>
-                    </v-expansion-panel-content>
-                </v-expansion-panel>
-            </v-container>
+                        </div>
+                    </template>
+                </expansion-panel-component>
+            </div>
 
             <!-- PAGINATION -->
             <div class="text-xs-center mb-4" v-if="searchResultData.PageCount > 0">
-                <v-pagination
-                    v-model="currentPage"
-                    :length="searchResultData.PageCount"
-                    :disabled="searchLoadStatus.inProgress"></v-pagination>
+				<paging-component
+					v-model:value="currentPage"
+					:pagesCount="searchResultData.PageCount"
+                    :disabled="searchLoadStatus.inProgress"
+				></paging-component>
             </div>
 
             <!-- PROGRESS -->
-            <v-progress-linear
+            <progress-linear-component
               v-if="cancelAllSearchesStatus.inProgress || searchLoadStatus.inProgress || cancelSearchStatus.inProgress"
               :indeterminate="true"
               height="4"
-              class="mt-4"></v-progress-linear>
+              class="mt-4"></progress-linear-component>
 
             <!-- ERRORS -->
-            <v-alert
+            <alert-component
               :value="searchLoadStatus.failed"
               type="error">
               {{ searchLoadStatus.errorMessage }}
-            </v-alert>
+            </alert-component>
 
             <log-entry-table-component
                 :entries="searchResultData.Items"
@@ -310,56 +310,52 @@
 
             <!-- PAGINATION -->
             <div class="text-xs-center mb-4" v-if="searchResultData.PageCount > 0">
-                <v-pagination
-                    v-model="currentPage"
-                    :length="searchResultData.PageCount"
-                    :disabled="searchLoadStatus.inProgress"></v-pagination>
+				<paging-component
+					v-model:value="currentPage"
+					:pagesCount="searchResultData.PageCount"
+                    :disabled="searchLoadStatus.inProgress"
+				></paging-component>
             </div>
 
             <!-- PARSED QUERY -->
-            <v-expansion-panel popout v-if="describedQuery.length > 0" class="mb-4">
-                <v-expansion-panel-content>
-                    <template v-slot:header>
-                        <div>Parsed query</div>
-                    </template>
-                    <v-card>
+            <expansion-panel-component popout v-if="describedQuery.length > 0" class="mb-4">
+                <template #header><div>Parsed query</div></template>
+                <template #content>
+                    <div>
                         <ul class="ma-4">
                             <li v-for="(description, index) in describedQuery"
                                 :key="`filter-description-${index}`">
                                 {{ description }}
                             </li>
                         </ul>
-                    </v-card>
-                </v-expansion-panel-content>
-            </v-expansion-panel>
+                    </div>
+                </template>
+            </expansion-panel-component>
 
-          <!-- CONTENT END -->
-        </v-flex>
-        </v-layout>
-        </v-container>
-        </v-content>
-    </div>
-</template>
-
-<script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import DateUtils from  '../../../util/DateUtils';
-import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
-import LogEntryTableComponent from '../LogViewer/LogEntryTableComponent.vue';
-import ItemPerDateChartComponent from '../LogViewer/ItemPerDateChartComponent.vue';
-// @ts-ignore
-import { DateTimePicker } from "@lazy-copilot/datetimepicker";
-import LogSearchFilter from  '../../../models/modules/LogViewer/LogSearchFilter';
-import LogSearchResult from  '../../../models/modules/LogViewer/LogSearchResult';
-import { FilterDelimiterMode } from  '../../../models/modules/LogViewer/FilterDelimiterMode';
-import { ChartEntry } from '../LogViewer/ItemPerDateChartComponent.vue';
+          
+        </div>
+        </div>
+        </div>
+        </div>
+*/
+/*
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import DateUtils from '@util/DateUtils';
+import LogEntryTableComponent from '@components/modules/LogViewer/LogEntryTableComponent.vue';
+import ItemPerDateChartComponent from '@components/modules/LogViewer/ItemPerDateChartComponent.vue';
+import { FilterDelimiterMode } from '@models/modules/LogViewer/FilterDelimiterMode';
+import { ChartEntry } from '@components/Common/Charts/DataOverTimeChartComponent.vue.models';
 import * as XRegExp from 'xregexp';
-import ParsedQuery from  '../../../models/modules/LogViewer/ParsedQuery';
-import LogService from  '../../../services/LogService';
-import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import ModuleConfig from  '../../../models/Common/ModuleConfig';
-import ModuleOptions from  '../../../models/Common/ModuleOptions';
+import LogService from '@services/LogService';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import ModuleConfig from '@models/Common/ModuleConfig';
+import ModuleOptions from '@models/Common/ModuleOptions';
+import LogSearchResult from "@models/modules/LogViewer/LogSearchResult";
+import ParsedQuery from "@models/modules/LogViewer/ParsedQuery";
+import LogSearchFilter from "@models/modules/LogViewer/LogSearchFilter";
+import { StoreUtil } from "@util/StoreUtil";
 
 interface DatePickerPreset {
     name: string;
@@ -375,7 +371,7 @@ interface LogViewerPageOptions
     MaxInsightsEntryCount: number;
 }
 
-@Component({
+@Options({
     components: {
         DateTimePicker,
         LogEntryTableComponent,
@@ -437,7 +433,7 @@ export default class LogViewerPageComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
     
     get describedQuery(): Array<string>
@@ -507,7 +503,8 @@ export default class LogViewerPageComponent extends Vue {
             return {
                 date: x.Timestamp,
                 severity: x.Severity,
-                label: `${x.Timestamp.toLocaleString()}`
+                label: `${x.Timestamp.toLocaleString()}`,
+                group: ''
             };
         });
     }
@@ -715,7 +712,7 @@ export default class LogViewerPageComponent extends Vue {
         try {
             XRegExp(pattern);
             return null;
-        } catch(e) {
+        } catch(e: any) {
             return e.message || e; 
         }
     }
@@ -752,30 +749,15 @@ export default class LogViewerPageComponent extends Vue {
         this.filterToDate = data.endDate;
     }
 }
+*/
 </script>
 
 <style scoped>
-.datepicker-button {
+/* .datepicker-button {
     float: right;
     position: absolute;
     right: 2px;
     top: 5px;
     z-index: 2;
-}
-</style>
-
-<style>
-.extra-filter-chip .v-chip__content {
-    cursor: pointer;
-}
-.extra-filter-chip .v-chip__content:hover {
-    text-shadow: 0px 0px 0.5px #928484;
-}
-.options-checkbox.v-input {
-    margin-top: 4px;
-}
-.options-input.v-input {
-    margin-top: 0;
-    padding-top: 4px;
-}
+} */
 </style>

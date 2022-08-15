@@ -3,6 +3,7 @@
 //     the code is regenerated.
 
 import { RuntimeTestReferenceParameterFactory } from './RuntimeTestReferenceParameterFactory';
+import { HCUIHint } from '../../Enums/Core/HCUIHint';
 
 export interface TestParameter
 {
@@ -15,12 +16,9 @@ export interface TestParameter
 	PossibleValues: any[];
 	IsOut: boolean;
 	IsRef: boolean;
-	NotNull: boolean;
 	NullName: string;
-	ReadOnlyList: boolean;
-	ShowTextArea: boolean;
-	ShowCodeArea: boolean;
-	FullWidth: boolean;
+	TextPattern: string;
 	IsCustomReferenceType: boolean;
 	ReferenceFactory: RuntimeTestReferenceParameterFactory;
+	UIHints: HCUIHint[];
 }

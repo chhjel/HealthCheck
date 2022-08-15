@@ -1,159 +1,152 @@
 <!-- src/components/modules/Documentation/DocumentationPageComponent.vue -->
 <template>
-    <div class="docpage">
-        <v-content>
-            <!-- NAVIGATION DRAWER -->
-            <v-navigation-drawer
-                v-model="drawerState"
-                clipped fixed floating app
-                mobile-break-point="1000"
-                dark
-                class="menu testset-menu">
+    <div>
+        <!-- NAVIGATION DRAWER -->
+        <Teleport to="#module-nav-menu">
+            <div class="menu-items">
+                <filter-input-component class="filter" v-model:value="diagramFilterText" />
 
-                <v-list expand class="menu-items">
-                    <filter-input-component class="filter" v-model="diagramFilterText" />
+                <div
+                    v-for="(menuItem, diagramIndex) in menuItems"
+                    :key="`diagram-menu-${diagramIndex}`"
+                    class="testset-menu-item"
+                    :class="{ 'active': ((currentSequenceDiagram == menuItem.data || currentFlowChart == menuItem.data) && !sandboxMode) }"
+                    @click="setActiveDiagram(menuItem)">
+                    <div>
+                        {{ menuItem.title }}
+                        <br>
+                        <span style="color: darkgray;">{{ menuItem.subTitle }}</span>
+                    </div>
+                </div>
 
-                    <v-list-tile ripple
-                        v-for="(menuItem, diagramIndex) in menuItems"
-                        :key="`diagram-menu-${diagramIndex}`"
-                        class="testset-menu-item"
-                        :class="{ 'active': ((currentSequenceDiagram == menuItem.data || currentFlowChart == menuItem.data) && !sandboxMode) }"
-                        @click="setActiveDiagram(menuItem)">
-                        <v-list-tile-title>
-                            {{ menuItem.title }}
-                            <br>
-                            <span style="color: darkgray;">{{ menuItem.subTitle }}</span>
-                        </v-list-tile-title>
-                    </v-list-tile>
+                <div 
+                    v-if="options.Options.EnableDiagramSandbox"
+                    class="testset-menu-item"
+                    :class="{ 'active': (sandboxMode) }"
+                    @click="showSandboxMode">
+                    <div v-text="'Sandbox'"></div>
+                </div>
+            </div>
+        </Teleport>
+        
+        
+        <div class="content-root">
+            <div>
+                <!-- NO DIAGRAMS INFO -->
+                <alert-component :value="sequenceDiagrams.length == 0 && !loadStatus.inProgress && !loadStatus.failed" type="info">
+                    No documentation was found.<br />
+                    Decorate backend code with <code>[SequenceDiagramStepAttribute]</code> for sequence diagrams to be generated,<br />
+                    or with <code>[FlowChartStepAttribute]</code> for flow charts to be generated.
+                </alert-component>
 
-                    <v-divider />
+                <!-- DATA LOAD ERROR -->
+                <alert-component :value="loadStatus.failed" type="error">
+                {{ loadStatus.errorMessage }}
+                </alert-component>
 
-                    <v-list-tile ripple 
-                        v-if="options.Options.EnableDiagramSandbox"
-                        class="testset-menu-item"
-                        :class="{ 'active': (sandboxMode) }"
-                        @click="showSandboxMode">
-                        <v-list-tile-title v-text="'Sandbox'"></v-list-tile-title>
-                    </v-list-tile>
-                </v-list>
-            </v-navigation-drawer>
-            
-            <!-- CONTENT -->
-            <v-container fluid fill-height class="content-root">
-                <v-layout>
-                    <v-flex>
-                        <v-container>
-                            <!-- NO DIAGRAMS INFO -->
-                            <v-alert :value="sequenceDiagrams.length == 0 && !loadStatus.inProgress && !loadStatus.failed" type="info">
-                                No documentation was found.<br />
-                                Decorate backend code with <code>[SequenceDiagramStepAttribute]</code> for sequence diagrams to be generated,<br />
-                                or with <code>[FlowChartStepAttribute]</code> for flow charts to be generated.
-                            </v-alert>
+                <!-- LOAD PROGRESS -->
+                <progress-linear-component 
+                    v-if="loadStatus.inProgress"
+                    indeterminate color="success"></progress-linear-component>
 
-                            <!-- DATA LOAD ERROR -->
-                            <v-alert :value="loadStatus.failed" type="error">
-                            {{ loadStatus.errorMessage }}
-                            </v-alert>
+                <!-- SELECTED DIAGRAM -->
+                <div v-if="(currentSequenceDiagram != null || currentFlowChart != null) && !sandboxMode"
+                    style="flex-direction: column;">
+                    <div sm12 md12 lg12>
+                        <flow-diagram-component
+                            class="diagram"
+                            v-if="currentFlowChart != null"
+                            :steps="currentFlowChart.steps"
+                            :title="currentFlowChart.title" />
 
-                            <!-- LOAD PROGRESS -->
-                            <v-progress-linear 
-                                v-if="loadStatus.inProgress"
-                                indeterminate color="green"></v-progress-linear>
+                        <sequence-diagram-component
+                            class="diagram"
+                            v-if="currentSequenceDiagram != null"
+                            :title="currentSequenceDiagram.title"
+                            :steps="currentSequenceDiagram.steps"
+                            :showRemarks="showRemarks"
+                            :diagramStyle="diagramStyle"
+                            :clickable="options.Options.EnableDiagramDetails"
+                            v-on:stepClicked="onStepClicked" />
+                    </div>
 
-                            <!-- SELECTED DIAGRAM -->
-                            <v-layout v-if="(currentSequenceDiagram != null || currentFlowChart != null) && !sandboxMode"
-                                style="flex-direction: column;">
-                                <v-flex sm12 md12 lg12>
-                                    <flow-diagram-component
-                                        class="diagram"
-                                        v-if="currentFlowChart != null"
-                                        :steps="currentFlowChart.steps"
-                                        :title="currentFlowChart.title" />
+                    <div v-if="selectedStep != null" class="selected-step-details">
+                        <b>{{ selectedStep.description }}</b><br />
+                        <b>From:</b>
+                        <code>{{ selectedStep.data.classNameFrom }}</code>
+                        <code>{{ selectedStep.data.methodNameFrom }}</code><br />
+                        <b>To:</b>
+                        <code>{{ selectedStep.data.classNameTo }}</code>
+                        <code>{{ selectedStep.data.methodNameTo }}</code>
+                    </div>
 
-                                    <sequence-diagram-component
-                                        class="diagram"
-                                        v-if="currentSequenceDiagram != null"
-                                        :title="currentSequenceDiagram.title"
-                                        :steps="currentSequenceDiagram.steps"
-                                        :showRemarks="showRemarks"
-                                        :diagramStyle="diagramStyle"
-                                        :clickable="options.Options.EnableDiagramDetails"
-                                        v-on:stepClicked="onStepClicked" />
-                                </v-flex>
+                    <checkbox-component
+                        v-if="showToggleRemarks"
+                        v-model:value="showRemarks"
+                        label="Show remarks" style="display:block"></checkbox-component>
+                </div>
+            </div>
 
-                                <div v-if="selectedStep != null" class="selected-step-details">
-                                    <b>{{ selectedStep.description }}</b><br />
-                                    <b>From:</b>
-                                    <code>{{ selectedStep.data.classNameFrom }}</code>
-                                    <code>{{ selectedStep.data.methodNameFrom }}</code><br />
-                                    <b>To:</b>
-                                    <code>{{ selectedStep.data.classNameTo }}</code>
-                                    <code>{{ selectedStep.data.methodNameTo }}</code>
-                                </div>
+            <!-- SANDBOX -->
+            <div v-if="sandboxMode">
+                <div>
+                    <select-component
+                        v-if="false"
+                        v-model:value="diagramStyle"
+                        :items="diagramStyles"
+                        item-text="text" item-value="value">
+                    </select-component>
 
-                                <v-checkbox
-                                    v-if="showToggleRemarks"
-                                    v-model="showRemarks"
-                                    label="Show remarks" style="display:block"></v-checkbox>
-                            </v-layout>
-                        </v-container>
-
-                        <!-- SANDBOX -->
-                        <v-layout v-if="sandboxMode">
-                            <v-flex>
-                                <v-select
-                                    v-if="false"
-                                    v-model="diagramStyle"
-                                    :items="diagramStyles"
-                                    item-text="text" item-value="value" color="secondary">
-                                </v-select>
-
-                                <v-layout>
-                                    <v-flex sm12 lg4>
-                                        <textarea
-                                            style="width: 100%; border: 1px solid #ccc; height: 100%; padding: 5px;"
-                                            v-model="sandboxScript"
-                                            />
-                                    </v-flex>
-                                        
-                                    <v-flex sm12 lg8>
-                                        <v-container grid-list-md>
-                                            <sequence-diagram-component
-                                                class="diagram"
-                                                :steps="sandboxSteps"
-                                                :diagramStyle="diagramStyle" />
-                                        </v-container>
-                                    </v-flex>
-                                </v-layout>
-                            </v-flex>
-                        </v-layout>
-                    </v-flex>
-                </v-layout>
-            </v-container>
-          <!-- CONTENT END -->
-        </v-content>
+                    <div>
+                        <div sm12 lg4>
+                            <textarea-component
+                                rows="10"
+                                v-model:value="sandboxScript"
+                                @input="updateSandbox"
+                                />
+                        </div>
+                            
+                        <div sm12 lg8>
+                            <div grid-list-md>
+                                <sequence-diagram-component
+                                    class="diagram"
+                                    ref="sandboxDiagram"
+                                    :steps="sandboxSteps"
+                                    :diagramStyle="diagramStyle" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import LoggedEndpointDefinitionViewModel from  '../../../models/modules/RequestLog/LoggedEndpointDefinitionViewModel';
-import LoggedEndpointRequestViewModel from  '../../../models/modules/RequestLog/LoggedEndpointRequestViewModel';
-import { EntryState } from  '../../../models/modules/RequestLog/EntryState';
-import DiagramsDataViewModel from  '../../../models/modules/Documentation/DiagramsDataViewModel';
-import DateUtils from  '../../../util/DateUtils';
-import LinqUtils from  '../../../util/LinqUtils';
-import KeyArray from  '../../../util/models/KeyArray';
-import KeyValuePair from  '../../../models/Common/KeyValuePair';
-import SequenceDiagramComponent, { SequenceDiagramStep, SequenceDiagramLineStyle, SequenceDiagramStyle } from  '../../Common/SequenceDiagramComponent.vue';
-import FilterInputComponent from  '../../Common/FilterInputComponent.vue';
-import FlowDiagramComponent, { FlowDiagramStep, FlowDiagramStepType } from  '../../Common/FlowDiagramComponent.vue';
-import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import DocumentationService from  '../../../services/DocumentationService';
-import ModuleConfig from  '../../../models/Common/ModuleConfig';
-import ModuleOptions from  '../../../models/Common/ModuleOptions';
-import UrlUtils from  '../../../util/UrlUtils';
+import { Vue, Prop, Watch, Ref } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import LoggedEndpointDefinitionViewModel from '@models/modules/RequestLog/LoggedEndpointDefinitionViewModel';
+import LoggedEndpointRequestViewModel from '@models/modules/RequestLog/LoggedEndpointRequestViewModel';
+import { EntryState } from '@models/modules/RequestLog/EntryState';
+import DiagramsDataViewModel from '@models/modules/Documentation/DiagramsDataViewModel';
+import DateUtils from '@util/DateUtils';
+import LinqUtils from '@util/LinqUtils';
+import KeyArray from '@util/models/KeyArray';
+import KeyValuePair from '@models/Common/KeyValuePair';
+import SequenceDiagramComponent from '@components/Common/SequenceDiagramComponent.vue';
+import { SequenceDiagramStep, SequenceDiagramLineStyle, SequenceDiagramStyle } from '@components/Common/SequenceDiagramComponent.vue.models';
+import FilterInputComponent from '@components/Common/FilterInputComponent.vue';
+import FlowDiagramComponent from '@components/Common/FlowDiagramComponent.vue';
+import { FlowDiagramStep, FlowDiagramStepType } from '@components/Common/FlowDiagramComponent.vue.models';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import DocumentationService from '@services/DocumentationService';
+import ModuleConfig from '@models/Common/ModuleConfig';
+import ModuleOptions from '@models/Common/ModuleOptions';
+import UrlUtils from '@util/UrlUtils';
+import StringUtils from "@util/StringUtils";
+import { StoreUtil } from "@util/StoreUtil";
 
 interface FlowChartData
 {
@@ -190,7 +183,7 @@ interface DocumentationPageOptions
     EnableDiagramDetails: boolean;
 }
 
-@Component({
+@Options({
     components: {
         SequenceDiagramComponent,
         FilterInputComponent,
@@ -204,8 +197,11 @@ export default class DocumentationPageComponent extends Vue {
     @Prop({ required: true })
     options!: ModuleOptions<DocumentationPageOptions>;
 
+    @Ref() readonly sandboxDiagram!: SequenceDiagramComponent;
+
     sequenceDiagrams: Array<SequenceDiagramData> = [];
     flowCharts: Array<FlowChartData> = [];
+    sandboxSteps: Array<SequenceDiagramStep<SequenceDiagramStepDetails | null>> = [];
 
     service: DocumentationService = new DocumentationService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
     loadStatus: FetchStatus = new FetchStatus();
@@ -235,7 +231,7 @@ Web -> Frontend: Confirmation is delivered
     ////////////////
     mounted(): void
     {
-        this.$store.commit('showMenuButton', true);
+        StoreUtil.store.commit('showMenuButton', true);
 
         let restoredSandbox = localStorage.getItem("__HC_Docs_sandbox_sequencediagram_script");
         if (restoredSandbox != null)
@@ -250,7 +246,7 @@ Web -> Frontend: Confirmation is delivered
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
     
     get showToggleRemarks(): boolean
@@ -261,11 +257,6 @@ Web -> Frontend: Confirmation is delivered
         }
         
         return this.currentSequenceDiagram.steps.some(x => x.remark != null && x.remark.trim().length > 0);
-    }
-
-    get sandboxSteps(): Array<SequenceDiagramStep<SequenceDiagramStepDetails | null>>
-    {
-        return this.convertStringToSteps(this.sandboxScript);
     }
 
     get diagramStyles(): Array<any>
@@ -280,25 +271,19 @@ Web -> Frontend: Confirmation is delivered
         return this.diagramFilterText.length > 0;
     }
 
-    ////////////////////
-    //  Parent Menu  //
-    //////////////////
-    drawerState: boolean = this.storeMenuState;
-    get storeMenuState(): boolean {
-        return this.$store.state.ui.menuExpanded;
-    }
-    @Watch("storeMenuState")
-    onStoreMenuStateChanged(): void {
-        this.drawerState = this.storeMenuState;
-    }
-    @Watch("drawerState")
-    onDrawerStateChanged(): void {
-        this.$store.commit('setMenuExpanded', this.drawerState);
-    }
-
     ////////////////
     //  METHODS  //
     //////////////
+    updateSandbox(): void {
+        this.sandboxSteps = this.calcSandboxSteps();
+    }
+
+    calcSandboxSteps(): Array<SequenceDiagramStep<SequenceDiagramStepDetails | null>>
+    {
+        if (this.sandboxDiagram == null) return [];
+        return this.convertStringToSteps(this.sandboxScript);
+    }
+    
     updateUrl(): void {
         let title: string | null = null;
         
@@ -321,7 +306,7 @@ Web -> Frontend: Confirmation is delivered
             routeParams['title'] = title;
         }
         
-        const titleInUrl = this.$route.params.title;
+        const titleInUrl = StringUtils.stringOrFirstOfArray(this.$route.params.title) || '';
         if (titleInUrl !== title)
         {
             this.$router.push({ name: this.config.Id, params: routeParams })
@@ -329,7 +314,7 @@ Web -> Frontend: Confirmation is delivered
     }
 
     updateSelectionFromUrl(): void {
-        const selectedItem = this.$route.params.title;
+        const selectedItem = StringUtils.stringOrFirstOfArray(this.$route.params.title) || '';
         
         if (selectedItem !== undefined && selectedItem.length > 0) {
             let seqDiagram = this.sequenceDiagrams.filter(x => UrlUtils.EncodeHashPart(x.title) == selectedItem)[0];
@@ -361,6 +346,7 @@ Web -> Frontend: Confirmation is delivered
         {
             this.sandboxMode = true;
         }
+        this.$nextTick(() => this.updateSandbox());
     }
 
     loadData(): void {
@@ -423,76 +409,7 @@ Web -> Frontend: Confirmation is delivered
 
     convertStringToSteps(text: string): Array<SequenceDiagramStep<SequenceDiagramStepDetails | null>>
     {
-        let lines = text.split('\n');
-        
-        let currentOptional: string | undefined = undefined;
-        let steps: Array<SequenceDiagramStep<SequenceDiagramStepDetails | null>> = [];
-        for(let i=0; i<lines.length; i++)
-        {
-            let line = lines[i];
-            
-            let isNormalLine = line.indexOf('->') > -1 && line.indexOf(':') > line.indexOf('->');
-            if (!isNormalLine)
-            {
-                if (line.startsWith('opt '))
-                {
-                    currentOptional = line.substring(4).trim();
-                }
-                else if(line.trim() == 'end')
-                {
-                    currentOptional = undefined;
-                }
-                continue;
-            }
-
-            // ["A -> B", ": note"]
-            let mainParts = line.split(':');
-
-            // A -> B
-            let fromTo = mainParts[0].split('->');
-            let style: SequenceDiagramLineStyle | undefined = undefined;
-            let from = fromTo[0].trim();
-            let to = fromTo[1].trim();
-            // --> arrow means dashed style
-            if (from.endsWith('-'))
-            {
-                from = from.substring(0, from.length - 1).trim();
-                style = SequenceDiagramLineStyle.Dashed;
-            }
-
-            // : note
-            let otherParts = line.split('|');
-            let description = otherParts[0].split(':')[1].trim();
-            let note: undefined | string = undefined;
-            let remark: undefined | string = undefined;
-            for (let p=1; p < otherParts.length; p++)
-            {
-                let part = otherParts[p].split(':', 2).map(a => a.trim());
-                let partKey = part[0];
-                let partValue = part[1];
-                if (partKey == "note")
-                {
-                    note = partValue;
-                }
-                else if (partKey == "remark")
-                {
-                    remark = partValue;
-                }
-            }
-
-            let step = {
-                from: from,
-                to: to,
-                description: description,
-                note: note,
-                remark: remark,
-                optional: currentOptional,
-                style: style,
-                data: null
-            };
-            steps.push(step);
-        }
-        return steps;
+        return this.sandboxDiagram.convertStringToSteps<SequenceDiagramStepDetails | null>(text);
     }
 
     get menuItems(): Array<DocMenuItem>
@@ -601,26 +518,11 @@ Web -> Frontend: Confirmation is delivered
     background-color: #fff;
     border: 1px solid gray;
 }
-.menu {
-    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.02), 0 3px 2px 0 rgba(0, 0, 0, 0.02), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-}
 .filter {
     position: relative;
     margin-left: 44px;
     margin-top: 26px;
     margin-bottom: 18px;
     margin-right: 44px;
-}
-@media (max-width: 960px) {
-    .menu-items { 
-        margin-top: 67px;
-    }
-}
-.docpage >>> .v-list__tile {
-    height: 62px;
-
-    .v-list__tile__title {
-        height: 48px;
-    }
 }
 </style>

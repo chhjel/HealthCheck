@@ -57,37 +57,20 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-export interface SequenceDiagramStep<T> {
-    from: string;
-    to: string;
-    description: string;
-    note?: string;
-    remark?: string;
-    optional?: string;
-    style?: SequenceDiagramLineStyle;
-    data: T;
-}
-export enum SequenceDiagramLineStyle {
-    Default = 0,
-    Dashed = 1
-}
-export enum SequenceDiagramStyle {
-    Default = 'Default',
-    Test = 'Test'
-}
-
-@Component({
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { SequenceDiagramStep, SequenceDiagramLineStyle, SequenceDiagramStyle } from '@components/Common/SequenceDiagramComponent.vue.models';
+@Options({
     components: {
     }
 })
-export default class SequenceDiagramComponent<T> extends Vue
+export default class SequenceDiagramComponent extends Vue
 {
     @Prop({ required: false, default: null })
     title!: string | null;
 
     @Prop({ required: true, default: true })
-    steps!: Array<SequenceDiagramStep<T>>;
+    steps!: Array<SequenceDiagramStep<any>>;
 
     @Prop({ required: false, default: true })
     showRemarks!: boolean;
@@ -115,11 +98,11 @@ export default class SequenceDiagramComponent<T> extends Vue
         return Array.from(values);
     }
 
-    get stepData(): Array<InternalDiagramStep<T>>
+    get stepData(): Array<InternalDiagramStep>
     {
         let remarkCounter = 0;
         return this.steps.map(x => {
-            let remarkNumber = null;
+            let remarkNumber: number | null = null;
             if (x.remark != null)
             {
                 remarkCounter++;
@@ -135,7 +118,7 @@ export default class SequenceDiagramComponent<T> extends Vue
         });
     }
 
-    get stepRemarks(): Array<InternalStepRemark<T>>
+    get stepRemarks(): Array<InternalStepRemark>
     {
         return this.stepData
             .filter(x => x.remarkNumber != null)
@@ -239,7 +222,7 @@ export default class SequenceDiagramComponent<T> extends Vue
         };
     }
 
-    getStepStyle(stepIndex: number, step: InternalDiagramStep<T>): any {
+    getStepStyle(stepIndex: number, step: InternalDiagramStep): any {
         let start = step.columnStart + 1;
         let end = step.columnEnd + 1;
         let isGoingToSelf = step.columnEnd == step.columnStart;
@@ -255,7 +238,7 @@ export default class SequenceDiagramComponent<T> extends Vue
         return style;
     }
 
-    getStepClasses(stepIndex: number, step: InternalDiagramStep<T>): any {
+    getStepClasses(stepIndex: number, step: InternalDiagramStep): any {
         let isLast = (stepIndex == this.steps.length - 1);
         let isGoingLeft = step.columnEnd < step.columnStart;
         let isGoingRight = step.columnEnd > step.columnStart;
@@ -308,7 +291,7 @@ export default class SequenceDiagramComponent<T> extends Vue
         return classes;
     }
 
-    getStepArrowClasses(stepIndex: number, step: InternalDiagramStep<T>): any {
+    getStepArrowClasses(stepIndex: number, step: InternalDiagramStep): any {
         let isGoingLeft = step.columnEnd < step.columnStart;
         let isGoingRight = step.columnEnd > step.columnStart;
         let isGoingToSelf = step.columnEnd == step.columnStart;
@@ -330,22 +313,96 @@ export default class SequenceDiagramComponent<T> extends Vue
         };
     }
 
+    public convertStringToSteps<TData>(text: string): Array<SequenceDiagramStep<TData>>
+    {
+        let lines = text.split('\n');
+        
+        let currentOptional: string | undefined = undefined;
+        let steps: Array<SequenceDiagramStep<TData>> = [];
+        for(let i=0; i<lines.length; i++)
+        {
+            let line = lines[i];
+            
+            let isNormalLine = line.indexOf('->') > -1 && line.indexOf(':') > line.indexOf('->');
+            if (!isNormalLine)
+            {
+                if (line.startsWith('opt '))
+                {
+                    currentOptional = line.substring(4).trim();
+                }
+                else if(line.trim() == 'end')
+                {
+                    currentOptional = undefined;
+                }
+                continue;
+            }
+
+            // ["A -> B", ": note"]
+            let mainParts = line.split(':');
+
+            // A -> B
+            let fromTo = mainParts[0].split('->');
+            let style: SequenceDiagramLineStyle | undefined = undefined;
+            let from = fromTo[0].trim();
+            let to = fromTo[1].trim();
+            // --> arrow means dashed style
+            if (from.endsWith('-'))
+            {
+                from = from.substring(0, from.length - 1).trim();
+                style = SequenceDiagramLineStyle.Dashed;
+            }
+
+            // : note
+            let otherParts = line.split('|');
+            let description = otherParts[0].split(':')[1].trim();
+            let note: undefined | string = undefined;
+            let remark: undefined | string = undefined;
+            for (let p=1; p < otherParts.length; p++)
+            {
+                let part = otherParts[p].split(':', 2).map(a => a.trim());
+                let partKey = part[0];
+                let partValue = part[1];
+                if (partKey == "note")
+                {
+                    note = partValue;
+                }
+                else if (partKey == "remark")
+                {
+                    remark = partValue;
+                }
+            }
+
+            let step = {
+                from: from,
+                to: to,
+                description: description,
+                note: note,
+                remark: remark,
+                optional: currentOptional,
+                style: style,
+                data: null
+            };
+            steps.push(step);
+        }
+        return steps;
+    }
+
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
-    onStepClicked(step: InternalDiagramStep<T>): void
+    onStepClicked(step: InternalDiagramStep): void
     {
         this.$emit('stepClicked', step.data);
     }
 }
-interface InternalDiagramStep<T> {
-    data: SequenceDiagramStep<T>;
+interface InternalDiagramStep {
+    data: SequenceDiagramStep<any>;
     remarkNumber: number | null;
     columnStart: number;
     columnEnd: number;
 }
-interface InternalStepRemark<T> {
-    step: InternalDiagramStep<T>;
+interface InternalStepRemark {
+    step: InternalDiagramStep;
     remarkNumber: number;
     text: string;
 }

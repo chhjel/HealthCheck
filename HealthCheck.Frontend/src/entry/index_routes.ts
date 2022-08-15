@@ -1,6 +1,6 @@
 // Modules
 import TestSuitesPageComponent from '../components/modules/TestSuite/TestSuitesPageComponent.vue';
-import OverviewPageComponent from '../components/modules/Overview/OverviewPageComponent.vue';
+import EventCalendarComponent from '../components/modules/Overview/OverviewPageComponent.vue';
 import AuditLogPageComponent from '../components/modules/AuditLog/AuditLogPageComponent.vue';
 import LogViewerPageComponent from '../components/modules/LogViewer/LogViewerPageComponent.vue';
 import RequestLogPageComponent from '../components/modules/RequestLog/RequestLogPageComponent.vue';
@@ -19,15 +19,16 @@ import DataRepeaterPageComponent from '../components/modules/DataRepeater/DataRe
 import DataExportPageComponent from '../components/modules/DataExport/DataExportPageComponent.vue';
 import CustomPageComponent from '../components/modules/Custom/CustomPageComponent.vue';
 import NoPageAvailablePageComponent from '../components/NoPageAvailablePageComponent.vue';
-import Vue, { VueConstructor } from "vue";
-import VueRouter, { RouteConfig } from 'vue-router';
+import DevPageComponent from '../components/modules/Dev/DevPageComponent.vue';
 import ModuleOptions from '../models/Common/ModuleOptions';
 import ModuleConfig from '../models/Common/ModuleConfig';
+import { nextTick } from 'vue';
+import { createRouter, createWebHashHistory, Router, RouteRecordRaw } from 'vue-router';
 
-export default function createRouter(moduleConfig: Array<ModuleConfig>): VueRouter {
-  let moduleComponents: Record<string, VueConstructor<Vue>> = {
+export default function createHCRouter(moduleConfig: Array<ModuleConfig>): Router {
+  let moduleComponents: Record<string, any> = {
     'TestSuitesPageComponent': TestSuitesPageComponent,
-    'OverviewPageComponent': OverviewPageComponent,
+    'OverviewPageComponent': EventCalendarComponent,
     'AuditLogPageComponent': AuditLogPageComponent,
     'LogViewerPageComponent': LogViewerPageComponent,
     'RequestLogPageComponent': RequestLogPageComponent,
@@ -49,7 +50,7 @@ export default function createRouter(moduleConfig: Array<ModuleConfig>): VueRout
 
 let moduleOptions = ((window as any).healthCheckModuleOptions) as Record<string, ModuleOptions<any>>;
   const initialWindowTitle = document.title;
-  let routes: Array<RouteConfig> = [];
+  let routes: Array<RouteRecordRaw> = [];
   moduleConfig
       .filter(config => config.LoadedSuccessfully)
       .forEach(config => {
@@ -61,23 +62,25 @@ let moduleOptions = ((window as any).healthCheckModuleOptions) as Record<string,
               config: config,
               options: moduleOptions[config.Id]
           },
-          meta: { title: (r: RouteConfig) => `${config.Name} | ${initialWindowTitle}` }
+          meta: { title: (r: RouteRecordRaw) => `${config.Name} | ${initialWindowTitle}` }
       });
   });
 
   if (moduleConfig.length == 0)
   {
-    routes.push({ path: '/*', component: NoPageAvailablePageComponent });
+    routes.push({ path: '/:catchAll(.*)*', component: NoPageAvailablePageComponent });
   }
-  const router = new VueRouter({
+  routes.push({ path: '/styling', component: DevPageComponent });
+  const router = createRouter({
     routes: routes,
+    history: createWebHashHistory()
   });
 
   router.afterEach((to, from) => {
-    Vue.nextTick(() => {
+    nextTick(() => {
         if (to != null && to.meta != null && to.meta.title != null)
         {
-            document.title = to.meta.title(to);
+            document.title = (<any>to).meta.title(to);
         }        
     })
   })

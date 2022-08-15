@@ -1,109 +1,94 @@
 <!-- src/components/Common/FilterableListComponent.vue -->
 <template>
-    <div>
-        <v-list expand class="menu-items">
-            <filter-input-component class="filter" v-model="filterText" v-if="showFilter" />
+    <div class="filterable-list">
+        <div class="menu-items">
+            <filter-input-component class="filter contrast" v-model:value="filterText" v-if="showFilter" />
             <div v-if="!showFilter" class="mb-5"></div>
             <div v-if="!showFilter" style="margin-top: 76px"></div>
 
-            <v-progress-linear 
+            <progress-linear-component 
                 v-if="loading"
-                indeterminate color="green"></v-progress-linear>
+                indeterminate color="success"></progress-linear-component>
             
             <!-- GROUPS: START -->
-            <v-list-group
-                no-action
-                sub-group
-                prepend-icon="keyboard_arrow_up"
-                value="true"
-                v-for="(group, gindex) in groups"
-                :key="`filterable-menu-group-${gindex}`">
-                <template v-slot:activator>
-                    <v-list-tile>
-                        <v-list-tile-title v-text="group.title"></v-list-tile-title>
-                        <v-badge class="mr-3" v-if="showFilterCounts">
-                            <template v-slot:badge>
-                                <span>{{ getGroupFilterMatchCount(group) }}</span>
-                            </template>
-                        </v-badge>
-                    </v-list-tile>
-                </template>
+            <div v-for="(group, gindex) in groups"
+                :key="`filterable-menu-group-${gindex}`"
+                class="menu-item-group"
+                :class="{ 'open': isGroupOpen(group.title) }"
+                v-set-max-height-from-children>
+                <div class="menu-item-group--wrapper">
+                    <div class="group-item" :class="{ 'open': isGroupOpen(group.title) }"
+                        @click="toggleGroup(group.title)">
+                        <icon-component class="group-item__arrow">keyboard_arrow_up</icon-component>
+                        <div class="group-item__text"><b>{{ group.title }}</b></div>
+                        <badge-component class="group-item__badge mr-3" v-if="showFilterCounts">{{ getGroupFilterMatchCount(group) }}</badge-component>
+                    </div>
 
-                <v-list-tile ripple
-                    v-for="(item, itemIndex) in filterItems(group.items)"
-                    :key="`filterable-menu-item-${itemIndex}`"
-                    class="testset-menu-item"
-                    :class="{ 'active': itemIsSelected(item) }"
-                    @click="onItemClicked(item)"
-                    @click.middle.stop.prevent="onItemClickedMiddle(item)"
-                    @mousedown.middle.stop.prevent
-                    :href="getItemHref(item.data)"
-                    :disabled="disabled">
-                    <v-list-tile-title>
+                    <div v-for="(item, itemIndex) in filterItems(group.items)"
+                        :key="`filterable-menu-item-${itemIndex}`"
+                        class="filterable-menu-item"
+                        :class="{ 'active': itemIsSelected(item) }"
+                        @click="onItemClicked(item)"
+                        @click.middle.stop.prevent="onItemClickedMiddle(item)"
+                        @mousedown.middle.stop.prevent
+                        :href="getItemHref(item.data)"
+                        :disabled="disabled">
                         {{ item.title }}
-                        <v-icon
+                        <div class="spacer"></div>
+                        <icon-component
                             v-for="(icon, iindex) in getItemIcons(item.data)"
                             :key="`filterable-menu-item-${itemIndex}-icon-${iindex}`"
                             class="filterable-menu-item__icon"
                             color="#555"
-                            >{{ icon }}</v-icon>
+                            >{{ icon }}</icon-component>
                         <br v-if="item.subTitle != null">
                         <span style="color: darkgray;" v-if="item.subTitle != null">{{ item.subTitle }}</span>
-                    </v-list-tile-title>
-                </v-list-tile>
-            </v-list-group>
+                    </div>
+                </div>
+            </div>
             <!-- GROUPS: END -->
 
             <!-- NO GROUP: START -->
-            <v-list-tile ripple
+            <div
                 v-for="(item, itemIndex) in filterItems(ungroupedItems)"
                 :key="`stream-menu-${itemIndex}`"
-                class="testset-menu-item"
+                class="filterable-menu-item"
                 :class="{ 'active': itemIsSelected(item) }"
                 @click="onItemClicked(item)"
                 @click.middle.stop.prevent="onItemClickedMiddle(item)"
                 @mousedown.middle.stop.prevent
                 :href="getItemHref(item.data)"
                 :disabled="disabled">
-                <v-list-tile-title v-text="item.title"></v-list-tile-title>
-            </v-list-tile>
+                <div v-text="item.title"></div>
+            </div>
 
-            <v-list-tile ripple
+            <div
                 v-if="!hasGroups && filterText.length > 0 && filterItems(ungroupedItems).length == 0"
-                class="testset-menu-item no-result-found"
+                class="filterable-menu-item no-result-found"
                 :disabled="true">
-                <v-list-tile-title>No results found</v-list-tile-title>
-            </v-list-tile>
+                <div>No results found</div>
+            </div>
             <!-- NO GROUP: END -->
 
-        </v-list>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from '../../models/Common/FrontEndOptionsViewModel';
-import { EntryState } from  '../../models/modules/RequestLog/EntryState';
-import DateUtils from "../../util/DateUtils";
-import LinqUtils from "../../util/LinqUtils";
-import KeyArray from "../../util/models/KeyArray";
-import KeyValuePair from "../../models/Common/KeyValuePair";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import { EntryState } from '@models/modules/RequestLog/EntryState';
+import DateUtils from '@util/DateUtils';
+import LinqUtils from '@util/LinqUtils';
+import KeyArray from '@util/models/KeyArray';
+import KeyValuePair from '@models/Common/KeyValuePair';
 // @ts-ignore
-import FilterInputComponent from '.././Common/FilterInputComponent.vue';
+import FilterInputComponent from '@components/Common/FilterInputComponent.vue';
 
-export interface FilterableListGroup
-{
-    title: string;
-    items: Array<FilterableListItem>;
-}
-export interface FilterableListItem
-{
-    title: string;
-    subtitle: string | null;
-    data: any;
-}
-
-@Component({
+import { FilterableListGroup, FilterableListItem } from '@components/Common/FilterableListComponent.vue.models';
+import EventBus from "@util/EventBus";
+@Options({
     components: {
         FilterInputComponent
     }
@@ -124,6 +109,9 @@ export default class FilterableListComponent extends Vue {
     @Prop({ required: false, default: null })
     sortByKey!: string | null;
 
+    @Prop({ required: false, default: null })
+    groupOrders!: { [key:string]:number } | null;
+
     @Prop({ required: false, default: () => [] })
     filterKeys!: Array<string>;
 
@@ -139,6 +127,7 @@ export default class FilterableListComponent extends Vue {
     @Prop({ required: false, default: true })
     showFilter!: boolean;
 
+    closedGroups: Array<string> = [];
     filterText: string = "";
     selectedItemData: any = null;
 
@@ -159,7 +148,9 @@ export default class FilterableListComponent extends Vue {
     
     get ungroupedItems(): Array<FilterableListItem>
     {
-        return (this.groups.length == 0) ? this.items : [];
+        if (this.groups.length > 0) return [];
+        return this.items
+            .sort((a, b) => LinqUtils.SortBy(a, b, (x: any) => x[this.sortByKey || '']));
     }
 
     get groups(): Array<FilterableListGroup>
@@ -179,9 +170,22 @@ export default class FilterableListComponent extends Vue {
             return [];
         }
 
+        // Sort items within groups
         if (this.sortByKey != null)
         {
-            groupList = groupList.sort((a, b) => LinqUtils.SortBy(a, b, (x: any) => x[this.sortByKey || '']));
+            for (let i=0;i<groupList.length;i++)
+            {
+                groupList[i].items = groupList[i].items.sort((a, b) => LinqUtils.SortBy(a, b, (x: any) => x[this.sortByKey || '']));
+            }
+        }
+        // Sort groups
+        if (this.groupOrders != null && this.groupByKey != null)
+        {
+            groupList = groupList.sort((a, b) => LinqUtils.SortBy(a, b, (x: FilterableListGroup) => {
+                const groupName: string = x.items[0].data[this.groupByKey];
+                const groupOrder: number = this.groupOrders[groupName] || -999999;
+                return groupOrder;
+            }));
         }
 
         return groupList;
@@ -194,6 +198,15 @@ export default class FilterableListComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
+    isGroupOpen(name: string): boolean {
+        return !this.closedGroups.includes(name);
+    }
+
+    toggleGroup(name: string): void {
+        if (this.isGroupOpen(name)) this.closedGroups.push(name);
+        else this.closedGroups = this.closedGroups.filter(x => x != name);
+    }
+
     filterItems(data: Array<FilterableListItem>) : Array<FilterableListItem> {
         return this.showFilter ? data.filter(x => this.itemFilterMatches(x)) : data;
     }
@@ -233,11 +246,9 @@ export default class FilterableListComponent extends Vue {
         return href;
     }
 
-    public setSelectedItem(data: any): void
-    {
-        this.selectedItemData = data;
-    }
-
+    public filterInputText(): string { return this.filterText; }
+    public setSelectedItem(data: any): void { this.selectedItemData = data; }
+    public getDisplayedItems(): Array<FilterableListItem> { return this.items.filter(x => this.itemFilterMatches(x)); }
     public setSelectedItemByFilter(filter: ((data: any) => boolean)): void
     {
         const item = this.items.filter(x => filter(x))[0];
@@ -252,13 +263,14 @@ export default class FilterableListComponent extends Vue {
     /////////////////////
     itemIsSelected(item: FilterableListItem): boolean
     {
-        return item.data == this.selectedItemData;
+        return JSON.stringify(item.data) == JSON.stringify(this.selectedItemData);
     }
 
     onItemClicked(item: FilterableListItem): void
     {
         this.setSelectedItem(item.data);
         this.$emit('itemClicked', item);
+        EventBus.notify('FilterableList.itemClicked', item);
     }
 
     onItemClickedMiddle(item: FilterableListItem): void
@@ -269,9 +281,6 @@ export default class FilterableListComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-.menu {
-    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.02), 0 3px 2px 0 rgba(0, 0, 0, 0.02), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-}
 .filter {
     position: relative;
     margin-left: 44px;
@@ -279,23 +288,65 @@ export default class FilterableListComponent extends Vue {
     margin-bottom: 18px;
     margin-right: 44px;
 }
-@media (max-width: 960px) {
-    .menu-items { 
-        margin-top: 67px;
-    }
-}
 .no-result-found {
     padding-left: 46px;
 }
+.menu-items {
+    padding-bottom: 20px;
+}
 .filterable-menu-item__icon {
     float: right;
+    margin-right: 20px;
+}
+.filterable-menu-item {
+    display: flex;
+    cursor: pointer;
+    padding-left: 46px;
+    &.active {
+        padding-left: 42px;
+        border-left: 4px solid #d1495b;
+    }
+}
+.menu-item-group {
+    overflow: hidden;
+    transition: all 0.2s;
+    &:not(.open) {
+        max-height: 42px !important;
+    }
+}
+.group-item {
+    display: flex;
+    cursor: pointer;
+
+    &__arrow {
+        transition: transform 0.2s;
+    }
+    &__text {
+        flex: 1;
+        margin-left: 22px;
+    }
+    /* &__badge { } */
+
+    &.open {
+        .group-item__arrow {
+            transform: rotate(180deg);
+        }
+    }
+}
+.open 
+.group-item, .filterable-menu-item {
+    height: 42px;
+    align-items: center;
+    &.active, &:hover {
+        background: hsla(0,0%,100%,.08);
+    }
 }
 </style>
 
 <style lang="scss">
-.no-result-found {
-    .v-list__tile {
-        padding-left: 0;
+.filterable-list {
+    .icon-component {
+        color: var(--color--text-light) !important;
     }
 }
 </style>

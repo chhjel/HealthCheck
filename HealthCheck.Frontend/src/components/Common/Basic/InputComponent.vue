@@ -1,60 +1,54 @@
 <!-- src/components/Common/Basic/InputComponent.vue -->
 <template>
     <div class="input-component" :class="{ 'loading': loading }">
-        <div class="input-component--header" v-if="showHeader">
-            <div class="input-component--header-name">{{ name }}</div>
-            <v-icon small v-if="hasDescription"
-                color="gray" class="input-component--help-icon"
-                @click="toggleDescription">help</v-icon>
-        </div>
-
-        <div v-show="showDescription" class="input-component--description" v-html="description"></div>
-        
-        <v-text-field
+        <text-field-component
             v-if="!isTextArea"
-            v-model="currentValue"
-            @input="onInput($event)"
+            :label="name" :description="description" :showDescriptionOnStart="showDescriptionOnStart"
+            v-model:value="currentValue"
+            @input="onInput"
             v-on:change="onDataChanged"
             @click:clear="onClearClicked()"
+            :errorMessages="error"
             :disabled="disabled"
             :type="type"
-            :clearable="clearable">
-            <v-tooltip slot="append-outer" bottom v-if="showActionIcon">
-                <v-icon slot="activator" @click="onActionIconClicked">{{ actionIcon }}</v-icon>
-                Insert placeholder
-            </v-tooltip>
-        </v-text-field>
+            :clearable="clearable"
+            :appendIcon="actionIcon"
+            :appendIconTooltip="actionIconTooltip"
+            @click:append="onActionIconClicked">
+        </text-field-component>
         
-        <v-textarea
+        <textarea-component
             v-if="isTextArea"
-            v-model="currentValue"
-            @input="onInput($event)"
+            :label="name" :description="description" :showDescriptionOnStart="showDescriptionOnStart"
+            v-model:value="currentValue"
+            @input="onInput"
             v-on:change="onDataChanged"
             @click:clear="onClearClicked()"
+            :errorMessages="error"
             :disabled="disabled"
-            :clearable="clearable">
-            <v-tooltip slot="append-outer" bottom v-if="showActionIcon">
-                <v-icon slot="activator" @click="onActionIconClicked">{{ actionIcon }}</v-icon>
-                Insert placeholder
-            </v-tooltip>
-        </v-textarea>
+            :clearable="clearable"
+            :appendIcon="actionIcon"
+            :appendIconTooltip="actionIconTooltip"
+            @click:append="onActionIconClicked">
+        </textarea-component>
         
-        <v-progress-linear v-if="loading"
+        <progress-linear-component v-if="loading"
             class="mt-0"
-            :value="loadingProgress"
+            indeterminate
             :color="loadingColor"
             :height="loadingHeight"
-        ></v-progress-linear>
-
-        <div class="input-component--error" v-if="error != null && error.length > 0">{{ error }}</div>
+        ></progress-linear-component>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import TextareaComponent from '@components/Common/Basic/TextareaComponent.vue';
+import TextFieldComponent from '@components/Common/Basic/TextFieldComponent.vue';
 
-@Component({
-    components: {}
+@Options({
+    components: { TextareaComponent, TextFieldComponent }
 })
 export default class InputComponent extends Vue
 {
@@ -69,6 +63,9 @@ export default class InputComponent extends Vue
     
     @Prop({ required: false, default: '' })
     actionIcon!: string;
+    
+    @Prop({ required: false, default: '' })
+    actionIconTooltip!: string;
     
     @Prop({ required: false, default: 'text' })
     type!: string;
@@ -91,16 +88,12 @@ export default class InputComponent extends Vue
     @Prop({ required: false, default: false })
     loading!: boolean;
     
-    @Prop({ required: false, default: 0 })
-    loadingProgress!: number;
-    
     @Prop({ required: false, default: 'success' })
     loadingColor!: string;
     
     @Prop({ required: false, default: 4 })
     loadingHeight!: number;
 
-    showDescription: boolean = false;
     currentValue: string = '';
 
     get isTextArea(): boolean { return this.uiHints.indexOf('TextArea') != -1; }
@@ -110,7 +103,6 @@ export default class InputComponent extends Vue
     ////////////////
     created(): void {
         this.currentValue = this.value;
-        this.showDescription = this.hasDescription && this.showDescriptionOnStart;
     }
 
     mounted(): void {
@@ -123,20 +115,9 @@ export default class InputComponent extends Vue
         return this.actionIcon != null && this.actionIcon.length > 0;
     }
 
-    get showHeader(): boolean {
-        return this.name != null && this.name.length > 0;
-    }
-
-    get hasDescription(): boolean {
-        return this.description != null && this.description.length > 0;
-    }
-
     ////////////////
     //  METHODS  //
     //////////////
-    toggleDescription(): void {
-        this.showDescription = !this.showDescription;
-    }
 
     ///////////////////////
     //  EVENT HANDLERS  //
@@ -146,12 +127,13 @@ export default class InputComponent extends Vue
         this.currentValue = this.value;
     }
 
-    onInput(newValue: string): void {
-        this.$emit('input', newValue);
+    onInput(newValue: string | InputEvent): void {
+        const eventValue = (<any>newValue)?.target?.value;
+        this.$emit('update:value', eventValue ?? newValue);
     }
 
     onClearClicked(): void {
-        this.$emit('input', '');
+        this.$emit('update:value', '');
     }
 
     onActionIconClicked(): void {
@@ -165,56 +147,4 @@ export default class InputComponent extends Vue
 </script>
 
 <style scoped lang="scss">
-.input-component {
-    .input-component--header {
-        text-align: left;
-
-        .input-component--header-name {
-            display: inline-block;
-            font-size: 16px;
-            color: var(--v-secondary-base);
-            font-weight: 600;
-        }
-
-        .input-component--help-icon {
-            user-select: none;
-            font-size: 20px !important;
-            &:hover {
-                color: #1976d2;
-            }
-        }
-    }
-
-    .input-component--description {
-        text-align: left;
-        padding: 10px;
-        border-radius: 10px;
-        background-color: #ebf1fb;
-    }
-}
-</style>
-
-<style lang="scss">
-.input-component {
-    input {
-        font-size: 18px;
-        color: #000 !important;
-    }
-
-    .v-input {
-        padding-top: 0;
-    }
-
-    .input-component--error {
-        margin-top: -21px;
-        margin-left: 2px;
-        font-weight: 600;
-        color: var(--v-error-base) !important;
-    }
-
-    &.loading {
-        .v-text-field__details { display: none; }
-        .v-input__slot { margin-bottom: 0; }
-    }
-}
 </style>

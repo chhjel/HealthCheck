@@ -1,173 +1,142 @@
 <!-- src/components/modules/AuditLog/AuditLogPageComponent.vue -->
 <template>
     <div>
-        <v-content class="pl-0">
-        <v-container fluid fill-height class="content-root">
-        <v-layout>
-        <v-flex class="pl-4 pr-4 pb-4">
-          <!-- CONTENT BEGIN -->
-            
+        <div class="content-root">
             <!-- FILTER -->
-            <v-container grid-list-md>
+            <div class="mb-4">
                 <h1 class="mb-4">Audit log</h1>
 
-                <v-layout row wrap>
-                    <v-flex xs12 sm12 md8>
-                        <date-time-picker
-                            ref="filterDate"
-                            :startDate="filterFromDate"
-                            :endDate="filterToDate"
-                            :singleDate="false"
-                            timeFormat="HH:mm"
-                            @onChange="onDateRangeChanged"
-                        />
-                    </v-flex>
+                <div class="flex layout mb-3">
+                    <div class="xs12 sm12 md8">
+                        <input-header-component name="Date range" />
+                        <date-picker-component
+                            range v-model:value="filterDate" :disabled="loadStatus.inProgress" :clearable="false"
+                            @update:value="onDateRangeChanged" rangePresets="past" />
+                    </div>
 
-                    <v-flex xs12 sm12 md4 style="text-align: right;">
-                        <v-btn @click="loadData" :disabled="loadStatus.inProgress" class="primary">Search</v-btn>
-                        <v-btn @click="resetFilters">Reset</v-btn>
-                    </v-flex>
+                    <div class="xs12 sm12 md4 audit-actions">
+                        <btn-component @click="loadData" :disabled="loadStatus.inProgress" class="primary">Search</btn-component>
+                        <btn-component @click="resetFilters">Reset</btn-component>
+                    </div>
 
-                    <v-flex xs12 sm6 md3>
-                        <v-text-field v-model="filterUserName" label="Username"
+                    <div class="xs12 sm6 md3 mb-2 pr-2 mt-2">
+                        <text-field-component v-model:value="filterUserName" label="Username"
                             @blur="loadData"
                             @keyup.enter="loadData" />
-                    </v-flex>
-                    <v-flex xs12 sm6 md3>
-                        <v-text-field v-model="filterAction" label="Action"
+                    </div>
+                    <div class="xs12 sm6 md3 mb-2 pr-2 mt-2">
+                        <text-field-component v-model:value="filterAction" label="Action"
                             @blur="loadData"
                             @keyup.enter="loadData" />
-                    </v-flex>
-                    <v-flex xs12 sm6 md3>
-                        <v-text-field v-model="filterSubject" label="Subject"
+                    </div>
+                    <div class="xs12 sm6 md3 mb-2 pr-2 mt-2">
+                        <text-field-component v-model:value="filterSubject" label="Subject"
                             @blur="loadData"
                             @keyup.enter="loadData" />
-                    </v-flex>
-                    <v-flex xs12 sm6 md3>
-                        <v-text-field v-model="filterUserId" label="User id"
+                    </div>
+                    <div class="xs12 sm6 md3 mb-2 pr-2 mt-2">
+                        <text-field-component v-model:value="filterUserId" label="User id"
                             @blur="loadData"
                             @keyup.enter="loadData" />
-                    </v-flex>
-                </v-layout>
-                        
-                <v-data-table
-                    :headers="tableHeaders"
-                    :items="filteredAuditEvents"
-                    :loading="loadStatus.inProgress"
-                    :rows-per-page-items="tableRowsPerPageItems"
-                    :pagination.sync="tablePagination"
-                    :custom-sort="tableSorter"
-                    item-key="Id"
-                    expand
-                    class="elevation-1 audit-table">
-                    <v-progress-linear v-slot:progress color="primary" indeterminate></v-progress-linear>
-                    <template v-slot:no-data>
-                    <v-alert :value="true" color="error" icon="warning" v-if="loadStatus.failed">
-                        {{ loadStatus.errorMessage }}
-                    </v-alert>
+                    </div>
+                </div>
+
+                <alert-component :value="true" color="error" icon="warning" v-if="loadStatus.failed">
+                    {{ loadStatus.errorMessage }}
+                </alert-component>
+                <progress-linear-component color="primary" indeterminate v-if="loadStatus.inProgress"></progress-linear-component>
+
+                <data-table-component
+                    :headers="tableHeaders.map(x => x.text)"
+                    :groups="auditEntryGroups"
+                    v-if="auditEntryGroups.length > 0 && auditEntryGroups[0].items.length > 0"
+                    class="audit-table">
+                    <template v-slot:cell="{ value }">
+                        <span>{{ value }}</span>
                     </template>
-                    <template v-slot:items="props">
-                        <tr
-                            @click="props.expanded = !props.expanded"
-                            class="audit-table-row">
-                            <td width="200">{{ formatDateForTable(props.item.Timestamp) }}</td>
-                            <td class="text-xs-left">{{ props.item.UserName }}</td>
-                            <td class="text-xs-left">{{ props.item.Action }}</td>
-                            <td class="text-xs-left">{{ props.item.Subject }}</td>
-                        </tr>
-                    </template>
-                    <template v-slot:expand="props">
-                        <v-card flat>
-                            <v-card-text class="row-details">
-                                <div class="row-details-user mt-2 mb-2">
-                                    <v-icon class="row-details-usericon">person</v-icon>
-                                    <div class="row-details-username">{{ props.item.UserName }}</div>
-                                    <div class="row-details-userid ml-1">({{ props.item.UserId }})</div>
-                                    <div class="row-details-roles ml-1" v-if="props.item.UserAccessRoles.length > 0">
-                                        <div v-for="(role, index) in props.item.UserAccessRoles"
-                                            :key="`audit-${props.item.Id}-role-${index}`"
-                                            class="role-tag">
-                                            {{ role }}
-                                        </div>
+                    <template v-slot:expandedItem="{ item }">
+                        <div class="row-details">
+                            <div class="row-details-user mt-2 mb-2">
+                                <icon-component class="row-details-usericon">person</icon-component>
+                                <div class="row-details-username">{{ item.expandedValues[0].UserName }}</div>
+                                <div class="row-details-userid ml-1">({{ item.expandedValues[0].UserId }})</div>
+                                <div class="row-details-roles ml-1" v-if="item.expandedValues[0].UserAccessRoles.length > 0">
+                                    <div v-for="(role, index) in item.expandedValues[0].UserAccessRoles"
+                                        :key="`audit-${item.expandedValues[0].Id}-role-${index}`"
+                                        class="role-tag">
+                                        {{ role }}
                                     </div>
                                 </div>
-                                <div class="row-details-details" v-if="props.item.Details.length > 0">
-                                    <ul>
-                                        <li v-for="(detail, index) in props.item.Details"
-                                            :key="`audit-${props.item.Id}-detail-${index}`">
-                                            <div class="row-details-details-title">{{ detail.Key }}:</div> <code class="row-details-details-value">{{ detail.Value }}</code>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div class="row-details-blobs" v-if="props.item.Blobs.length > 0">
-                                    <ul>
-                                        <li v-for="(blob, index) in props.item.Blobs"
-                                            :key="`audit-${props.item.Id}-blob-${index}`">
-                                            <div class="row-details-blobs-title">{{ blob.Key }}:</div> 
-                                            <a class="row-details-blobs-value"
-                                                @click.prevent="onViewBlobClicked(props.item, blob)"
-                                                >[View]</a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </v-card-text>
-                        </v-card>
+                            </div>
+                            <div class="row-details-details" v-if="item.expandedValues[0].Details.length > 0">
+                                <ul>
+                                    <li v-for="(detail, index) in item.expandedValues[0].Details"
+                                        :key="`audit-${item.expandedValues[0].Id}-detail-${index}`">
+                                        <div class="row-details-details-title">{{ detail.Key }}:</div> <code class="row-details-details-value">{{ detail.Value }}</code>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="row-details-blobs" v-if="item.expandedValues[0].Blobs.length > 0">
+                                <ul>
+                                    <li v-for="(blob, index) in item.expandedValues[0].Blobs"
+                                        :key="`audit-${item.expandedValues[0].Id}-blob-${index}`">
+                                        <div class="row-details-blobs-title">{{ blob.Key }}: </div> 
+                                        <a class="row-details-blobs-value clickable"
+                                            @click.prevent="onViewBlobClicked(item.expandedValues[0], blob)"
+                                            >[View]</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
                     </template>
-                </v-data-table>
-            </v-container>
-
-          <!-- CONTENT END -->
-        </v-flex>
-        </v-layout>
-        </v-container>
-        </v-content>
+                </data-table-component>
+                <div v-else>No matching events found.</div>
+            </div>
+        </div>
 
         <!-- ##################### -->
-        <v-dialog v-model="showBlobContentsDialog"
-            @keydown.esc="showBlobContentsDialog = false"
-            max-width="90%" scrollable
-            content-class="audit-blob-dialog">
-            <v-card>
-                <v-card-title class="headline">{{ currentBlobTitle }}</v-card-title>
-                <v-card-text class="pt-0">
-                    <p class="blob-details">{{ currentBlobDetails }}</p>
-                    <v-progress-linear color="primary" indeterminate v-if="loadStatus.inProgress"></v-progress-linear>
-                    
-                    <v-alert :value="true" color="error" icon="warning" v-if="currentBlobError != null">
-                        {{ currentBlobError }}
-                    </v-alert>
+        <dialog-component v-model:value="showBlobContentsDialog" max-width="90%">
+            <template #header>{{ currentBlobTitle }}</template>
+            <template #footer>
+                <btn-component color="secondary" @click="hideBlobContentsDialog()">Close</btn-component>
+            </template>
 
-                    <code class="blob-contents" v-if="currentBlobContents != null">{{ currentBlobContents }}</code>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="primary" @click="hideBlobContentsDialog()">Close</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+            <div>
+                <p class="blob-details">{{ currentBlobDetails }}</p>
+                <progress-linear-component color="primary" indeterminate v-if="loadStatus.inProgress"></progress-linear-component>
+                
+                <alert-component :value="true" color="error" icon="warning" v-if="currentBlobError != null">
+                    {{ currentBlobError }}
+                </alert-component>
+
+                <code class="blob-contents" v-if="currentBlobContents != null">{{ currentBlobContents }}</code>
+            </div>
+        </dialog-component>
         <!-- ##################### -->
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import AuditEventViewModel from  '../../../models/modules/AuditLog/AuditEventViewModel';
-import AuditEventFilterInputData from  '../../../models/modules/AuditLog/AuditEventFilterInputData';
-import DateUtils from  '../../../util/DateUtils';
-import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
-// @ts-ignore
-import { DateTimePicker } from "@lazy-copilot/datetimepicker";
-import AuditLogService from  '../../../services/AuditLogService';
-import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import ModuleConfig from  '../../../models/Common/ModuleConfig';
-import ModuleOptions from  '../../../models/Common/ModuleOptions';
-import KeyValuePair from "../../../models/Common/KeyValuePair";
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import DateUtils from '@util/DateUtils';
+import AuditLogService from '@services/AuditLogService';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import ModuleConfig from '@models/Common/ModuleConfig';
+import ModuleOptions from '@models/Common/ModuleOptions';
+import KeyValuePair from '@models/Common/KeyValuePair';
+import AuditEventViewModel from "@models/modules/AuditLog/AuditEventViewModel";
+import AuditEventFilterInputData from "@models/modules/AuditLog/AuditEventFilterInputData";
+import { StoreUtil } from "@util/StoreUtil";
+import DataTableComponent from "@components/Common/DataTableComponent.vue";
+import { DataTableGroup } from "@components/Common/DataTableComponent.vue.models";
+import InputHeaderComponent from "@components/Common/Basic/InputHeaderComponent.vue";
 
-@Component({
+@Options({
     components: {
-        DateTimePicker
+        DataTableComponent,
+        InputHeaderComponent
     }
 })
 export default class AuditLogPageComponent extends Vue {
@@ -183,26 +152,20 @@ export default class AuditLogPageComponent extends Vue {
     filterAction: string = "";
     filterUserId: string = "";
     filterUserName: string = "";
-    filterFromDate: Date = new Date();
-    filterToDate: Date = new Date();
-    
-    // UI state
-    filterFromDateModal: boolean = false;
-    filterToDateModal: boolean = false;
+    filterDate: Array<Date> = [new Date(), new Date()];
+    get filterFromDate(): Date { return this.filterDate[0] };
+    get filterToDate(): Date { return this.filterDate[1] };
+    set filterFromDate(v: Date) { this.filterDate[0] = v; };
+    set filterToDate(v: Date) { this.filterDate[1] = v; };
 
     // Table
     tableHeaders: Array<any> = [
         //{ text: 'Area', align: 'left', sortable: true, value: 'Area' },
-        { text: 'When', value: 'Timestamp', align: 'left' },
-        { text: 'Username', value: 'UserName', align: 'left' },
+        { text: 'Timestamp', value: 'Timestamp', align: 'left' },
+        { text: 'UserName', value: 'UserName', align: 'left' },
         { text: 'Action', value: 'Action', align: 'left' },
         { text: 'Subject', value: 'Subject', align: 'left' }
     ];
-    tableRowsPerPageItems: Array<any> 
-        = [10, 25, 50, {"text":"$vuetify.dataIterator.rowsPerPageAll","value":-1}];
-    tablePagination: any = {
-        rowsPerPage: 25
-    };
 
     // Blobs
     showBlobContentsDialog: boolean = false;
@@ -216,6 +179,7 @@ export default class AuditLogPageComponent extends Vue {
     loadStatus: FetchStatus = new FetchStatus();
     
     filteredAuditEvents: Array<AuditEventViewModel> = [];
+    auditEntryGroups: Array<DataTableGroup> = [];
 
     //////////////////
     //  LIFECYCLE  //
@@ -230,7 +194,7 @@ export default class AuditLogPageComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
 
     ////////////////
@@ -250,17 +214,16 @@ export default class AuditLogPageComponent extends Vue {
         this.filterAction = "";
         this.filterUserId = "";
         this.filterUserName = "";
-
-        let dateFilterFormat = 'yyyy MMM d  HH:mm';
-        (<any>this.$refs.filterDate).selectDateString 
-            = `${DateUtils.FormatDate(this.filterFromDate, dateFilterFormat)} - ${DateUtils.FormatDate(this.filterToDate, dateFilterFormat)}`;
     }
 
     loadData(): void {
         let payload = this.generateFilterPayload();
         this.service.Search(payload, this.loadStatus, {
             onSuccess: (data) => this.onEventDataRetrieved(data),
-            onError: (err) => this.filteredAuditEvents = []
+            onError: (err) => {
+                this.filteredAuditEvents = [];
+                this.auditEntryGroups = [];
+            }
         });
     }
 
@@ -283,36 +246,21 @@ export default class AuditLogPageComponent extends Vue {
             x.Id = index.toString();
             x.Timestamp = new Date(x.Timestamp);
         });
-        this.filteredAuditEvents = events;
+        this.filteredAuditEvents = events.sort((a,b) => b.Timestamp.getTime() - a.Timestamp.getTime());
+
+        this.auditEntryGroups = [];
+        let group: DataTableGroup = { title: '', items: [] };
+        this.auditEntryGroups.push(group);
+        this.filteredAuditEvents.forEach(e => {
+            group.items.push({
+                values: [ this.formatDateForTable(e.Timestamp), e.UserName, e.Action, e.Subject ],
+                expandedValues: [ e ]
+            });
+        });
     }
 
     formatDateForTable(date: Date): string {
         return DateUtils.FormatDate(date, 'MMMM d, yyyy @ HH:mm:ss');
-    }
-
-    tableSorter(items: AuditEventViewModel[], index: string, isDescending: boolean): AuditEventViewModel[]
-    {
-        if (index == null) {
-            // Do nothing
-        }
-        else if (index === "Timestamp")
-        {
-            items = items.sort((a:AuditEventViewModel, b:AuditEventViewModel) => b.Timestamp.getTime() - a.Timestamp.getTime());
-        }
-        else {
-            items = items.sort((a:AuditEventViewModel, b:AuditEventViewModel) => {
-            
-                var textA = (<any>a)[index].toUpperCase();
-                var textB = (<any>b)[index].toUpperCase();
-                return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
-            });
-        }
-        
-        if (isDescending === true) {
-            items = items.reverse();
-        }
-
-        return items;
     }
 
     hideBlobContentsDialog(): void {
@@ -322,9 +270,7 @@ export default class AuditLogPageComponent extends Vue {
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
-    onDateRangeChanged(data: any): void {
-        this.filterFromDate = data.startDate;
-        this.filterToDate = data.endDate;
+    onDateRangeChanged(): void {
         this.loadData();
     }
 
@@ -366,6 +312,11 @@ export default class AuditLogPageComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
+.audit-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: stretch;
+}
 .row-details-user {
     display: flex;
     align-items: center;
@@ -380,15 +331,6 @@ export default class AuditLogPageComponent extends Vue {
 .row-details-roles {
     display: inline;
 }
-/* .row-details-role {
-    display: inline;
-    color: var(--v-secondary-base);
-    padding: 5px;
-    border: 1px solid var(--v-secondary-base);
-    border-radius: 15px;
-    margin: 2px;
-    font-size: 12px;
-} */
 .role-tag {
     display: inline;
     color: #4c41a5;
@@ -403,7 +345,7 @@ export default class AuditLogPageComponent extends Vue {
     display: inline;
 }
 .row-details-details-value {
-    color: #333;
+    /* color: #333; */
 }
 .row-details-blobs-title {
     font-weight: 600;
@@ -424,12 +366,16 @@ export default class AuditLogPageComponent extends Vue {
 }
 </style>
 
-<style>
+<style lang="scss">
 .audit-table th i {
     margin-left: 5px;
 }
-.audit-table-row {
+.audit-table .data-table--row-values {
     cursor: pointer;
+    transition: 0.1s;
+    &:hover {
+        background-color: #eee;
+    }
 }
 /* .dateTimePickerWrapper {
 } */
@@ -444,11 +390,11 @@ input.calendarInput {
     border: 1px solid #d5dbde !important;
 }
 .calendarTrigger:hover svg {
-    fill: var(--v-primary-base) !important;
-    color: var(--v-primary-base) !important;
+    fill: var(--color--primary-base) !important;
+    color: var(--color--primary-base) !important;
 }
 .dateTimeWrapper a.confirm {
-    background: var(--v-primary-base) !important;
+    background: var(--color--primary-base) !important;
     font-size: 0 !important;
 }
 .dateTimeWrapper a.confirm::after {
@@ -456,18 +402,18 @@ input.calendarInput {
     font-size: 13px;
 }
 .timeContainer .bigNumber {
-    color: var(--v-primary-base) !important;
+    color: var(--color--primary-base) !important;
 }
 .dateTimeWrapper .calendar .innerStartDate,.innerEndDate {
-    background: var(--v-primary-base) !important;
+    background: var(--color--primary-base) !important;
 }
 .dateTimeWrapper .calendar .day span:hover {
-    background: var(--v-secondary-base) !important;
+    background: var(--color--secondary-base) !important;
 }
 @media (max-width: 600px) {
     .audit-table {
-        margin-left: -45px;
-        margin-right: -45px;
+        margin-left: -15px;
+        margin-right: -15px;
     }
 }
 </style>

@@ -6,26 +6,22 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import LinqUtils from  '../../../util/LinqUtils';
-import LogEntrySearchResultItem from  '../../../models/modules/LogViewer/LogEntrySearchResultItem';
-import { FilterDelimiterMode } from  '../../../models/modules/LogViewer/FilterDelimiterMode';
-import DateUtils from  '../../../util/DateUtils';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import LinqUtils from '@util/LinqUtils';
+import { LogEntrySearchResultItem } from '@generated/Models/Core/LogEntrySearchResultItem';
+import { FilterDelimiterMode } from '@models/modules/LogViewer/FilterDelimiterMode';
+import DateUtils from '@util/DateUtils';
 import { Chart, LinearTickOptions, ChartPoint } from 'chart.js';
-import { LogEntrySeverity } from  '../../../models/modules/LogViewer/LogEntrySeverity';
-
-export interface ChartEntry {
-    date: Date;
-    label: string;
-    severity: LogEntrySeverity;
-}
+import { LogEntrySeverity } from '@generated/Enums/Core/LogEntrySeverity';
+import { ChartEntry } from '@components/Common/Charts/DataOverTimeChartComponent.vue.models';
 interface ChartDataPoint extends Chart.ChartPoint {
     pointTitle: string | null;
     pointLabel: string | null;
     severity: LogEntrySeverity;
 }
 
-@Component({
+@Options({
     components: { }
 })
 export default class ItemPerDateChartComponent extends Vue {
@@ -98,15 +94,15 @@ export default class ItemPerDateChartComponent extends Vue {
             (key, items) => {
                 const date = items[0].date;
 
-                const errors = items.filter(x => x.severity == LogEntrySeverity.Error);
+                const errors = items.filter((x:any) => x.severity == LogEntrySeverity.Error);
                 const errorCount = errors.length;
                 const errorEntryWord = (errorCount == 1) ? 'error' : 'errors';
 
-                const warnings = items.filter(x => x.severity == LogEntrySeverity.Warning);
+                const warnings = items.filter((x:any) => x.severity == LogEntrySeverity.Warning);
                 const warningCount = warnings.length;
                 const warningEntryWord = (warningCount == 1) ? 'warning' : 'warnings';
 
-                const infos = items.filter(x => x.severity == LogEntrySeverity.Info);
+                const infos = items.filter((x:any) => x.severity == LogEntrySeverity.Info);
                 const infoCount = infos.length;
                 const infoEntryWord = (infoCount == 1) ? 'other' : 'others';
 

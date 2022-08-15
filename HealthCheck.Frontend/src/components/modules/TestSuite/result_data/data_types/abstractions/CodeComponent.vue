@@ -4,7 +4,7 @@
         <editor-component
             class="editor"
             :class="`${(fullscreen ? 'fullscreen' : '')}`"
-            v-model="data.Data"
+            v-model:value="datax.Data"
             :read-only="true"
             :language="language"
             ref="editor"/>
@@ -12,18 +12,19 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import TestResultDataDumpViewModel from  '../../../../../../models/modules/TestSuite/TestResultDataDumpViewModel';
-import EditorComponent from  '../../../../../Common/EditorComponent.vue';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { TestResultDataDumpViewModel } from '@generated/Models/Core/TestResultDataDumpViewModel';
+import EditorComponent from '@components/Common/EditorComponent.vue';
 
-@Component({
+@Options({
     components: {
         EditorComponent
     }
 })
-export default class CodeEditor extends Vue {
+export default class CodeComponent extends Vue {
     @Prop({ required: true })
-    data!: TestResultDataDumpViewModel;
+    datax!: TestResultDataDumpViewModel;
     @Prop({ required: true })
     fullscreen!: boolean;
     @Prop({ required: true })

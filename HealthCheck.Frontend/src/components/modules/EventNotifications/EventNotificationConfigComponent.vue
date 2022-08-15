@@ -1,21 +1,22 @@
 <!-- src/components/modules/EventNotifications/EventNotificationConfigComponent.vue -->
 <template>
     <div class="root">
-        <v-alert
+        <alert-component
             :value="serverInteractionError != null && serverInteractionError.length > 0"
             type="error" >
             {{ serverInteractionError }}
-        </v-alert>
+        </alert-component>
 
         <div class="header-data">
-            <v-switch
-                v-model="internalConfig.Enabled" 
+            <switch-component
+                v-model:value="internalConfig.Enabled" 
                 :disabled="!allowChanges"
                 label="Enabled"
+                falseLabel="Disabled"
                 color="secondary"
                 class="left mr-2"
                 style="flex: 1"
-            ></v-switch>
+            ></switch-component>
             <div>
                 <div class="metadata-chip"
                     v-if="internalConfig.LastChangedBy != null && internalConfig.LastChangedBy.length > 0">
@@ -29,22 +30,22 @@
         </div>
 
         <div class="config-summary">
-            <b>IF</b>
+            <b>IF </b>
             <span v-for="(condition, condIndex) in descriptionConditions"
                 :key="`condition-${condIndex}`">
-                <a @click.prevent.stop="onSummaryConditionClicked(condition)"
+                <a @click.prevent.stop="onSummaryConditionClicked(condition)" class="clickable"
                     >{{ condition.description }}</a>
                 <span v-if="condIndex == descriptionConditions.length - 2"> and </span>
                 <span v-else-if="condIndex < descriptionConditions.length - 1">, </span>
             </span>
 
             <br />
-            <b>THEN</b>
+            <b>THEN </b>
             <span v-if="descriptionActions.length == 0">&lt;do nothing&gt;</span>
-            <span v-else>notify using</span>
+            <span v-else>notify using </span>
             <span v-for="(action, actIndex) in descriptionActions"
                 :key="`action-${actIndex}`">
-                <a @click.prevent.stop="onSummaryActionClicked(action)"
+                <a @click.prevent.stop="onSummaryActionClicked(action)" class="clickable"
                     >{{ action.description }}</a>
                 <span v-if="actIndex == descriptionActions.length - 2"> and </span>
                 <span v-else-if="actIndex < descriptionActions.length - 1">, </span>
@@ -54,29 +55,20 @@
         <!-- ###### EVENT ID ###### -->
         <block-component class="mb-4">
             <h3>Event id to listen for</h3>
-            <v-combobox
-                v-model="internalConfig.EventIdFilter.Filter"
+            <select-component
+                v-model:value="internalConfig.EventIdFilter.Filter"
                 :items="knownEventIds"
                 :readonly="!allowChanges"
                 no-data-text="Unknown event id."
                 placeholder="Event id"
                 class="without-label"
                 ref="eventIdFilter"
+                allowInput allowCustom
                 >
-            </v-combobox>
-            <!-- label="Event id" -->
-            <!-- </div> -->
-            <!-- prepend-icon="mdi-city" -->
-            <!-- :hint="!isEditing ? 'Click the icon to edit' : 'Click the icon to save'" -->
-            <!-- <config-filter-component
-                :config="internalConfig.EventIdFilter"
-                :allow-property-name="false"
-                :readonly="!allowChanges"
-                @change="internalConfig.EventIdFilter = $event"
-                /> -->
+            </select-component>
             
             <!-- ###### PAYLOAD FILTERS ###### -->
-            <h3>Filters</h3>
+            <h3 class="mt-4">Filters</h3>
             <config-filter-component
                 v-for="(payloadFilter, pfindex) in internalConfig.PayloadFilters"
                 :key="`payloadFilter-${pfindex}-${payloadFilter._frontendId}`"
@@ -87,35 +79,35 @@
                 :allow-property-name="true"
                 :allow-delete="true"
                 @delete="onConfigFilterDelete(pfindex)"
-                @change="onConfigFilterChanged(pfindex, $event)"
+                @change.self="onConfigFilterChanged(pfindex, $event)"
                 />
             <small v-if="internalConfig.PayloadFilters.length == 0">No event payload filters added.</small>
 
             <div class="mt-4">
-                <v-btn :disabled="!allowChanges"
+                <btn-component :disabled="!allowChanges"
                     @click="onAddPayloadFilterClicked(null)">
-                    <v-icon size="20px" class="mr-2">add</v-icon>
+                    <icon-component size="20px" class="mr-2">add</icon-component>
                     Add payload filter
-                </v-btn>
+                </btn-component>
 
                 <div v-if="suggestedPayloadProperties.length > 0" style="display: inline-block;">
-                    <small>Suggested for selected event id:</small>
-                    <v-chip
+                    <small>Suggested for selected event id: </small>
+                    <chip-component
                         v-for="(suggestedPayloadProperty, sppIndex) in suggestedPayloadProperties"
                         :key="`suggested-payload-property-${sppIndex}`"
                         color="primary" outline
-                        class="suggested-payload-property-choice"
+                        class="suggested-payload-property-choice mr-1 mb-1"
                         @click="onSuggestedPayloadFilterClicked(suggestedPayloadProperty)">
                         {{ suggestedPayloadProperty }}
-                        <v-icon right>add</v-icon>
-                    </v-chip>
-                    <!-- <v-chip
+                        <icon-component right>add</icon-component>
+                    </chip-component>
+                    <!-- <chip-component
                         color="primary" outline
                         class="suggested-payload-property-choice"
                         @click="onAddPayloadFilterClicked">
                         Other
-                        <v-icon right>add</v-icon>
-                    </v-chip> -->
+                        <icon-component right>add</icon-component>
+                    </chip-component> -->
                 </div>
             </div>
         </block-component>
@@ -129,25 +121,26 @@
 
                 <div style="display: flex; align-items: baseline; flex-direction: row; flex-wrap: nowrap;">
                     <h3 class="notifier-title">{{ notifierConfig.Notifier.Name }}</h3>
-                    <v-btn color="error" right flat small class="ml-3"
+                    <btn-component color="error" right flat small class="ml-3"
                         @click="removeValidNotifierConfig(ncindex)"
                         :disabled="!allowChanges">
                         Remove
-                    </v-btn>
-                    <v-btn color="secondary" right flat small class="ml-1"
+                    </btn-component>
+                    <btn-component color="secondary" right flat small class="ml-1"
                         @click="showNotifierTest(ncindex)"
                         :disabled="!allowChanges">
                         Test..
-                    </v-btn>
+                    </btn-component>
                 </div>
                 
                 <div v-for="(notifierConfigOption, ncoindex) in getNotifierConfigOptions(notifierConfig.Notifier, notifierConfig.Options)"
                     :key="`notifierConfig-${ncindex}-option-${ncoindex}`"
+                    class="mb-2"
                     style="margin-left:20px">
                     
                     <backend-input-component
-                        v-model="notifierConfigOption.value"
-                        v-on:input="notifierConfig.Options[notifierConfigOption.key] = $event"
+                        v-model:value="notifierConfigOption.value"
+                        @update:value="notifierConfig.Options[notifierConfigOption.key] = $event"
                         :config="notifierConfigOption.definition"
                         :readonly="!allowChanges"
                         :action-icon="getPlaceholdersFor(notifierConfig.Notifier, notifierConfigOption).length > 0 ? 'insert_link' : ''"
@@ -158,20 +151,20 @@
             
             <small v-if="getValidNotifierConfigs(config).length == 0">No notifiers added, config will be disabled.</small>
 
-            <v-btn
+            <btn-component
                 :disabled="!allowChanges" 
                 @click.stop="notifierDialogVisible = true" 
                 v-if="notifiers != null">
-                <v-icon size="20px" class="mr-2">add</v-icon>
+                <icon-component size="20px" class="mr-2">add</icon-component>
                 Add notifier
-            </v-btn>
+            </btn-component>
         </block-component>
 
         <!-- ###### LIMITS ###### -->
         <block-component class="mb-4" title="Limits">
             <input-component
                 class="mt-2"
-                v-model="internalConfig.NotificationCountLimit"
+                v-model:value="internalConfig.NotificationCountLimit"
                 :disabled="!allowChanges"
                 name="Notification count remaining"
                 description="Remaining number of times to allow notification. When zero is reached the config will be disabled."
@@ -179,14 +172,14 @@
                 />
             
             <simple-date-time-component
-                v-model="internalConfig.FromTime"
+                v-model:value="internalConfig.FromTime"
                 :readonly="!allowChanges"
                 name="From"
                 description="Only allow notifications after this datetime."
                 />
             
             <simple-date-time-component
-                v-model="internalConfig.ToTime"
+                v-model:value="internalConfig.ToTime"
                 :readonly="!allowChanges"
                 name="To"
                 description="Only allow notifications before this datetime. After this datetime the config will be disabled."
@@ -194,18 +187,19 @@
 
             <input-component
                 class="mt-2"
-                v-model="internalConfig.DistinctNotificationKey"
+                v-model:value="internalConfig.DistinctNotificationKey"
                 :disabled="!allowChanges"
                 name="Distinct pattern"
                 description="Optionally limit to a single notification for the given duration for each distinct value made from the pattern below that supports placeholders. Requires both a template value and a duration."
                 type="text"
                 :action-icon="getPayloadPlaceholders().length > 0 ? 'insert_link' : ''"
+                actionIconTooltip="Insert placeholder"
                 @actionIconClicked="showPayloadPlaceholdersDialog()"
                 />
 
             <timespan-input-component
                 class="mt-2"
-                v-model="internalConfig.DistinctNotificationCacheDuration"
+                v-model:value="internalConfig.DistinctNotificationCacheDuration"
                 :disabled="!allowChanges"
                 name="Distinct duration"
                 description="Duration to silence distinct notifications for, in hours, minutes and seconds."
@@ -224,166 +218,129 @@
             </ul>
         </block-component>
 
-        <v-dialog v-model="notifierDialogVisible"
-            scrollable
-            @keydown.esc="notifierDialogVisible = false"
-            v-if="notifiers != null"
-            content-class="possible-notifiers-dialog">
-            <v-card>
-                <v-card-title class="headline">Select type of notifier to add</v-card-title>
-                <v-divider></v-divider>
-                <v-card-text style="max-height: 500px;">
-                    <v-list class="possible-notifiers-list">
-                        <v-list-tile v-for="(notifier, nindex) in notifiers"
-                            :key="`possible-notifier-${nindex}`"
-                            @click="onAddNotifierClicked(notifier)"
-                            class="possible-notifiers-list-item">
-                            <v-list-tile-action>
-                                <v-icon>add</v-icon>
-                            </v-list-tile-action>
+        <dialog-component v-model:value="notifierDialogVisible" v-if="notifiers != null" max-width="700">
+            <template #header>Select type of notifier to add</template>
+            <template #footer>
+                <btn-component color="secondary"  @click="notifierDialogVisible = false">Cancel</btn-component>
+            </template>
+            <div style="max-height: 500px;">
+                <div class="possible-notifiers-list">
+                    <div v-for="(notifier, nindex) in notifiers"
+                        :key="`possible-notifier-${nindex}`"
+                        @click="onAddNotifierClicked(notifier)"
+                        class="possible-notifiers-list-item mb-2 pa-2 flex clickable hoverable-light">
+                        <div>
+                            <icon-component>add</icon-component>
+                        </div>
 
-                            <v-list-tile-content>
-                                <v-list-tile-title class="possible-notifier-item-title">{{ notifier.Name }}</v-list-tile-title>
-                                <v-list-tile-sub-title class="possible-notifier-item-description">{{ notifier.Description }}</v-list-tile-sub-title>
-                            </v-list-tile-content>
-                        </v-list-tile>
-                    </v-list>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="secondary" flat @click="notifierDialogVisible = false">Cancel</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-
-        <v-dialog v-model="deleteDialogVisible"
-            @keydown.esc="deleteDialogVisible = false"
-            max-width="290"
-            content-class="confirm-dialog">
-            <v-card>
-                <v-card-title class="headline">Confirm deletion</v-card-title>
-                <v-card-text>
-                    Are you sure you want to delete this configuration?
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="secondary" @click="deleteDialogVisible = false">Cancel</v-btn>
-                    <v-btn color="error" @click="deleteConfig()">Delete it</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-
-        <v-dialog v-model="payloadPlaceholderDialogVisible"
-            @keydown.esc="payloadPlaceholderDialogVisible = false"
-            scrollable
-            content-class="possible-placeholders-dialog">
-            <v-card>
-                <v-card-title class="headline">Select placeholder to add</v-card-title>
-                <v-divider></v-divider>
-                <v-card-text style="max-height: 500px;">
-                    <v-list class="possible-placeholders-list">
-                        <v-list-tile v-for="(placeholder, placeholderIndex) in getPayloadPlaceholders()"
-                            :key="`possible-placeholder-${placeholderIndex}`"
-                            @click="onAddPayloadPlaceholderClicked(placeholder)"
-                            class="possible-placeholder-list-item">
-                            <v-list-tile-action>
-                                <v-icon>add</v-icon>
-                            </v-list-tile-action>
-
-                            <v-list-tile-content>
-                                <v-list-tile-title class="possible-placeholder-item-title">{{ `\{${placeholder.toUpperCase()}\}` }}</v-list-tile-title>
-                            </v-list-tile-content>
-                        </v-list-tile>
-                    </v-list>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="secondary" flat @click="hidePayloadPlaceholderDialog()">Cancel</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-        <v-dialog v-model="placeholderDialogVisible"
-            @keydown.esc="placeholderDialogVisible = false"
-            scrollable
-            content-class="possible-placeholders-dialog">
-            <v-card>
-                <v-card-title class="headline">Select placeholder to add</v-card-title>
-                <v-divider></v-divider>
-                <v-card-text style="max-height: 500px;">
-                    <v-list class="possible-placeholders-list">
-                        <v-list-tile v-for="(placeholder, placeholderIndex) in getPlaceholdersFor((currentPlaceholderDialogTargetConfig == null ? null :currentPlaceholderDialogTargetConfig.Notifier), currentPlaceholderDialogTarget)"
-                            :key="`possible-placeholder-${placeholderIndex}`"
-                            @click="onAddPlaceholderClicked(placeholder, currentPlaceholderDialogTarget)"
-                            class="possible-placeholder-list-item">
-                            <v-list-tile-action>
-                                <v-icon>add</v-icon>
-                            </v-list-tile-action>
-
-                            <v-list-tile-content>
-                                <v-list-tile-title class="possible-placeholder-item-title">{{ `\{${placeholder.toUpperCase()}\}` }}</v-list-tile-title>
-                            </v-list-tile-content>
-                        </v-list-tile>
-                    </v-list>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="secondary" flat @click="hidePlaceholderDialog()">Cancel</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-        <v-dialog v-model="testDialogVisible"
-            @keydown.esc="testDialogVisible = false"
-            scrollable
-            content-class="possible-placeholders-dialog">
-            <v-card v-if="notifierToTest">
-                <v-card-title class="headline">Test notifier '{{ notifierToTest.Notifier.Name }}'</v-card-title>
-                <v-divider></v-divider>
-                <v-card-text>
-                    <div>
-                        <p>No placeholders will be resolved, this is just to test the notifier itself.</p>
-                        <v-btn color="primary"
-                            @click="testNotifier"
-                            :disabled="!allowChanges">
-                            Execute notifier
-                        </v-btn>
+                        <div>
+                            <div class="possible-notifier-item-title">{{ notifier.Name }}</div>
+                            <div class="possible-notifier-item-description">{{ notifier.Description }}</div>
+                        </div>
                     </div>
+                </div>
+            </div>
+        </dialog-component>
 
-                    <div v-if="testResponse" class="ml-2 mt-3 mb-3">
-                        <h4>Result:</h4>
-                        <code class="notif-test-result">{{ testResponse }}</code>
+        <dialog-component v-model:value="deleteDialogVisible" max-width="500">
+            <template #header>Confirm deletion</template>
+            <template #footer>
+                <btn-component color="error" @click="deleteConfig()">Delete it</btn-component>
+                <btn-component color="secondary" @click="deleteDialogVisible = false">Cancel</btn-component>
+            </template>
+            <div>
+                Are you sure you want to delete this configuration?
+            </div>
+        </dialog-component>
+
+        <dialog-component v-model:value="payloadPlaceholderDialogVisible" max-width="700">
+            <template #header>Select placeholder to add</template>
+            <template #footer>
+                <btn-component color="secondary" @click="hidePayloadPlaceholderDialog()">Cancel</btn-component>
+            </template>
+            <div style="max-height: 500px;">
+                <div class="possible-placeholders-list">
+                    <div v-for="(placeholder, placeholderIndex) in getPayloadPlaceholders()"
+                        :key="`possible-placeholder-${placeholderIndex}`"
+                        @click="onAddPayloadPlaceholderClicked(placeholder)"
+                        class="possible-placeholder-list-item mb-2 pa-2 flex clickable hoverable-light">
+                        <div>
+                            <icon-component>add</icon-component>
+                        </div>
+
+                        <div>
+                            <div class="possible-placeholder-item-title">{{ `\{${placeholder.toUpperCase()}\}` }}</div>
+                        </div>
                     </div>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="secondary" flat @click="testDialogVisible = false">Close</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+                </div>
+            </div>
+        </dialog-component>
+        <dialog-component v-model:value="placeholderDialogVisible" max-width="700">
+            <template #header>Select placeholder to add</template>
+            <template #footer>
+                <btn-component color="secondary" @click="hidePlaceholderDialog()">Cancel</btn-component>
+            </template>
+            <div style="max-height: 500px;">
+                <div class="possible-placeholders-list">
+                    <div v-for="(placeholder, placeholderIndex) in getPlaceholdersFor((currentPlaceholderDialogTargetConfig == null ? null :currentPlaceholderDialogTargetConfig.Notifier), currentPlaceholderDialogTarget)"
+                        :key="`possible-placeholder-${placeholderIndex}`"
+                        @click="onAddPlaceholderClicked(placeholder, currentPlaceholderDialogTarget)"
+                        class="possible-placeholder-list-item mb-2 pa-2 flex clickable hoverable-light">
+                        <div>
+                            <icon-component>add</icon-component>
+                        </div>
+
+                        <div>
+                            <div class="possible-placeholder-item-title">{{ `\{${placeholder.toUpperCase()}\}` }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </dialog-component>
+        <dialog-component v-model:value="testDialogVisible">
+            <template #header v-if="notifierToTest">Test notifier '{{ notifierToTest.Notifier.Name }}'</template>
+            <template #footer>
+                <btn-component color="secondary" @click="testDialogVisible = false">Close</btn-component>
+            </template>
+
+            <div v-if="notifierToTest">
+                <div>
+                    <p>No placeholders will be resolved, this is just to test the notifier itself.</p>
+                    <btn-component color="primary"
+                        @click="testNotifier"
+                        :disabled="!allowChanges">
+                        Execute notifier
+                    </btn-component>
+                </div>
+
+                <div v-if="testResponse" class="ml-2 mt-3 mb-3">
+                    <h4>Result:</h4>
+                    <code class="notif-test-result">{{ testResponse }}</code>
+                </div>
+            </div>
+        </dialog-component>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import { EventSinkNotificationConfigFilter, FilterMatchType, EventSinkNotificationConfig, NotifierConfig, Dictionary, IEventNotifier, NotifierConfigOptionsItem, KnownEventDefinition } from  '../../../models/modules/EventNotifications/EventNotificationModels';
-import SimpleDateTimeComponent from  '../../Common/SimpleDateTimeComponent.vue';
-import ConfigFilterComponent from '.././EventNotifications/ConfigFilterComponent.vue';
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import DateUtils from  '../../../util/DateUtils';
-import IdUtils from  '../../../util/IdUtils';
-import EventSinkNotificationConfigUtils, { ConfigFilterDescription, ConfigActionDescription } from  '../../../util/EventNotifications/EventSinkNotificationConfigUtils';
-import BlockComponent from  '../../Common/Basic/BlockComponent.vue';
-import InputComponent from  '../../Common/Basic/InputComponent.vue';
-import TimespanInputComponent from  '../../Common/Basic/TimespanInputComponent.vue';
-import EventNotificationService from  '../../../services/EventNotificationService';
-import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
-import { NewItemActionType } from "generated/Enums/Core/NewItemActionType";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import SimpleDateTimeComponent from '@components/Common/SimpleDateTimeComponent.vue';
+import ConfigFilterComponent from '@components/modules/EventNotifications/ConfigFilterComponent.vue';
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import DateUtils from '@util/DateUtils';
+import IdUtils from '@util/IdUtils';
+import EventSinkNotificationConfigUtils, { ConfigFilterDescription, ConfigActionDescription } from '@util/EventNotifications/EventSinkNotificationConfigUtils';
+import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
+import InputComponent from '@components/Common/Basic/InputComponent.vue';
+import TimespanInputComponent from '@components/Common/Basic/TimespanInputComponent.vue';
+import EventNotificationService from '@services/EventNotificationService';
+import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
+import { NewItemActionType } from "@generated/Enums/Core/NewItemActionType";
+import { Dictionary, EventSinkNotificationConfig, EventSinkNotificationConfigFilter, FilterMatchType, IEventNotifier, KnownEventDefinition, NotifierConfig, NotifierConfigOptionsItem } from "@models/modules/EventNotifications/EventNotificationModels";
+import { StoreUtil } from "@util/StoreUtil";
 
-@Component({
+@Options({
     components: {
         ConfigFilterComponent,
         SimpleDateTimeComponent,
@@ -449,7 +406,7 @@ export default class EventNotificationConfigComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
     
     get allowChanges(): boolean {
@@ -623,7 +580,7 @@ export default class EventNotificationConfigComponent extends Vue {
         let value = this.currentPlaceholderDialogTargetConfig.Options[this.currentPlaceholderDialogTargetOptionKey];
         value = `${(value || '')}\{${placeholder.toUpperCase()}\}`;
 
-        Vue.set(this.currentPlaceholderDialogTargetConfig.Options, this.currentPlaceholderDialogTargetOptionKey, value);
+        this.currentPlaceholderDialogTargetConfig.Options[this.currentPlaceholderDialogTargetOptionKey] = value;
         // this.currentPlaceholderDialogTargetConfig.Options[this.currentPlaceholderDialogTargetOptionKey] = value;
 
         this.hidePlaceholderDialog();
@@ -794,14 +751,16 @@ export default class EventNotificationConfigComponent extends Vue {
     }
 
     onConfigFilterChanged(index: number, filter: EventSinkNotificationConfigFilter): void {
-        Vue.set(this.internalConfig.PayloadFilters, index, filter);
+        this.internalConfig.PayloadFilters[index] = filter;
     }
 
     onSummaryConditionClicked(condition: ConfigFilterDescription): void {
         let targetElement: HTMLElement | null = null;
         if (condition.id == this.internalConfig.EventIdFilter._frontendId) 
         {
-            targetElement = this.$refs.eventIdFilter as HTMLElement;
+            const comp = this.$refs.eventIdFilter as Vue;
+            // targetElement = this.$refs.eventIdFilter as HTMLElement;
+            targetElement = (comp.$el.querySelectorAll("input")[0]) as HTMLElement;
         }
         else
         {
@@ -845,7 +804,11 @@ export default class EventNotificationConfigComponent extends Vue {
     padding-top: 0;
 }
 .payload-filter {
-    border-bottom: solid 1px #ccc;
+    border-left: solid 2px var(--color--accent-base);
+    padding-bottom: 8px;
+    padding-top: 8px;
+    padding-left: 16px;
+    margin-bottom: 16px;
 }
 .config-summary {
     padding: 10px;
@@ -876,24 +839,10 @@ export default class EventNotificationConfigComponent extends Vue {
 </style>
 
 <style lang="scss">
-.possible-notifiers-dialog {
-    max-width: 700px;
-
-    .possible-notifiers-list-item {
-        margin-bottom: 10px;
-    }
-}
-.possible-placeholders-dialog {
-    max-width: 700px;
-
-    .possible-placeholder-list-item {
-        margin-bottom: 10px;
-    }
-}
 .notif-test-result {
     width: 100%;
     overflow: auto;
-    color: #333;
+    /* color: #333; */
     padding: 10px;
 
     &::before {

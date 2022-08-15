@@ -24,13 +24,14 @@
 </template>
 
 <script lang="ts">
-import IdUtils from "util/IdUtils";
-import { Vue, Component, Prop, } from "vue-property-decorator";
-import DateUtils from "util/DateUtils";
-import { HCReleaseNotesViewModel } from "generated/Models/Core/HCReleaseNotesViewModel";
-import { HCReleaseNoteChangeViewModel } from "generated/Models/Core/HCReleaseNoteChangeViewModel";
+import IdUtils from "@util/IdUtils";
+import { Vue, Prop, } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import DateUtils from "@util/DateUtils";
+import { HCReleaseNotesViewModel } from "@generated/Models/Core/HCReleaseNotesViewModel";
+import { HCReleaseNoteChangeViewModel } from "@generated/Models/Core/HCReleaseNoteChangeViewModel";
 
-@Component({
+@Options({
     components: {
     }
 })

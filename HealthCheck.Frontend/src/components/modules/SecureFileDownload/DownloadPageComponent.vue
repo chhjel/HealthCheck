@@ -1,20 +1,18 @@
 <!-- src/components/modules/SecureFileDownload/DownloadPageComponent.vue -->
 <template>
-    <div>
-    <v-app light class="approot">
     <div class="secure-file-download-page">
-        <v-content class="pl-0">
-        <v-container fluid fill-height class="content-root">
-        <v-layout>
-        <v-flex class="pl-4 pr-4 pb-4">
-          <!-- CONTENT BEGIN -->
-            <v-container>
+        <div>
+        <div fluid fill-height class="content-root">
+        <div>
+        <div class="pl-4 pr-4 pb-4">
+          
+            <div>
                 
                 <!-- AFTER DOWNLOAD HAS STARTED -->
                 <block-component class="mb-4" v-if="isDownloading">
                     <div class="downloading-content">
-                        <h3 class="heading">Downloading '{{data.download.filename}}'</h3>
-                        <v-icon large color="green darken-2">done</v-icon> 
+                        <h3 class="heading">Downloading '{{datax.download.filename}}'</h3>
+                        <icon-component large color="green darken-2">done</icon-component> 
                     </div>
                 </block-component>
                 
@@ -22,26 +20,27 @@
                 <block-component class="mb-4" v-if="!isDownloading">
                     <div>
                         <!-- LOAD STATUS -->
-                        <v-alert :value="data.definitionValidationError !== null" type="error">
-                            {{ data.definitionValidationError }}
-                        </v-alert>
-                        <v-alert
+                        <alert-component :value="datax.definitionValidationError !== null" type="error">
+                            {{ datax.definitionValidationError }}
+                        </alert-component>
+                        <alert-component
                             :value="loadStatus.failed"
                             type="error">
                         {{ loadStatus.errorMessage }}
-                        </v-alert>
+                        </alert-component>
 
                         <!-- PASSWORD INPUT -->
-                        <div v-if="data.download.protected && !isExpired">
+                        <div v-if="datax.download.protected && !isExpired">
                             <strong>A password is required to download this file</strong>
-                            <v-text-field 
-                                box
+                            <text-field-component 
+                                box center
                                 hide-details single-line
-                                v-model="currentPassword"
+                                v-model:value="currentPassword"
                                 :disabled="isPasswordFieldDisabled"
                                 :type="showPassword ? 'text' : 'password'"
                                 :append-icon="showPassword ? 'visibility' : 'visibility_off'"
                                 @click:append="showPassword = !showPassword"
+                                placeholder="Enter password.."
                                 class="pt-0 mt-2" />
                         
                             <div v-if="passwordValidationResult != null && !passwordValidationResult.success"
@@ -51,7 +50,7 @@
                         </div>
 
                         <!-- DOWNLOAD LINK -->
-                        <v-btn color="primary" large
+                        <btn-component color="primary" large
                             class="mt-3"
                             v-if="!isExpired"
                             @click.prevent="onDownloadClicked"
@@ -60,48 +59,47 @@
                             <span style="white-space: normal;">
                             {{ downloadButtonText }}
                             </span>
-                            <v-icon dark right>cloud_download</v-icon>
-                        </v-btn>
-                        <v-progress-linear color="primary" indeterminate v-if="loadStatus.inProgress"></v-progress-linear>
+                            <icon-component right class="ml-2">cloud_download</icon-component>
+                        </btn-component>
+                        <progress-linear-component color="primary" indeterminate v-if="loadStatus.inProgress"></progress-linear-component>
                     </div>
                 </block-component>
 
                 <!-- NOTES -->
                 <block-component class="mb-4"
-                    v-if="data.download.note !== null">
-                    <div class="download-note">{{ data.download.note }}</div>
+                    v-if="datax.download.note !== null">
+                    <div class="download-note">{{ datax.download.note }}</div>
                 </block-component>
 
                 <!-- EXPIRATION -->
                 <block-component class="mb-4"
-                    v-if="(data.download.expiresAt !== null || data.download.downloadsRemaining !== null) && !isExpired">
-                    <div v-if="data.download.expiresAt !== null">
+                    v-if="(datax.download.expiresAt !== null || datax.download.downloadsRemaining !== null) && !isExpired">
+                    <div v-if="datax.download.expiresAt !== null">
                         Expires {{ formatedExpirationDate }}.
                     </div>
-                    <div v-if="data.download.downloadsRemaining !== null">
-                        <b>{{ data.download.downloadsRemaining }}</b> downloads remaining.
+                    <div v-if="datax.download.downloadsRemaining !== null">
+                        <b>{{ datax.download.downloadsRemaining }}</b> downloads remaining.
                     </div>
                 </block-component>
 
-            </v-container>
-          <!-- CONTENT END -->
-        </v-flex>
-        </v-layout>
-        </v-container>
-        </v-content>
-    </div>
-    </v-app>
+            </div>
+          
+        </div>
+        </div>
+        </div>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import DateUtils from  '../../../util/DateUtils';
-import LinqUtils from  '../../../util/LinqUtils';
-import HCServiceBase, { FetchStatus,  } from  '../../../services/abstractions/HCServiceBase';
-import BlockComponent from '../../Common/Basic/BlockComponent.vue';
-import UrlUtils from "../../../util/UrlUtils";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import DateUtils from '@util/DateUtils';
+import LinqUtils from '@util/LinqUtils';
+import HCServiceBase, { FetchStatus,  } from '@services/abstractions/HCServiceBase';
+import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
+import UrlUtils from '@util/UrlUtils';
 
 interface ConfigFromWindow
 {
@@ -125,7 +123,7 @@ interface ValidatePasswordResult
     token: string;
 }
 
-@Component({
+@Options({
     components: {
         BlockComponent,
     }
@@ -138,7 +136,7 @@ export default class DownloadPageComponent extends Vue {
     currentPassword: string = '';
     showPassword: boolean = false;
 
-    data: ConfigFromWindow = {
+    datax: ConfigFromWindow = {
         definitionValidationError: '',
         download: {
             name: '',
@@ -158,7 +156,7 @@ export default class DownloadPageComponent extends Vue {
     {
         this.loadData();
 
-        if (!this.data.download.protected && this.data.download.downloadsRemaining == null && !this.data.definitionValidationError)
+        if (!this.datax.download.protected && this.datax.download.downloadsRemaining == null && !this.datax.definitionValidationError)
         {
             this.startDownloadingCurrentFile();
         }
@@ -177,16 +175,16 @@ export default class DownloadPageComponent extends Vue {
         if (this.loadStatus.inProgress) {
             return 'Authenticating..';
         } else {
-            return `Download '${this.data.download.filename}'`;
+            return `Download '${this.datax.download.filename}'`;
         }
     }
 
     get isExpired(): boolean {
-        if (this.data.download.expiresAt != null && this.data.download.expiresAt.getTime() < new Date().getTime())
+        if (this.datax.download.expiresAt != null && this.datax.download.expiresAt.getTime() < new Date().getTime())
         {
             return true;
         }
-        else if (this.data.download.downloadsRemaining != null && this.data.download.downloadsRemaining <= 0)
+        else if (this.datax.download.downloadsRemaining != null && this.datax.download.downloadsRemaining <= 0)
         {
             return true;
         }
@@ -210,7 +208,7 @@ export default class DownloadPageComponent extends Vue {
         {
             return true;
         }
-        // else if (this.data.download.protected && this.currentPassword.trim().length == 0)
+        // else if (this.datax.download.protected && this.currentPassword.trim().length == 0)
         // {
         //     return true;
         // }
@@ -219,14 +217,14 @@ export default class DownloadPageComponent extends Vue {
     }
 
     get formatedExpirationDate(): string {
-        if (this.data.download.expiresAt == null)
+        if (this.datax.download.expiresAt == null)
         {
             return '';
         }
 
-        return DateUtils.FormatDate(this.data.download.expiresAt, 'd. MMM yyyy')
+        return DateUtils.FormatDate(this.datax.download.expiresAt, 'd. MMM yyyy')
             + ' at '
-            + DateUtils.FormatDate(this.data.download.expiresAt, 'HH:mm:ss');
+            + DateUtils.FormatDate(this.datax.download.expiresAt, 'HH:mm:ss');
     }
     
     ////////////////
@@ -240,7 +238,7 @@ export default class DownloadPageComponent extends Vue {
         const downloadsRemaining = (windowData.download.downloadsRemaining === '') ? null 
             : Number(windowData.download.downloadsRemaining);
 
-        this.data = {
+        this.datax = {
             definitionValidationError: windowData.definitionValidationError,
             download: {
                 name: windowData.download.name,
@@ -264,9 +262,9 @@ export default class DownloadPageComponent extends Vue {
         link.click();
         
         this.isDownloading = true;
-        if (this.data.download.downloadsRemaining != null)
+        if (this.datax.download.downloadsRemaining != null)
         {
-            this.data.download.downloadsRemaining = this.data.download.downloadsRemaining - 1;
+            this.datax.download.downloadsRemaining = this.datax.download.downloadsRemaining - 1;
         }
     }
 
@@ -292,17 +290,17 @@ export default class DownloadPageComponent extends Vue {
             },
             true,
             {
-                'x-id': this.data.download.name,
+                'x-id': this.datax.download.name,
                 'x-pwd': password
             });
     }
 
     startDownloadingCurrentFile(token: string = ''): void {
-        let relativeUrl = this.data.download.downloadLink;
+        let relativeUrl = this.datax.download.downloadLink;
         let url = UrlUtils.getRelativeToCurrent(`../${relativeUrl}`);
 
         // Not protected => download at once
-        if (!this.data.download.protected)
+        if (!this.datax.download.protected)
         {
             this.startDownload(url);
         }
@@ -330,12 +328,16 @@ export default class DownloadPageComponent extends Vue {
 
 <style scoped lang="scss">
 .secure-file-download-page {
-    /* background-color: hsla(0, 0%, 16%, 1); */
     height: 100%;
     text-align: center;
+    padding: 5px 20px;
+    margin: 0 auto;
+    max-width: 1280px;
+    width: calc(100% - 40px); // - padding (20+20)
     
     .content-root {
         max-width: 800px;
+        margin: 0 auto;
     }
 
     .downloading-content {
@@ -354,10 +356,6 @@ export default class DownloadPageComponent extends Vue {
 .secure-file-download-page {
     button {
         max-width: 100%;
-
-        .v-btn__content {
-            max-width: 100%;
-        }
     }
 }
 </style>

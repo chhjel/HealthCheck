@@ -1,4 +1,4 @@
-import { HCIntegratedLoginRequest } from "generated/Models/WebUI/HCIntegratedLoginRequest";
+import { HCIntegratedLoginRequest } from "@generated/Models/WebUI/HCIntegratedLoginRequest";
 import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
 
 export interface HCIntegratedLoginResult

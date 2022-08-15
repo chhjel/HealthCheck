@@ -1,11 +1,11 @@
 using Fido2NetLib;
 using HealthCheck.Core.Abstractions;
-using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Models;
 using HealthCheck.Core.Modules.AccessTokens;
 using HealthCheck.Core.Modules.AccessTokens.Abstractions;
 using HealthCheck.Core.Modules.AuditLog;
 using HealthCheck.Core.Modules.AuditLog.Abstractions;
+using HealthCheck.Core.Modules.AuditLog.Models;
 using HealthCheck.Core.Modules.Dataflow;
 using HealthCheck.Core.Modules.Dataflow.Abstractions;
 using HealthCheck.Core.Modules.DataRepeater;
@@ -15,6 +15,8 @@ using HealthCheck.Core.Modules.Documentation.Services;
 using HealthCheck.Core.Modules.EventNotifications;
 using HealthCheck.Core.Modules.EventNotifications.Abstractions;
 using HealthCheck.Core.Modules.LogViewer;
+using HealthCheck.Core.Modules.Messages;
+using HealthCheck.Core.Modules.Messages.Abstractions;
 using HealthCheck.Core.Modules.Metrics;
 using HealthCheck.Core.Modules.Metrics.Abstractions;
 using HealthCheck.Core.Modules.Metrics.Context;
@@ -25,12 +27,10 @@ using HealthCheck.Core.Modules.Settings;
 using HealthCheck.Core.Modules.Settings.Abstractions;
 using HealthCheck.Core.Modules.SiteEvents;
 using HealthCheck.Core.Modules.SiteEvents.Abstractions;
-using HealthCheck.Core.Modules.SiteEvents.Enums;
-using HealthCheck.Core.Modules.SiteEvents.Models;
-using HealthCheck.Core.Modules.SiteEvents.Utils;
 using HealthCheck.Core.Modules.Tests;
 using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Util;
+using HealthCheck.Core.Util.Modules;
 using HealthCheck.Dev.Common;
 using HealthCheck.Dev.Common.Dataflow;
 using HealthCheck.Dev.Common.Settings;
@@ -39,6 +39,11 @@ using HealthCheck.Module.DataExport;
 using HealthCheck.Module.DataExport.Abstractions;
 using HealthCheck.Module.DataExport.Exporter.Excel;
 using HealthCheck.Module.DevModule;
+using HealthCheck.Module.DynamicCodeExecution.Abstractions;
+using HealthCheck.Module.DynamicCodeExecution.Models;
+using HealthCheck.Module.DynamicCodeExecution.Module;
+using HealthCheck.Module.DynamicCodeExecution.Storage;
+using HealthCheck.Module.DynamicCodeExecution.Validators;
 using HealthCheck.Module.EndpointControl.Abstractions;
 using HealthCheck.Module.EndpointControl.Module;
 using HealthCheck.WebUI.Abstractions;
@@ -56,6 +61,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace HealthCheck.DevTest.NetCore_6._0.Controllers
@@ -66,9 +72,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
         #region Props & Fields
         private readonly IWebHostEnvironment _env;
         private readonly IEventDataSink _eventDataSink;
-        private readonly ISiteEventService _siteEventService;
-        private readonly IHCSettingsService _settingsService;
-        private readonly IHCDataRepeaterService _dataRepeaterService;
+        private readonly IAuditEventStorage _auditEventStorage;
         private const string EndpointBase = "/";
         private static bool ForceLogout { get; set; }
         #endregion
@@ -89,16 +93,19 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             IHCMetricsStorage metricsStorage,
             IHCDataRepeaterService dataRepeaterService,
             IHCDataExportService dataExportService,
-            IHCDataExportPresetStorage dataExportPresetStorage
+            IHCDataExportPresetStorage dataExportPresetStorage,
+            IHCMessageStorage messageStore
         )
             : base()
         {
             _env = env;
             _eventDataSink = eventDataSink;
-            _siteEventService = siteEventService;
-            _settingsService = settingsService;
-            _dataRepeaterService = dataRepeaterService;
+            _auditEventStorage = auditEventStorage;
 
+            UseModule(new HCMessagesModule(new HCMessagesModuleOptions() { MessageStorage = messageStore }
+                .DefineInbox("mail", "Mail", "All sent email ends up here.")
+                .DefineInbox("sms", "SMS", "All sent sms ends up here.")
+            ));
             UseModule(new HCDataExportModule(new HCDataExportModuleOptions
                 {
                     Service = dataExportService,
@@ -108,7 +115,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             ));
             UseModule(new HCDataRepeaterModule(new HCDataRepeaterModuleOptions
             {
-                Service = _dataRepeaterService
+                Service = dataRepeaterService
             }));
             UseModule(new HCEndpointControlModule(new HCEndpointControlModuleOptions()
             {
@@ -143,9 +150,17 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
                         typeof(DevController).Assembly,
                         typeof(RuntimeTestConstants).Assembly
                     },
-                ReferenceParameterFactories = CreateReferenceParameterFactories
+                ReferenceParameterFactories = CreateReferenceParameterFactories,
+                FileDownloadHandler = (type, id) =>
+                {
+                    if (id == "404") return null;
+                    else if (Guid.TryParse(id, out var fileGuid)) return HealthCheckFileDownloadResult.CreateFromString("guid.txt", $"The guid was {id}");
+                    else if (id == "ascii") return HealthCheckFileDownloadResult.CreateFromString("Success.txt", $"Type: {type}, Id: {id}. ÆØÅæøå etc ôasd. ASCII", encoding: Encoding.ASCII);
+                    else return HealthCheckFileDownloadResult.CreateFromString("Success.txt", $"Type: {type}, Id: {id}. ÆØÅæøå etc ôasd.");
+                },
             }))
                 .ConfigureGroups((options) => options
+                    .ConfigureGroup(RuntimeTestConstants.Group.TopGroup, uiOrder: 130)
                     .ConfigureGroup(RuntimeTestConstants.Group.Modules, uiOrder: 120)
                     .ConfigureGroup(RuntimeTestConstants.Group.AdminStuff, uiOrder: 100)
                     .ConfigureGroup(RuntimeTestConstants.Group.AlmostTopGroup, uiOrder: 50)
@@ -178,11 +193,26 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             }));
             UseModule(new HCSiteEventsModule(new HCSiteEventsModuleOptions() { SiteEventService = siteEventService, CustomHtml = "<h2>Something custom here</h2><p>And some more.</p>" }));
             UseModule(new HCSettingsModule(new HCSettingsModuleOptions() { Service = settingsService, ModelType = typeof(TestSettings) }));
-
-            if (!_hasInited)
+            UseModule(new HCDynamicCodeExecutionModule(new HCDynamicCodeExecutionModuleOptions()
             {
-                InitOnce();
-            }
+                StoreCopyOfExecutedScriptsAsAuditBlobs = true,
+                TargetAssembly = typeof(DevController).Assembly,
+                ScriptStorage = new FlatFileDynamicCodeScriptStorage(@"C:\temp\DCE_Scripts.json"),
+                PreProcessors = new IDynamicCodePreProcessor[0],
+                Validators = new IDynamicCodeValidator[]
+                {
+                    new FuncCodeValidator((code) =>
+                        code.Contains("format c:")
+                            ? DynamicCodeValidationResult.Deny("No format pls")
+                            : DynamicCodeValidationResult.Allow()
+                    )
+                },
+                AutoCompleter = null,// new DCEMCAAutoCompleter(),
+                StaticSnippets = new List<CodeSuggestion>
+                {
+                    new CodeSuggestion("GetService<T>(id)", "Get a registered service", "GetService<${1:T}>(${2:x})")
+                }
+            }));
         }
 
         private List<RuntimeTestReferenceParameterFactory> CreateReferenceParameterFactories()
@@ -202,6 +232,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
                 )
             };
         }
+        
         #region Overrides
         protected override HCFrontEndOptions GetFrontEndOptions()
             => new(EndpointBase)
@@ -255,6 +286,8 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             config.GiveRolesAccessToModuleWithFullAccess<TestModuleB>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCEndpointControlModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCMetricsModule>(RuntimeTestAccessRole.WebAdmins);
+            config.GiveRolesAccessToModuleWithFullAccess<HCMessagesModule>(RuntimeTestAccessRole.WebAdmins);
+            config.GiveRolesAccessToModuleWithFullAccess<HCDynamicCodeExecutionModule>(RuntimeTestAccessRole.WebAdmins);
             //////////////
 
             config.ShowFailedModuleLoadStackTrace = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
@@ -391,7 +424,6 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             };
         }
 
-        private static readonly DateTime _eventTime = DateTime.Now;
         protected override RequestInformation<RuntimeTestAccessRole> GetRequestInformation(HttpRequest request)
         {
             HCRequestData.IncrementCounter("GetRequestInformationCallCount");
@@ -418,70 +450,10 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             {
                 roles |= RuntimeTestAccessRole.QuerystringTest;
             }
-
-            if (request.Query.ContainsKey("siteEvents"))
+            if (request.Query.ContainsKey("makeABlob"))
             {
-                for (int i = 0; i < 500; i++)
-                {
-                    HCSiteEventUtils.TryRegisterNewEvent(SiteEventSeverity.Warning, $"pageError_{_eventTime.Ticks}", $"Slow page #{_eventTime.Ticks}",
-                        $"Pageload seems a bit slow currently on page #{_eventTime.Ticks}, we're working on it.",
-                        duration: 5,
-                        developerDetails: $"Duration: {i} ms");
-                }
-            }
-            if (request.Query.ContainsKey("siteEvent"))
-            {
-                HCSiteEventUtils.TryRegisterNewEvent(SiteEventSeverity.Error, "api_z_error", "Oh no! API Z is broken!", "How could this happen to us!?",
-                    developerDetails: "Hmm this is probably why.",
-                    config: x => x.AddRelatedLink("Status page", "https://status.otherapi.com"));
-            }
-            if (request.Query.ContainsKey("siteEvent3"))
-            {
-                HCSiteEventUtils.TryRegisterNewEvent(SiteEventSeverity.Error, "api_AB_error", "Oh no! API AB is broken!", "How could this happen to us!?",
-                    developerDetails: "Hmm this is probably why.",
-                    config: x => x.AddRelatedLink("Status page", "https://status.otherapi.com").SetMinimumDurationRequiredToDisplay(2));
-            }
-            if (request.Query.ContainsKey("siteEvent2"))
-            {
-                var now = DateTime.Now;
-                var times = new List<(string, DateTime)>
-                {
-                    ("aaa", new DateTime(now.Year, now.Month, now.Day - 2, 15, 38, 05)),
-                    ("ccc", new DateTime(now.Year, now.Month, now.Day - 1, 8, 11, 05)),
-                    ("ddd", new DateTime(now.Year, now.Month, now.Day - 1, 6, 09, 05))
-                };
-                var from = new DateTime(now.Year, now.Month, now.Day - 2, 12, 23, 05);
-                var to = new DateTime(now.Year, now.Month, now.Day - 1, 0, 12, 52);
-                for (var d = from; d <= to; d += TimeSpan.FromMinutes(1))
-                {
-                    times.Add(("bbb", d));
-                }
-
-                times.AddRange(new List<(string, DateTime)>
-                {
-                    ("aaa", new DateTime(now.Year, now.Month, now.Day - 2, 15, 38, 05)),
-                    ("ccc", new DateTime(now.Year, now.Month, now.Day - 1, 8, 11, 05)),
-                    ("ddd", new DateTime(now.Year, now.Month, now.Day - 1, 6, 09, 05))
-                });
-
-                foreach (var d in times)
-                {
-                    var e = new SiteEvent(SiteEventSeverity.Error, $"test_{d.Item1}", $"Oh no! API {d.Item1.ToUpper()} is broken!", "How could this happen to us!?",
-                        developerDetails: "Hmm this is probably why.")
-                    {
-                        Timestamp = d.Item2
-                    };
-                    HCSiteEventUtils.TryRegisterNewEvent(e);
-                }
-            }
-            if (request.Query.ContainsKey("siteEventResolved"))
-            {
-                HCSiteEventUtils.TryMarkLatestEventAsResolved("api_x_error", "Seems it fixed itself somehow.",
-                    config: x => x.AddRelatedLink("Another page", "https://www.google.com"));
-            }
-            if (request.Query.ContainsKey("simulateSiteEventResolveJob"))
-            {
-                SimulateSiteEventResolveJob();
+                _auditEventStorage.StoreEvent(new AuditEvent(DateTimeOffset.Now, "DevArea", "Dev test title", "Subject", "UserX", "User X", new List<string>())
+                    .AddBlob("Blob name", "Blob contents here."));
             }
 
             if (request.Query.ContainsKey("noaccess"))
@@ -519,19 +491,6 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
         #endregion
 
         #region dev
-        private static void SimulateSiteEventResolveJob()
-        {
-            var unresolvedEvents = HCSiteEventUtils.TryGetAllUnresolvedEvents();
-            foreach (var unresolvedEvent in unresolvedEvents)
-            {
-                var timeSince = DateTimeOffset.Now - (unresolvedEvent.Timestamp + TimeSpan.FromMinutes(unresolvedEvent.Duration));
-                if (timeSince > TimeSpan.FromMinutes(15))
-                {
-                    HCSiteEventUtils.TryMarkEventAsResolved(unresolvedEvent.Id, "Seems to be fixed now.");
-                }
-            }
-        }
-
         private HCWebAuthnHelper CreateWebAuthnHelper()
             => new(new HCWebAuthnHelperOptions
             {
@@ -542,6 +501,9 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
 
         [Route("GetMainScript")]
         public ActionResult GetMainScript() => LoadFile("healthcheck.js");
+
+        [Route("GetMainStyle")]
+        public ActionResult GetMainStyle() => LoadFile("healthcheck.css", "text/css");
 
         [Route("GetVendorScript")]
         public ActionResult GetVendorScript() => LoadFile("healthcheck.vendor.js");
@@ -555,47 +517,17 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
         [Route("GetScript")]
         public ActionResult GetScript(string name) => LoadFile(name);
 
-        private ActionResult LoadFile(string filename)
+        private ActionResult LoadFile(string filename, string contentType = "text/plain")
         {
             var filepath = GetFilePath($@"..\..\HealthCheck.Frontend\dist\{filename}");
-            if (!System.IO.File.Exists(filepath)) return Content("");
-            return new FileStreamResult(new FileStream(filepath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), new MediaTypeHeaderValue("text/plain"))
+            if (!System.IO.File.Exists(filepath)) return NotFound();
+            return new FileStreamResult(new FileStream(filepath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), new MediaTypeHeaderValue(contentType))
             {
                 FileDownloadName = Path.GetFileName(filepath)
             };
         }
 
         private string GetFilePath(string relativePath) => Path.GetFullPath(Path.Combine(_env.ContentRootPath, relativePath));
-
-        [Route("TestEvent")]
-        public ActionResult TestEvent(int v = 1)
-        {
-            object payload = v switch
-            {
-                3 => new
-                {
-                    Url = Request.GetDisplayUrl(),
-                    User = CurrentRequestInformation?.UserName,
-                    SettingValue = _settingsService.GetSettings<TestSettings>().IntProp,
-                    ExtraB = "BBBB"
-                },
-                2 => new
-                {
-                    Url = Request.GetDisplayUrl(),
-                    User = CurrentRequestInformation?.UserName,
-                    SettingValue = _settingsService.GetSettings<TestSettings>().IntProp,
-                    ExtraA = "AAAA"
-                },
-                _ => new
-                {
-                    Url = Request.GetDisplayUrl(),
-                    User = CurrentRequestInformation?.UserName,
-                    SettingValue = _settingsService.GetSettings<TestSettings>().IntProp
-                },
-            };
-            _eventDataSink.RegisterEvent("pageload", payload);
-            return Content($"Registered variant #{v}");
-        }
 
         [Route("Logout")]
         public ActionResult Logout()
@@ -628,31 +560,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             }
         }
 
-        private static bool _hasInited = false;
-        private static void InitOnce()
-        {
-            _hasInited = true;
-            //Task.Run(() => AddEvents());
-        }
-
         // New mock data
-        [Route("AddEvents")]
-        public async Task<ActionResult> AddEvents()
-        {
-            if ((await _siteEventService.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue)).Count == 0)
-            {
-                for (int i = 0; i < 20; i++)
-                {
-                    await AddEvent();
-                }
-                return Content("Mock events reset");
-            }
-            else
-            {
-                return Content("Already have some mock events in place");
-            }
-        }
-
         [Route("AddDataflow")]
         public ActionResult AddDataflow(int count = 10)
         {
@@ -668,78 +576,6 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
 
             return Content("OK :]");
         }
-
-        // New mock data
-        private static readonly Random _rand = new();
-        [Route("AddEvent")]
-        public async Task<ActionResult> AddEvent()
-        {
-            if (!Enabled || _siteEventService == null) return NotFound();
-
-            CreateSomeData(out string title, out string description);
-            var severity = SiteEventSeverity.Information;
-            if (_rand.Next(100) < 10)
-            {
-                severity = SiteEventSeverity.Fatal;
-            }
-            else if (_rand.Next(100) < 25)
-            {
-                severity = SiteEventSeverity.Error;
-            }
-            else if (_rand.Next(100) < 50)
-            {
-                severity = SiteEventSeverity.Warning;
-            }
-
-            var ev = new SiteEvent(
-                severity, $"Error type {_rand.Next(10000)}",
-                title, description,
-                duration: _rand.Next(1, 90)
-            )
-            {
-                Timestamp = DateTimeOffset.Now
-                    .AddDays(-7 + _rand.Next(7))
-                    .AddMinutes(_rand.Next(0, 24 * 60))
-            }
-            .AddRelatedLink("Page that failed", "https://www.google.com?etc")
-            .AddRelatedLink("Error log", "https://www.google.com?q=errorlog");
-
-            await _siteEventService.StoreEvent(ev);
-            return CreateJsonResult(ev);
-        }
-
-        private static string AddXFix(string subject, string xfix)
-        {
-            if (xfix.Contains('|'))
-            {
-                var parts = xfix.Split('|');
-                var prefix = parts[0];
-                var suffix = parts[1];
-                return $"{prefix} {subject}{suffix}";
-            }
-            else
-            {
-                return $"{xfix}{subject}";
-            }
-        }
-
-        private void CreateSomeData(out string title, out string description)
-        {
-            var subject = _subjects.RandomElement(_rand);
-            subject = AddXFix(subject, _subjectXFixes.RandomElement(_rand));
-            var accident = _accidents.RandomElement(_rand);
-            var reaction = _reactions.RandomElement(_rand);
-            var reactor = _subjects.RandomElement(_rand);
-            reactor = AddXFix(reactor, _subjectXFixes.RandomElement(_rand));
-
-            title = $"{subject} {accident}".CapitalizeFirst();
-            description = $"{subject} {accident} and {reactor} is {reaction}.".CapitalizeFirst();
-        }
-
-        private readonly string[] _subjectXFixes = new[] { "the ", "an unknown ", "most of the |s", "several of the |s", "one of the |s" };
-        private readonly string[] _subjects = new[] { "service", "server", "integration", "frontpage", "developer", "codebase", "project manager", "CEO" };
-        private readonly string[] _accidents = new[] { "is on fire", "exploded", "is slow", "decided to close", "is infected with ransomware", "is not happy", "don't know what to do" };
-        private readonly string[] _reactions = new[] { "on fire", "not pleased", "confused", "not happy", "leaving" };
         #endregion
     }
 }

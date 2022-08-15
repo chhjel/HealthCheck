@@ -1,6 +1,6 @@
 import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
-import { GetSettingsViewModel } from "generated/Models/Core/GetSettingsViewModel";
-import { SetSettingsViewModel } from 'generated/Models/Core/SetSettingsViewModel';
+import { GetSettingsViewModel } from "@generated/Models/Core/GetSettingsViewModel";
+import { SetSettingsViewModel } from '@generated/Models/Core/SetSettingsViewModel';
 
 export default class SettingsService extends HCServiceBase
 {

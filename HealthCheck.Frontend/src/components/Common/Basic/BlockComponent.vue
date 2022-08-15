@@ -14,18 +14,18 @@
             
             <div class="block-component--header-details" v-if="details.length > 0">{{ details }}</div>
             
-            <v-btn 
+            <btn-component 
                 class="ma-0 pl-1 pr-3 block-component--header-button"
                 v-if="buttonText.length > 0"
-                ripple color="primary" 
+                color="primary" 
                 @click.stop.prevent="onHeaderButtonClicked"
                 :disabled="buttonDisabled">
-            <v-icon color="white" large v-if="buttonIcon.length > 0">{{ buttonIcon }}</v-icon>
+            <icon-component color="white" large v-if="buttonIcon.length > 0">{{ buttonIcon }}</icon-component>
             {{ buttonText }}
-            </v-btn>
+            </btn-component>
         </div>
         
-        <!-- CONTENT -->
+        
         <div v-if="!headerOnly"
             class="block-component--content"
             :class="{'no-header': title.length == 0}"
@@ -36,9 +36,10 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
 
-@Component({
+@Options({
     components: {}
 })
 export default class BlockComponent extends Vue
@@ -86,6 +87,10 @@ export default class BlockComponent extends Vue
     background-color: #fff;
     box-shadow: #d5d7d5 4px 4px 6px 0px;
     padding: 24px;
+    border: 1px solid #eee;
+    box-sizing: border-box;
+    overflow: hidden;
+
     @media (max-width: 960px) {
         padding-left: 0;
         padding-right: 0;
@@ -123,14 +128,11 @@ export default class BlockComponent extends Vue
             min-height: 53px;
             border-radius: 25px;
             text-transform: inherit;
-            .v-icon {
-                margin-right: 5px;
-            }
         }
 
         .block-component--header-status-label {
             color: #fff;
-            background-color: var(--v-success-base);
+            background-color: var(--color--success-base);
             height: 33px;
             padding: 8px;
             margin-right: 8px;

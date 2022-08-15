@@ -3,47 +3,50 @@
     <div>
       <div class="test-item pa-4">
           <!-- HEADER -->
-          <div class="test-categories" v-if="showCategories" v-html="categoriesString"></div>
+          <div class="test-header-right">
+            <a class="clickable mr-1" v-if="showSingleModeLink" @click="enableSingleMode">[Show only this one]</a>
+            <div class="test-categories" v-if="showCategories" v-html="categoriesString"></div>
+          </div>
           <div class="test-header" 
             :class="{'no-details': !showDetails}"
             :data-test-title-encoded="encodedTestTitle"
             @click="$emit('testClicked', test)">
 
-            <div class="test-status-label subheading font-weight-bold"
-              :class="statusClass"
-              v-if="hasStatus && allowShowStatusLabel">{{statusText}}</div>
-            <h4 class="test-name">
-              {{ test.Name }}
-              <!-- <v-icon>link</v-icon> -->
-            </h4>
-            <div class="test-duration" v-if="showTestDuration">{{ prettifyDuration(testResult.DurationInMilliseconds) }}</div>
+            <div class="flex flex-wrap spacer">
+              <div class="test-status-label subheading font-weight-bold"
+                :class="statusClass"
+                v-if="hasStatus && allowShowStatusLabel">{{statusText}}</div>
+              <h4 class="test-name">
+                {{ test.Name }}
+                <!-- <icon-component>link</icon-component> -->
+              </h4>
+              <div class="test-duration" v-if="showTestDuration">{{ prettifyDuration(testResult.DurationInMilliseconds) }}</div>
+            </div>
 
-            <v-btn ripple color="error"
+            <btn-component color="error"
               @click.stop.prevent="cancelTest()"
               v-if="(executeTestStatus.inProgress || showCancellationButtonUntilNextRun) && test.IsCancellable"
               :disabled="cancelTestStatus.inProgress"
               class="ma-0 mr-2 mt-2 pl-1 pr-3 cancel-test-button">
-              <v-icon color="white">cancel</v-icon>
+              <icon-component color="white">cancel</icon-component>
               {{ cancelTestButtonText }}
-            </v-btn>
+            </btn-component>
             
-            <v-btn ripple color="primary" 
+            <btn-component color="primary" 
               @click.stop.prevent="onExecuteTestClicked()"
               :disabled="executeTestStatus.inProgress || showCancellationButtonUntilNextRun"
               class="ma-0 pl-1 pr-3 run-test-button"
               :class="{ 'cancellable': test.IsCancellable }">
-              <v-icon color="white" large>play_arrow</v-icon>
+              <icon-component color="white" large>play_arrow</icon-component>
               {{ executeTestButtonText }}
-            </v-btn>
+            </btn-component>
           </div>
           
           <div class="test-details" v-if="showDetails">
             <!-- DESCRIPTION -->
             <div v-if="hasDescription">
               <div class="mt-3"></div>
-              <h4 class="subheading"
-                :class="{ 'mb-4':  (showTestResult && test.Parameters.length == 0) }"
-                v-html="test.Description"></h4>
+              <h4 class="subheading mb-4" v-html="test.Description"></h4>
             </div>
             
             <!-- PARAMETERS -->
@@ -53,18 +56,18 @@
             <div v-if="test.Parameters.length > 0 && showTestResult" class="mb-4"></div>
 
             <!-- PROGRESS -->
-            <v-progress-linear
+            <progress-linear-component
               v-if="executeTestStatus.inProgress"
               :indeterminate="true"
               height="4"
-              class="mt-4"></v-progress-linear>
+              class="mt-4"></progress-linear-component>
 
             <!-- ERRORS -->
-            <v-alert
+            <alert-component
               :value="executeTestStatus.failed"
               type="error">
               {{ executeTestStatus.errorMessage }}
-            </v-alert>
+            </alert-component>
             
             <!-- RESULT -->
             <test-result-component 
@@ -72,27 +75,30 @@
               :testResult="testResult"
               :expandDataOnLoad="resultDataExpandedState"
               v-on:dataExpandedStateChanged="onDataExpandedStateChanged"
-              class="mt-1 mr-4"  />
+              class="mt-1 mr-4-d"  />
           </div>
       </div>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import TestViewModel from  '../../../models/modules/TestSuite/TestViewModel';
-import TestResultViewModel from  '../../../models/modules/TestSuite/TestResultViewModel';
-import ExecuteTestPayload, { ExecuteTestParameterInputData } from  '../../../models/modules/TestSuite/ExecuteTestPayload';
-import TestParametersComponent from './paremeter_inputs/TestParametersComponent.vue';
-import TestResultComponent from './TestResultComponent.vue';
-import TestService from  '../../../services/TestService';
-import { FetchStatus, ServiceFetchCallbacks } from  '../../../services/abstractions/HCServiceBase';
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import UrlUtils from  '../../../util/UrlUtils';
-import { TestParameterReferenceChoiceViewModel } from "../../../models/modules/TestSuite/TestParameterViewModel";
-import ParameterInputPickReferenceComponent from "./paremeter_inputs/input_types/ParameterInputPickReferenceComponent.vue";
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import ExecuteTestPayload, { ExecuteTestParameterInputData } from '@models/modules/TestSuite/ExecuteTestPayload';
+import TestParametersComponent from '@components/modules/TestSuite/paremeter_inputs/TestParametersComponent.vue';
+import TestResultComponent from '@components/modules/TestSuite/TestResultComponent.vue';
+import TestService from '@services/TestService';
+import { FetchStatus, ServiceFetchCallbacks } from '@services/abstractions/HCServiceBase';
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import UrlUtils from '@util/UrlUtils';
+import ParameterInputPickReferenceComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputPickReferenceComponent.vue';
+import TestViewModel from "@models/modules/TestSuite/TestViewModel";
+import TestResultViewModel from "@models/modules/TestSuite/TestResultViewModel";
+import { StoreUtil } from "@util/StoreUtil";
+import EventBus, { CallbackUnregisterShortcut } from "@util/EventBus";
+import { nextTick } from "vue";
 
-@Component({
+@Options({
     components: {
       TestParametersComponent,
       TestResultComponent
@@ -114,22 +120,29 @@ export default class TestComponent extends Vue {
     executeTestStatus: FetchStatus = new FetchStatus();
     cancelTestStatus: FetchStatus = new FetchStatus();
 
+    callbacks: Array<CallbackUnregisterShortcut> = [];
+
     //////////////////
     //  LIFECYCLE  //
     ////////////////
     created(): void {
-      this.$parent.$on('executeAllTestsInSet', this.executeTest);
+      // (<any>this.$parent)?.$on('executeAllTestsInSet', this.executeTest);
+      this.callbacks = [
+        EventBus.on("executeAllTestsInSet", this.executeTest.bind(this)),
+        EventBus.on("loadTestParameterChoices", (d:any) => this.onLoadTestParametersRequested.bind(this)(d))
+      ];
       this.testResult = this.test.TestResult;
     }
 
     mounted(): void {
-      this.$root.$on('hc__loadTestParameterChoices', (data: any) => {
-        this.onLoadTestParametersRequested(data)
-      });
+      // (<any>this.$root)?.$on('hc__loadTestParameterChoices', (data: any) => {
+      //   this.onLoadTestParametersRequested(data)
+      // });
     }
 
-    beforeDestroy(): void {
-      this.$parent.$off('executeAllTestsInSet', this.executeTest);
+    beforeUnmount(): void {
+      this.callbacks.forEach(x => x.unregister());
+      // (<any>this.$parent)?.$off('executeAllTestsInSet', this.executeTest);
     }
 
     ////////////////
@@ -137,8 +150,13 @@ export default class TestComponent extends Vue {
     //////////////
     get showCategories() : boolean {
       return this.test.Categories && this.test.Categories.length > 0
-        && this.$store.state.input.ctrlIsHeldDown
-        && this.$store.state.input.shiftIsHeldDown;
+        && StoreUtil.store.state.input.ctrlIsHeldDown
+        && StoreUtil.store.state.input.shiftIsHeldDown;
+    }
+
+    get showSingleModeLink() : boolean {
+      return StoreUtil.store.state.input.ctrlIsHeldDown
+          && StoreUtil.store.state.input.shiftIsHeldDown;
     }
 
     get categoriesString(): string {
@@ -146,7 +164,7 @@ export default class TestComponent extends Vue {
     }
 
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
     
     get allowShowStatusLabel(): boolean {
@@ -254,6 +272,10 @@ export default class TestComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
+    enableSingleMode(): void {
+      UrlUtils.SetQueryStringParameter('single', this.test.Id, true);
+    }
+
     getInputComponentNameFromType(typeName: string): string
     {
       let componentName = `ParameterInputType${typeName}Component`;
@@ -307,7 +329,7 @@ export default class TestComponent extends Vue {
           }
 
           // Force update
-          this.$nextTick(() => {
+          nextTick(() => {
             this.test.Parameters.forEach(p => p.Name = p.Name.endsWith(' ') ? p.Name.trim() : p.Name.trim() + ' ');
           });
         },
@@ -353,7 +375,7 @@ export default class TestComponent extends Vue {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .test-item {
   /* border-radius: 0 25px 0 25px; */
   position: relative;
@@ -361,66 +383,76 @@ export default class TestComponent extends Vue {
   background-color: #fff;
   box-shadow: #d5d7d5 4px 4px 6px 0px;
 }
-.test-categories {
+.test-header-right {
     position: absolute;
     top: 5px;
     right: 25px;
     font-size: 11px;
+    display: flex;
     color: #838383;
 }
+/* .test-categories {} */
 .test-header {
   display: flex;
+  margin-bottom: 10px;
   padding-left: 24px;
+	@media (max-width: 961px) {
+    padding-left: 0;
+  }
   border-radius: 0 25px 0 0;
   cursor: pointer;
+  align-items: center;
 }
 .test-header.no-details {
   border-radius: 0 25px 0 25px;
 }
 .run-test-button {
-  font-size: 20px;
-  min-width: 120px;
-  min-height: 53px;
-  border-radius: 25px;
-  /* border-radius: 0 25px 0 25px; */
-  text-transform: inherit;
-}
-.run-test-button .v-icon {
-    margin-right: 5px;
+  align-self: flex-start;
+  font-size: 20px !important;
+  min-width: 120px !important;
+  min-height: 53px !important;
+  border-radius: 25px !important;
+  text-transform: inherit !important;
 }
 .test-details {
-  padding: 0px 48px 24px 24px;
+	@media (min-width: 960px) {
+    padding: 0px 48px 24px 24px;
+  }
 }
 .test-name {
   flex-grow: 1;
   font-size: 22px;
-  margin-top: 10px;
+  padding-right: 5px;
 }
 .test-duration {
   padding-right: 10px;
   color: hsla(273, 40%, 80%, 1);
   display: flex;
   align-items: center;
+  white-space: nowrap;
 }
 .test-status-label {
   color: #fff;
-  background-color: var(--v-success-base);
+  background-color: var(--color--success-base);
   height: 33px;
   padding: 8px;
   margin-right: 8px;
   padding-top: 5px;
   align-self: center;
-}
-.test-status-label.label-success {
-  color: #317711;
-  background-color: #c7e6c8;
-}
-.test-status-label.label-warning {
-  color: #df6d03;
-  background-color: #f3d5b2;
-}
-.test-status-label.label-error {
-  color: #c20404;
-  background-color: #eeb2b2;
+  display: flex;
+  align-items: center;
+  align-content: center;
+  &.label-success {
+    color: #317711;
+    background-color: #c7e6c8;
+  }
+  &.label-warning {
+    color: #df6d03;
+    background-color: #f3d5b2;
+  }
+  &.label-error {
+    color: #c20404;
+    background-color: #eeb2b2;
+  }
 }
 </style>

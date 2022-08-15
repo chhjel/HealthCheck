@@ -5,7 +5,8 @@
         <ul>
             <li v-if="description.filters.length == 0">Always</li>
             <li v-for="(filter, fltIndex) in description.filters"
-                :key="`rule-${rule.Id}-filter-${fltIndex}`">
+                :key="`rule-${rule.Id}-filter-${fltIndex}`"
+                class="anywrap">
                 {{ filter }}
             </li>
         </ul>
@@ -31,11 +32,12 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import { EndpointControlCustomResultDefinitionViewModel, EndpointControlEndpointDefinition, EndpointControlRule } from "../../../models/modules/EndpointControl/EndpointControlModels";
-import EndpointControlUtils, { RuleDescription } from "../../../util/EndpointControl/EndpointControlUtils";
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { EndpointControlCustomResultDefinitionViewModel, EndpointControlEndpointDefinition, EndpointControlRule } from '@models/modules/EndpointControl/EndpointControlModels';
+import EndpointControlUtils, { RuleDescription } from '@util/EndpointControl/EndpointControlUtils';
 
-@Component({
+@Options({
     components: {  }
 })
 export default class RuleDescriptionComponent extends Vue {
@@ -71,6 +73,4 @@ export default class RuleDescriptionComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-/* .root {
-} */
 </style>

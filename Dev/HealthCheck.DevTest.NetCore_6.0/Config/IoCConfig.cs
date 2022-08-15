@@ -1,4 +1,4 @@
-﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Modules.AccessTokens.Abstractions;
 using HealthCheck.Core.Modules.AuditLog.Abstractions;
 using HealthCheck.Core.Modules.AuditLog.Services;
@@ -11,6 +11,7 @@ using HealthCheck.Core.Modules.EventNotifications.Abstractions;
 using HealthCheck.Core.Modules.EventNotifications.Notifiers;
 using HealthCheck.Core.Modules.EventNotifications.Services;
 using HealthCheck.Core.Modules.LogViewer.Services;
+using HealthCheck.Core.Modules.Messages.Abstractions;
 using HealthCheck.Core.Modules.Metrics.Abstractions;
 using HealthCheck.Core.Modules.Metrics.Context;
 using HealthCheck.Core.Modules.Metrics.Services;
@@ -28,9 +29,12 @@ using HealthCheck.Dev.Common.Dataflow;
 using HealthCheck.Dev.Common.DataRepeater;
 using HealthCheck.Dev.Common.EventNotifier;
 using HealthCheck.Dev.Common.Settings;
+using HealthCheck.Dev.Common.Tests.Modules;
 using HealthCheck.Module.DataExport.Abstractions;
 using HealthCheck.Module.DataExport.Services;
 using HealthCheck.Module.DataExport.Storage;
+using HealthCheck.Module.DynamicCodeExecution.Abstractions;
+using HealthCheck.Module.DynamicCodeExecution.Storage;
 using HealthCheck.Module.EndpointControl.Abstractions;
 using HealthCheck.Module.EndpointControl.Services;
 using HealthCheck.Module.EndpointControl.Storage;
@@ -71,6 +75,11 @@ namespace HealthCheck.DevTest.NetCore_6._0.Config
             services.AddSingleton<IHCDataExportService, HCDataExportService>();
             services.AddSingleton<IHCDataExportPresetStorage>(x => new HCFlatFileDataExportPresetStorage(@"C:\temp\DataExportPreset.json"));
 
+            // Messages
+            services.AddSingleton<IHCMessageStorage>(x => new HCFlatFileMessageStore(@"c:\temp\hc_messages"));
+
+            // Others
+            RegisterDCEServices(services);
             services.AddSingleton(x => CreateSettingsService());
             services.AddSingleton(x => CreateSiteEventService(env));
             services.AddSingleton(x => CreateAuditEventService(env));
@@ -98,6 +107,11 @@ namespace HealthCheck.DevTest.NetCore_6._0.Config
         private static string GetFilePath(string relativePath, IWebHostEnvironment env)
             => Path.GetFullPath(Path.Combine(env.ContentRootPath, relativePath));
 
+        private static void RegisterDCEServices(IServiceCollection services)
+        {
+            services.AddSingleton<IDynamicCodeScriptStorage>(x => new FlatFileDynamicCodeScriptStorage(@"C:\temp\DCE_scripts.json"));
+        }
+
         private static readonly HCFlatFileStringDictionaryStorage _settingsStorage = new(@"C:\temp\settings.json");
         private static IHCSettingsService CreateSettingsService()
             => new HCDefaultSettingsService(_settingsStorage);
@@ -118,7 +132,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Config
             return sink;
         }
 
-        public static readonly TestStreamA TestStreamA = new();
+        public static TestStreamA TestStreamA => DataflowTests.TestStreamA;
         public static readonly TestStreamB TestStreamB = new();
         public static readonly TestStreamC TestStreamC = new();
         private static readonly SimpleStream _simpleStream = new("Simple A");

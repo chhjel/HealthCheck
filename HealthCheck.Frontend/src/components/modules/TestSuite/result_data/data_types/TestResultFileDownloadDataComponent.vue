@@ -3,18 +3,20 @@
     <div>
       <div v-if="fileData">
         <p v-if="fileData.Description" class="mb-1">{{ fileData.Description }}</p>
-        <v-btn :href="downloadUrl" target="_blank" color="secondary">
-          <v-icon left dark>file_download</v-icon>
+        <btn-component :href="downloadUrl" target="_blank">
+          <icon-component left dark>file_download</icon-component>
           {{ fileData.Name }}
-        </v-btn>
+        </btn-component>
       </div>
     </div>
 </template>
 
 <script lang="ts">
-import FrontEndOptionsViewModel from "models/Common/FrontEndOptionsViewModel";
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import TestResultDataDumpViewModel from  '../../../../../models/modules/TestSuite/TestResultDataDumpViewModel';
+import FrontEndOptionsViewModel from "@models/Common/FrontEndOptionsViewModel";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { TestResultDataDumpViewModel } from '@generated/Models/Core/TestResultDataDumpViewModel';
+import { StoreUtil } from "@util/StoreUtil";
 
 interface FileDownloadData
 {
@@ -24,13 +26,13 @@ interface FileDownloadData
   Description: string | null;
 }
 
-@Component({
+@Options({
     components: {
     }
 })
 export default class TestResultFileDownloadDataComponent extends Vue {
     @Prop({ required: true })
-    data!: TestResultDataDumpViewModel;
+    resultData!: TestResultDataDumpViewModel;
     @Prop({ required: true })
     fullscreen!: boolean;
 
@@ -40,11 +42,11 @@ export default class TestResultFileDownloadDataComponent extends Vue {
       this.$emit('hideCopyButton');
       this.$emit('hideFullscreenButton');
 
-      this.fileData = JSON.parse(this.data.Data) as FileDownloadData;
+      this.fileData = JSON.parse(this.resultData.Data) as FileDownloadData;
     }
     
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
 
     get downloadUrl(): string {

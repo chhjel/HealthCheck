@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Modules.SiteEvents.Abstractions;
+using HealthCheck.Core.Modules.SiteEvents.Models;
 
 namespace HealthCheck.Core.Modules.SiteEvents
 {
@@ -24,15 +25,14 @@ namespace HealthCheck.Core.Modules.SiteEvents
         public bool ShowFilter { get; set; } = true;
 
         /// <summary>
-        /// Number of minutes past the end of a site event it will be displayed below "Current status" on the status page.
-        /// <para>Defaults to 30 minutes.</para>
-        /// </summary>
-        public int CurrentEventBufferMinutes { get; set; } = 30;
-
-        /// <summary>
         /// Number of seconds to configure the frontend timer with for the optional page auto-refreshes.
         /// <para>Defaults to 30 seconds.</para>
         /// </summary>
         public int FrontendAutoRefreshSecondsInterval { get; set; } = 30;
+
+        /// <summary>
+        /// Config for the different sections.
+        /// </summary>
+        public HCSiteEventsModuleSectionOptions Sections { get; set; } = new();
     }
 }

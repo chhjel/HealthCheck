@@ -1,48 +1,33 @@
 <!-- src/components/profile/AccessTokenKillswitchDialog.vue -->
 <template>
     <div>
-        <v-dialog v-model="dialogOpen"
-            @keydown.esc="closeDialog"
-            scrollable
-            max-width="800"
-            content-class="root-profile-dialog">
-            <v-card style="background-color: #f4f4f4">
-                <v-toolbar class="elevation-0">
-                    <v-toolbar-title>Delete currently used token</v-toolbar-title>
-                    <v-spacer></v-spacer>
-                    <v-btn icon @click="closeDialog">
-                        <v-icon>close</v-icon>
-                    </v-btn>
-                </v-toolbar>
+        <dialog-component v-model:value="dialogOpen" max-width="800">
+            <template #header>Delete currently used token</template>
+            <template #footer>
+                <btn-component color="error"
+                    :loading="loadStatus.inProgress"
+                    :disabled="loadStatus.inProgress"
+                    @click="killswitchToken()">Delete token</btn-component>
+                <btn-component color="secondary" @click="closeDialog">Close</btn-component>
+            </template>
 
-                <v-divider></v-divider>
-                
-                <v-card-text>
-                    <p>Delete the currently used token if needed.</p>
-                    <p><b>This action is irreversible.</b></p>
-                </v-card-text>
-
-                <v-divider></v-divider>
-                <v-card-actions >
-                    <v-spacer></v-spacer>
-                    <v-btn color="error"
-                        :loading="loadStatus.inProgress"
-                        :disabled="loadStatus.inProgress"
-                        @click="killswitchToken()">Delete token</v-btn>
-                    <v-btn @click="closeDialog">Close</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+            <div>
+                <p>Delete the currently used token if needed.</p>
+                <p><b>This action is irreversible.</b></p>
+            </div>
+        </dialog-component>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import { HCFrontEndOptions } from "generated/Models/WebUI/HCFrontEndOptions";
-import AccessTokensService from "services/AccessTokensService";
-import { FetchStatus } from "services/abstractions/HCServiceBase";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { HCFrontEndOptions } from "@generated/Models/WebUI/HCFrontEndOptions";
+import AccessTokensService from "@services/AccessTokensService";
+import { FetchStatus } from "@services/abstractions/HCServiceBase";
+import { StoreUtil } from "@util/StoreUtil";
 
-@Component({
+@Options({
     components: {
     }
 })
@@ -67,14 +52,14 @@ export default class AccessTokenKillswitchDialog extends Vue
     //  GETTERS  //
     //////////////
     get globalOptions(): HCFrontEndOptions {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
 
     ////////////////
     //  METHODS  //
     //////////////
     closeDialog(): void {
-        this.$emit('input', false);
+        this.$emit('update:value', false);
     }
 
     killswitchToken(): void {
@@ -100,7 +85,7 @@ export default class AccessTokenKillswitchDialog extends Vue
     @Watch("dialogOpen")
     onDialogOpenChanged(): void
     {
-        this.$emit('input', this.dialogOpen);
+        this.$emit('update:value', this.dialogOpen);
     }
 }
 </script>

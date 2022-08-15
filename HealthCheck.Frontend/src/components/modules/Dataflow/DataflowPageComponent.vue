@@ -1,305 +1,256 @@
 <!-- src/components/modules/Dataflow/DataflowPageComponent.vue -->
 <template>
     <div>
-        <v-content>
-            <!-- NAVIGATION DRAWER -->
-            <v-navigation-drawer
-                v-model="drawerState"
-                clipped fixed floating app
-                mobile-break-point="1000"
-                dark
-                class="menu testset-menu">
+        <!-- NAVIGATION DRAWER -->
+        <Teleport to="#module-nav-menu">
+            <filterable-list-component 
+                :items="menuItems"
+                :groupByKey="`GroupName`"
+                :sortByKey="`GroupName`"
+                :filterKeys="[ 'Name', 'Description' ]"
+                :loading="metadataLoadStatus.inProgress || searchMetadataLoadStatus.inProgress"
+                :disabled="dataLoadStatus.inProgress"
+                ref="filterableList"
+                v-on:itemClicked="onMenuItemClicked"
+                @itemMiddleClicked="onMenuItemMiddleClicked"
+                />
+        </Teleport>
+        
+        
+        <div class="content-root">
+            <!-- LOAD PROGRESS -->
+            <progress-linear-component 
+                v-if="selectedSearch == null && dataLoadStatus.inProgress"
+                indeterminate color="success"></progress-linear-component>
 
-                <filterable-list-component 
-                    :items="menuItems"
-                    :groupByKey="`GroupName`"
-                    :sortByKey="`GroupName`"
-                    :filterKeys="[ 'Name', 'Description' ]"
-                    :loading="metadataLoadStatus.inProgress || searchMetadataLoadStatus.inProgress"
-                    :disabled="dataLoadStatus.inProgress"
-                    ref="filterableList"
-                    v-on:itemClicked="onMenuItemClicked"
-                    @itemMiddleClicked="onMenuItemMiddleClicked"
-                    />
-            </v-navigation-drawer>
+            <!-- DATA LOAD ERROR -->
+            <alert-component :value="dataLoadStatus.failed" v-if="dataLoadStatus.failed" type="error">
+            {{ dataLoadStatus.errorMessage }}
+            </alert-component>
+
+            <!-- SELECTED DATAFLOW INFO -->
+            <div v-if="selectedStream != null" style="flex-direction: column;">
+                <h3>{{ selectedStream.Name }}</h3>
+                <p v-html="selectedStream.Description"></p>
+            </div>
             
-            <!-- CONTENT -->
-            <v-container fluid fill-height class="content-root">
-                <v-layout>
-                    <v-flex>
-                        <v-container>
-                            <!-- LOAD PROGRESS -->
-                            <v-progress-linear 
-                                v-if="selectedSearch == null && dataLoadStatus.inProgress"
-                                indeterminate color="green"></v-progress-linear>
+            <!-- NO DATAFLOW SELECTED INFO -->
+            <div v-if="selectedStream == null && selectedSearch == null && (streamMetadatas.length > 0 || searchMetadatas.length > 0)" style="flex-direction: column;">
+                <h3>No dataflow selected</h3>
+                <p>← Select one over there.</p>
+            </div>
 
-                            <!-- DATA LOAD ERROR -->
-                            <v-alert :value="dataLoadStatus.failed" v-if="dataLoadStatus.failed" type="error">
-                            {{ dataLoadStatus.errorMessage }}
-                            </v-alert>
+            <!-- STREAM: FILTERS -->
+            <div v-show="selectedStream != null">
+                <div v-show="selectedStream != null && selectedStream.SupportsFilterByDate">
+                    <date-picker-component range v-model:value="filterDate" :disabled="dataLoadStatus.inProgress" :clearable="false" rangePresets="past" />
+                </div>
+                
+                <div class="mt-2">
+                    <b v-if="filterChoices.length > 0">Filter on</b>
+                    <chip-component
+                        color="primary"
+                        v-for="(filterChoice, fcIndex) in filterChoices"
+                        :key="`filter-choice-${fcIndex}`"
+                        :outline="!filters.some(x => x.propertyName == filterChoice.value)"
+                        class="filter-choice ml-1 mb-1"
+                        :class="{ 'selected': filters.some(x => x.propertyName == filterChoice.value) }"
+                        @click="togglePropertyFilter(filterChoice.value, filterChoice.text)">
+                            {{ filterChoice.text }}
+                            <icon-component right
+                                v-if="!filters.some(x => x.propertyName == filterChoice.value)"
+                                >add</icon-component>
+                            <icon-component right
+                                v-if="filters.some(x => x.propertyName == filterChoice.value)"
+                                >close</icon-component>
+                        </chip-component>
 
-                            <!-- SELECTED DATAFLOW INFO -->
-                            <v-layout v-if="selectedStream != null" style="flex-direction: column;">
-                                <h3>{{ selectedStream.Name }}</h3>
-                                <p v-html="selectedStream.Description"></p>
-                            </v-layout>
-                            
-                            <!-- NO DATAFLOW SELECTED INFO -->
-                            <v-layout v-if="selectedStream == null && selectedSearch == null && (streamMetadatas.length > 0 || searchMetadatas.length > 0)" style="flex-direction: column;">
-                                <h3>No dataflow selected</h3>
-                                <p>← Select one over there.</p>
-                            </v-layout>
+                    <div class="filter-chip-inputs">
+                        <div v-for="(filter, findex) in filters"
+                            :key="`dataflow-filter-${findex}`">
+                            <text-field-component
+                                v-model:value="filter.value"
+                                :label="filter.text"
+                                clearable
+                                class="filter-input mb-2"
+                            ></text-field-component>
+                        </div>
+                    </div>
+                </div>
 
-                            <!-- STREAM: FILTERS -->
-                            <div v-show="selectedStream != null">
-                                <v-layout>
-                                    <v-flex xs12 sm12 md8 style="position:relative"
-                                        v-show="selectedStream != null && selectedStream.SupportsFilterByDate">
-                                        <v-menu
-                                            transition="slide-y-transition"
-                                            bottom>
-                                            <template v-slot:activator="{ on }">
-                                                <v-btn flat icon color="primary" class="datepicker-button" v-on="on">
-                                                    <v-icon>date_range</v-icon>
-                                                </v-btn>
-                                            </template>
-                                            <v-list>
-                                                <v-list-tile
-                                                    v-for="(preset, i) in datePickerPresets"
-                                                    :key="`datepicker-preset-${i}`"
-                                                    @click="setDatePickerValue(preset)">
-                                                    <v-list-tile-title>{{ preset.name }}</v-list-tile-title>
-                                                </v-list-tile>
-                                            </v-list>
-                                        </v-menu>
+                <div class="flex layout mt-3">
+                    <text-field-component type="number" label="Max items to fetch"
+                        class="options-input"
+                        v-model:value.number="filterTake" />
+                    <btn-component 
+                        @click="loadStreamEntries()" 
+                        :disabled="dataLoadStatus.inProgress" 
+                        class="primary">Fetch data</btn-component>
+                    <btn-component 
+                        @click="clearResults()" 
+                        :disabled="dataLoadStatus.inProgress || resultCount == 0"
+                        v-if="resultCount > 0"
+                        >Clear view</btn-component>
+                </div>
+            </div>
 
-                                        <date-time-picker
-                                            ref="filterDate"
-                                            :startDate="filterFromDate"
-                                            :endDate="filterToDate"
-                                            :singleDate="false"
-                                            :disabled="dataLoadStatus.inProgress"
-                                            timeFormat="HH:mm"
-                                            @onChange="onDateRangeChanged"
-                                        />
-                                    </v-flex>
-                                </v-layout>
-                                
-                                <b v-if="filterChoices.length > 0">Filter on</b>
-                                <v-chip
-                                    color="primary"
-                                    v-for="(filterChoice, fcIndex) in filterChoices"
-                                    :key="`filter-choice-${fcIndex}`"
-                                    :outline="!filters.some(x => x.propertyName == filterChoice.value)"
-                                    class="filter-choice"
-                                    :class="{ 'selected': filters.some(x => x.propertyName == filterChoice.value) }"
-                                    @click="togglePropertyFilter(filterChoice.value, filterChoice.text)">
-                                        {{ filterChoice.text }}
-                                        <v-icon right
-                                            v-if="!filters.some(x => x.propertyName == filterChoice.value)"
-                                            >add</v-icon>
-                                        <v-icon right
-                                            v-if="filters.some(x => x.propertyName == filterChoice.value)"
-                                            >close</v-icon>
-                                    </v-chip>
+            <!-- STREAM: CONTENTS -->
+            <div v-if="selectedStream != null">
+                <!-- Results info -->
+                <div style="flex-direction: column;">
+                    <i v-if="resultCount == 0 && streamsWithDataAttemptedLoadedAtLeastOnce.indexOf(selectedStream.Id) != -1">Could not find any matching items</i>
+                    <i v-if="resultCount > 0">Result count: {{ resultCount }}</i>
+                </div>
 
-                                <div v-for="(filter, findex) in filters"
-                                    :key="`dataflow-filter-${findex}`">
-                                    <v-text-field
-                                        v-model="filter.value"
-                                        :label="filter.text"
-                                        clearable
-                                        class="filter-input"
-                                    ></v-text-field>
-                                </div>
+                <!-- TABLE START -->
+                <data-table-component
+                    v-if="resultCount > 0"
+                    :groups="streamEntryGroups"
+                    :headers="tableHeaders.map(x => x.text)"
+                    >
+                    <template v-slot:cell="{ value }">
+                        <span v-if="value.uiHint=='HTML'" v-html="value.value" @click.stop=""></span>
+                        <span v-else-if="value.uiHint=='Icon'"><icon-component>{{ value.value }}</icon-component></span>
+                        <span v-else-if="value.uiHint=='Link'"><a :href="value.value" target="_blank" @click.stop="">{{ value.key }}</a></span>
+                        <span v-else>{{ value.value }}</span>
+                    </template>
+                    <template v-slot:expandedItem="{ item }">
+                        <div
+                            v-for="(col, colIndex) in item.expandedValues"
+                            :key="`dataflow-row-expanded-${item.Internal__Table__Id}-col-${colIndex}`"
+                            class="expanded-item-details">
+                            <dataflow-entry-property-value-component
+                                :type="col.uiHint"
+                                :raw="col.value"
+                                :title="col.key" />
+                        </div>
+                    </template>
+                </data-table-component>
+                <!-- TABLE END -->
+            </div>
 
-                                <v-layout>
-                                    <v-flex xs6 sm2 style="margin-top: 22px;">
-                                        <v-text-field type="number" label="Max items to fetch"
-                                            class="options-input"
-                                            v-model.number="filterTake" />
-                                    </v-flex>
-                                    <v-flex xs6 sm2 style="margin-top: 17px; margin-left: 40px;">
-                                        <v-btn 
-                                            @click="loadStreamEntries()" 
-                                            :disabled="dataLoadStatus.inProgress" 
-                                            class="primary">Fetch data</v-btn>
-                                    </v-flex>
-                                    <v-flex xs6 sm2 style="margin-top: 17px; margin-left: 25px;">
-                                        <v-btn 
-                                            @click="clearResults()" 
-                                            :disabled="dataLoadStatus.inProgress"
-                                            >Clear view</v-btn>
-                                    </v-flex>
-                                    
-                                </v-layout>
-                            </div>
+            <!-- SEARCH -->
+            <div v-if="selectedSearch != null" class="unified-search">
+                <div class="unified-search-header" v-if="selectedSearch.Name || selectedSearch.Description">
+                    <h1 v-if="selectedSearch.Name">{{ selectedSearch.Name }}</h1>
+                    <p v-if="selectedSearch.Description">{{ selectedSearch.Description }}</p>
+                </div>
 
-                            <!-- STREAM: CONTENTS -->
-                            <div v-if="selectedStream != null">
-                                <!-- Results info -->
-                                <v-layout style="flex-direction: column;">
-                                    <i v-if="resultCount == 0 && streamsWithDataAttemptedLoadedAtLeastOnce.indexOf(selectedStream.Id) != -1">Could not find any matching items</i>
-                                    <i v-if="resultCount > 0">Result count: {{ resultCount }}</i>
-                                </v-layout>
-
-                                <!-- TABLE START -->
-                                <data-table-component
-                                    v-if="resultCount > 0"
-                                    :groups="streamEntryGroups"
-                                    :headers="tableHeaders.map(x => x.text)"
-                                    class="elevation-2">
-                                    <template v-slot:cell="{ value }">
-                                        <span v-if="value.uiHint=='HTML'" v-html="value.value" @click.stop=""></span>
-                                        <span v-else-if="value.uiHint=='Icon'"><v-icon>{{ value.value }}</v-icon></span>
-                                        <span v-else-if="value.uiHint=='Link'"><a :href="value.value" target="_blank" @click.stop="">{{ value.key }}</a></span>
-                                        <span v-else>{{ value.value }}</span>
-                                    </template>
-                                    <template v-slot:expandedItem="{ item }">
-                                        <div
-                                            v-for="(col, colIndex) in item.expandedValues"
-                                            :key="`dataflow-row-expanded-${item.Internal__Table__Id}-col-${colIndex}`"
-                                            class="expanded-item-details">
-                                            <dataflow-entry-property-value-component
-                                                :type="col.uiHint"
-                                                :raw="col.value"
-                                                :title="col.key" />
-                                        </div>
-                                    </template>
-                                </data-table-component>
-                                <!-- TABLE END -->
-                            </div>
-
-                            <!-- SEARCH -->
-                            <div v-if="selectedSearch != null" class="unified-search">
-                                <div class="unified-search-header" v-if="selectedSearch.Name || selectedSearch.Description">
-                                    <h1 v-if="selectedSearch.Name">{{ selectedSearch.Name }}</h1>
-                                    <p v-if="selectedSearch.Description">{{ selectedSearch.Description }}</p>
-                                </div>
-
-                                <div class="unified-search-query-wrapper">
-                                    <v-text-field
-                                        class="unified-search-query"
-                                        v-model="searchQuery"
-                                        :disabled="dataLoadStatus.inProgress"
-                                        :loading="dataLoadStatus.inProgress"
-                                        solo
-                                        @keyup.enter="performSearch"
-                                        :placeholder="selectedSearch.QueryPlaceholder">
-                                    </v-text-field>
-                                    <v-btn flat color="primary" class="unified-search-query-button"
-                                        :disabled="dataLoadStatus.inProgress"
-                                        @click="performSearch">
-                                        <v-icon>search</v-icon>
-                                        Search
-                                    </v-btn>
-                                </div>
-
-                                <div v-if="searchStatus" class="unified-search-status">{{ searchStatus }}</div>
-
-                                <div v-if="searchResult" class="unified-search-results">
-                                    <div v-if="groupedEntryGroups.length > 0">                                        
-                                        <div v-for="(group, gIndex) in groupedEntryGroups"
-                                            :key="`stream-search-result-group-${gIndex}`"
-                                            class="unified-search-result-entry-group">
-                                            <div class="unified-search-result-entry-group--title" v-if="selectedSearch.GroupByLabel">{{ getGroupLabel(group) }}</div>
-                                            <div class="unified-search-result-entry--group-wrapper"
-                                                v-for="(entry, eIndex) in group.Value"
-                                                :key="`stream-search-result-grouped-entry-${eIndex}`">
-                                                <div class="unified-search-result-entry-group--stream"
-                                                    v-if="itemIsFirstOfTypeInGroup(entry, group)"
-                                                    :class="{ 'clickable': hasStreamWithId(entry.StreamId) }"
-                                                    title="Source stream"
-                                                    @click="setActiveStreamById(entry.StreamId)">{{ getSearchStreamName(entry.StreamId, true) }}</div>
-                                                <div class="unified-search-result-entry"
-                                                    :class="{ 'clickable': !!entry.PopupBody }"
-                                                    @click="onSearchResultClicked(entry)">
-                                                    <div class="unified-search-result-entry--title" v-if="entry.Title">{{ entry.Title }}</div>
-                                                    <div class="unified-search-result-entry--body" v-if="entry.Body" v-html="entry.Body"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div v-for="streamResult in searchUngroupedResultStreams"
-                                        :key="`stream-search-results-${streamResult.StreamId}`"
-                                        class="unified-search-result-stream">
-                                        <div class="unified-search-result-stream--header"
-                                            :class="{ 'clickable': hasStreamWithName(streamResult.StreamName) }"
-                                            title="Source stream"
-                                            @click="setActiveStreamByName(streamResult.StreamName)">{{ getSearchStreamName(streamResult.StreamId, false) }}</div>
-                                        
-                                        <div v-for="(entry, eIndex) in getUngroupedEntriesFor(streamResult)"
-                                            :key="`stream-search-result-entry-${streamResult.StreamId}-${eIndex}`"
-                                            class="unified-search-result-entry"
-                                            :class="{ 'clickable': !!entry.PopupBody }"
-                                            @click="onSearchResultClicked(entry)">
-                                            <div class="unified-search-result-entry--title" v-if="entry.Title">{{ entry.Title }}</div>
-                                            <div class="unified-search-result-entry--body" v-if="entry.Body" v-html="entry.Body"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </v-container>
-                    </v-flex>
-                </v-layout>
-            </v-container>
-          <!-- CONTENT END -->
-        </v-content>
-
-        <!-- DIALOGS -->
-        <v-dialog v-model="searchResultDialogVisible"
-            v-if="selectedSearchResult"
-            @keydown.esc="searchResultDialogVisible = false"
-            max-width="800"
-            content-class="search-result-dialog"
-            :persistent="dataLoadStatus.inProgress">
-            <v-card>
-                <v-card-title class="headline">{{ selectedSearchResult.Title }}</v-card-title>
-                <v-card-text class="pt-0">
-                    <div v-if="selectedSearchResult.Body" v-html="selectedSearchResult.Body" class="mb-2"></div>
-                    <div v-html="selectedSearchResult.PopupBody"></div>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="secondary"
+                <div class="unified-search-query-wrapper">
+                    <text-field-component
+                        class="unified-search-query"
+                        v-model:value="searchQuery"
                         :disabled="dataLoadStatus.inProgress"
                         :loading="dataLoadStatus.inProgress"
-                        @click="searchResultDialogVisible = false">Close</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+                        solo
+                        @keyup.enter="performSearch"
+                        :placeholder="selectedSearch.QueryPlaceholder">
+                    </text-field-component>
+                    <btn-component flat color="primary" class="unified-search-query-button"
+                        :disabled="dataLoadStatus.inProgress"
+                        @click="performSearch">
+                        <icon-component>search</icon-component>
+                        Search
+                    </btn-component>
+                </div>
+
+                <div v-if="searchStatus" class="unified-search-status">{{ searchStatus }}</div>
+
+                <div v-if="searchResult" class="unified-search-results">
+                    <div v-if="groupedEntryGroups.length > 0">                                        
+                        <div v-for="(group, gIndex) in groupedEntryGroups"
+                            :key="`stream-search-result-group-${gIndex}`"
+                            class="unified-search-result-entry-group">
+                            <div class="unified-search-result-entry-group--title" v-if="selectedSearch.GroupByLabel">{{ getGroupLabel(group) }}</div>
+                            <div class="unified-search-result-entry--group-wrapper"
+                                v-for="(entry, eIndex) in group.Value"
+                                :key="`stream-search-result-grouped-entry-${eIndex}`">
+                                <div class="unified-search-result-entry-group--stream"
+                                    v-if="itemIsFirstOfTypeInGroup(entry, group)"
+                                    :class="{ 'clickable': hasStreamWithId(entry.StreamId) }"
+                                    title="Source stream"
+                                    @click="setActiveStreamById(entry.StreamId)">{{ getSearchStreamName(entry.StreamId, true) }}</div>
+                                <div class="unified-search-result-entry"
+                                    :class="{ 'clickable': !!entry.PopupBody }"
+                                    @click="onSearchResultClicked(entry)">
+                                    <div class="unified-search-result-entry--title" v-if="entry.Title">{{ entry.Title }}</div>
+                                    <div class="unified-search-result-entry--body" v-if="entry.Body" v-html="entry.Body"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div v-for="streamResult in searchUngroupedResultStreams"
+                        :key="`stream-search-results-${streamResult.StreamId}`"
+                        class="unified-search-result-stream">
+                        <div class="unified-search-result-stream--header"
+                            :class="{ 'clickable': hasStreamWithName(streamResult.StreamName) }"
+                            title="Source stream"
+                            @click="setActiveStreamByName(streamResult.StreamName)">{{ getSearchStreamName(streamResult.StreamId, false) }}</div>
+                        
+                        <div v-for="(entry, eIndex) in getUngroupedEntriesFor(streamResult)"
+                            :key="`stream-search-result-entry-${streamResult.StreamId}-${eIndex}`"
+                            class="unified-search-result-entry"
+                            :class="{ 'clickable': !!entry.PopupBody }"
+                            @click="onSearchResultClicked(entry)">
+                            <div class="unified-search-result-entry--title" v-if="entry.Title">{{ entry.Title }}</div>
+                            <div class="unified-search-result-entry--body" v-if="entry.Body" v-html="entry.Body"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+
+        <!-- DIALOGS -->
+        <dialog-component v-model:value="searchResultDialogVisible" v-if="selectedSearchResult" max-width="800" :persistent="dataLoadStatus.inProgress">
+            <template #header>{{ selectedSearchResult.Title }}</template>
+            <template #footer>
+                <btn-component color="secondary"
+                    :disabled="dataLoadStatus.inProgress"
+                    :loading="dataLoadStatus.inProgress"
+                    @click="searchResultDialogVisible = false">Close</btn-component>
+            </template>
+
+            <div>
+                <div v-if="selectedSearchResult.Body" v-html="selectedSearchResult.Body" class="mb-2"></div>
+                <div v-html="selectedSearchResult.PopupBody"></div>
+            </div>
+        </dialog-component>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import DateUtils from  '../../../util/DateUtils';
-import LinqUtils from  '../../../util/LinqUtils';
-import DataflowStreamMetadata from  '../../../models/modules/Dataflow/DataflowStreamMetadata';
-import DataflowEntry from  '../../../models/modules/Dataflow/DataflowEntry';
-import GetDataflowEntriesRequestModel from  '../../../models/modules/Dataflow/GetDataflowEntriesRequestModel';
-import { DataFlowPropertyUIHint, DataFlowPropertyUIVisibilityOption } from  '../../../models/modules/Dataflow/DataFlowPropertyDisplayInfo';
-import DataflowEntryPropertyValueComponent from '../Dataflow/EntryProperties/DataflowEntryPropertyValueComponent.vue';
-import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
-// @ts-ignore
-import { DateTimePicker } from "@lazy-copilot/datetimepicker";
-import FilterInputComponent from  '../../Common/FilterInputComponent.vue';
-import DataTableComponent, { DataTableGroup } from  '../../Common/DataTableComponent.vue';
-import FilterableListComponent, { FilterableListItem } from  '../../Common/FilterableListComponent.vue';
-import DataflowService from  '../../../services/DataflowService';
-import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import ModuleConfig from  '../../../models/Common/ModuleConfig';
-import ModuleOptions from  '../../../models/Common/ModuleOptions';
-import UrlUtils from  '../../../util/UrlUtils';
-import DataflowUnifiedSearchMetadata from "models/modules/Dataflow/DataflowUnifiedSearchMetadata";
-import { HCDataflowUnifiedSearchResult } from "generated/Models/Core/HCDataflowUnifiedSearchResult";
-import { HCDataFlowUnifiedSearchRequest } from "generated/Models/Core/HCDataFlowUnifiedSearchRequest";
-import { HCDataflowUnifiedSearchResultItem } from "generated/Models/Core/HCDataflowUnifiedSearchResultItem";
-import { HCDataflowUnifiedSearchStreamResult } from "generated/Models/Core/HCDataflowUnifiedSearchStreamResult";
-import KeyValuePair from "models/Common/KeyValuePair";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import DateUtils from '@util/DateUtils';
+import LinqUtils from '@util/LinqUtils';
+import DataflowStreamMetadata from '@models/modules/Dataflow/DataflowStreamMetadata';
+import DataflowEntry from '@models/modules/Dataflow/DataflowEntry';
+import GetDataflowEntriesRequestModel from '@models/modules/Dataflow/GetDataflowEntriesRequestModel';
+import { DataFlowPropertyUIHint } from '@generated/Enums/Core/DataFlowPropertyUIHint';
+import DataflowEntryPropertyValueComponent from '@components/modules/Dataflow/EntryProperties/DataflowEntryPropertyValueComponent.vue';
+import FilterInputComponent from '@components/Common/FilterInputComponent.vue';
+import DataTableComponent from '@components/Common/DataTableComponent.vue';
+import { DataTableGroup } from '@components/Common/DataTableComponent.vue.models';
+import FilterableListComponent from '@components/Common/FilterableListComponent.vue';
+import { FilterableListItem } from '@components/Common/FilterableListComponent.vue.models';
+import DataflowService from '@services/DataflowService';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import ModuleConfig from '@models/Common/ModuleConfig';
+import ModuleOptions from '@models/Common/ModuleOptions';
+import UrlUtils from '@util/UrlUtils';
+import DataflowUnifiedSearchMetadata from "@models/modules/Dataflow/DataflowUnifiedSearchMetadata";
+import { HCDataflowUnifiedSearchResult } from "@generated/Models/Core/HCDataflowUnifiedSearchResult";
+import { HCDataFlowUnifiedSearchRequest } from "@generated/Models/Core/HCDataFlowUnifiedSearchRequest";
+import { HCDataflowUnifiedSearchResultItem } from "@generated/Models/Core/HCDataflowUnifiedSearchResultItem";
+import { HCDataflowUnifiedSearchStreamResult } from "@generated/Models/Core/HCDataflowUnifiedSearchStreamResult";
+import KeyValuePair from "@models/Common/KeyValuePair";
+import { DataFlowPropertyUIVisibilityOption } from "@generated/Enums/Core/DataFlowPropertyUIVisibilityOption";
+import StringUtils from "@util/StringUtils";
+import { StoreUtil } from "@util/StoreUtil";
+import { DatePickerPresetDateRange } from '@components/Common/Basic/DatePickerComponent.vue.models';
 
 interface PropFilter
 {
@@ -322,11 +273,6 @@ interface SearchQueryCachePerSearch {
 interface FirstEntryPerStream {
    [key: string]: DataflowEntry;
 }
-interface DatePickerPreset {
-    name: string;
-    from: Date;
-    to: Date;
-}
 interface DateRangeGroup {
     title: string;
     minDate: Date;
@@ -338,10 +284,9 @@ interface StreamGroup
     streams: Array<DataflowStreamMetadata>;
 }
 
-@Component({
+@Options({
     components: {
         DataflowEntryPropertyValueComponent,
-        DateTimePicker,
         FilterInputComponent,
         DataTableComponent,
         FilterableListComponent
@@ -380,8 +325,11 @@ export default class DataflowPageComponent extends Vue {
     selectedFilter: string | null = null;
     filtersPerStream: StreamPropFilters = {};
     firstEntryPerStream: FirstEntryPerStream = {};
-    filterFromDate: Date = new Date();
-    filterToDate: Date = new Date();
+    filterDate: Array<Date> = [new Date(), new Date()];
+    get filterFromDate(): Date { return this.filterDate[0] };
+    get filterToDate(): Date { return this.filterDate[1] };
+    set filterFromDate(v: Date) { this.filterDate[0] = v; };
+    set filterToDate(v: Date) { this.filterDate[1] = v; };
     filterTake: number = 50;
 
     searchQuery: string = '';
@@ -393,19 +341,12 @@ export default class DataflowPageComponent extends Vue {
     searchResultCache: SearchResultCachePerSearch = {};
     searchQueryCache: SearchQueryCachePerSearch = {};
 
-    // Table
-    tableRowsPerPageItems: Array<any> 
-        = [25, 50, 100, {"text":"$vuetify.dataIterator.rowsPerPageAll","value":-1}];
-    tablePagination: any = {
-        rowsPerPage: 25
-    };
-
     //////////////////
     //  LIFECYCLE  //
     ////////////////
     mounted(): void
     {
-        this.$store.commit('showMenuButton', true);
+        StoreUtil.store.commit('showMenuButton', true);
 
         this.resetFilter();
         this.loadData();
@@ -415,7 +356,7 @@ export default class DataflowPageComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
     
     get menuItems(): Array<FilterableListItem>
@@ -469,22 +410,6 @@ export default class DataflowPageComponent extends Vue {
             });
     }
 
-    get datePickerPresets(): Array<DatePickerPreset> {
-        const endOfToday = new Date();
-        endOfToday.setHours(23);
-        endOfToday.setMinutes(59);
-
-        return [
-            { name: 'Last hour', from: DateUtils.CreateDateWithMinutesOffset(-60), to: endOfToday },
-            { name: 'Today', from: DateUtils.CreateDateWithDayOffset(0), to: endOfToday },
-            { name: 'Last 3 days', from: DateUtils.CreateDateWithDayOffset(-3), to: endOfToday },
-            { name: 'Last 7 days', from: DateUtils.CreateDateWithDayOffset(-7), to: endOfToday },
-            { name: 'Last 30 days', from: DateUtils.CreateDateWithDayOffset(-30), to: endOfToday },
-            { name: 'Last 60 days', from: DateUtils.CreateDateWithDayOffset(-60), to: endOfToday },
-            { name: 'Last 90 days', from: DateUtils.CreateDateWithDayOffset(-90), to: endOfToday }
-        ];
-    }
-
     get showFilterCounts(): boolean {
         return this.streamsFilterText.length > 0;
     }
@@ -493,22 +418,6 @@ export default class DataflowPageComponent extends Vue {
         if (!this.searchResult) return [];
         return this.searchResult.StreamResults
             .filter(x => x.Entries.some(e => !e.GroupByKey));
-    }
-
-    ////////////////////
-    //  Parent Menu  //
-    //////////////////
-    drawerState: boolean = this.storeMenuState;
-    get storeMenuState(): boolean {
-        return this.$store.state.ui.menuExpanded;
-    }
-    @Watch("storeMenuState")
-    onStoreMenuStateChanged(): void {
-        this.drawerState = this.storeMenuState;
-    }
-    @Watch("drawerState")
-    onDrawerStateChanged(): void {
-        this.$store.commit('setMenuExpanded', this.drawerState);
     }
 
     ////////////////
@@ -533,8 +442,8 @@ export default class DataflowPageComponent extends Vue {
             routeParams['group'] = group;
         }
         
-        const streamNameInUrl = this.$route.params.streamName;
-        const groupInUrl = this.$route.params.group;
+        const streamNameInUrl = StringUtils.stringOrFirstOfArray(this.$route.params.streamName);
+        const groupInUrl = StringUtils.stringOrFirstOfArray(this.$route.params.group);
         if (streamNameInUrl !== streamName || groupInUrl !== group)
         {
             this.$router.push({ name: this.config.Id, params: routeParams })
@@ -542,8 +451,8 @@ export default class DataflowPageComponent extends Vue {
     }
 
     updateSelectionFromUrl(): void {
-        const selectedItemGroup = this.$route.params.group;
-        const selectedItem = this.$route.params.streamName;
+        const selectedItemGroup = StringUtils.stringOrFirstOfArray(this.$route.params.group) || '';
+        const selectedItem = StringUtils.stringOrFirstOfArray(this.$route.params.streamName) || '';
         let didSelectSomething = false;
         if (selectedItem !== undefined && selectedItem.length > 0) {
             let stream = this.streamMetadatas
@@ -583,23 +492,8 @@ export default class DataflowPageComponent extends Vue {
         this.filterToDate.setHours(23);
         this.filterToDate.setMinutes(59);
 
-        this.setDatePickerDate(this.filterFromDate, this.filterToDate);
-
         this.filterTake = 50;
         this.filters = [];
-    }
-
-    setDatePickerValue(preset: DatePickerPreset): void {
-        this.setDatePickerDate(preset.from, preset.to);
-    }
-
-    setDatePickerDate(from: Date, to: Date): void {
-        this.filterFromDate = from;
-        this.filterToDate = to;
-
-        let dateFilterFormat = 'yyyy MMM d  HH:mm';
-        (<any>this.$refs.filterDate).selectDateString 
-            = `${DateUtils.FormatDate(this.filterFromDate, dateFilterFormat)} - ${DateUtils.FormatDate(this.filterToDate, dateFilterFormat)}`;
     }
 
     loadData(): void {
@@ -1072,11 +966,6 @@ export default class DataflowPageComponent extends Vue {
             UrlUtils.openRouteInNewTab(route);
         }
     }
-
-    onDateRangeChanged(data: any): void {
-        this.filterFromDate = data.startDate;
-        this.filterToDate = data.endDate;
-    }
 }
 </script>
 
@@ -1108,9 +997,6 @@ export default class DataflowPageComponent extends Vue {
     top: 5px;
     z-index: 2;
 }
-.menu {
-    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.02), 0 3px 2px 0 rgba(0, 0, 0, 0.02), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-}
 .filter {
     position: relative;
     margin-left: 44px;
@@ -1118,10 +1004,9 @@ export default class DataflowPageComponent extends Vue {
     margin-bottom: 18px;
     margin-right: 44px;
 }
-@media (max-width: 960px) {
-    .menu-items { 
-        margin-top: 67px;
-    }
+.filter-chip-inputs {
+    border-left: 4px solid #d5d5d5;
+    padding-left: 8px;
 }
 // .unified-search-header { }
 .unified-search-query-wrapper {
@@ -1130,7 +1015,8 @@ export default class DataflowPageComponent extends Vue {
     flex-wrap: nowrap;
     align-items: center;
     .unified-search-query {
-        font-size: 24px;
+        height: 72px;
+        min-width: 50%;
     }
     .unified-search-query-button {
         height: 72px;
@@ -1217,11 +1103,10 @@ export default class DataflowPageComponent extends Vue {
     }
 }
 </style>
-
 <style lang="scss">
-.unified-search-query {
-    .v-text-field__details { display: none; }
-    .v-text-field__slot { padding: 20px; }
-    .v-input__slot { margin: 0; }
+.unified-search-query-wrapper {
+    input {
+        font-size: 24px;
+    }
 }
 </style>

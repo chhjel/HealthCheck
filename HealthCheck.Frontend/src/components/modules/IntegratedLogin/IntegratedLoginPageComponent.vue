@@ -1,137 +1,119 @@
 <!-- src/components/modules/IntegratedLogin/IntegratedLoginPageComponent.vue -->
 <template>
     <div>
-    <v-app light class="approot">
-    <floating-squares-effect-component />
+        <floating-squares-effect-component /> 
 
-    <div class="integrated-login-page">
-        <v-content class="pl-0">
-        <v-container fluid fill-height class="content-root">
-        <v-layout>
-        <v-flex class="pl-4 pr-4 pb-4">
-          <!-- CONTENT BEGIN -->
-            <v-container>
-
+        <div class="integrated-login-page">
+            <div class="content-root">
                 <div class="mb-4 login-block">
+                    <!-- INPUTS -->
                     <div>
-                        <!-- INPUTS -->
-                        <div>
-                            <h1 class="login-title">{{ title }}</h1>
-                            <v-text-field
-                                v-model="username"
-                                :disabled="loadStatus.inProgress"
-                                v-on:keyup.enter="onLoginClicked"
-                                type="text"
-                                label="Username"
-                                placeholder=" "
-                                class="pt-0 mt-5" />
+                        <h1 class="login-title">{{ title }}</h1>
+                        <text-field-component
+                            v-model:value="username"
+                            :disabled="loadStatus.inProgress"
+                            v-on:keyup.enter="onLoginClicked"
+                            type="text"
+                            label="Username"
+                            placeholder=" "
+                            class="pt-0 mt-5" />
 
-                            <v-text-field
-                                v-model="password"
-                                :disabled="loadStatus.inProgress"
-                                v-on:keyup.enter="onLoginClicked"
-                                label="Password"
-                                placeholder=" "
-                                :type="showPassword ? 'text' : 'password'"
-                                :append-icon="showPassword ? 'visibility' : 'visibility_off'"
-                                @click:append="showPassword = !showPassword"
-                                class="pt-0 mt-2" />
+                        <text-field-component
+                            v-model:value="password"
+                            :disabled="loadStatus.inProgress"
+                            v-on:keyup.enter="onLoginClicked"
+                            label="Password"
+                            placeholder=" "
+                            :type="showPassword ? 'text' : 'password'"
+                            :append-icon="showPassword ? 'visibility' : 'visibility_off'"
+                            @click:append="showPassword = !showPassword"
+                            class="pt-0 mt-2" />
 
-                            <div v-if="showTwoFactorCodeInput" class="mb-4 mt-b">
-                                <v-layout row class="">
-                                    <v-flex :xs6="show2FASendCodeButton" :xs12="!show2FASendCodeButton">
-                                        <v-text-field
-                                            v-model="twoFactorCode"
-                                            :disabled="loadStatus.inProgress"
-                                            v-on:keyup.enter="onLoginClicked"
-                                            label="Two factor code"
-                                            placeholder=" "
-                                            type="text"
-                                            class="pt-0 mt-0"
-                                            :loading="show2FACodeExpirationTime">
-                                            <template v-slot:progress>
-                                                <v-progress-linear
-                                                :value="twoFactorInputProgress"
-                                                :color="twoFactorInputColor"
-                                                height="7"
-                                                ></v-progress-linear>
-                                            </template>
-                                        </v-text-field>
-                                    </v-flex>
-                                    <v-flex xs6 v-if="show2FASendCodeButton">
-                                        <v-btn round color="secondary" class="mt-0"
-                                            @click.prevent="onSendCodeClicked"
-                                            :disabled="loadStatus.inProgress">
-                                            <span style="white-space: normal;">{{ send2FASCodeButtonText }}</span>
-                                        </v-btn>
-                                    </v-flex>
-                                </v-layout>
-                                <div v-if="note2FA" class="mfa-note tfa">{{note2FA}}</div>
+                        <div v-if="showTwoFactorCodeInput" class="mb-4 mt-2">
+                            <div class="flex layout">
+                                <div :class="mfaInputClasses">
+                                    <text-field-component
+                                        v-model:value="twoFactorCode"
+                                        :disabled="loadStatus.inProgress"
+                                        v-on:keyup.enter="onLoginClicked"
+                                        label="Two factor code"
+                                        placeholder=" "
+                                        type="text"
+                                        class="pt-0 mt-0"
+                                        :loading="show2FACodeExpirationTime"
+                                        :loadingValue="twoFactorInputProgress"
+                                        :loadingColor="twoFactorInputColor"
+                                        loadingHeight="7">
+                                    </text-field-component>
+                                </div>
+                                <div class="xs6" v-if="show2FASendCodeButton">
+                                    <btn-component round color="secondary" class="mt-0"
+                                        @click.prevent="onSendCodeClicked"
+                                        :disabled="loadStatus.inProgress">
+                                        <span style="white-space: normal;">{{ send2FASCodeButtonText }}</span>
+                                    </btn-component>
+                                </div>
                             </div>
+                            <div v-if="note2FA" class="mfa-note tfa">{{note2FA}}</div>
                         </div>
-
-                        <div v-if="showWebAuthnInput">
-                            <v-btn round outline  color="primary" 
-                                class="webauthn-button"
-                                @click.prevent="verifyWebAuthn"
-                                :disabled="loadStatus.inProgress">
-                                <span style="white-space: normal;">Verify WebAuthn</span>
-                            </v-btn>
-                            <div v-if="noteWebAuthn" class="mfa-note mt-1">{{noteWebAuthn}}</div>
-                        </div>
-
-                        <v-btn round color="primary" large class="mt-4 login-button"
-                            @click.prevent="onLoginClicked"
-                            :disabled="loadStatus.inProgress">
-                            <span style="white-space: normal;">Sign in</span>
-                        </v-btn>
-
-                        <v-progress-linear color="primary" indeterminate v-if="loadStatus.inProgress"></v-progress-linear>
-
-                        <div v-if="error != null && error.length > 0" class="error--text mt-4">
-                            <b v-if="!showErrorAsHtml">{{ error }}</b>
-                            <div v-if="showErrorAsHtml" v-html="error"></div>
-                        </div>
-
-                        <div v-if="codeMessage != null && codeMessage.length > 0" class="mt-4">
-                            <b v-if="!showCodeMessageAsHtml">{{ codeMessage }}</b>
-                            <div v-if="showCodeMessageAsHtml" v-html="codeMessage"></div>
-                        </div>
-
-                        <!-- LOAD STATUS -->
-                        <v-alert
-                            :value="loadStatus.failed"
-                            type="error">
-                        {{ loadStatus.errorMessage }}
-                        </v-alert>
                     </div>
-                </div>
 
-            </v-container>
-          <!-- CONTENT END -->
-        </v-flex>
-        </v-layout>
-        </v-container>
-        </v-content>
-    </div>
-    </v-app>
+                    <div v-if="showWebAuthnInput">
+                        <btn-component round outline  color="primary" 
+                            class="webauthn-button"
+                            @click.prevent="verifyWebAuthn"
+                            :disabled="loadStatus.inProgress">
+                            <span style="white-space: normal;">Verify WebAuthn</span>
+                        </btn-component>
+                        <div v-if="noteWebAuthn" class="mfa-note mt-1">{{noteWebAuthn}}</div>
+                    </div>
+
+                    <btn-component round color="primary" large class="mt-4 login-button"
+                        @click.prevent="onLoginClicked"
+                        :disabled="loadStatus.inProgress">
+                        <span style="white-space: normal;">Sign in</span>
+                    </btn-component>
+
+                    <progress-linear-component color="primary" class="mt-1" indeterminate v-if="loadStatus.inProgress"></progress-linear-component>
+
+                    <div v-if="error != null && error.length > 0" class="error--text mt-4">
+                        <b v-if="!showErrorAsHtml">{{ error }}</b>
+                        <div v-if="showErrorAsHtml" v-html="error"></div>
+                    </div>
+
+                    <div v-if="codeMessage != null && codeMessage.length > 0" class="mt-4">
+                        <b v-if="!showCodeMessageAsHtml">{{ codeMessage }}</b>
+                        <div v-if="showCodeMessageAsHtml" v-html="codeMessage"></div>
+                    </div>
+
+                    <!-- LOAD STATUS -->
+                    <alert-component
+                        :value="loadStatus.failed"
+                        type="error">
+                    {{ loadStatus.errorMessage }}
+                    </alert-component>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
-import { HCLoginTwoFactorCodeInputMode } from "generated/Enums/WebUI/HCLoginTwoFactorCodeInputMode";
-import { HCLoginWebAuthnMode } from "generated/Enums/WebUI/HCLoginWebAuthnMode";
-import { HCFrontEndOptions } from "generated/Models/WebUI/HCFrontEndOptions";
-import { HCIntegratedLoginRequest } from "generated/Models/WebUI/HCIntegratedLoginRequest";
-import { Vue, Component } from "vue-property-decorator";
-import { FetchStatus,  } from  '../../../services/abstractions/HCServiceBase';
-import IntegratedLoginService, { HCIntegratedLoginRequest2FACodeRequest, HCIntegratedLoginResult } from '../../../services/IntegratedLoginService';
-import BlockComponent from '../../Common/Basic/BlockComponent.vue';
-import FloatingSquaresEffectComponent from '../../Common/Effects/FloatingSquaresEffectComponent.vue';
-import WebAuthnUtil from 'util/WebAuthnUtil';
-import { HCVerifyWebAuthnAssertionModel } from "generated/Models/WebUI/HCVerifyWebAuthnAssertionModel";
+import { HCLoginTwoFactorCodeInputMode } from "@generated/Enums/WebUI/HCLoginTwoFactorCodeInputMode";
+import { HCLoginWebAuthnMode } from "@generated/Enums/WebUI/HCLoginWebAuthnMode";
+import { HCFrontEndOptions } from "@generated/Models/WebUI/HCFrontEndOptions";
+import { HCIntegratedLoginRequest } from "@generated/Models/WebUI/HCIntegratedLoginRequest";
+import { Vue,  } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { FetchStatus,  } from '@services/abstractions/HCServiceBase';
+import IntegratedLoginService, { HCIntegratedLoginRequest2FACodeRequest, HCIntegratedLoginResult } from '@services/IntegratedLoginService';
+import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
+import FloatingSquaresEffectComponent from '@components/Common/Effects/FloatingSquaresEffectComponent.vue';
+import WebAuthnUtil from '@util/WebAuthnUtil';
+import { HCVerifyWebAuthnAssertionModel } from "@generated/Models/WebUI/HCVerifyWebAuthnAssertionModel";
+import { StoreUtil } from "@util/StoreUtil";
 
-@Component({
+@Options({
     components: {
         BlockComponent,
         FloatingSquaresEffectComponent
@@ -151,7 +133,7 @@ export default class IntegratedLoginPageComponent extends Vue {
     codeMessage: string = '';
     showCodeMessageAsHtml: boolean = false;
     current2FACodeProgress: number = 0;
-    twoFactorIntervalId: number = 0;
+    twoFactorIntervalId: any = 0;
     codeExpirationTime: Date | null = null;
     codeExpirationDuration: number | null = null;
     allowShowProgress: boolean = true;
@@ -164,6 +146,7 @@ export default class IntegratedLoginPageComponent extends Vue {
     mounted(): void
     {
         this.twoFactorIntervalId = setInterval(this.update2FAProgress, 1000);
+        this.update2FAProgress();
     }
 
     beforeDestroy(): void {
@@ -178,7 +161,7 @@ export default class IntegratedLoginPageComponent extends Vue {
     }
 
     get globalOptions(): HCFrontEndOptions {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
 
     get Send2FACodeEndpoint(): string {
@@ -245,6 +228,13 @@ export default class IntegratedLoginPageComponent extends Vue {
         else {
             return 'success';
         }
+    }
+
+    get mfaInputClasses(): any {
+        return {
+            xs6: this.show2FASendCodeButton,
+            xs12: !this.show2FASendCodeButton,
+        };
     }
 
     ////////////////
@@ -428,20 +418,25 @@ export default class IntegratedLoginPageComponent extends Vue {
 
 <style scoped lang="scss">
 .integrated-login-page {
-    /* background-color: hsla(0, 0%, 16%, 1); */
     height: 100%;
     text-align: center;
     font-family: 'Montserrat';
+    padding: 5px 20px;
+    margin: 0 auto;
+    max-width: 1280px;
+    width: calc(100% - 40px); // - padding (20+20)
 
     .content-root {
-        max-width: 500px;
+        max-width: 370px;
+        margin: 0 auto;
         margin-top: 8vh;
+        background: #ffffff94;
     }
 
     .login-button {
         width: 100%;
         margin: 0;
-        background-color: var(--v-primary-darken2) !important;
+        background-color: var(--color--primary-darken1) !important;
         text-transform: none;
         font-size: 19px;
         height: 46px;
@@ -463,10 +458,10 @@ export default class IntegratedLoginPageComponent extends Vue {
 
     .mfa-note {
         font-size: small;
-
+/* 
         &.tfa { 
             margin-top: -8px;
-        }
+        } */
     }
 }
 </style>

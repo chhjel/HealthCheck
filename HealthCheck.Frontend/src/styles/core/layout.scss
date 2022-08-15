@@ -1,0 +1,26 @@
+.content-root {
+	flex: 1;
+	max-width: 100%;
+	padding-top: 20px;
+}
+.has-menu {
+	.content-root {
+		padding-left: 20px;
+	}
+}
+.toolbar-offset {
+	margin-top: 56px;
+	@media (min-width: 960px) {
+		margin-top: 64px;
+	}
+}
+.header-layout {
+	display: flex;
+	flex-wrap: wrap;
+
+	&__title {
+		flex: 1;
+		min-width: 60%;
+	}
+	// &__actions {}
+}

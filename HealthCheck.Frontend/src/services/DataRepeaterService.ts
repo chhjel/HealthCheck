@@ -1,19 +1,19 @@
 import { HCDataRepeaterAnalyzeItemRequest } from './../generated/Models/Core/HCDataRepeaterAnalyzeItemRequest';
 import { HCDataRepeaterStreamItemDetailsViewModel } from './../generated/Models/Core/HCDataRepeaterStreamItemDetailsViewModel';
-import { HCDataItemChangeBase } from "generated/Models/Core/HCDataItemChangeBase";
-import { HCDataRepeaterPerformItemActionRequest } from "generated/Models/Core/HCDataRepeaterPerformItemActionRequest";
-import { HCDataRepeaterRetryItemRequest } from "generated/Models/Core/HCDataRepeaterRetryItemRequest";
-import { HCDataRepeaterRetryResult } from "generated/Models/Core/HCDataRepeaterRetryResult";
-import { HCDataRepeaterStreamItemActionResult } from "generated/Models/Core/HCDataRepeaterStreamItemActionResult";
-import { HCDataRepeaterStreamItemsPagedViewModel } from "generated/Models/Core/HCDataRepeaterStreamItemsPagedViewModel";
-import { HCDataRepeaterStreamItemViewModel } from "generated/Models/Core/HCDataRepeaterStreamItemViewModel";
-import { HCGetDataRepeaterItemDetailsRequest } from "generated/Models/Core/HCGetDataRepeaterItemDetailsRequest";
-import { HCGetDataRepeaterStreamDefinitionsViewModel } from "generated/Models/Core/HCGetDataRepeaterStreamDefinitionsViewModel";
-import { HCGetDataRepeaterStreamItemsFilteredRequest } from "generated/Models/Core/HCGetDataRepeaterStreamItemsFilteredRequest";
+import { HCDataItemChangeBase } from "@generated/Models/Core/HCDataItemChangeBase";
+import { HCDataRepeaterPerformItemActionRequest } from "@generated/Models/Core/HCDataRepeaterPerformItemActionRequest";
+import { HCDataRepeaterRetryItemRequest } from "@generated/Models/Core/HCDataRepeaterRetryItemRequest";
+import { HCDataRepeaterRetryResult } from "@generated/Models/Core/HCDataRepeaterRetryResult";
+import { HCDataRepeaterStreamItemActionResult } from "@generated/Models/Core/HCDataRepeaterStreamItemActionResult";
+import { HCDataRepeaterStreamItemsPagedViewModel } from "@generated/Models/Core/HCDataRepeaterStreamItemsPagedViewModel";
+import { HCDataRepeaterStreamItemViewModel } from "@generated/Models/Core/HCDataRepeaterStreamItemViewModel";
+import { HCGetDataRepeaterItemDetailsRequest } from "@generated/Models/Core/HCGetDataRepeaterItemDetailsRequest";
+import { HCGetDataRepeaterStreamDefinitionsViewModel } from "@generated/Models/Core/HCGetDataRepeaterStreamDefinitionsViewModel";
+import { HCGetDataRepeaterStreamItemsFilteredRequest } from "@generated/Models/Core/HCGetDataRepeaterStreamItemsFilteredRequest";
 import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
-import { HCDataRepeaterItemAnalysisResult } from 'generated/Models/Core/HCDataRepeaterItemAnalysisResult';
-import { HCDataRepeaterPerformBatchActionRequest } from 'generated/Models/Core/HCDataRepeaterPerformBatchActionRequest';
-import { HCDataRepeaterStreamBatchActionResult } from 'generated/Models/Core/HCDataRepeaterStreamBatchActionResult';
+import { HCDataRepeaterItemAnalysisResult } from '@generated/Models/Core/HCDataRepeaterItemAnalysisResult';
+import { HCDataRepeaterPerformBatchActionRequest } from '@generated/Models/Core/HCDataRepeaterPerformBatchActionRequest';
+import { HCDataRepeaterStreamBatchActionResult } from '@generated/Models/Core/HCDataRepeaterStreamBatchActionResult';
 
 export interface HCDataRepeaterResultWithItem<TData>
 {

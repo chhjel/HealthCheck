@@ -1,16 +1,17 @@
 <!-- src/components/modules/Overview/StatusComponent.vue -->
 <template>
     <div class="summary" :class="`with-${type}`">
-        <v-icon color="white" class="icon">{{ icon }}</v-icon>
+        <icon-component :color="color" class="icon">{{ icon }}</icon-component>
         <span>{{ text }}</span>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import SiteEventViewModel from  '../../../models/modules/SiteEvents/SiteEventViewModel';
-import LinqUtils from  '../../../util/LinqUtils';
-import { SiteEventSeverity } from  '../../../models/modules/SiteEvents/SiteEventSeverity';
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { SiteEventViewModel } from '@generated/Models/Core/SiteEventViewModel';
+import LinqUtils from '@util/LinqUtils';
+import { SiteEventSeverity } from '@generated/Enums/Core/SiteEventSeverity';
 
 const TYPE_SUCCESS: string = "success";
 const TYPE_INFO: string = "info";
@@ -18,7 +19,7 @@ const TYPE_WARNING: string = "warning";
 const TYPE_ERROR: string = "error";
 const TYPE_FATAL: string = "fatal";
 
-@Component({
+@Options({
     components: {}
 })
 export default class StatusComponent extends Vue {
@@ -51,6 +52,10 @@ export default class StatusComponent extends Vue {
         }
     }
 
+    get color(): string {
+        return '#fff';
+    }
+
     ////////////////
     //  METHODS  //
     //////////////
@@ -65,26 +70,27 @@ export default class StatusComponent extends Vue {
 .summary {
     padding: 16px;
     display: flex;
+    align-items: center;
     font-size: 17px;
     border-radius: 2px;
     color: #fff;
-    background: var(--v-success-base);
+    background: var(--color--success-base);
     white-space: pre;
 }
 .summary.with-info {
     color: #fff;
-    background: var(--v-info-base);
+    background: var(--color--info-base);
 }
 .summary.with-warning {
     color: #fff;
-    background: var(--v-warning-base);
+    background: var(--color--warning-base);
 }
 .summary.with-error {
     color: #fff;
-    background: var(--v-error-base);
+    background: var(--color--error-base);
 }
 .summary.with-fatal {
     color: #fff;
-    background: #333;
+    background: var(--color--fatal-base);
 }
 </style>

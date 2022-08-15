@@ -1,18 +1,19 @@
 <!-- src/components/Common/FilterInputComponent.vue -->
 <template>
-    <div class="root">
-        <input
-            class="filter-input" type="text"
-            v-model="content"
-            @input="handleInput" ref="input" />
-        <v-icon class="icon">search</v-icon>
+    <div class="filter-input-component">
+        <text-field-component
+            class="filter-input"
+            v-model:value="content"
+            @input="handleInput" ref="input"
+            appendIcon="search" />
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
 
-@Component({
+@Options({
     components: {}
 })
 export default class FilterInputComponent extends Vue {
@@ -21,18 +22,17 @@ export default class FilterInputComponent extends Vue {
     content: string = this.value;
 
     handleInput(): void {
-      this.$emit('input', this.content);
+      this.$emit('update:value', this.content);
     }
 }
 </script>
 
 <style scoped>
-.root {
+.filter-input-component {
     display: flex;
     align-items: center;
 }
 .filter-input {
-    border-bottom: 1px solid #e4e4e4;
     padding: 5px;
     flex: 1;
 }

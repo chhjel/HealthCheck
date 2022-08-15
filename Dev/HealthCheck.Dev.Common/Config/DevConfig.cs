@@ -7,15 +7,23 @@ namespace HealthCheck.Dev.Common.Config
     {
         public static void ConfigureLocalAssetUrls(string endpointBase = "")
         {
-            HCAssetGlobalConfig.EnableInitializer = false;
+            // Set to true to test using assets from WebUI.Assets zip resources
+            var useWebUIAssets = false;
 
-            HCAssetGlobalConfig.DefaultJavaScriptUrls = new List<string> {
-                "[base]/GetMainScript"
-            };
-            HCAssetGlobalConfig.DefaultMetricsSummaryJavascriptUrl = $"{endpointBase}/GetMetricsScript";
-            HCAssetGlobalConfig.DefaultReleaseNotesSummaryJavascriptUrl = $"{endpointBase}/GetReleaseNotesScript";
-            HCAssetGlobalConfig.DefaultEditorWorkerUrl = "[base]/getscript?name=editor.worker.js";
-            HCAssetGlobalConfig.DefaultJsonWorkerUrl = "[base]/getscript?name=json.worker.js";
+            HCAssetGlobalConfig.EnableInitializer = useWebUIAssets;
+
+            if (!useWebUIAssets)
+            {
+                HCAssetGlobalConfig.DefaultJavaScriptUrls = new List<string> {
+                    "[base]/GetMainScript"
+                };
+                HCAssetGlobalConfig.DefaultCssUrls.RemoveAt(0);
+                HCAssetGlobalConfig.DefaultCssUrls.Insert(0, "[base]/GetMainStyle");
+                HCAssetGlobalConfig.DefaultMetricsSummaryJavascriptUrl = $"{endpointBase}/GetMetricsScript";
+                HCAssetGlobalConfig.DefaultReleaseNotesSummaryJavascriptUrl = $"{endpointBase}/GetReleaseNotesScript";
+                HCAssetGlobalConfig.DefaultEditorWorkerUrl = "[base]/getscript?name=editor.worker.js";
+                HCAssetGlobalConfig.DefaultJsonWorkerUrl = "[base]/getscript?name=json.worker.js";
+            }
         }
     }
 }

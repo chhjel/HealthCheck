@@ -2,15 +2,16 @@
 <template>
     <div>
         Icon:
-        <v-icon>{{ raw }}</v-icon>
+        <icon-component>{{ raw }}</icon-component>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import { DataFlowPropertyUIHint } from  '../../../../models/modules/Dataflow/DataFlowPropertyDisplayInfo';
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { DataFlowPropertyUIHint } from '@generated/Enums/Core/DataFlowPropertyUIHint';
 
-@Component({
+@Options({
     components: {
     }
 })

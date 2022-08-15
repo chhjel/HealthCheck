@@ -1,110 +1,101 @@
 <!-- src/components/modules/Metrics/MetricsPageComponent.vue -->
 <template>
     <div>
-        <v-content class="pl-0">
-            <!-- CONTENT -->
-            <v-container fluid fill-height class="content-root">
-            <v-layout>
-            <v-flex>
-            <v-container>
-                <h1>Metrics</h1>
-                <p>Debug metrics to verify performance of code, values might be a bit delayed until the tracker is disposed.</p>
+        
+        <div class="content-root">
+            <h1>Metrics</h1>
+            <p>Debug metrics to verify performance of code, values might be a bit delayed until the tracker is disposed.</p>
 
-                <v-btn :disabled="loadStatus.inProgress" @click="loadData" class="mb-3">
-                    <v-icon size="20px" class="mr-2">refresh</v-icon>
-                    Refresh
-                </v-btn>
+            <btn-component :disabled="loadStatus.inProgress" @click="loadData" class="mb-3">
+                <icon-component size="20px" class="mr-2">refresh</icon-component>
+                Refresh
+            </btn-component>
 
-                <!-- LOAD PROGRESS -->
-                <v-progress-linear
-                    v-if="loadStatus.inProgress"
-                    indeterminate color="green"></v-progress-linear>
+            <!-- LOAD PROGRESS -->
+            <progress-linear-component
+                v-if="loadStatus.inProgress"
+                indeterminate color="success"></progress-linear-component>
 
-                <!-- DATA LOAD ERROR -->
-                <v-alert :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
-                {{ loadStatus.errorMessage }}
-                </v-alert>
+            <!-- DATA LOAD ERROR -->
+            <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
+            {{ loadStatus.errorMessage }}
+            </alert-component>
 
-                <div v-if="!hasData && !loadStatus.inProgress">
-                    <b>No metrics data was found.</b>
+            <div v-if="!hasData && !loadStatus.inProgress">
+                <b>No metrics data was found.</b>
+            </div>
+
+            <div v-if="hasData" class="metrics">
+                <div v-if="globalCounters.length > 0">
+                    <h2>Global counters</h2>
+                    <ul>
+                        <li v-for="(item, itemIndex) in globalCounters"
+                            :key="`gcounter-${itemIndex}`">
+                            <b class="mr-1">{{ item.key }}:</b> <code>{{ item.value.Value }}</code>
+                            <br />
+                            <small class="ml-1">Between {{ formatDate(item.value.FirstStored) }} and  {{ formatDate(item.value.LastChanged) }}</small>
+                        </li>
+                    </ul>
                 </div>
 
-                <div v-if="hasData" class="metrics">
-                    <div v-if="globalCounters.length > 0">
-                        <h2>Global counters</h2>
-                        <ul>
-                            <li v-for="(item, itemIndex) in globalCounters"
-                                :key="`gcounter-${itemIndex}`">
-                                <b class="mr-1">{{ item.key }}:</b> <code>{{ item.value.Value }}</code>
-                                <br />
-                                <small class="ml-1">Between {{ formatDate(item.value.FirstStored) }} and  {{ formatDate(item.value.LastChanged) }}</small>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div v-if="globalValues.length > 0" class="mt-4">
-                        <h2>Global values</h2>
-                        <ul v-if="globalValues.length > 0">
-                            <li v-for="(item, itemIndex) in globalValues"
-                                :key="`gvalue-${itemIndex}`">
-                                <b class="mr-1">{{ item.key }}:</b> 
-                                <span v-if="item.values.ValueCount == 1">
-                                    <code>{{ item.values.Average }}{{ item.values.Suffix }}</code>. 
-                                </span>
-                                <span v-if="item.values.ValueCount > 1">
-                                    <code>{{ item.values.Min }}{{ item.values.Suffix }}</code> to <code>{{ item.values.Max }}{{ item.values.Suffix }}</code>, average <code>{{ item.values.Average }}{{ item.values.Suffix }}</code>. 
-                                </span>
-                                n=<code>{{ item.values.ValueCount }}</code>
-                                <br />
-                                <span v-if="item.values.ValueCount == 1">
-                                    <small class="ml-1">{{ formatDate(item.values.LastChanged) }}</small>
-                                </span>
-                                <span v-if="item.values.ValueCount > 1">
-                                    <small class="ml-1">Between {{ formatDate(item.values.FirstStored) }} and {{ formatDate(item.values.LastChanged) }}</small>
-                                </span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div v-if="globalNotes.length > 0" class="mt-4">
-                        <h2>Global notes</h2>
-                        <ul>
-                            <li v-for="(item, itemIndex) in globalNotes"
-                                :key="`gnote-${itemIndex}`">
-                                <div style="display: flex; align-items: baseline;">
-                                    <b class="mr-1">{{ item.id }}</b>
-                                    <small class="ml-1"> ({{ formatDate(item.note.LastChanged) }}):</small>
-                                </div>
-                                <div><code>{{ item.note.Note }}</code></div>
-                            </li>
-                        </ul>
-                    </div>
+                <div v-if="globalValues.length > 0" class="mt-4">
+                    <h2>Global values</h2>
+                    <ul v-if="globalValues.length > 0">
+                        <li v-for="(item, itemIndex) in globalValues"
+                            :key="`gvalue-${itemIndex}`">
+                            <b class="mr-1">{{ item.key }}:</b> 
+                            <span v-if="item.values.ValueCount == 1">
+                                <code>{{ item.values.Average }}{{ item.values.Suffix }}</code>. 
+                            </span>
+                            <span v-if="item.values.ValueCount > 1">
+                                <code>{{ item.values.Min }}{{ item.values.Suffix }}</code> to <code>{{ item.values.Max }}{{ item.values.Suffix }}</code>, average <code>{{ item.values.Average }}{{ item.values.Suffix }}</code>. 
+                            </span>
+                            n=<code>{{ item.values.ValueCount }}</code>
+                            <br />
+                            <span v-if="item.values.ValueCount == 1">
+                                <small class="ml-1">{{ formatDate(item.values.LastChanged) }}</small>
+                            </span>
+                            <span v-if="item.values.ValueCount > 1">
+                                <small class="ml-1">Between {{ formatDate(item.values.FirstStored) }} and {{ formatDate(item.values.LastChanged) }}</small>
+                            </span>
+                        </li>
+                    </ul>
                 </div>
 
-            </v-container>
-            </v-flex>
-            </v-layout>
-            </v-container>
-        </v-content>
+                <div v-if="globalNotes.length > 0" class="mt-4">
+                    <h2>Global notes</h2>
+                    <ul>
+                        <li v-for="(item, itemIndex) in globalNotes"
+                            :key="`gnote-${itemIndex}`">
+                            <div style="display: flex; align-items: baseline;">
+                                <b class="mr-1">{{ item.id }}</b>
+                                <small class="ml-1"> ({{ formatDate(item.note.LastChanged) }}):</small>
+                            </div>
+                            <div><code>{{ item.note.Note }}</code></div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import DateUtils from  '../../../util/DateUtils';
-import BlockComponent from  '../../Common/Basic/BlockComponent.vue';
-import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import MetricsService from  '../../../services/MetricsService';
-import ModuleOptions from  '../../../models/Common/ModuleOptions';
-import ModuleConfig from "../../../models/Common/ModuleConfig";
-import { GetMetricsViewModel } from "generated/Models/Core/GetMetricsViewModel";
-import LinqUtils from "util/LinqUtils";
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import DateUtils from '@util/DateUtils';
+import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import MetricsService from '@services/MetricsService';
+import ModuleOptions from '@models/Common/ModuleOptions';
+import ModuleConfig from '@models/Common/ModuleConfig';
+import { GetMetricsViewModel } from "@generated/Models/Core/GetMetricsViewModel";
+import LinqUtils from "@util/LinqUtils";
 
-export interface ModuleFrontendOptions {
-}
-
-@Component({
+import { ModuleFrontendOptions } from '@components/modules/EndpointControl/EndpointControlPageComponent.vue.models';
+import { StoreUtil } from "@util/StoreUtil";
+@Options({
     components: {
         BlockComponent
     }
@@ -117,7 +108,7 @@ export default class MetricsPageComponent extends Vue {
     options!: ModuleOptions<ModuleFrontendOptions>;
 
     service: MetricsService = new MetricsService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
-    data: GetMetricsViewModel | null = null;
+    datax: GetMetricsViewModel | null = null;
 
     // UI STATE
     loadStatus: FetchStatus = new FetchStatus();
@@ -134,7 +125,7 @@ export default class MetricsPageComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
 
     get hasData(): boolean {
@@ -144,45 +135,45 @@ export default class MetricsPageComponent extends Vue {
     }
 
     get globalCounters(): Array<any> {
-        if (!this.data || !this.data.GlobalCounters) {
+        if (!this.datax || !this.datax.GlobalCounters) {
             return [];
         }
 
-        return Object.keys(this.data.GlobalCounters)
+        return Object.keys(this.datax.GlobalCounters)
             .map(x => {
                 return {
                     key: x,
-                    value: this.data!.GlobalCounters[x]
+                    value: this.datax!.GlobalCounters[x]
                 };
             })
             .sort((a, b) => LinqUtils.SortBy(a, b, x => x.key));
     }
 
     get globalValues(): Array<any> {
-        if (!this.data || !this.data.GlobalValues) {
+        if (!this.datax || !this.datax.GlobalValues) {
             return [];
         }
         
-        return Object.keys(this.data.GlobalValues)
+        return Object.keys(this.datax.GlobalValues)
             .map(x => {
                 return {
                     key: x,
-                    values: this.data!.GlobalValues[x]
+                    values: this.datax!.GlobalValues[x]
                 };
             })
             .sort((a, b) => LinqUtils.SortBy(a, b, x => x.key));
     }
 
     get globalNotes(): Array<any> {
-        if (!this.data || !this.data.GlobalNotes) {
+        if (!this.datax || !this.datax.GlobalNotes) {
             return [];
         }
         
-        return Object.keys(this.data.GlobalNotes)
+        return Object.keys(this.datax.GlobalNotes)
             .map(x => {
                 return {
                     id: x,
-                    note: this.data!.GlobalNotes[x]
+                    note: this.datax!.GlobalNotes[x]
                 };
             })
             .sort((a, b) => LinqUtils.SortBy(a, b, x => x.id));
@@ -196,7 +187,7 @@ export default class MetricsPageComponent extends Vue {
     }
 
     onDataRetrieved(data: GetMetricsViewModel | null): void {
-        this.data = data;
+        this.datax = data;
     }
 
     formatDate(date: Date): string {

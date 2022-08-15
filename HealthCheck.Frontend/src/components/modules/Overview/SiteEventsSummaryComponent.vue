@@ -1,30 +1,30 @@
 <!-- src/components/modules/Overview/SiteEventsSummaryComponent.vue -->
 <template>
-    <v-list class="summary-list">
-        <v-list-tile v-for="(event, index) in events"
+    <div class="summary-list">
+        <div v-for="(event, index) in events"
             :key="`current-event-${index}`"
             @click="onEventClicked(event)"
             class="summary-list-item">
-            <v-list-tile-action>
-                <v-icon :color="getEventIconColor(event)">{{getEventIcon(event)}}</v-icon>
-            </v-list-tile-action>
-
-            <v-list-tile-content>
-                <v-list-tile-title class="summary-item-title">{{ event.Title }}</v-list-tile-title>
-                <v-list-tile-sub-title class="summary-item-description">{{ event.Description }}</v-list-tile-sub-title>
-            </v-list-tile-content>
-        </v-list-tile>
-    </v-list>
+            <div class="flex">
+                <icon-component :color="getEventIconColor(event)" class="mr-2">{{getEventIcon(event)}}</icon-component>
+                <div>
+                    <div class="summary-item-title">{{ event.Title }}</div>
+                    <div class="summary-item-description">{{ event.Description }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import SiteEventViewModel from  '../../../models/modules/SiteEvents/SiteEventViewModel';
-import LinqUtils from  '../../../util/LinqUtils';
-import { SiteEventSeverity } from  '../../../models/modules/SiteEvents/SiteEventSeverity';
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { SiteEventViewModel } from '@generated/Models/Core/SiteEventViewModel';
+import LinqUtils from '@util/LinqUtils';
+import { SiteEventSeverity } from '@generated/Enums/Core/SiteEventSeverity';
 
 
-@Component({
+@Options({
     components: {}
 })
 export default class SiteEventsSummaryComponent extends Vue {
@@ -67,7 +67,7 @@ export default class SiteEventsSummaryComponent extends Vue {
         } else if (event.Severity == SiteEventSeverity.Error) {
             return "error";
         } else if (event.Severity == SiteEventSeverity.Fatal) {
-            return "black";
+            return "fatal";
         } else {
             return "success";
         }
@@ -82,7 +82,7 @@ export default class SiteEventsSummaryComponent extends Vue {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .icon {
     margin-right: 5px;
 }
@@ -92,24 +92,24 @@ export default class SiteEventsSummaryComponent extends Vue {
     align-items: center;
     border-radius: 2px;
     color: #fff;
-    background: var(--v-success-base);
+    background: var(--color--success-base);
     white-space: pre;
 }
 .summary.with-info {
     color: #fff;
-    background: var(--v-info-base);
+    background: var(--color--info-base);
 }
 .summary.with-warning {
     color: #fff;
-    background: var(--v-warning-base);
+    background: var(--color--warning-base);
 }
 .summary.with-error {
     color: #fff;
-    background: var(--v-error-base);
+    background: var(--color--error-base);
 }
 .summary.with-fatal {
     color: #fff;
-    background: #333;
+    background: var(--color--fatal-base);
 }
 .summary-item-title {
     font-size: 18px;
@@ -119,7 +119,12 @@ export default class SiteEventsSummaryComponent extends Vue {
 }
 .summary-list-item {
     background: #fff;
-    margin-bottom: 5px;
+    cursor: pointer;
+    padding: 5px 0 5px 16px;
+	transition: 0.2s;
+	&:hover {
+		background-color: #e8e8e8;
+	}
 }
 .summary-list {
     background: inherit;

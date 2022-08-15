@@ -1,9 +1,9 @@
 <!-- src/components/modules/TestSuite/TestResultComponent.vue -->
 <template>
     <div>
-        <v-icon :color="testResultIconColor"
+        <icon-component :color="testResultIconColor"
           v-if="showResultStatusIcon"
-          class="mr-1">{{testResultIcon}}</v-icon>
+          class="mr-1 left">{{testResultIcon}}</icon-component>
         
         <div class="result-message" v-if="showResultMessage">{{ this.testResult.Message }}</div>
 
@@ -12,35 +12,36 @@
         </div>
 
         <!-- DATA DUMPS -->
-        <v-expansion-panel 
+        <expansion-panel-component 
           class="mt-2 test-result-expansion-panel"
           :class="{ 'clean-mode': testResult.DisplayClean }"
           v-if="showTestResultData"
-          v-model="dataExpandedState">
-          <v-expansion-panel-content>
-            <template v-slot:header v-if="testResult.AllowExpandData && !testResult.DisplayClean">
-              <div>{{ testResultDataTitle }}</div>
+          :showHeader="!testResult.DisplayClean"
+          :cleanMode="testResult.DisplayClean"
+          v-model:value="dataExpandedState">
+            <template #header v-if="testResult.AllowExpandData && !testResult.DisplayClean">{{ testResultDataTitle }}</template>
+            <template #content>
+              <div v-if="dataExpandedState">
+                <div>
+                  <test-result-data-component 
+                    v-for="(resultData, index) in testResult.Data"
+                    :key="`test-${testResult.TestId}-result-data`+index"
+                    :resultData="resultData"
+                    :clean="resultData.DisplayClean || testResult.DisplayClean" />
+                </div>
+              </div>
             </template>
-            <v-card v-if="dataExpandedState == 0">
-              <v-card-text>
-                <test-result-data-component 
-                  v-for="(data, index) in testResult.Data"
-                  :key="`test-${testResult.TestId}-result-data`+index"
-                  :data="data"
-                  :clean="data.DisplayClean || testResult.DisplayClean" />
-              </v-card-text>
-            </v-card>
-          </v-expansion-panel-content>
-        </v-expansion-panel>
+        </expansion-panel-component>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import TestResultViewModel from  '../../../models/modules/TestSuite/TestResultViewModel';
-import TestResultDataComponent from './result_data/TestResultDataComponent.vue';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { TestResultViewModel } from '@generated/Models/Core/TestResultViewModel';
+import TestResultDataComponent from '@components/modules/TestSuite/result_data/TestResultDataComponent.vue';
 
-@Component({
+@Options({
     components: {
       TestResultDataComponent
     }
@@ -51,7 +52,7 @@ export default class TestResultComponent extends Vue {
     @Prop({ required: true })
     expandDataOnLoad!: boolean;
 
-    dataExpandedState: number = -1;
+    dataExpandedState: boolean = false;
 
     //////////////////
     //  LIFECYCLE  //
@@ -60,7 +61,7 @@ export default class TestResultComponent extends Vue {
       if (this.expandDataOnLoad == true 
           || this.testResult.ExpandDataByDefault == true
           || this.testResult.DisplayClean == true) {
-        this.dataExpandedState = 0;
+        this.dataExpandedState = true;
       }
     }
     
@@ -68,8 +69,8 @@ export default class TestResultComponent extends Vue {
     //  WATCHERS  //
     ///////////////
     @Watch("dataExpandedState")
-    onDataExpandedStateChanged(value:number, oldValue:number): void {
-      this.$emit("dataExpandedStateChanged", (value == 0));
+    onDataExpandedStateChanged(value:boolean, oldValue:boolean): void {
+      this.$emit("dataExpandedStateChanged", value);
     }
 
     ////////////////
@@ -164,20 +165,5 @@ export default class TestResultComponent extends Vue {
 .result-message {
   font-size: 18px;
   display: inline;
-}
-.v-expansion-panel.clean-mode {
-  border: none;
-  box-shadow: none;
-}
-</style>
-
-<style lang="scss">
-.test-result-expansion-panel {
-  .v-expansion-panel__header {
-    background-color: #f5f5f5;
-  }
-  .v-expansion-panel__body {
-    margin-left: 8px;
-  }
 }
 </style>

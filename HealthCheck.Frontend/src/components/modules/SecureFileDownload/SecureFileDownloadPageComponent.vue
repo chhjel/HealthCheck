@@ -1,160 +1,117 @@
 <!-- src/components/modules/SecureFileDownload/SecureFileDownloadPageComponent.vue -->
 <template>
     <div>
-        <v-content class="pl-0">
-            <v-container fluid fill-height class="content-root">
-            <v-layout>
-            <v-flex>
-            <v-container>
-                <h1 class="mb-1">Downloads</h1>
+        <div class="content-root">
+            <h1 class="mb-1">Downloads</h1>
 
-                <!-- LOAD PROGRESS -->
-                <v-progress-linear
-                    v-if="loadStatus.inProgress"
-                    indeterminate color="green"></v-progress-linear>
+            <!-- LOAD PROGRESS -->
+            <progress-linear-component
+                v-if="loadStatus.inProgress"
+                indeterminate color="success"></progress-linear-component>
 
-                <!-- DATA LOAD ERROR -->
-                <v-alert :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
-                {{ loadStatus.errorMessage }}
-                </v-alert>
+            <!-- DATA LOAD ERROR -->
+            <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
+            {{ loadStatus.errorMessage }}
+            </alert-component>
 
-                <v-btn
-                    v-if="canCreateNewDownloads"
-                    :disabled="!allowDownloadChanges"
-                    @click="onAddNewDownloadClicked"
-                    class="mb-3">
-                    <v-icon size="20px" class="mr-2">add</v-icon>
-                    Add new
-                </v-btn>
+            <btn-component
+                v-if="canCreateNewDownloads"
+                :disabled="!allowDownloadChanges"
+                @click="onAddNewDownloadClicked"
+                class="mb-3">
+                <icon-component size="20px" class="mr-2">add</icon-component>
+                Add new
+            </btn-component>
 
-                <block-component
-                    v-for="(download, cindex) in downloads"
-                    :key="`download-${cindex}-${download.Id}`"
-                    class="download-list-item"
-                    >
-                    <div>
-                        <div class="download-list-item--inner">
-                            <div class="download-list-item--rule"
-                                @click="showDownload(download)">
-                                <v-icon>description</v-icon>
-                                {{ download.FileName }}
-                            </div>
-                            
-                            <v-tooltip bottom v-if="download.Password != null">
-                                <template v-slot:activator="{ on }">
-                                    <v-icon style="cursor: help;" v-on="on">lock</v-icon>
-                                </template>
-                                <span>This download is protected by a password</span>
-                            </v-tooltip>
-
-                            <v-tooltip bottom v-if="getDownloadWarning(download) != null">
-                                <template v-slot:activator="{ on }">
-                                    <v-icon style="cursor: help;" color="warning" v-on="on">warning</v-icon>
-                                </template>
-                                <span>{{getDownloadWarning(download)}}</span>
-                            </v-tooltip>
-
-                            <v-tooltip bottom v-if="downloadIsOutsideLimit(download)">
-                                <template v-slot:activator="{ on }">
-                                    <v-icon v-on="on" style="cursor: help;">timer_off</v-icon>
-                                </template>
-                                <span>This downloads' limits has been reached</span>
-                            </v-tooltip>
-
-                            <v-tooltip bottom>
-                                <template v-slot:activator="{ on }">
-                                    <v-icon style="cursor: help;" v-on="on">person</v-icon>
-                                    <code style="color: var(--v-primary-base); cursor: help;" v-on="on">{{ download.LastModifiedByUsername }}</code>
-                                </template>
-                                <span>Last modified by '{{ download.LastModifiedByUsername }}'</span>
-                            </v-tooltip>
+            <block-component
+                v-for="(download, cindex) in downloads"
+                :key="`download-${cindex}-${download.Id}`"
+                class="download-list-item"
+                @click="showDownload(download)"
+                >
+                <div>
+                    <div class="download-list-item--inner">
+                        <div class="download-list-item--rule">
+                            <icon-component class="download-list-item--rule-icon">description</icon-component>
+                            {{ download.FileName }}
                         </div>
-                            
-                        <div class="download-link">
-                            Download link: <a :href="getAbsoluteDownloadUrl(download)">{{ getAbsoluteDownloadUrl(download) }}</a>
-                        </div>
+                        
+                        <tooltip-component tooltip="This download is protected by a password"
+                            v-if="download.Password != null" >
+                            <icon-component help>lock</icon-component>
+                        </tooltip-component>
+
+                        <tooltip-component :tooltip="getDownloadWarning(download)" 
+                            v-if="getDownloadWarning(download) != null">
+                            <icon-component help color="warning">warning</icon-component>
+                        </tooltip-component>
+
+                        <tooltip-component tooltip="This downloads' limits has been reached"
+                            v-if="downloadIsOutsideLimit(download)">
+                            <icon-component help >timer_off</icon-component>
+                        </tooltip-component>
+
+                        <tooltip-component :tooltip="`Last modified by '${download.LastModifiedByUsername}'`" bottom>
+                            <icon-component help>person</icon-component>
+                            <code style="color: var(--color--primary-base); cursor: help;">{{ download.LastModifiedByUsername }}</code>
+                        </tooltip-component>
                     </div>
-                </block-component>
+                        
+                    <div class="download-link">
+                        Download link: <a :href="getAbsoluteDownloadUrl(download)" @click.stop="" target="_blank">{{ getAbsoluteDownloadUrl(download) }}</a>
+                    </div>
+                </div>
+            </block-component>
 
-            </v-container>
-            </v-flex>
-            </v-layout>
-            </v-container>
-            
-            <v-dialog v-model="downloadDialogVisible"
-                scrollable
-                persistent
-                max-width="1200"
-                content-class="current-download-dialog">
-                <v-card v-if="currentDownload != null" style="background-color: #f4f4f4">
-                    <v-toolbar class="elevation-0">
-                        <v-toolbar-title class="current-download-dialog__title">{{ currentDialogTitle }}</v-toolbar-title>
-                        <v-spacer></v-spacer>
-                        <v-btn icon
-                            @click="hideCurrentDownload()"
-                            :disabled="serverInteractionInProgress">
-                            <v-icon>close</v-icon>
-                        </v-btn>
-                    </v-toolbar>
+        </div>
+        
+        <dialog-component v-model:value="downloadDialogVisible" persistent max-width="1200" @close="hideCurrentDownload">
+            <template #header>{{ currentDialogTitle }}</template>
+            <template #footer>
+                <btn-component color="primary"
+                    v-if="showSaveDownload"
+                    :disabled="serverInteractionInProgress"
+                    @click="$refs.currentDownloadComponent.saveDownload()">Save</btn-component>
+                <btn-component color="error"
+                    v-if="showDeleteDownload"
+                    :disabled="serverInteractionInProgress"
+                    @click="$refs.currentDownloadComponent.tryDeleteDownload()">Delete</btn-component>
+                <btn-component color="secondary" @click="hideCurrentDownload">Cancel</btn-component>
+            </template>
 
-                    <v-divider></v-divider>
-                    
-                    <v-card-text>
-                        <edit-download-component
-                            :module-id="config.Id"
-                            :download="currentDownload"
-                            :storage-infos="options.Options.StorageInfos"
-                            :readonly="!allowDownloadChanges"
-                            v-on:downloadDeleted="onDownloadDeleted"
-                            v-on:downloadSaved="onDownloadSaved"
-                            v-on:serverInteractionInProgress="setServerInteractionInProgress"
-                            ref="currentDownloadComponent"
-                            />
-                    </v-card-text>
-                    <v-divider></v-divider>
-                    <v-card-actions >
-                        <v-spacer></v-spacer>
-                        <v-btn color="error" flat
-                            v-if="showDeleteDownload"
-                            :disabled="serverInteractionInProgress"
-                            @click="$refs.currentDownloadComponent.tryDeleteDownload()">Delete</v-btn>
-                        <v-btn color="success"
-                            v-if="showSaveDownload"
-                            :disabled="serverInteractionInProgress"
-                            @click="$refs.currentDownloadComponent.saveDownload()">Save</v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
-        </v-content>
+            <div v-if="currentDownload != null">
+                <edit-download-component
+                    :module-id="config.Id"
+                    :download="currentDownload"
+                    :storage-infos="options.Options.StorageInfos"
+                    :readonly="!allowDownloadChanges"
+                    v-on:downloadDeleted="onDownloadDeleted"
+                    v-on:downloadSaved="onDownloadSaved"
+                    v-on:serverInteractionInProgress="setServerInteractionInProgress"
+                    ref="currentDownloadComponent"
+                    />
+            </div>
+        </dialog-component>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import { EntryState } from  '../../../models/modules/RequestLog/EntryState';
-import DateUtils from  '../../../util/DateUtils';
-import LinqUtils from  '../../../util/LinqUtils';
-import KeyArray from  '../../../util/models/KeyArray';
-import KeyValuePair from  '../../../models/Common/KeyValuePair';
-import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
-// @ts-ignore
-import { DateTimePicker } from "@lazy-copilot/datetimepicker";
-import FilterInputComponent from  '../../Common/FilterInputComponent.vue';
-import DataTableComponent, { DataTableGroup } from  '../../Common/DataTableComponent.vue';
-import SimpleDateTimeComponent from  '../../Common/SimpleDateTimeComponent.vue';
-import FilterableListComponent, { FilterableListItem } from  '../../Common/FilterableListComponent.vue';
-import EditDownloadComponent from './EditDownloadComponent.vue';
-import IdUtils from  '../../../util/IdUtils';
-import SecureFileDownloadUtils from  '../../../util/SecureFileDownload/SecureFileDownloadUtils';
-import BlockComponent from  '../../Common/Basic/BlockComponent.vue';
-import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import ModuleConfig from  '../../../models/Common/ModuleConfig';
-import ModuleOptions from  '../../../models/Common/ModuleOptions';
-import SecureFileDownloadService from "../../../services/SecureFileDownloadService";
-import { SecureFileDownloadsViewModel, SecureFileDownloadDefinition, SecureFileDownloadFrontendOptionsModel } from "../../../models/modules/SecureFileDownload/Models";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import SimpleDateTimeComponent from '@components/Common/SimpleDateTimeComponent.vue';
+import EditDownloadComponent from '@components/modules/SecureFileDownload/EditDownloadComponent.vue';
+import SecureFileDownloadUtils from '@util/SecureFileDownload/SecureFileDownloadUtils';
+import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import ModuleConfig from '@models/Common/ModuleConfig';
+import ModuleOptions from '@models/Common/ModuleOptions';
+import SecureFileDownloadService from '@services/SecureFileDownloadService';
+import { SecureFileDownloadsViewModel, SecureFileDownloadDefinition, SecureFileDownloadFrontendOptionsModel } from "@models/modules/SecureFileDownload/Models";
+import { StoreUtil } from "@util/StoreUtil";
+import StringUtils from "@util/StringUtils";
 
-@Component({
+@Options({
     components: {
         SimpleDateTimeComponent,
         EditDownloadComponent,
@@ -173,8 +130,9 @@ export default class SecureFileDownloadPageComponent extends Vue {
     // UI STATE
     loadStatus: FetchStatus = new FetchStatus();
     serverInteractionInProgress: boolean = false;
+    downloadDialogVisible: boolean = false;
 
-    data: Array<SecureFileDownloadDefinition> = [];
+    datax: Array<SecureFileDownloadDefinition> = [];
     currentDownload: SecureFileDownloadDefinition | null = null;
 
     //////////////////
@@ -189,7 +147,7 @@ export default class SecureFileDownloadPageComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
 
     get canViewDownload(): boolean {
@@ -237,14 +195,9 @@ export default class SecureFileDownloadPageComponent extends Vue {
             : 'Create new download';
     }
 
-    get downloadDialogVisible(): boolean
-    {
-        return this.currentDownload != null;
-    }
-
     get downloads(): Array<SecureFileDownloadDefinition>
     {
-        let downloads = (this.data == null) ? [] : this.data;
+        let downloads = (this.datax == null) ? [] : this.datax;
         return downloads;
     };
 
@@ -262,7 +215,7 @@ export default class SecureFileDownloadPageComponent extends Vue {
     }
 
     updateSelectionFromUrl(): void {
-        const idFromHash = this.$route.params.id;
+        const idFromHash = StringUtils.stringOrFirstOfArray(this.$route.params.id) || null;
         
         if (idFromHash) {
             let downloadFromUrl = this.downloads.filter(x => x.Id != null && x.Id == idFromHash)[0];
@@ -285,7 +238,7 @@ export default class SecureFileDownloadPageComponent extends Vue {
     }
 
     onDataRetrieved(data: SecureFileDownloadsViewModel): void {
-        this.data = data.Definitions.map(x => {
+        this.datax = data.Definitions.map(x => {
             SecureFileDownloadUtils.postProcessDownload(x);
             return x;
         });
@@ -298,20 +251,20 @@ export default class SecureFileDownloadPageComponent extends Vue {
     }
 
     onDownloadSaved(download: SecureFileDownloadDefinition): void {
-        if (this.data == null)
+        if (this.datax == null)
         {
             return;
         }
         SecureFileDownloadUtils.postProcessDownload(download);
 
-        const position = this.data.findIndex(x => x.Id == download.Id);
+        const position = this.datax.findIndex(x => x.Id == download.Id);
 
         if (position == -1)
         {
-            this.data.push(download);
+            this.datax.push(download);
         }
         else {
-            Vue.set(this.data, position, download);
+            this.datax[position] = download;
         }
 
         if (download.FileId)
@@ -321,17 +274,18 @@ export default class SecureFileDownloadPageComponent extends Vue {
     }
 
     onDownloadDeleted(download: SecureFileDownloadDefinition): void {
-        if (this.data == null)
+        if (this.datax == null)
         {
             return;
         }
 
-        this.data = this.data.filter(x => x.Id != download.Id);
+        this.datax = this.datax.filter(x => x.Id != download.Id);
         this.hideCurrentDownload();
     }
 
     showDownload(download: SecureFileDownloadDefinition, updateRoute: boolean = true): void {
         this.currentDownload = download;
+        this.downloadDialogVisible = download != null;
 
         if (updateRoute)
         {
@@ -341,6 +295,7 @@ export default class SecureFileDownloadPageComponent extends Vue {
 
     hideCurrentDownload(): void {
         this.currentDownload = null;
+        this.downloadDialogVisible = false;
         this.updateUrl();
     }
     
@@ -403,7 +358,7 @@ export default class SecureFileDownloadPageComponent extends Vue {
     //  EVENT HANDLERS  //
     /////////////////////    
     onAddNewDownloadClicked(): void {
-        if (this.data == null)
+        if (this.datax == null)
         {
             return;
         }
@@ -424,6 +379,7 @@ export default class SecureFileDownloadPageComponent extends Vue {
 }
 .download-list-item {
     margin-bottom: 20px;
+    cursor: pointer;
     
     .download-list-item--inner {
         display: flex;
@@ -433,23 +389,28 @@ export default class SecureFileDownloadPageComponent extends Vue {
 
         .download-list-item--rule {
             flex: 1;
-            cursor: pointer;
             font-size: 16px;
             margin-right: 20px;
-            
+            display: flex;
+            align-items: center;
+
             .download-list-item--operator {
                 font-weight: 600;
             }
             .download-list-item--condition {
-                color: var(--v-primary-base);
+                color: var(--color--primary-base);
             }
             .download-list-item--action {
-                color: var(--v-secondary-base);
+                color: var(--color--secondary-base);
             }
             /* .download-list-item--condition,
             .download-list-item--action {
                 font-weight: 600;
             } */
+        }
+
+        .download-list-item--rule-icon {
+            margin-right: 5px;
         }
     }
 }

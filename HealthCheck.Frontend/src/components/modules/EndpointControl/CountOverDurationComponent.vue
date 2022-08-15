@@ -1,43 +1,47 @@
 <!-- src/components/modules/EndpointControl/CountOverDurationComponent.vue -->
 <template>
-    <div class="root">
+    <div class="count-over-duration-component">
         <div class="field-list horizontal-layout">
             <input-component
                 type="number"
                 name="Request count"
-                v-model="count"
+                v-model:value="count"
                 v-on:change="onDataChanged"
                 :disabled="readonly"
                 :clearable="false"
+                class="mb-2"
             ></input-component>
 
             <timespan-input-component
-                v-model="duration"
+                v-model:value="duration"
                 v-on:change="onDataChanged"
                 name="Over duration of"
                 :allowClear="false"
                 :minimal="false"
                 :disabled="readonly"
+                class="mb-2"
                 />
 
-            <v-btn
+            <btn-component
                 dark small flat
                 color="error"
+                class="mt-3"
                 @click="remove()"
                 :disabled="readonly">
                 Remove
-            </v-btn>
+            </btn-component>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import { EndpointControlCountOverDuration, EndpointControlRule } from "../../../models/modules/EndpointControl/EndpointControlModels";
-import TimespanInputComponent from '../../Common/Basic/TimespanInputComponent.vue';
-import InputComponent from '../../Common/Basic/InputComponent.vue';
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { EndpointControlCountOverDuration, EndpointControlRule } from '@models/modules/EndpointControl/EndpointControlModels';
+import TimespanInputComponent from '@components/Common/Basic/TimespanInputComponent.vue';
+import InputComponent from '@components/Common/Basic/InputComponent.vue';
 
-@Component({
+@Options({
     components: { InputComponent, TimespanInputComponent }
 })
 export default class CountOverDurationComponent extends Vue {
@@ -78,20 +82,20 @@ export default class CountOverDurationComponent extends Vue {
             _frontendId: (<any>this.value)._frontendId
         }
 
-        this.$emit('input', freshValues);
+        this.$emit('update:value', freshValues);
     }
 }
 </script>
 
 <style scoped lang="scss">
-.root {
+.count-over-duration-component {
     margin-left: 20px;
     padding-left: 20px;
 
     @media (max-width: 900px) {
         margin-left: 0;
         padding-left: 0;
-        margin-bottom: 40px;;
+        margin-bottom: 20px;;
     }
 
     .horizontal-layout {

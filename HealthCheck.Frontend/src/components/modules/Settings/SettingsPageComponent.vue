@@ -1,80 +1,71 @@
 <!-- src/components/modules/Settings/SettingsPageComponent.vue -->
 <template>
-    <div class="settings-page">
-        <v-content class="pl-0">
-        <v-container fluid fill-height class="content-root">
-        <v-layout>
-        <v-flex class="pl-4 pr-4 pb-4">
-          <!-- CONTENT BEGIN -->
-            <v-container>
-                <h1 class="mb-4">Settings</h1>
+    <div>
+        <div class="content-root">
+            <h1 class="mb-4">Settings</h1>
 
-                <!-- LOAD PROGRESS -->
-                <v-progress-linear 
-                    v-if="loadStatus.inProgress"
-                    indeterminate color="green"></v-progress-linear>
+            <!-- LOAD PROGRESS -->
+            <progress-linear-component 
+                v-if="loadStatus.inProgress"
+                indeterminate color="success"></progress-linear-component>
 
-                <!-- DATA LOAD ERROR -->
-                <v-alert :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
-                {{ loadStatus.errorMessage }}
-                </v-alert>
+            <!-- DATA LOAD ERROR -->
+            <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
+            {{ loadStatus.errorMessage }}
+            </alert-component>
 
-                <div v-for="(group, gIndex) in settingGroups"
-                    :key="`setting-group-${gIndex}`"
-                    class="setting-group"
-                    :class="{ 'without-header': group.name == null, 'with-header': group.name != null }">
-                    
-                    <div v-if="group.name != null" class="setting-group-header">
-                        <h2 class="setting-group-header--name">{{ group.name }}</h2>
-                        <p v-if="group.description != null" class="setting-group-header--desc">{{ group.description }}}</p>
-                    </div>
-                    
-                    <backend-input-component
-                        v-for="(setting, sIndex) in group.settings"
-                        :key="`setting-item-${gIndex}-${sIndex}`"
-                        class="setting-item"
-                        v-model="setting.value"
-                        :config="setting.definition"
-                        :readonly="!HasAccessToChangeSettings"
-                        />
+            <div v-for="(group, gIndex) in settingGroups"
+                :key="`setting-group-${gIndex}`"
+                class="setting-group"
+                :class="{ 'without-header': group.name == null, 'with-header': group.name != null }">
+                
+                <div v-if="group.name != null" class="setting-group-header">
+                    <h2 class="setting-group-header--name">{{ group.name }}</h2>
+                    <p v-if="group.description != null" class="setting-group-header--desc">{{ group.description }}}</p>
+                </div>
+                
+                <backend-input-component
+                    v-for="(setting, sIndex) in group.settings"
+                    :key="`setting-item-${gIndex}-${sIndex}`"
+                    class="setting-item"
+                    v-model:value="setting.value"
+                    :config="setting.definition"
+                    :readonly="!HasAccessToChangeSettings"
+                    />
+            </div>
+
+            <div v-if="settingGroups.length > 0">
+                <div xs6 sm2 class="mb-2">
+                    <btn-component
+                        v-if="HasAccessToChangeSettings"
+                        @click="saveSettings()" 
+                        class="primary"
+                        :disabled="saveStatus.inProgress">{{ saveButtonText }}</btn-component>
                 </div>
 
-                <v-layout v-if="settingGroups.length > 0">
-                    <v-flex xs6 sm2 class="mb-2">
-                        <v-btn
-                            v-if="HasAccessToChangeSettings"
-                            @click="saveSettings()" 
-                            class="primary"
-                            :disabled="saveStatus.inProgress">{{ saveButtonText }}</v-btn>
-                    </v-flex>
-
-                    <!-- SAVE ERROR -->
-                    <div v-if="saveStatus.failed" class="save-error">
-                    {{ saveStatus.errorMessage }}
-                    </div>
-                </v-layout>
-
-            </v-container>
-        </v-flex>
-        </v-layout>
-        </v-container>
-        </v-content>
+                <!-- SAVE ERROR -->
+                <div v-if="saveStatus.failed" class="save-error">
+                {{ saveStatus.errorMessage }}
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import DateUtils from  '../../../util/DateUtils';
-import LinqUtils from  '../../../util/LinqUtils';
-import SettingsService from  '../../../services/SettingsService';
-import { FetchStatus,  } from  '../../../services/abstractions/HCServiceBase';
-import ModuleConfig from  '../../../models/Common/ModuleConfig';
-import ModuleOptions from  '../../../models/Common/ModuleOptions';
-import { HCBackendInputConfig } from "generated/Models/Core/HCBackendInputConfig";
-import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
-import { GetSettingsViewModel } from "generated/Models/Core/GetSettingsViewModel";
-import { SetSettingsViewModel } from "generated/Models/Core/SetSettingsViewModel";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import LinqUtils from '@util/LinqUtils';
+import SettingsService from '@services/SettingsService';
+import { FetchStatus,  } from '@services/abstractions/HCServiceBase';
+import ModuleConfig from '@models/Common/ModuleConfig';
+import ModuleOptions from '@models/Common/ModuleOptions';
+import { HCBackendInputConfig } from "@generated/Models/Core/HCBackendInputConfig";
+import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
+import { GetSettingsViewModel } from "@generated/Models/Core/GetSettingsViewModel";
+import { SetSettingsViewModel } from "@generated/Models/Core/SetSettingsViewModel";
+import { StoreUtil } from "@util/StoreUtil";
 
 interface CustomSettingGroup
 {
@@ -87,7 +78,7 @@ interface CustomSetting
     value: string;
 }
 
-@Component({
+@Options({
     components: {
         BackendInputComponent
     }
@@ -123,7 +114,7 @@ export default class SettingsPageComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
     
     get saveButtonText(): string {
@@ -186,35 +177,33 @@ export default class SettingsPageComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-.settings-page {
-    .setting-group {
-        margin-bottom: 40px;
-        margin-top: 15px;
-        padding: 20px;
-        border-radius: 25px;
-        background-color: #fff;
-        box-shadow: #d5d7d5 4px 4px 6px 0px;
+.setting-group {
+    margin-bottom: 40px;
+    margin-top: 15px;
+    padding: 20px;
+    border-radius: 25px;
+    background-color: #fff;
+    box-shadow: #d5d7d5 4px 4px 6px 0px;
 
-        /* &.without-header {}
-        &.with-header {} */
+    /* &.without-header {}
+    &.with-header {} */
 
-        .setting-group-header {
-            padding-bottom: 10px;
+    .setting-group-header {
+        padding-bottom: 10px;
 
-            /* .setting-group-header--name {}
-            .setting-group-header--desc {} */
-        }
-
-        .setting-item {
-            padding-bottom: 10px;
-        }
+        /* .setting-group-header--name {}
+        .setting-group-header--desc {} */
     }
 
-    .save-error {
-        color: red;
-        display: flex;
-        align-items: center;
-        padding-bottom: 5px;
+    .setting-item {
+        padding-bottom: 10px;
     }
+}
+
+.save-error {
+    color: red;
+    display: flex;
+    align-items: center;
+    padding-bottom: 5px;
 }
 </style>

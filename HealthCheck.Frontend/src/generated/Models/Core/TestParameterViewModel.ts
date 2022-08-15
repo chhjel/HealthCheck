@@ -2,6 +2,7 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
+import { HCUIHint } from '../../Enums/Core/HCUIHint';
 import { ReferenceValueFactoryConfigViewModel } from './ReferenceValueFactoryConfigViewModel';
 
 export interface TestParameterViewModel
@@ -12,13 +13,11 @@ export interface TestParameterViewModel
 	Type: string;
 	DefaultValue: string;
 	PossibleValues: string[];
-	NotNull: boolean;
+	UIHints: HCUIHint[];
 	NullName: string;
-	ReadOnlyList: boolean;
-	ShowTextArea: boolean;
-	ShowCodeArea: boolean;
-	FullWidth: boolean;
+	TextPattern: string;
 	IsCustomReferenceType: boolean;
+	IsUnsupportedJson: boolean;
 	ReferenceValueFactoryConfig: ReferenceValueFactoryConfigViewModel;
 	Hidden: boolean;
 }

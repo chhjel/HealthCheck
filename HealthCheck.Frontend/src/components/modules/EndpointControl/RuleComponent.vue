@@ -1,21 +1,22 @@
 <!-- src/components/modules/EndpointControl/RuleComponent.vue -->
 <template>
     <div class="root">
-        <v-alert
+        <alert-component
             :value="serverInteractionError != null && serverInteractionError.length > 0"
             type="error" >
             {{ serverInteractionError }}
-        </v-alert>
+        </alert-component>
 
         <div class="header-data">
-            <v-switch
-                v-model="internalRule.Enabled" 
+            <switch-component
+                v-model:value="internalRule.Enabled" 
                 :disabled="!allowChanges"
                 label="Enabled"
+                falseLabel="Disabled"
                 color="secondary"
                 class="left mr-2"
                 style="flex: 1"
-            ></v-switch>
+            ></switch-component>
             <div>
                 <div class="metadata-chip"
                     v-if="internalRule.LastChangedBy != null && internalRule.LastChangedBy.length > 0">
@@ -35,29 +36,29 @@
                 :customResultDefinitions="customResultDefinitions" />
         </div>
 
-        <block-component class="mb-4" title="Filters">
+        <block-component class="mb-4 pt-0" title="Filters">
             <h3 class="mt-4">IP address / user location id</h3>
             <rule-filter-component class="payload-filter" :readonly="!allowChanges"
-                v-model="internalRule.UserLocationIdFilter" />
+                v-model:value="internalRule.UserLocationIdFilter" />
             <h3 class="mt-4">Endpoint Id</h3>
             <rule-filter-component class="payload-filter" :readonly="!allowChanges"
-                v-model="internalRule.EndpointIdFilter"
+                v-model:value="internalRule.EndpointIdFilter"
                 :filterOptions="endpointFilterOptions" />
             <h3 class="mt-4">Url</h3>
             <rule-filter-component class="payload-filter" :readonly="!allowChanges"
-                v-model="internalRule.UrlFilter" />
+                v-model:value="internalRule.UrlFilter" />
             <h3 class="mt-4">User-Agent</h3>
             <rule-filter-component class="payload-filter" :readonly="!allowChanges"
-                v-model="internalRule.UserAgentFilter" />
+                v-model:value="internalRule.UserAgentFilter" />
         </block-component>
         
         <block-component class="mb-4" v-if="internalRule != null" title="Conditions">
-            <v-switch
-                v-model="internalRule.AlwaysTrigger" 
+            <switch-component
+                v-model:value="internalRule.AlwaysTrigger" 
                 label="Always trigger for all matching requests"
                 color="secondary"
                 :disabled="!allowChanges"
-            ></v-switch>
+            ></switch-component>
 
             <div v-if="!internalRule.AlwaysTrigger">
                 <h3 class="mt-4 mb-2">After request count per IP per endpoint</h3>
@@ -67,15 +68,15 @@
                     :key="`endpoint-limit-${item._frontendId}`"
                     :value="item"
                     :readonly="!allowChanges"
-                    @input="(val) => onCoDChanged(internalRule.CurrentEndpointRequestCountLimits, index, val)"
+                    @update:value="(val) => onCoDChanged(internalRule.CurrentEndpointRequestCountLimits, index, val)"
                     @delete="(val) => onCoDDelete(internalRule.CurrentEndpointRequestCountLimits, index)"
                     />
-                <v-btn class="ml-4"
+                <btn-component class="ml-4"
                     :disabled="!allowChanges" 
                     @click.stop="addCodItem(internalRule.CurrentEndpointRequestCountLimits)">
-                    <v-icon size="20px" class="mr-2">add</v-icon>
+                    <icon-component size="20px" class="mr-2">add</icon-component>
                     Add
-                </v-btn>
+                </btn-component>
 
                 <h3 class="mt-4 mb-2">After total request count per IP</h3>
                 <count-over-duration-component
@@ -87,82 +88,77 @@
                     @input="(val) => onCoDChanged(internalRule.TotalRequestCountLimits, index, val)"
                     @delete="(val) => onCoDDelete(internalRule.TotalRequestCountLimits, index)"
                     />
-                <v-btn class="ml-4"
+                <btn-component class="ml-4"
                     :disabled="!allowChanges" 
                     @click.stop="addCodItem(internalRule.TotalRequestCountLimits)">
-                    <v-icon size="20px" class="mr-2">add</v-icon>
+                    <icon-component size="20px" class="mr-2">add</icon-component>
                     Add
-                </v-btn>
+                </btn-component>
             </div>
         </block-component>
         
         <block-component class="mb-4" v-if="internalRule != null" title="Resulting action">
             <h3 class="mt-4 mb-2">Select what happens when a result is overridden</h3>
             
-            <v-select
+            <select-component
                 class="mode-select"
-                v-model="internalRule.BlockResultTypeId"
+                v-model:value="internalRule.BlockResultTypeId"
                 :items="blockResultOptions"
-                item-text="text" item-value="value" color="secondary"
+                item-text="text" item-value="value"
                 :disabled="!allowChanges"
                 >
-            </v-select>
+            </select-component>
 
             <p class="mt-4 mb-2">{{ selectedBlockResultDescription }}</p>
 
             <backend-input-component
                 v-for="(def, defIndex) in selectedBlockResultPropertyDefinitions"
                 :key="`defx-${defIndex}`"
-                v-model="internalRule.CustomBlockResultProperties[def.Id]"
+                v-model:value="internalRule.CustomBlockResultProperties[def.Id]"
                 :config="def"
                 :readonly="!allowChanges"
                 />
         </block-component>
 
-        <v-dialog v-model="deleteDialogVisible"
-            @keydown.esc="deleteDialogVisible = false"
-            max-width="290"
-            content-class="confirm-dialog">
-            <v-card>
-                <v-card-title class="headline">Confirm deletion</v-card-title>
-                <v-card-text>
-                    Are you sure you want to delete this rule?
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="secondary" @click="deleteDialogVisible = false">Cancel</v-btn>
-                    <v-btn color="error" @click="deleteRule()">Delete it</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+        <dialog-component v-model:value="deleteDialogVisible" max-width="500">
+            <template #header>Confirm deletion</template>
+            <template #footer>
+                <btn-component color="error" @click="deleteRule()">Delete it</btn-component>
+                <btn-component color="secondary" @click="deleteDialogVisible = false">Cancel</btn-component>
+            </template>
+            <div>
+                Are you sure you want to delete this rule?
+            </div>
+        </dialog-component>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch, Inject } from "vue-property-decorator";
-import SimpleDateTimeComponent from  '../../Common/SimpleDateTimeComponent.vue';
-import RuleFilterComponent from './RuleFilterComponent.vue';
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import DateUtils from  '../../../util/DateUtils';
-import IdUtils from  '../../../util/IdUtils';
-import EndpointControlUtils from  '../../../util/EndpointControl/EndpointControlUtils';
-import BlockComponent from  '../../Common/Basic/BlockComponent.vue';
-import InputComponent from  '../../Common/Basic/InputComponent.vue';
-import TimespanInputComponent from  '../../Common/Basic/TimespanInputComponent.vue';
-import CountOverDurationComponent from './CountOverDurationComponent.vue';
-import RuleDescriptionComponent from  './RuleDescriptionComponent.vue';
-import EndpointControlService from "../../../services/EndpointControlService";
-import { EndpointControlCountOverDuration, EndpointControlCustomResultDefinitionViewModel, EndpointControlEndpointDefinition, EndpointControlPropertyFilter, EndpointControlRule } from "../../../models/modules/EndpointControl/EndpointControlModels";
-import { HCBackendInputConfig } from "generated/Models/Core/HCBackendInputConfig";
-import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
+import { Vue, Prop, Watch, Inject } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import SimpleDateTimeComponent from '@components/Common/SimpleDateTimeComponent.vue';
+import RuleFilterComponent from '@components/modules/EndpointControl/RuleFilterComponent.vue';
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import DateUtils from '@util/DateUtils';
+import IdUtils from '@util/IdUtils';
+import EndpointControlUtils from '@util/EndpointControl/EndpointControlUtils';
+import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
+import InputHeaderComponent from '@components/Common/Basic/InputHeaderComponent.vue';
+import TimespanInputComponent from '@components/Common/Basic/TimespanInputComponent.vue';
+import CountOverDurationComponent from '@components/modules/EndpointControl/CountOverDurationComponent.vue';
+import RuleDescriptionComponent from '@components/modules/EndpointControl/RuleDescriptionComponent.vue';
+import EndpointControlService from '@services/EndpointControlService';
+import { EndpointControlCountOverDuration, EndpointControlCustomResultDefinitionViewModel, EndpointControlEndpointDefinition, EndpointControlPropertyFilter, EndpointControlRule } from '@models/modules/EndpointControl/EndpointControlModels';
+import { HCBackendInputConfig } from "@generated/Models/Core/HCBackendInputConfig";
+import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
+import { StoreUtil } from "@util/StoreUtil";
 
-@Component({
+@Options({
     components: {
         RuleFilterComponent,
         SimpleDateTimeComponent,
         BlockComponent,
-        InputComponent,
+        InputHeaderComponent,
         TimespanInputComponent,
         CountOverDurationComponent,
         RuleDescriptionComponent,
@@ -213,7 +209,7 @@ export default class RuleComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
     
     get allowChanges(): boolean {
@@ -345,7 +341,7 @@ export default class RuleComponent extends Vue {
     }
 
     onCoDChanged(list: Array<EndpointControlCountOverDuration>, index: number, newVal: EndpointControlCountOverDuration): void {
-        Vue.set(list, index, newVal);
+        list[index] = newVal;
     }
 
     onCoDDelete(list: Array<EndpointControlCountOverDuration>, index: number): void {

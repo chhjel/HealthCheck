@@ -1,31 +1,31 @@
 <!-- src/components/modules/TestSuite/paremeter_inputs/input_types/ParameterInputTypeBooleanComponent.vue -->
 <template>
     <div>
-        <v-switch v-if="!isNullable"
-            v-model="localValue" 
+        <switch-component v-if="!isNullable"
+            v-model:value="localValue" 
             :label="label"
-            color="secondary"
+            color="primary"
             class="parameter-checkbox pt-0"
             :disabled="readonly"
-        ></v-switch>
+        ></switch-component>
 
-        <v-checkbox v-if="isNullable"
-            v-model="nullableCheckboxState"
-            :indeterminate="localValue == null" 
+        <checkbox-component v-if="isNullable"
+            v-model:value="localValue"
+            :allowIndeterminate="true" 
             :label="label"
             :disabled="readonly"
-            @click="setNextState"
-            color="secondary"
+            color="primary"
             class="parameter-checkbox pt-0"
-        ></v-checkbox>
+        ></checkbox-component>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { HCBackendInputConfig } from '@generated/Models/Core/HCBackendInputConfig';
 
-@Component({
+@Options({
     components: {
     }
 })
@@ -40,9 +40,8 @@ export default class ParameterInputTypeBooleanComponent extends Vue {
     readonly!: boolean;
 
     localValue: any = false;
-    nullableCheckboxState: boolean = false;
     
-    mounted(): void {
+    created(): void {
         this.$nextTick(() => {
             this.updateLocalValue();
             this.onLocalValueChanged();
@@ -63,26 +62,6 @@ export default class ParameterInputTypeBooleanComponent extends Vue {
         {
             this.localValue = this.valueIsTrue(this.localValue);
         }
-    }
-
-    setNextState(): void {
-        if (this.readonly)
-        {
-            return;
-        }
-        
-        if (this.localValue == null) {
-            this.localValue = "true";
-        } else if (this.isTrue) {
-            this.localValue = "false";
-        } else {
-            this.localValue = null
-        }
-        this.updateCheckboxState();
-    }
-
-    updateCheckboxState(): void {
-        this.nullableCheckboxState = (this.localValue == null) ? false : this.isTrue;
     }
 
     valueIsTrue(value: any): boolean {
@@ -118,14 +97,13 @@ export default class ParameterInputTypeBooleanComponent extends Vue {
     {
         this.localValue = this.value;
         this.validateValue();
-        this.updateCheckboxState();
     }
 
     @Watch('localValue')
     onLocalValueChanged(): void
     {
         this.validateValue();
-        this.$emit('input', this.localValue);
+        this.$emit('update:value', this.localValue);
     }
 }
 </script>
@@ -139,8 +117,7 @@ export default class ParameterInputTypeBooleanComponent extends Vue {
 }
 .parameter-list-input {
     .parameter-checkbox {
-        margin-top: 24px;
-        margin-left: 8px;
+        margin-top: 0;
     }
 }
 </style>

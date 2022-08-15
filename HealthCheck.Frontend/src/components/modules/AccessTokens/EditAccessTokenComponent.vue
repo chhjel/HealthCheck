@@ -1,56 +1,58 @@
 <!-- src/components/modules/AccessTokens/EditAccessTokenComponent.vue -->
 <template>
     <div>
-        <v-text-field type="text"
+        <text-field-component type="text"
             label="Name"
-            v-model="data.name"
+            v-model:value="datax.name"
             :disabled="readonly"
-        ></v-text-field>
+            class="mb-3"
+        ></text-field-component>
 
         <simple-date-time-component
-            v-model="data.ExpiresAt"
+            v-model:value="datax.ExpiresAt"
             :readonly="readonly"
             name="Expiration date"
+            class="mb-3"
             />
 
         <input-header-component name="Allow killswitch" description="If killswitch is allowed, the user of the token can choose to delete it at any time." />
-        <v-checkbox 
-            class="mt-2"
-            :label="(data.AllowKillswitch ? 'Allowed' : 'Not allowed')"
-            v-model="data.AllowKillswitch"
+        <checkbox-component 
+            class="mt-2 mb-3"
+            :label="(datax.AllowKillswitch ? 'Allowed' : 'Not allowed')"
+            v-model:value="datax.AllowKillswitch"
             :disabled="readonly" />
 
         <h3>Roles</h3>
-        <p class="mb-0">Give token access to the following roles:</p>
-        <v-layout row wrap>
+        <p class="mb-0 mt-0">Give token access to the following roles:</p>
+        <div class="flex flex-wrap mb-3">
             <div class="mr-2"
                 v-for="(role, rindex) in accessData.Roles"
                 :key="`access-role-${rindex}`">
-                <v-checkbox 
+                <checkbox-component 
                     class="mt-2"
                     :label="role.Name"
-                    :input-value="roleIsEnabled(role.Id)"
+                    :value="roleIsEnabled(role.Id)"
                     :disabled="readonly"
                     @change="(v) => onRoleToggled(role.Id, v)" />
             </div>
-        </v-layout>
+        </div>
 
         <h3>Modules</h3>
-        <p class="mb-0">Give token access to the following modules:</p>
+        <p class="mb-1 mt-0">Give token access to the following modules:</p>
 
-        <v-chip
+        <chip-component
             color="primary"
             v-for="(filterChoice, fcIndex) in moduleFilters"
             :key="`filter-choice-${fcIndex}`"
             :outline="!filterChoice.selected"
             :disabled="readonly"
-            class="filter-choice"
+            class="filter-choice mb-1 mr-1"
             :class="{ 'selected': filterChoice.selected }"
             @click="onModuleAccessToggled(filterChoice.moduleId, !filterChoice.selected)">
                 {{ filterChoice.label }}
-                <v-icon right v-if="!filterChoice.selected">add</v-icon>
-                <v-icon right v-if="filterChoice.selected">close</v-icon>
-            </v-chip>
+                <icon-component right v-if="!filterChoice.selected">add</icon-component>
+                <icon-component right v-if="filterChoice.selected" color="#fff">close</icon-component>
+            </chip-component>
 
         <div class="access-grid ml-4 mt-2">
             <div class="access-grid--row"
@@ -71,10 +73,10 @@
                     <div class="access-grid--row--options--item"
                         v-for="(option, moindex) in module.AccessOptions"
                         :key="`access-module-${mindex}-option-${moindex}`">
-                        <v-checkbox hide-details
+                        <checkbox-component hide-details
                             :label="option.Name"
                             :disabled="readonly"
-                            :input-value="moduleOptionIsEnabled(module.ModuleId, option.Id)"
+                            :value="moduleOptionIsEnabled(module.ModuleId, option.Id)"
                             @change="(v) => onModuleAccessOptionToggled(module.ModuleId, option.Id, v)" />
                     </div>
                 </div>
@@ -86,10 +88,10 @@
                     <div class="access-grid--row--cat--item"
                         v-for="(cat, moindex) in module.AccessCategories"
                         :key="`access-module-${mindex}-cat-${moindex}`">
-                        <v-checkbox hide-details
+                        <checkbox-component hide-details
                             :label="cat.Name"
                             :disabled="readonly"
-                            :input-value="moduleCategoryIsEnabled(module.ModuleId, cat.Id)"
+                            :value="moduleCategoryIsEnabled(module.ModuleId, cat.Id)"
                             @change="(v) => onModuleAccessCategoryToggled(module.ModuleId, cat.Id, v)" />
                     </div>
                 </div>
@@ -97,18 +99,18 @@
                 <div class="access-grid--row--options"
                     v-if="hasAccessToModule(module.ModuleId) && module.AccessIds.length > 0">
                     <div class="access-grid--row--options--header">Limit to:</div>
-                    <v-autocomplete
+                    <select-component
                         :items="module.AccessIds"
                         item-value="Id"
                         item-text="Name"
                         multiple
-                        chips
                         clearable
-                        class="filter-input"
+                        allowInput
+                        class="filter-input ml-2"
                         :readonly="readonly"
                         :input="getModuleAccessIds(module.ModuleId)"
                         @change="(v) => onModuleAccessIdChanged(module.ModuleId, v)"
-                        ></v-autocomplete>
+                        ></select-component>
                 </div>
             </div>
         </div>
@@ -116,12 +118,13 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import { AccessData, CreatedAccessData, ModuleAccessData } from  '../../../services/AccessTokensService';
-import SimpleDateTimeComponent from  '../../Common/SimpleDateTimeComponent.vue';
-import InputHeaderComponent from  '../../Common/Basic/InputHeaderComponent.vue';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { AccessData, CreatedAccessData, ModuleAccessData } from '@services/AccessTokensService';
+import SimpleDateTimeComponent from '@components/Common/SimpleDateTimeComponent.vue';
+import InputHeaderComponent from '@components/Common/Basic/InputHeaderComponent.vue';
 
-@Component({
+@Options({
     components: {
         SimpleDateTimeComponent,
         InputHeaderComponent
@@ -134,13 +137,13 @@ export default class EditAccessTokenComponent extends Vue {
     @Prop({ required: false, default: false })
     readonly!: boolean;
 
-    @Prop({ required: false, default: {
+    @Prop({ required: false, default: () => { return {
         roles: [],
         modules: []
-    }})
+    }}})
     value!: CreatedAccessData;
 
-    data: CreatedAccessData = {
+    datax: CreatedAccessData = {
         Name: 'New Token',
         Roles: [],
         Modules: [],
@@ -176,33 +179,33 @@ export default class EditAccessTokenComponent extends Vue {
     //  METHODS  //
     //////////////
     hasAccessToModule(moduleId: string): boolean {
-        return this.data.Modules.some(x => x.ModuleId == moduleId);
+        return this.datax.Modules.some(x => x.ModuleId == moduleId);
     }
     
     moduleOptionIsEnabled(moduleId: string, option: string): boolean {
-        const module = this.data.Modules.filter(x => x.ModuleId == moduleId)[0];
+        const module = this.datax.Modules.filter(x => x.ModuleId == moduleId)[0];
         if (module == null) return false;
         return module.Options.some(x => x == option);
     }
     
     moduleCategoryIsEnabled(moduleId: string, category: string): boolean {
-        const module = this.data.Modules.filter(x => x.ModuleId == moduleId)[0];
+        const module = this.datax.Modules.filter(x => x.ModuleId == moduleId)[0];
         if (module == null) return false;
         return module.Categories.some(x => x == category);
     }
 
     getModuleAccessIds(moduleId: string): Array<string> {
-        const module = this.data.Modules.filter(x => x.ModuleId == moduleId)[0];
+        const module = this.datax.Modules.filter(x => x.ModuleId == moduleId)[0];
         if (module == null) return [];
         return module.Ids;
     }
 
     roleIsEnabled(roleId: string): boolean {
-        return this.data.Roles.some(x => x == roleId);
+        return this.datax.Roles.some(x => x == roleId);
     }
 
     notifyChange(): void {
-        this.$emit('input', this.data);
+        this.$emit('update:value', this.datax);
     }
 
     ///////////////////////
@@ -210,18 +213,18 @@ export default class EditAccessTokenComponent extends Vue {
     /////////////////////
     @Watch('value')
     onValueChanged(): void {
-        this.data = this.value;
+        this.datax = this.value;
     }
 
     onRoleToggled(roleId: string, enabled: boolean): void {
         if (enabled && !this.roleIsEnabled(roleId))
         {
-            this.data.Roles.push(roleId);
+            this.datax.Roles.push(roleId);
         }
         else if (!enabled && this.roleIsEnabled(roleId))
         {
-            const index = this.data.Roles.findIndex(x => x == roleId);
-            Vue.delete(this.data.Roles, index);
+            const index = this.datax.Roles.findIndex(x => x == roleId);
+            this.datax.Roles.splice(index, 1);
         }
         this.notifyChange();
     }
@@ -229,7 +232,7 @@ export default class EditAccessTokenComponent extends Vue {
     onModuleAccessToggled(moduleId: string, enabled: boolean): void {
         if (enabled && !this.hasAccessToModule(moduleId))
         {
-            this.data.Modules.push({
+            this.datax.Modules.push({
                 ModuleId: moduleId,
                 Options: [],
                 Categories: [],
@@ -238,8 +241,8 @@ export default class EditAccessTokenComponent extends Vue {
         }
         else if (!enabled && this.hasAccessToModule(moduleId))
         {
-            const index = this.data.Modules.findIndex(x => x.ModuleId == moduleId);
-            Vue.delete(this.data.Modules, index);
+            const index = this.datax.Modules.findIndex(x => x.ModuleId == moduleId);
+            this.datax.Modules.splice(index, 1);
         }
         this.notifyChange();
     }
@@ -250,7 +253,7 @@ export default class EditAccessTokenComponent extends Vue {
             this.onModuleAccessToggled(moduleId, true);
         }
 
-        const module = this.data.Modules.filter(x => x.ModuleId == moduleId)[0];
+        const module = this.datax.Modules.filter(x => x.ModuleId == moduleId)[0];
         if (enabled && !this.moduleOptionIsEnabled(moduleId, option))
         {
             module.Options.push(option);
@@ -258,7 +261,7 @@ export default class EditAccessTokenComponent extends Vue {
         else if (!enabled && this.moduleOptionIsEnabled(moduleId, option))
         {
             const index = module.Options.findIndex(x => x == option);
-            Vue.delete(module.Options, index);
+            module.Options.splice(index, 1);
         }
         this.notifyChange();
     }
@@ -269,7 +272,7 @@ export default class EditAccessTokenComponent extends Vue {
             this.onModuleAccessToggled(moduleId, true);
         }
 
-        const module = this.data.Modules.filter(x => x.ModuleId == moduleId)[0];
+        const module = this.datax.Modules.filter(x => x.ModuleId == moduleId)[0];
         if (enabled && !this.moduleCategoryIsEnabled(moduleId, category))
         {
             module.Categories.push(category);
@@ -277,13 +280,13 @@ export default class EditAccessTokenComponent extends Vue {
         else if (!enabled && this.moduleCategoryIsEnabled(moduleId, category))
         {
             const index = module.Categories.findIndex(x => x == category);
-            Vue.delete(module.Categories, index);
+            module.Categories.splice(index, 1);
         }
         this.notifyChange();
     }
 
     onModuleAccessIdChanged(moduleId: string, ids: Array<string>): void {
-        const module = this.data.Modules.filter(x => x.ModuleId == moduleId)[0];
+        const module = this.datax.Modules.filter(x => x.ModuleId == moduleId)[0];
         if (module == null) return;
         module.Ids = ids;
     }
@@ -323,20 +326,3 @@ export default class EditAccessTokenComponent extends Vue {
     }
 }
 </style>
-
-<style lang="scss">
-.access-grid {
-    .access-grid--row {
-        .access-grid--row--options {
-            .access-grid--row--options--item,
-            .access-grid--row--cat--item {
-                .v-input {
-                    margin-top: 4px;
-                    margin-bottom: 4px;
-                }
-            }
-        }
-    }
-}
-</style>
-

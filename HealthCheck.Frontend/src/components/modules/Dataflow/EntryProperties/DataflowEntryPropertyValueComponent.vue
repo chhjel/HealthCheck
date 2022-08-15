@@ -12,21 +12,22 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import TestParameterViewModel from  '../../../../models/modules/TestSuite/TestParameterViewModel';
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { TestParameterViewModel } from '@generated/Models/Core/TestParameterViewModel';
 // Parameter input components
-import UnknownDataflowEntryPropertyValueComponent from './UnknownDataflowEntryPropertyValueComponent.vue';
-import DataflowEntryPropertyValueRawComponent from './DataflowEntryPropertyValueRawComponent.vue';
-import DataflowEntryPropertyValueListComponent from './DataflowEntryPropertyValueListComponent.vue';
-import DataflowEntryPropertyValueDictionaryComponent from './DataflowEntryPropertyValueDictionaryComponent.vue';
-import DataflowEntryPropertyValueLinkComponent from './DataflowEntryPropertyValueLinkComponent.vue';
-import DataflowEntryPropertyValueImageComponent from './DataflowEntryPropertyValueImageComponent.vue';
-import DataflowEntryPropertyValuePreformattedComponent from './DataflowEntryPropertyValuePreformattedComponent.vue';
-import DataflowEntryPropertyValueHTMLComponent from './DataflowEntryPropertyValueHTMLComponent.vue';
-import DataflowEntryPropertyValueIconComponent from './DataflowEntryPropertyValueIconComponent.vue';
-import { DataFlowPropertyUIHint } from  '../../../../models/modules/Dataflow/DataFlowPropertyDisplayInfo';
+import UnknownDataflowEntryPropertyValueComponent from '@components/modules/Dataflow/EntryProperties/UnknownDataflowEntryPropertyValueComponent.vue';
+import DataflowEntryPropertyValueRawComponent from '@components/modules/Dataflow/EntryProperties/DataflowEntryPropertyValueRawComponent.vue';
+import DataflowEntryPropertyValueListComponent from '@components/modules/Dataflow/EntryProperties/DataflowEntryPropertyValueListComponent.vue';
+import DataflowEntryPropertyValueDictionaryComponent from '@components/modules/Dataflow/EntryProperties/DataflowEntryPropertyValueDictionaryComponent.vue';
+import DataflowEntryPropertyValueLinkComponent from '@components/modules/Dataflow/EntryProperties/DataflowEntryPropertyValueLinkComponent.vue';
+import DataflowEntryPropertyValueImageComponent from '@components/modules/Dataflow/EntryProperties/DataflowEntryPropertyValueImageComponent.vue';
+import DataflowEntryPropertyValuePreformattedComponent from '@components/modules/Dataflow/EntryProperties/DataflowEntryPropertyValuePreformattedComponent.vue';
+import DataflowEntryPropertyValueHTMLComponent from '@components/modules/Dataflow/EntryProperties/DataflowEntryPropertyValueHTMLComponent.vue';
+import DataflowEntryPropertyValueIconComponent from '@components/modules/Dataflow/EntryProperties/DataflowEntryPropertyValueIconComponent.vue';
+import { DataFlowPropertyUIHint } from '@generated/Enums/Core/DataFlowPropertyUIHint';
 
-@Component({
+@Options({
     components: {
       // Parameter input components
       UnknownDataflowEntryPropertyValueComponent,
@@ -77,7 +78,7 @@ export default class DataflowEntryPropertyValueComponent extends Vue {
 .parameter-name {
     display: inline-block;
     font-size: 16px;
-    color: var(--v-secondary-base);
+    color: var(--color--secondary-base);
     font-weight: 600;
 }
 .parameter-description {

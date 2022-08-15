@@ -1,10 +1,10 @@
-import UrlUtils from 'util/UrlUtils';
+import UrlUtils from '@util/UrlUtils';
 import { HCDataExportDeleteStreamQueryPresetsRequest } from './../generated/Models/Module/DataExport/HCDataExportDeleteStreamQueryPresetsRequest';
 import { HCDataExportStreamQueryPresetViewModel } from './../generated/Models/Module/DataExport/HCDataExportStreamQueryPresetViewModel';
-import { HCDataExportQueryRequest } from "generated/Models/Module/DataExport/HCDataExportQueryRequest";
-import { HCDataExportQueryResponseViewModel } from "generated/Models/Module/DataExport/HCDataExportQueryResponseViewModel";
-import { HCDataExportSaveStreamQueryPresetRequest } from "generated/Models/Module/DataExport/HCDataExportSaveStreamQueryPresetRequest";
-import { HCGetDataExportStreamDefinitionsViewModel } from "generated/Models/Module/DataExport/HCGetDataExportStreamDefinitionsViewModel";
+import { HCDataExportQueryRequest } from "@generated/Models/Module/DataExport/HCDataExportQueryRequest";
+import { HCDataExportQueryResponseViewModel } from "@generated/Models/Module/DataExport/HCDataExportQueryResponseViewModel";
+import { HCDataExportSaveStreamQueryPresetRequest } from "@generated/Models/Module/DataExport/HCDataExportSaveStreamQueryPresetRequest";
+import { HCGetDataExportStreamDefinitionsViewModel } from "@generated/Models/Module/DataExport/HCGetDataExportStreamDefinitionsViewModel";
 import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
 
 export default class DataExportService extends HCServiceBase

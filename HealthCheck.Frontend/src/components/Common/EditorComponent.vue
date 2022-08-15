@@ -2,7 +2,7 @@
 <template>
     <div class="editor-component">
         <div class="editor-component__loader-bar" v-if="!isEditorInited">
-            <v-progress-linear 
+            <progress-linear-component 
                 indeterminate
                 width="4"
                 color="primary"
@@ -14,49 +14,37 @@
             :class="{ 'editor-component__editor__fullscreen': (isFullscreen) }"
             ></div>
 
-        <v-btn absolute dark fab flat small top right
-            color="green"
+        <btn-component absolute dark icon flat small top right
+            color="success"
             class="editor-fullscreen-button"
             title="Fullscreen"
             v-if="allowFullscreen"
             @click.stop="isFullscreen = true">
-            <v-icon>fullscreen</v-icon>
-        </v-btn>
+            <icon-component>fullscreen</icon-component>
+        </btn-component>
         
         <!-- ##################### -->
-        <v-dialog
-            v-model="isFullscreen"
-            @keydown.esc="isFullscreen = false"
-            fullscreen hide-overlay transition="dialog-transition">
-            <v-card dark>
-                <!-- DIALOG TOOLBAR -->
-                <v-toolbar dark color="primary">
-                <v-btn icon dark
-                    @click="isFullscreen = false">
-                    <v-icon>close</v-icon>
-                </v-btn>
-                <v-toolbar-title>{{ title }}</v-toolbar-title>
-                <v-spacer></v-spacer>
-                <v-toolbar-items>
-                    <v-btn dark flat @click="isFullscreen = false">Close</v-btn>
-                </v-toolbar-items>
-                </v-toolbar>
-            </v-card>
-        </v-dialog>
+        <!-- DIALOG TOOLBAR -->
+        <div v-if="isFullscreen" class="editor-toolbar flex">
+            <div class="spacer">{{ title }}</div>
+            <div class="editor-toolbar__close" @click="isFullscreen = false">Close</div>
+        </div>
         <!-- ##################### -->
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
 // or import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 // if shipping only a subset of the features & languages is desired
 import * as monaco from 'monaco-editor'
-import FrontEndOptionsViewModel from "../../models/Common/FrontEndOptionsViewModel";
-import { ICodeMark, CodeSnippet } from  '../../models/modules/DynamicCodeExecution/Models';
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import { ICodeMark, CodeSnippet } from '@models/modules/DynamicCodeExecution/Models';
+import { StoreUtil } from "@util/StoreUtil";
 
 
-@Component({
+@Options({
     components: {
     }
 })
@@ -149,7 +137,7 @@ export default class EditorComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
     
     ////////////////////////////////////////////////////////////
@@ -388,7 +376,7 @@ export default class EditorComponent extends Vue {
         if (model == null) return;
 
         model.onDidChangeContent((e) => {
-            this.$emit('input', model.getValue());
+            this.$emit('update:value', model.getValue());
         })
     }
 
@@ -454,9 +442,30 @@ export default class EditorComponent extends Vue {
     top: 5px !important;
     right: 21px !important;
     overflow: hidden;
+}
+.editor-toolbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    z-index: 100;
+    padding: 5px;
+    box-sizing: border-box;
+    background-color: var(--color--primary-darken2);
+    color: #fff;
 
-    .v-icon {
-        margin-top: 20px;
+    &__close {
+        display: flex;
+        align-items: center;
+        height: 100%;
+        padding: 10px 30px;
+        cursor: pointer;
+        transition: 0.2s all;
+        background-color: var(--color--primary-base);
+        &:hover {
+            background-color: var(--color--primary-lighten1);
+        }
     }
 }
 </style>

@@ -1,43 +1,25 @@
 <!-- src/components/profile/HealthCheckProfileDialogComponent.vue -->
 <template>
     <div>
-        <v-dialog v-model="dialogOpen"
-            @keydown.esc="closeDialog"
-            scrollable
-            max-width="800"
-            content-class="root-profile-dialog">
-            <v-card style="background-color: #f4f4f4">
-                <v-toolbar class="elevation-0">
-                    <v-toolbar-title>Profile</v-toolbar-title>
-                    <v-spacer></v-spacer>
-                    <v-btn icon @click="closeDialog">
-                        <v-icon>close</v-icon>
-                    </v-btn>
-                </v-toolbar>
-
-                <v-divider></v-divider>
-                
-                <v-card-text>
-                    <health-check-profile-component />
-                </v-card-text>
-
-                <v-divider></v-divider>
-                <v-card-actions >
-                    <v-spacer></v-spacer>
-                    <v-btn @click="closeDialog">Close</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+        <dialog-component v-model:value="dialogOpen" max-width="800">
+            <template #header>Profile</template>
+            <template #footer>
+                <btn-component color="secondary" @click="closeDialog">Close</btn-component>
+            </template>
+            <health-check-profile-component />
+        </dialog-component>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import { HCFrontEndOptions } from "generated/Models/WebUI/HCFrontEndOptions";
-import { HCIntegratedProfileConfig } from "generated/Models/WebUI/HCIntegratedProfileConfig";
-import HealthCheckProfileComponent from 'components/profile/HealthCheckProfileComponent.vue';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { HCFrontEndOptions } from "@generated/Models/WebUI/HCFrontEndOptions";
+import { HCIntegratedProfileConfig } from "@generated/Models/WebUI/HCIntegratedProfileConfig";
+import HealthCheckProfileComponent from '@components/profile/HealthCheckProfileComponent.vue';
+import { StoreUtil } from "@util/StoreUtil";
 
-@Component({
+@Options({
     components: {
         HealthCheckProfileComponent
     }
@@ -61,7 +43,7 @@ export default class HealthCheckProfileDialogComponent extends Vue
     //  GETTERS  //
     //////////////
     get globalOptions(): HCFrontEndOptions {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
 
     get profileOptions(): HCIntegratedProfileConfig {
@@ -72,7 +54,7 @@ export default class HealthCheckProfileDialogComponent extends Vue
     //  METHODS  //
     //////////////
     closeDialog(): void {
-        this.$emit('input', false);
+        this.$emit('update:value', false);
     }
 
     ///////////////////////
@@ -87,16 +69,10 @@ export default class HealthCheckProfileDialogComponent extends Vue
     @Watch("dialogOpen")
     onDialogOpenChanged(): void
     {
-        this.$emit('input', this.dialogOpen);
+        this.$emit('update:value', this.dialogOpen);
     }
 }
 </script>
 
 <style scoped lang="scss">
-</style>
-
-<style lang="scss">
-.root-profile-dialog {
-    
-}
 </style>

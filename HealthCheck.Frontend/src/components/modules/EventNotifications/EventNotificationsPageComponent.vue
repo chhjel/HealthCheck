@@ -1,282 +1,205 @@
 <!-- src/components/modules/EventNotifications/EventNotificationsPageComponent.vue -->
 <template>
     <div>
-        <v-content class="pl-0">
-            <v-container fluid fill-height class="content-root">
-            <v-layout>
-            <v-flex>
-            <v-container>
-                <h1 class="mb-1">Configured notifications</h1>
+        
+        <div class="content-root">
+            <h1 class="mb-1">Configured notifications</h1>
 
-                <!-- LOAD PROGRESS -->
-                <v-progress-linear
-                    class="ma-0"
-                    v-if="loadStatus.inProgress"
-                    indeterminate color="green"></v-progress-linear>
-                <div style="height: 7px" v-else></div>
+            <!-- LOAD PROGRESS -->
+            <progress-linear-component
+                class="ma-0"
+                v-if="loadStatus.inProgress"
+                indeterminate color="success"></progress-linear-component>
+            <div style="height: 7px" v-else></div>
 
-                <!-- DATA LOAD ERROR -->
-                <v-alert :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
-                {{ loadStatus.errorMessage }}
-                </v-alert>
+            <!-- DATA LOAD ERROR -->
+            <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
+            {{ loadStatus.errorMessage }}
+            </alert-component>
 
-                <div class="top-actions">
-                    <v-btn :disabled="!allowConfigChanges"
-                        @click="onAddNewConfigClicked"
-                        class="mb-3 mr-2">
-                        <v-icon size="20px" class="mr-2">add</v-icon>
-                        Add new
-                    </v-btn>
+            <div class="top-actions">
+                <btn-component :disabled="!allowConfigChanges"
+                    @click="onAddNewConfigClicked"
+                    class="mb-3 mr-2">
+                    <icon-component size="20px" class="mr-2">add</icon-component>
+                    Add new
+                </btn-component>
 
-                    <v-spacer />
+                                    <btn-component v-if="HasAccessToEditEventDefinitions"
+                    @click="editDefinitionsDialogVisible = true"
+                    class="mb-3">
+                    Edit payload definitions
+                </btn-component>
+            </div>
 
-                    <v-btn v-if="HasAccessToEditEventDefinitions"
-                        @click="editDefinitionsDialogVisible = true"
-                        class="mb-3">
-                        Edit payload definitions
-                    </v-btn>
-                </div>
-
-                <block-component
-                    v-for="(config, cindex) in configs"
-                    :key="`config-${cindex}-${config.Id}`"
-                    class="config-list-item"
-                    >
-                    <div class="config-list-item--inner">
-                        <div class="config-list-item--switch-and-summary">
-                            <v-tooltip bottom>
-                                <template v-slot:activator="{ on }">
-                                <v-switch v-on="on"
-                                    v-model="config.Enabled"
-                                    color="secondary"
-                                    style="flex: 0"
-                                    @click="setConfigEnabled(config, !config.Enabled)"
-                                    ></v-switch>
-                                    <!-- :disabled="!allowConfigChanges" -->
-                                </template>
-                                <span>Enable or disable this configuration</span>
-                            </v-tooltip>
-                            
-                            <div class="config-list-item--rule"
-                                @click="showConfig(config)"
-                                >
-                                <span class="config-list-item--operator">IF</span>
-                                <span v-for="(condition, condIndex) in describeConditions(config)"
-                                    :key="`condition-${condIndex}`">
-                                    <span class="config-list-item--condition">
-                                        {{ condition.description }}
-                                    </span>
-                                    <span v-if="condIndex == describeConditions(config).length - 2"> and </span>
-                                    <span v-else-if="condIndex < describeConditions(config).length - 1">, </span>
-                                </span>
-
-                                <br />
-                                <span class="config-list-item--operator">THEN</span>
-                                <span v-if="describeActions(config).length == 0">&lt;do nothing&gt;</span>
-                                <span v-else>notify using</span>
-                                <span v-for="(action, actIndex) in describeActions(config)"
-                                    :key="`action-${actIndex}`">
-                                    <span class="config-list-item--action">
-                                        {{ action.description }}
-                                    </span>
-                                    <span v-if="actIndex == describeActions(config).length - 2"> and </span>
-                                    <span v-else-if="actIndex < describeActions(config).length - 1">, </span>
-                                </span>
-                            </div>
-                        </div>
+            <block-component
+                v-for="(config, cindex) in configs"
+                :key="`config-${cindex}-${config.Id}`"
+                class="config-list-item"
+                >
+                <div class="config-list-item--inner flex layout">
+                    <div class="config-list-item--switch-and-summary">
+                        <tooltip-component tooltip="Enable or disable this configuration">
+                            <switch-component
+                                :value="config.Enabled"
+                                color="secondary"
+                                style="flex: 0"
+                                @click="setConfigEnabled(config, !config.Enabled)"
+                                ></switch-component>
+                        </tooltip-component>
                         
-                        <v-spacer />
+                        <div class="config-list-item--rule" @click="showConfig(config)">
+                            <span class="config-list-item--operator">IF </span>
+                            <span v-for="(condition, condIndex) in describeConditions(config)"
+                                :key="`condition-${condIndex}`">
+                                <span class="config-list-item--condition">
+                                    {{ condition.description }}
+                                </span>
+                                <span v-if="condIndex == describeConditions(config).length - 2"> and </span>
+                                <span v-else-if="condIndex < describeConditions(config).length - 1">, </span>
+                            </span>
 
-                        <div class="config-list-item--metadata">
-                            <v-tooltip bottom v-if="getConfigWarning(config) != null">
-                                <template v-slot:activator="{ on }">
-                                    <v-icon style="cursor: help;" color="warning" v-on="on">warning</v-icon>
-                                </template>
-                                <span>{{getConfigWarning(config)}}</span>
-                            </v-tooltip>
-
-                            <v-tooltip bottom v-if="configIsOutsideLimit(config)">
-                                <template v-slot:activator="{ on }">
-                                    <v-icon v-on="on" style="cursor: help;">timer_off</v-icon>
-                                </template>
-                                <span>This configs' limits has been reached</span>
-                            </v-tooltip>
-
-                            <v-tooltip bottom>
-                                <template v-slot:activator="{ on }">
-                                    <v-icon style="cursor: help;" v-on="on">person</v-icon>
-                                    <code style="color: var(--v-primary-base); cursor: help;" v-on="on">{{ config.LastChangedBy }}</code>
-                                </template>
-                                <span>Last modified by '{{ config.LastChangedBy }}'</span>
-                            </v-tooltip>
+                            <br />
+                            <span class="config-list-item--operator">THEN </span>
+                            <span v-if="describeActions(config).length == 0">&lt;do nothing&gt;</span>
+                            <span v-else>notify using </span>
+                            <span v-for="(action, actIndex) in describeActions(config)"
+                                :key="`action-${actIndex}`">
+                                <span class="config-list-item--action">
+                                    {{ action.description }}
+                                </span>
+                                <span v-if="actIndex == describeActions(config).length - 2"> and </span>
+                                <span v-else-if="actIndex < describeActions(config).length - 1">, </span>
+                            </span>
                         </div>
                     </div>
+                    
+                    <div class="config-list-item--metadata">
+                        <tooltip-component v-if="getConfigWarning(config) != null" :tooltip="getConfigWarning(config)">
+                            <icon-component style="cursor: help;" color="warning">warning</icon-component>
+                        </tooltip-component>
+
+                        <tooltip-component v-if="configIsOutsideLimit(config)" tooltip="This configs' limits has been reached">
+                            <icon-component style="cursor: help;">timer_off</icon-component>
+                        </tooltip-component>
+
+                        <tooltip-component :tooltip="`Last modified by '${config.LastChangedBy}'`">
+                            <icon-component style="cursor: help;">person</icon-component>
+                            <code style="color: var(--color--primary-base); cursor: help;">{{ config.LastChangedBy }}</code>
+                        </tooltip-component>
+                    </div>
+                </div>
+            </block-component>
+        </div>
+        
+        <!-- DIALOGS -->
+        <dialog-component v-model:value="configDialogVisible" persistent max-width="1200" @close="hideCurrentConfig">
+            <template #header>{{ currentDialogTitle }}</template>
+            <template #footer>
+                <btn-component color="primary"
+                    :disabled="serverInteractionInProgress"
+                    @click="$refs.currentConfigComponent.saveConfig()">Save</btn-component>
+                <btn-component color="error"
+                    v-if="showDeleteConfig"
+                    :disabled="serverInteractionInProgress"
+                    @click="$refs.currentConfigComponent.tryDeleteConfig()">Delete</btn-component>
+                <btn-component color="secondary" @click="hideCurrentConfig">Cancel</btn-component>
+            </template>
+            <div v-if="currentConfig != null">                 
+                <event-notification-config-component
+                    :module-id="config.Id"
+                    :config="currentConfig"
+                    :notifiers="notifiers"
+                    :eventdefinitions="eventDefinitions"
+                    :placeholders="placeholders"
+                    :readonly="!allowConfigChanges"
+                    v-on:configDeleted="onConfigDeleted"
+                    v-on:configSaved="onConfigSaved"
+                    v-on:serverInteractionInProgress="setServerInteractionInProgress"
+                    ref="currentConfigComponent"
+                    />
+            </div>
+        </dialog-component>
+
+        <dialog-component v-model:value="deleteDefinitionDialogVisible" max-width="500">
+            <template #header>Confirm deletion</template>
+            <template #footer>
+                <btn-component color="error"
+                    :loading="loadStatus.inProgress"
+                    :disabled="loadStatus.inProgress"
+                    @click="confirmDeleteEventDefinition()">Delete</btn-component>
+                <btn-component color="secondary" @click="deleteDefinitionDialogVisible = false">Cancel</btn-component>
+            </template>
+            <div>
+                {{ deleteDefinitionDialogText }}
+            </div>
+        </dialog-component>
+        
+        <dialog-component v-model:value="editDefinitionsDialogVisible" max-width="1200">
+            <template #header>Edit event payload definitions</template>
+            <template #footer>
+                <btn-component
+                    :loading="loadStatus.inProgress"
+                    :disabled="loadStatus.inProgress"
+                    color="error"
+                    @click="showDeleteDefinitionDialog(null)">
+                    <icon-component size="20px" class="mr-2">delete_forever</icon-component>
+                    Delete all definitions
+                </btn-component>
+                <btn-component color="secondary"
+                    @click="editDefinitionsDialogVisible = false">Close</btn-component>
+            </template>
+
+            <div>
+                <block-component
+                    v-for="(def, dindex) in eventDefinitions"
+                    :key="`eventdef-${dindex}-${def.EventId}`"
+                    class="definition-list-item mb-2">
+                    <btn-component
+                        :loading="loadStatus.inProgress"
+                        :disabled="loadStatus.inProgress"
+                        color="error" class="right"
+                        @click="showDeleteDefinitionDialog(def.EventId)">
+                        <icon-component size="20px" class="mr-2">delete</icon-component>
+                        Delete
+                    </btn-component>
+
+                    <h3>{{ def.EventId }}</h3>
+
+                    <div v-if="!def.IsStringified">
+                        <h4 class="mt-2 mr-1" style="display:inline-block">Properties:</h4>
+                        <code
+                            v-for="(defProp, dpindex) in def.PayloadProperties"
+                            :key="`eventdefprop-${dindex}-${dpindex}`"
+                            class="mr-2">{{ defProp }}</code>
+                    </div>
+                    <div style="clear:both;"></div>
                 </block-component>
-
-            </v-container>
-            </v-flex>
-            </v-layout>
-            </v-container>
-            
-            <v-dialog v-model="configDialogVisible"
-                scrollable
-                persistent
-                max-width="1200"
-                content-class="current-config-dialog">
-                <v-card v-if="currentConfig != null" style="background-color: #f4f4f4">
-                    <v-toolbar class="elevation-0">
-                        <v-toolbar-title class="current-config-dialog__title">{{ currentDialogTitle }}</v-toolbar-title>
-                        <v-spacer></v-spacer>
-                        <v-btn icon
-                            @click="hideCurrentConfig()"
-                            :disabled="serverInteractionInProgress">
-                            <v-icon>close</v-icon>
-                        </v-btn>
-                    </v-toolbar>
-
-                    <v-divider></v-divider>
-                    
-                    <v-card-text>
-                        <event-notification-config-component
-                            :module-id="config.Id"
-                            :config="currentConfig"
-                            :notifiers="notifiers"
-                            :eventdefinitions="eventDefinitions"
-                            :placeholders="placeholders"
-                            :readonly="!allowConfigChanges"
-                            v-on:configDeleted="onConfigDeleted"
-                            v-on:configSaved="onConfigSaved"
-                            v-on:serverInteractionInProgress="setServerInteractionInProgress"
-                            ref="currentConfigComponent"
-                            />
-                    </v-card-text>
-                    <v-divider></v-divider>
-                    <v-card-actions >
-                        <v-spacer></v-spacer>
-                        <v-btn color="error" flat
-                            v-if="showDeleteConfig"
-                            :disabled="serverInteractionInProgress"
-                            @click="$refs.currentConfigComponent.tryDeleteConfig()">Delete</v-btn>
-                        <v-btn color="success"
-                            :disabled="serverInteractionInProgress"
-                            @click="$refs.currentConfigComponent.saveConfig()">Save</v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
-
-            <v-dialog v-model="deleteDefinitionDialogVisible"
-                @keydown.esc="deleteDefinitionDialogVisible = false"
-                max-width="290"
-                content-class="confirm-dialog">
-                <v-card>
-                    <v-card-title class="headline">Confirm deletion</v-card-title>
-                    <v-card-text>
-                        {{ deleteDefinitionDialogText }}
-                    </v-card-text>
-                    <v-divider></v-divider>
-                    <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn color="secondary" @click="deleteDefinitionDialogVisible = false">Cancel</v-btn>
-                        <v-btn color="error"
-                            :loading="loadStatus.inProgress"
-                            :disabled="loadStatus.inProgress"
-                            @click="confirmDeleteEventDefinition()">Delete</v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
-            
-            <v-dialog v-model="editDefinitionsDialogVisible"
-                @keydown.esc="editDefinitionsDialogVisible = false"
-                scrollable
-                max-width="1200"
-                content-class="current-config-dialog">
-                <v-card style="background-color: #f4f4f4">
-                    <v-toolbar class="elevation-0">
-                        <v-toolbar-title class="current-config-dialog__title">Edit event payload definitions</v-toolbar-title>
-                        <v-spacer></v-spacer>
-                        <v-btn icon
-                            @click="editDefinitionsDialogVisible = false">
-                            <v-icon>close</v-icon>
-                        </v-btn>
-                    </v-toolbar>
-
-                    <v-divider></v-divider>
-                    
-                    <v-card-text>
-                        <block-component
-                            v-for="(def, dindex) in eventDefinitions"
-                            :key="`eventdef-${dindex}-${def.EventId}`"
-                            class="definition-list-item mb-2">
-                            <v-btn
-                                :loading="loadStatus.inProgress"
-                                :disabled="loadStatus.inProgress"
-                                color="error" class="right"
-                                @click="showDeleteDefinitionDialog(def.EventId)">
-                                <v-icon size="20px" class="mr-2">delete</v-icon>
-                                Delete
-                            </v-btn>
-
-                            <h3>{{ def.EventId }}</h3>
-
-                            <div v-if="!def.IsStringified">
-                                <h4 class="mt-2 mr-1" style="display:inline-block">Properties:</h4>
-                                <code
-                                    v-for="(defProp, dpindex) in def.PayloadProperties"
-                                    :key="`eventdefprop-${dindex}-${dpindex}`"
-                                    class="mr-2">{{ defProp }}</code>
-                            </div>
-                            <div style="clear:both;"></div>
-                        </block-component>
-                    </v-card-text>
-                    <v-divider></v-divider>
-                    <v-card-actions >
-                        <v-spacer></v-spacer>
-                        <v-btn
-                            :loading="loadStatus.inProgress"
-                            :disabled="loadStatus.inProgress"
-                            color="error"
-                            @click="showDeleteDefinitionDialog(null)">
-                            <v-icon size="20px" class="mr-2">delete_forever</v-icon>
-                            Delete all definitions
-                        </v-btn>
-                        <v-btn color="success"
-                            @click="editDefinitionsDialogVisible = false">Close</v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
-        </v-content>
+            </div>
+        </dialog-component>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import LoggedEndpointDefinitionViewModel from  '../../../models/modules/RequestLog/LoggedEndpointDefinitionViewModel';
-import LoggedEndpointRequestViewModel from  '../../../models/modules/RequestLog/LoggedEndpointRequestViewModel';
-import { EntryState } from  '../../../models/modules/RequestLog/EntryState';
-import DateUtils from  '../../../util/DateUtils';
-import LinqUtils from  '../../../util/LinqUtils';
-import KeyArray from  '../../../util/models/KeyArray';
-import KeyValuePair from  '../../../models/Common/KeyValuePair';
-import { GetEventNotificationConfigsViewModel, IEventNotifier, EventSinkNotificationConfig, FilterMatchType, NotifierConfig, Dictionary, NotifierConfigOptionsItem, EventSinkNotificationConfigFilter, KnownEventDefinition } from  '../../../models/modules/EventNotifications/EventNotificationModels';
-import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
-// @ts-ignore
-import { DateTimePicker } from "@lazy-copilot/datetimepicker";
-import FilterInputComponent from  '../../Common/FilterInputComponent.vue';
-import DataTableComponent, { DataTableGroup } from  '../../Common/DataTableComponent.vue';
-import SimpleDateTimeComponent from  '../../Common/SimpleDateTimeComponent.vue';
-import FilterableListComponent, { FilterableListItem } from  '../../Common/FilterableListComponent.vue';
-import ConfigFilterComponent from '.././EventNotifications/ConfigFilterComponent.vue';
-import EventNotificationConfigComponent from '.././EventNotifications/EventNotificationConfigComponent.vue';
-import IdUtils from  '../../../util/IdUtils';
-import EventSinkNotificationConfigUtils, { ConfigDescription, ConfigFilterDescription, ConfigActionDescription } from  '../../../util/EventNotifications/EventSinkNotificationConfigUtils';
-import BlockComponent from  '../../Common/Basic/BlockComponent.vue';
-import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import EventNotificationService from  '../../../services/EventNotificationService';
-import ModuleConfig from  '../../../models/Common/ModuleConfig';
-import ModuleOptions from  '../../../models/Common/ModuleOptions';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import LinqUtils from '@util/LinqUtils';
+import SimpleDateTimeComponent from '@components/Common/SimpleDateTimeComponent.vue';
+import ConfigFilterComponent from '@components/modules/EventNotifications/ConfigFilterComponent.vue';
+import EventNotificationConfigComponent from '@components/modules/EventNotifications/EventNotificationConfigComponent.vue';
+import IdUtils from '@util/IdUtils';
+import EventSinkNotificationConfigUtils, { ConfigDescription, ConfigFilterDescription, ConfigActionDescription } from '@util/EventNotifications/EventSinkNotificationConfigUtils';
+import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import EventNotificationService from '@services/EventNotificationService';
+import ModuleConfig from '@models/Common/ModuleConfig';
+import ModuleOptions from '@models/Common/ModuleOptions';
+import { EventSinkNotificationConfig, FilterMatchType, GetEventNotificationConfigsViewModel, IEventNotifier, KnownEventDefinition } from "@models/modules/EventNotifications/EventNotificationModels";
+import { StoreUtil } from "@util/StoreUtil";
+import StringUtils from "@util/StringUtils";
 
-@Component({
+@Options({
     components: {
         ConfigFilterComponent,
         SimpleDateTimeComponent,
@@ -298,10 +221,11 @@ export default class EventNotificationsPageComponent extends Vue {
     serverInteractionInProgress: boolean = false;
     editDefinitionsDialogVisible: boolean = false;
     deleteDefinitionDialogVisible: boolean = false;
+    configDialogVisible: boolean = false;
     deleteDefinitionDialogText: string = "";
     eventDefinitionIdToDelete: string | null = null;
 
-    data: GetEventNotificationConfigsViewModel | null = null;
+    datax: GetEventNotificationConfigsViewModel | null = null;
     currentConfig: EventSinkNotificationConfig | null = null;
 
     //////////////////
@@ -316,7 +240,7 @@ export default class EventNotificationsPageComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
 
     get HasAccessToEditEventDefinitions(): boolean {
@@ -340,29 +264,24 @@ export default class EventNotificationsPageComponent extends Vue {
             : 'Create new notification config';
     }
 
-    get configDialogVisible(): boolean
-    {
-        return this.currentConfig != null;
-    }
-
     get notifiers(): Array<IEventNotifier>
     {
-        return (this.data == null) ? [] : this.data.Notifiers;
+        return (this.datax == null) ? [] : this.datax.Notifiers;
     };
 
     get eventDefinitions(): Array<KnownEventDefinition>
     {
-        return (this.data == null) ? [] : this.data.KnownEventDefinitions;
+        return (this.datax == null) ? [] : this.datax.KnownEventDefinitions;
     };
 
     get placeholders(): Array<string>
     {
-        return (this.data == null) ? [] : this.data.Placeholders;
+        return (this.datax == null) ? [] : this.datax.Placeholders;
     };
 
     get configs(): Array<EventSinkNotificationConfig>
     {
-        let configs = (this.data == null) ? [] : this.data.Configs;
+        let configs = (this.datax == null) ? [] : this.datax.Configs;
         return configs;
     };
 
@@ -380,7 +299,7 @@ export default class EventNotificationsPageComponent extends Vue {
     }
 
     updateSelectionFromUrl(): void {
-        const idFromHash = this.$route.params.id;
+        const idFromHash = StringUtils.stringOrFirstOfArray(this.$route.params.id) || null;
         
         if (idFromHash) {
             let configFromUrl = this.configs.filter(x => x.Id != null && x.Id == idFromHash)[0];
@@ -396,14 +315,14 @@ export default class EventNotificationsPageComponent extends Vue {
     }
 
     onDataRetrieved(data: GetEventNotificationConfigsViewModel): void {
-        this.data = data;
-        this.data.Configs.forEach(config => {
+        this.datax = data;
+        this.datax.Configs.forEach(config => {
             EventSinkNotificationConfigUtils.postProcessConfig(config, this.notifiers);
         });
 
         this.updateSelectionFromUrl();
         
-        this.data.Configs = this.data.Configs.sort(
+        this.datax.Configs = this.datax.Configs.sort(
             (a, b) => LinqUtils.SortByThenBy(a, b,
                 x => x.Enabled ? 1 : 0,
                 x => (x.LastChangedAt == null) ? 32503676400000 : x.LastChangedAt.getTime(),
@@ -430,22 +349,22 @@ export default class EventNotificationsPageComponent extends Vue {
     }
 
     onConfigSaved(config: EventSinkNotificationConfig): void {
-        if (this.data == null)
+        if (this.datax == null)
         {
             return;
         }
         EventSinkNotificationConfigUtils.postProcessConfig(config, this.notifiers);
 
-        const position = this.data.Configs.findIndex(x => x.Id == config.Id);
-        //this.data.Configs = this.data.Configs.filter(x => x.Id != config.Id);
+        const position = this.datax.Configs.findIndex(x => x.Id == config.Id);
+        //this.datax.Configs = this.datax.Configs.filter(x => x.Id != config.Id);
 
         if (position == -1)
         {
-            this.data.Configs.push(config);
+            this.datax.Configs.push(config);
         }
         else {
-            Vue.set(this.data.Configs, position, config);
-            // this.data.Configs.unshift(config);
+            this.datax.Configs[position] = config;
+            // this.datax.Configs.unshift(config);
         }
         // this.$forceUpdate();
 
@@ -453,17 +372,18 @@ export default class EventNotificationsPageComponent extends Vue {
     }
 
     onConfigDeleted(config: EventSinkNotificationConfig): void {
-        if (this.data == null)
+        if (this.datax == null)
         {
             return;
         }
 
-        this.data.Configs = this.data.Configs.filter(x => x.Id != config.Id);
+        this.datax.Configs = this.datax.Configs.filter(x => x.Id != config.Id);
         this.hideCurrentConfig();
     }
 
     showConfig(config: EventSinkNotificationConfig, updateRoute: boolean = true): void {
         this.currentConfig = config;
+        this.configDialogVisible = config != null;
 
         if (updateRoute)
         {
@@ -473,6 +393,7 @@ export default class EventNotificationsPageComponent extends Vue {
 
     hideCurrentConfig(): void {
         this.currentConfig = null;
+        this.configDialogVisible = false;
         this.updateUrl();
     }
     
@@ -540,9 +461,9 @@ export default class EventNotificationsPageComponent extends Vue {
         {
             this.service.DeleteDefintion(this.eventDefinitionIdToDelete, this.loadStatus, {
                 onSuccess: (r) => {
-                    if (this.data != null)
+                    if (this.datax != null)
                     {
-                        this.data.KnownEventDefinitions = this.data.KnownEventDefinitions
+                        this.datax.KnownEventDefinitions = this.datax.KnownEventDefinitions
                             .filter(x => x.EventId != this.eventDefinitionIdToDelete);
                     }
                 }
@@ -552,9 +473,9 @@ export default class EventNotificationsPageComponent extends Vue {
         {
             this.service.DeleteDefintions(this.loadStatus, {
                 onSuccess: (r) => {
-                    if (this.data != null)
+                    if (this.datax != null)
                     {
-                        this.data.KnownEventDefinitions = [];
+                        this.datax.KnownEventDefinitions = [];
                     }
                 }
             });
@@ -565,7 +486,7 @@ export default class EventNotificationsPageComponent extends Vue {
     //  EVENT HANDLERS  //
     /////////////////////    
     onAddNewConfigClicked(): void {
-        if (this.data == null)
+        if (this.datax == null)
         {
             return;
         }
@@ -628,6 +549,7 @@ export default class EventNotificationsPageComponent extends Vue {
             align-items: center;
             flex-direction: row;
             flex-wrap: nowrap;
+            flex: 1;
         }
 
         .config-list-item--rule {
@@ -641,10 +563,10 @@ export default class EventNotificationsPageComponent extends Vue {
                 font-weight: 600;
             }
             .config-list-item--condition {
-                color: var(--v-primary-base);
+                color: var(--color--primary-base);
             }
             .config-list-item--action {
-                color: var(--v-secondary-base);
+                color: var(--color--secondary-base);
             }
         }
 

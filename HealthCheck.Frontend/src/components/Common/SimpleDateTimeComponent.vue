@@ -1,18 +1,11 @@
 <!-- src/components/Common/SimpleDateTimeComponent.vue -->
 <template>
     <div class="root input-component">
-        <div class="input-component--header" v-if="showHeader">
-            <div class="input-component--header-name">{{ name }}</div>
-            <v-icon small v-if="hasDescription"
-                color="gray" class="input-component--help-icon"
-                @click="toggleDescription">help</v-icon>
-        </div>
-
-        <div v-show="showDescription" class="input-component--description" v-html="description"></div>
+        <input-header-component :name="name" :description="description" />
         
-        <v-text-field
+        <text-field-component
             class="filter-input" type="datetime-local"
-            v-model="content"
+            v-model:value="content"
             v-on:change="onTextChanged"
             v-on:click:clear="onTextChanged"
             :error-messages="error"
@@ -22,11 +15,13 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import DateUtils from "../../util/DateUtils";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import DateUtils from '@util/DateUtils';
+import InputHeaderComponent from "./Basic/InputHeaderComponent.vue";
 
-@Component({
-    components: {}
+@Options({
+    components: { InputHeaderComponent }
 })
 export default class SimpleDateTimeComponent extends Vue {
     @Prop({ required: true })
@@ -46,7 +41,6 @@ export default class SimpleDateTimeComponent extends Vue {
 
     content!: string;
     error: string = "";
-    showDescription: boolean = false;
 
     beforeMount(): void {
         if (this.value == null)
@@ -59,18 +53,6 @@ export default class SimpleDateTimeComponent extends Vue {
         }
     }
 
-    get showHeader(): boolean {
-        return this.name != null && this.name.length > 0;
-    }
-
-    get hasDescription(): boolean {
-        return this.description != null && this.description.length > 0;
-    }
-
-    toggleDescription(): void {
-        this.showDescription = !this.showDescription;
-    }
-
     onTextChanged(): void {
         this.$nextTick(() => this.notifyTextChanged());
     }
@@ -80,7 +62,7 @@ export default class SimpleDateTimeComponent extends Vue {
 
         if (this.content == null || this.content.length == 0)
         {
-            this.$emit('input', null);
+            this.$emit('update:value', null);
             return;
         }
 
@@ -90,59 +72,19 @@ export default class SimpleDateTimeComponent extends Vue {
             if (isNaN(parsedDate.getTime()))
             {
                 this.error = `Invalid date. Must be empty or on on the format '${this.dateFormat}'.`;
-                this.$emit('input', null);
+                this.$emit('update:value', null);
             } else {
-                this.$emit('input', parsedDate);
+                this.$emit('update:value', parsedDate);
             }
             return;
         }
-        catch(ex) {
+        catch(ex: any) {
             this.error = ex;
         }
-        this.$emit('input', null);
+        this.$emit('update:value', null);
     }
 }
 </script>
 
 <style scoped lang="scss">
-.input-component {
-    .input-component--header {
-        text-align: left;
-
-        .input-component--header-name {
-            display: inline-block;
-            font-size: 16px;
-            color: var(--v-secondary-base);
-            font-weight: 600;
-        }
-
-        .input-component--help-icon {
-            user-select: none;
-            font-size: 20px !important;
-            &:hover {
-                color: #1976d2;
-            }
-        }
-    }
-
-    .input-component--description {
-        text-align: left;
-        padding: 10px;
-        border-radius: 10px;
-        background-color: #ebf1fb;
-    }
-}
-</style>
-
-<style lang="scss">
-.input-component {
-    input {
-        font-size: 18px;
-        color: #000 !important;
-    }
-
-    .v-input {
-        padding-top: 0;
-    }
-}
 </style>

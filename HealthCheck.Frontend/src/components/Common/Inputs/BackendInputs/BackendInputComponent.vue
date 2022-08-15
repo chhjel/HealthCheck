@@ -1,23 +1,19 @@
 <!-- src/components/Common/Inputs/BackendInputs/BackendInputComponent.vue -->
 <template>
     <div>
-        <div class="parameter-header" v-if="showInputHeader">
-            <div class="parameter-name">{{ displayName }}</div>
-            <v-icon small v-if="hasDescription"
-                color="gray" class="parameter-help-icon"
-                @click="toggleDescription">help</v-icon>
-            <v-icon v-if="showActionIcon"
-                color="gray" class="parameter-action-icon"
-                @click="onActionIconClicked">{{ actionIcon }}</v-icon>
-        </div>
-
-        <div v-show="showDescription" class="parameter-description" v-html="displayDescription"></div>
+        <input-header-component 
+            v-if="showInputHeader"
+            :name="displayName"
+            :description="displayDescription"
+            :actionIcon="actionIcon"
+            @actionIconClicked="onActionIconClicked"
+            />
 
         <component
             :key="`${id}-input`"
             class="parameter-input"
             :is="inputComponentName"
-            v-model="localValue"
+            v-model:value="localValue"
             :type="resolvedType"
             :name="displayName"
             :config="config"
@@ -39,33 +35,38 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { HCBackendInputConfig } from '@generated/Models/Core/HCBackendInputConfig';
+import InputHeaderComponent from '@components/Common/Basic/InputHeaderComponent.vue';
 // Parameter input components
-import UnknownBackendInputComponent from './UnknownBackendInputComponent.vue';
-import ParameterInputTypeInt32Component from './Types/ParameterInputTypeInt32Component.vue';
-import ParameterInputTypeInt64Component from './Types/ParameterInputTypeInt64Component.vue';
-import ParameterInputTypeDecimalComponent from './Types/ParameterInputTypeDecimalComponent.vue';
-import ParameterInputTypeSingleComponent from './Types/ParameterInputTypeSingleComponent.vue';
-import ParameterInputTypeDoubleComponent from './Types/ParameterInputTypeDoubleComponent.vue';
-import ParameterInputTypeStringComponent from './Types/ParameterInputTypeStringComponent.vue';
-import ParameterInputTypeBooleanComponent from './Types/ParameterInputTypeBooleanComponent.vue';
-import ParameterInputTypeDateTimeComponent from './Types/ParameterInputTypeDateTimeComponent.vue';
-import ParameterInputTypeDateTimeOffsetComponent from './Types/ParameterInputTypeDateTimeOffsetComponent.vue';
-import ParameterInputTypeEnumComponent from './Types/ParameterInputTypeEnumComponent.vue';
-import ParameterInputTypeFlaggedEnumComponent from './Types/ParameterInputTypeFlaggedEnumComponent.vue';
-import ParameterInputTypeGenericListComponent from './Types/ParameterInputTypeGenericListComponent.vue';
-import ParameterInputTypeTimeSpanComponent from "./Types/ParameterInputTypeTimeSpanComponent.vue";
-import ParameterInputTypeHttpPostedFileBaseComponent from './Types/ParameterInputTypeHttpPostedFileBaseComponent.vue';
-import ParameterInputPickReferenceComponent from './Types/ParameterInputPickReferenceComponent.vue';
-import ParameterInputTypeGuidComponent from "./Types/ParameterInputTypeGuidComponent.vue";
-import ParameterInputAnyJsonComponent from "./Types/ParameterInputAnyJsonComponent.vue";
-import { TestModuleOptions } from "components/modules/TestSuite/TestSuitesPageComponent.vue";
-import IdUtils from "../../../../util/IdUtils";
-import { ReferenceValueFactoryConfigViewModel } from "generated/Models/Core/ReferenceValueFactoryConfigViewModel";
+import UnknownBackendInputComponent from '@components/Common/Inputs/BackendInputs/UnknownBackendInputComponent.vue';
+import ParameterInputTypeInt32Component from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeInt32Component.vue';
+import ParameterInputTypeInt64Component from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeInt64Component.vue';
+import ParameterInputTypeDecimalComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeDecimalComponent.vue';
+import ParameterInputTypeSingleComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeSingleComponent.vue';
+import ParameterInputTypeDoubleComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeDoubleComponent.vue';
+import ParameterInputTypeStringComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeStringComponent.vue';
+import ParameterInputTypeBooleanComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeBooleanComponent.vue';
+import ParameterInputTypeDateTimeComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeDateTimeComponent.vue';
+import ParameterInputTypeEnumComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeEnumComponent.vue';
+import ParameterInputTypeFlaggedEnumComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeFlaggedEnumComponent.vue';
+import ParameterInputTypeGenericListComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeGenericListComponent.vue';
+import ParameterInputTypeTimeSpanComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeTimeSpanComponent.vue';
+import ParameterInputTypeHttpPostedFileBaseComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeHttpPostedFileBaseComponent.vue';
+import ParameterInputPickReferenceComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputPickReferenceComponent.vue';
+import ParameterInputTypeGuidComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeGuidComponent.vue';
+import ParameterInputAnyJsonComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputAnyJsonComponent.vue';
+import IdUtils from '@util/IdUtils';
+import { ReferenceValueFactoryConfigViewModel } from "@generated/Models/Core/ReferenceValueFactoryConfigViewModel";
+import { TestModuleOptions } from "@components/modules/TestSuite/TestSuitesPageComponent.vue.models";
+import { StoreUtil } from "@util/StoreUtil";
+import { HCUIHint } from "@generated/Enums/Core/HCUIHint";
 
-@Component({
+@Options({
+    name: "BackendInputComponent",
     components: {
+      InputHeaderComponent,
       // Parameter input components
       UnknownBackendInputComponent,
       ParameterInputTypeInt32Component,
@@ -76,7 +77,6 @@ import { ReferenceValueFactoryConfigViewModel } from "generated/Models/Core/Refe
       ParameterInputTypeStringComponent,
       ParameterInputTypeBooleanComponent,
       ParameterInputTypeDateTimeComponent,
-      ParameterInputTypeDateTimeOffsetComponent,
       ParameterInputTypeEnumComponent,
       ParameterInputTypeFlaggedEnumComponent,
       ParameterInputTypeTimeSpanComponent,
@@ -132,9 +132,16 @@ export default class BackendInputComponent extends Vue {
     localValue: string = "";
     id: string = IdUtils.generateId();
 
-    mounted(): void {
+    created(): void {
         this.updateLocalValue();
-        if (this.config && this.config.DefaultValue)
+        if (this.isListItem)
+        {
+            this.disableInputHeader();
+        }
+    }
+
+    mounted(): void {
+        if (this.config && this.config.DefaultValue && !this.value)
         {
             let def = this.config.DefaultValue;
             // Any of the subcomponents may have a method with the signature: public formatDefaultValue(val: string): string | null 
@@ -149,19 +156,10 @@ export default class BackendInputComponent extends Vue {
             }
         }
         this.emitLocalValue();
-
-        if (this.isListItem)
-        {
-            this.disableInputHeader();
-        }
     }
 
     disableInputHeader(): void {
         this.showInputHeader = false;
-    }
-
-    toggleDescription(): void {
-        this.showDescription = !this.showDescription;
     }
 
     notifyIsAnyJson(): void {
@@ -175,15 +173,11 @@ export default class BackendInputComponent extends Vue {
         return this.$refs.inputComp as Vue;
     }
     get testsOptions(): TestModuleOptions {
-        return this.$store.state.tests.options;
+        return StoreUtil.store.state.tests.options;
     }
 
     get allowJsonInput(): boolean {
         return this.testsOptions.AllowAnyParameterType;
-    }
-
-    get showActionIcon(): boolean {
-        return !!this.actionIcon && this.actionIcon.length > 0;
     }
 
     get displayName(): string {
@@ -202,17 +196,22 @@ export default class BackendInputComponent extends Vue {
         return this.feedback != null && this.feedback.length > 0;
     }
 
+    static typeAliases: { [key: string]: string } = {
+        'DateTimeOffset': 'DateTime'
+    };
     get resolvedType(): string {
+        let resultType = '';
         if (this.forceType && this.forceType.length > 0)
         {
-            return this.forceType;
+            resultType = this.forceType;
         }
         else if (this.config.Type && this.config.Type.length > 0)
         {
-            return this.config.Type;
+            resultType = this.config.Type;
         }
 
-        return this.forceType;
+        const aliased = BackendInputComponent.typeAliases[resultType];
+        return aliased || resultType;
     }
 
     get displayDescription(): string {
@@ -225,10 +224,6 @@ export default class BackendInputComponent extends Vue {
             return this.config.Description;
         }
         return this.forceDescription;
-    }
-
-    get hasDescription(): boolean {
-        return this.displayDescription != null && this.displayDescription.length > 0;
     }
     
     get inputComponentName(): string
@@ -246,6 +241,14 @@ export default class BackendInputComponent extends Vue {
         else if (this.isCustomReferenceType)
         {
             return 'ParameterInputPickReferenceComponent';
+        }
+        else if (this.config.UIHints.includes(HCUIHint.DateRange)
+            && (this.config.Type == 'DateTimeOffset[]'
+             || this.config.Type == 'DateTime[]'
+             || this.config.Type == 'Nullable<DateTimeOffset>[]'
+             || this.config.Type == 'Nullable<DateTime>[]'))
+        {
+            return 'ParameterInputTypeDateTimeComponent';
         }
 
         typeName = typeName.replace('<', '').replace('>', '');
@@ -289,7 +292,7 @@ export default class BackendInputComponent extends Vue {
     @Watch('localValue')
     emitLocalValue(): void
     {
-        this.$emit('input', this.localValue);
+        this.$emit('update:value', this.localValue);
     }
 
     onActionIconClicked(): void {
@@ -298,44 +301,11 @@ export default class BackendInputComponent extends Vue {
 }
 </script>
 
-<style scoped>
-.parameter-header {
-    text-align: left;
-    display: flex;
-    align-items: center;
-}
-.parameter-name {
-    display: inline-block;
-    font-size: 16px;
-    color: var(--v-secondary-base);
-    font-weight: 600;
-}
-.parameter-description {
-    text-align: left;
-    padding: 10px;
-    border-radius: 10px;
-    background-color: #ebf1fb;
-}
-.parameter-help-icon {
-    user-select: none;
-    font-size: 20px !important;
-    margin-left: 4px;
-}
-.parameter-help-icon:hover {
-    color: #1976d2;
-}
-.parameter-action-icon {
-    user-select: none;
-    font-size: 24px !important;
-    margin-left: 4px;
-}
-.parameter-action-icon:hover {
-    color: #1976d2;
-}
+<style scoped lang="scss">
 .parameter-feedback {
     font-size: small;
     font-weight: 600;
-    color: var(--v-error-darken1);
+    color: var(--color--error-darken1);
 }
 </style>
 
@@ -343,10 +313,5 @@ export default class BackendInputComponent extends Vue {
 .parameter-input input {
     font-size: 18px;
     color: #000 !important;
-}
-.parameter-input {
-    .v-text-field__slot {
-        max-width: 100%;
-    }
 }
 </style>

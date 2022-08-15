@@ -1,50 +1,45 @@
-<!-- src/components/Common/Basic/SimplePagingComponent.vue -->
+<!-- src/components/Common/Basic/PagingComponent.vue -->
 <template>
-    <div class="paging-component" v-if="count > 1 && pageCount > 1">
+    <div class="paging-component" v-if="visible">
         
-        <div class="page-button" @click="onNextPrevClick(-1)"><v-icon>chevron_left</v-icon></div>
+        <div class="page-button" @click="onNextPrevClick(-1)"><icon-component>chevron_left</icon-component></div>
         <div v-for="(btn, bIndex) in buttons"
             :key="`page-btn-${bIndex}-${btn.number}-${id}`"
             @click="onClickedButton(btn)"
             class="page-button"
-            :class="{ 'active': isActive(btn), 'middle': btn.isDialogButton, 'wide': (btn.isDialogButton && !hasExtraButton) }">
+            :class="{ 'active': isActive(btn), 'middle': btn.isDialogButton, 'wide': (btn.isDialogButton && !hasExtraButton), 'disabled': disabled }">
             <span v-if="btn.isPage">{{ btn.number }}</span>
             <span v-if="btn.isDialogButton">...</span>
         </div>
-        <div class="page-button" @click="onNextPrevClick(1)"><v-icon>chevron_right</v-icon></div>
+        <div class="page-button" @click="onNextPrevClick(1)"><icon-component>chevron_right</icon-component></div>
         
         <!-- DIALOGS -->
-        <v-dialog v-model="dialogVisible"
-            @keydown.esc="dialogVisible = false"
-            max-width="480"
-            content-class="confirm-dialog">
-            <v-card>
-                <v-card-title class="headline">Jump to page</v-card-title>
-                <v-card-text>
-                    <v-text-field
-                        label="Page number"
-                        solo
-                        v-model="dialogNumber"
-                        type="number"
-                        ref="dialogNumberInput"></v-text-field>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="secondary"
-                        @click="dialogVisible = false">Cancel</v-btn>
-                    <v-btn color="primary"
-                        @click="navigateToPage(dialogNumber)">Go to page {{ dialogNumber }}</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+        <dialog-component v-model:value="dialogVisible" max-width="480">
+            <template #header>Jump to page</template>
+            <template #footer>
+                <btn-component color="primary"
+                    @click="navigateToPage(dialogNumber)">Go to page {{ dialogNumber }}</btn-component>
+                <btn-component color="secondary"
+                    @click="dialogVisible = false">Cancel</btn-component>
+            </template>
+
+            <div>
+                <text-field-component
+                    label="Page number"
+                    v-model:value="dialogNumber"
+                    type="number"
+                    ref="dialogNumberInput"></text-field-component>
+            </div>
+        </dialog-component>
     </div>
 </template>
 
 <script lang="ts">
-import IdUtils from "util/IdUtils";
-import LinqUtils from "util/LinqUtils";
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import IdUtils from "@util/IdUtils";
+import LinqUtils from "@util/LinqUtils";
+import { Vue, Prop, Watch, Ref } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import TextFieldComponent from "./TextFieldComponent.vue";
 
 interface PageinationButton {
     number: number;
@@ -52,22 +47,30 @@ interface PageinationButton {
     isDialogButton: boolean;
 }
 
-@Component({
+@Options({
     components: {}
 })
-export default class SimplePagingComponent extends Vue
+export default class PagingComponent extends Vue
 {
     @Prop({ required: true })
     value!: number;
 
-    @Prop({ required: true })
+    @Prop({ required: false, default: 0 })
     count!: number;
+
+    @Prop({ required: false, default: null })
+    pagesCount!: number | null;
 
     @Prop({ required: false, default: 100 })
     pageSize!: number;
 
     @Prop({ required: false, default: false })
     asIndex!: boolean;
+
+    @Prop({ required: false, default: false })
+    disabled!: boolean;
+
+    @Ref() readonly dialogNumberInput!: TextFieldComponent;
 
     id: string = IdUtils.generateId();
     currentValue: number = this.asIndex ? 0 : 1;
@@ -93,7 +96,12 @@ export default class SimplePagingComponent extends Vue
     ////////////////
     //  GETTERS  //
     //////////////
+    get visible(): boolean {
+        if (this.pagesCount != null) return this.pagesCount > 0;
+        return this.count > 1 && this.pageCount > 1;
+    }
     get pageCount(): number {
+        if (this.pagesCount != null) return this.pagesCount;
         return Math.ceil(this.count / this.pageSize);
     }
 
@@ -191,7 +199,7 @@ export default class SimplePagingComponent extends Vue
         if (num < min) num = min;
         else if (num > max) num = max;
 
-        this.$emit('input', num);
+        this.$emit('update:value', num);
         this.$emit('change', num);
         this.currentValue = num;
         this.dialogVisible = false;
@@ -201,6 +209,7 @@ export default class SimplePagingComponent extends Vue
     //  EVENT HANDLERS  //
     /////////////////////
     onClickedButton(btn: PageinationButton): void {
+        if (this.disabled) return;
         if (btn.isPage)
         {
             this.navigateToPage(btn.number);
@@ -208,16 +217,15 @@ export default class SimplePagingComponent extends Vue
         else if (btn.isDialogButton)
         {
             this.dialogVisible = true;
+            const self = this;
             this.$nextTick(() => {
-                (<HTMLInputElement>this.$refs.dialogNumberInput).focus();
-                const el = (<Vue>this.$refs.dialogNumberInput).$el;
-                const input = el.getElementsByTagName('input')[0];
-                input.select();
+                self.dialogNumberInput.focus();
             });
         }
     }
 
     onNextPrevClick(mod: number): void {
+        if (this.disabled) return;
         this.navigateToPage(this.currentValue + mod + (this.asIndex ? 1 : 0));
     }
 
@@ -252,7 +260,8 @@ export default class SimplePagingComponent extends Vue
     flex-wrap: nowrap;
 
     .page-button {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
         padding: 5px 15px;
         border-radius: 5px;
         background-color: #eee;
@@ -262,7 +271,12 @@ export default class SimplePagingComponent extends Vue
         &.active {
             font-weight: 600;
             color: #fff;
-            background-color: var(--v-primary-base);
+            background-color: var(--color--primary-base);
+        }
+
+        &.disabled {
+            color: #bbb;
+            cursor: default;
         }
 
         &.middle {

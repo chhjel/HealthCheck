@@ -7,9 +7,10 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
 
-@Component({
+@Options({
     components: {
     }
 })
@@ -22,7 +23,7 @@ export default class UnknownBackendInputComponent extends Vue {
 
     mounted(): void {
         if (this.type.startsWith("Nullable<")) {
-            this.$emit('input', null);
+            this.$emit('update:value', null);
         }
     }
 

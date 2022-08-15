@@ -1,25 +1,26 @@
 <!-- src/components/modules/TestSuite/result_data/data_types/TestResultXmlDataComponent.vue -->
 <template>
     <div>
-      <code-editor language="xml"
-        :data="data"
+      <code-component language="xml"
+        :datax="resultData"
         :fullscreen="fullscreen" />
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import TestResultDataDumpViewModel from  '../../../../../models/modules/TestSuite/TestResultDataDumpViewModel';
-import CodeEditor from './abstractions/CodeComponent.vue'
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { TestResultDataDumpViewModel } from '@generated/Models/Core/TestResultDataDumpViewModel';
+import CodeComponent from '@components/modules/TestSuite/result_data/data_types/abstractions/CodeComponent.vue'
 
-@Component({
+@Options({
     components: {
-        CodeEditor
+        CodeComponent
     }
 })
 export default class TestResultXmlDataComponent extends Vue {
     @Prop({ required: true })
-    data!: TestResultDataDumpViewModel;
+    resultData!: TestResultDataDumpViewModel;
     @Prop({ required: true })
     fullscreen!: boolean;
 }

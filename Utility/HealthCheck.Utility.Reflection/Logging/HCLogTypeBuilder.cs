@@ -14,18 +14,22 @@ namespace HealthCheck.Utility.Reflection.Logging
 	{
 		private static readonly Dictionary<Type, Type> _typeCache = new();
 
-		/// <summary>
-		/// Generates logger implementations at runtime for the given logging interface.
-		/// </summary>
-		/// <param name="logCountLimit">Optional max number of times the log method can be called before it's ignored.</param>
-		public static TInterface CreateMemoryLoggerFor<TInterface>(int logCountLimit = 100000)
+        /// <summary>
+        /// Generates logger implementations at runtime for the given logging interface.
+        /// </summary>
+        /// <param name="logCountLimit">Optional max number of times the log method can be called before it's ignored.</param>
+        /// <param name="forwardTo">Optionally forward method calls to a given instance, e.g. the original logger.</param>
+        public static TInterface CreateMemoryLoggerFor<TInterface>(int logCountLimit = 100000, TInterface forwardTo = default)
 			where TInterface : class
-			=> CreateMemoryLoggerFor(typeof(TInterface), logCountLimit) as TInterface;
+			=> CreateMemoryLoggerFor(typeof(TInterface), logCountLimit, forwardTo) as TInterface;
 
 		/// <summary>
 		/// Generates logger implementations at runtime for the given logging interface.
 		/// </summary>
-		public static object CreateMemoryLoggerFor(Type interfce, int logCountLimit = 100000)
+		/// <param name="interfce">Type of logger interface to generate implementation for.</param>
+		/// <param name="logCountLimit">Optional max number of times the log method can be called before it's ignored.</param>
+		/// <param name="forwardTo">Optionally forward method calls to a given instance, e.g. the original logger.</param>
+		public static object CreateMemoryLoggerFor(Type interfce, int logCountLimit = 100000, object forwardTo = null)
 		{
 			lock (_typeCache)
 			{
@@ -39,6 +43,7 @@ namespace HealthCheck.Utility.Reflection.Logging
 				if (instance is HCMemoryLoggerBase logger)
 				{
 					logger.LogCountLimit = logCountLimit;
+					logger.___InitLogger(interfce, forwardTo);
 				}
 
 				return instance;

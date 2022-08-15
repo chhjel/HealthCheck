@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace HealthCheck.Core.Util
@@ -32,11 +33,24 @@ namespace HealthCheck.Core.Util
 		public override string ToString() => _builder.ToString();
 
 		private int _logCount = 0;
+		private object _forwardTo;
 
-        /// <summary>
-        /// Invoked from IL.
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "A bit obscure naming on purpose to prevent collisions.")]
+		/// <summary>
+		/// Invoked from util.
+		/// </summary>
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "A bit obscure naming on purpose to prevent collisions.")]
+		public void ___InitLogger(Type interfce, object forwardTo = null)
+		{
+			if (interfce != null && forwardTo != null && interfce.IsAssignableFrom(forwardTo.GetType()))
+            {
+				_forwardTo = forwardTo;
+			}
+		}
+
+		/// <summary>
+		/// Invoked from IL.
+		/// </summary>
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "A bit obscure naming on purpose to prevent collisions.")]
         protected void ___LogToMemory(string methodName, object[] parameters)
 		{
 			if (LogCountLimit != null)
@@ -71,6 +85,29 @@ namespace HealthCheck.Core.Util
             {
 				_builder.AppendLine(HCExceptionUtils.GetFullExceptionDetails(exception));
             }
+
+			if (_forwardTo != null)
+            {
+				try
+                {
+					___TryForwardEvent(methodName, parameters);
+                }
+                catch (Exception) { /* Ignored */ }
+            }
 		}
+
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "A bit obscure naming on purpose to prevent collisions.")]
+		private void ___TryForwardEvent(string methodName, object[] parameters)
+        {
+			var forwardType = _forwardTo.GetType();
+			var method = forwardType.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
+				.FirstOrDefault(x => {
+					if (x.Name != methodName) return false;
+					var p = x.GetParameters();
+					if (p.Length != parameters.Length) return false;
+					return true;
+				});
+			method.Invoke(_forwardTo, parameters);
+        }
 	}
 }

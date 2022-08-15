@@ -1,9 +1,9 @@
 <!-- src/components/Common/Basic/FetchStatusProgressComponent.vue -->
 <template>
     <div class="fetch-status-progress-component" :style="rootStyle">
-        <v-progress-linear
-            v-if="visible"
-            v-model="progress"
+        <progress-linear-component
+            v-if="progressVisible"
+            :value="progress"
             :height="height"
             :color="color"
         />
@@ -11,10 +11,11 @@
 </template>
 
 <script lang="ts">
-import { FetchStatusWithProgress } from "services/abstractions/HCServiceBase";
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import { FetchStatusWithProgress } from "@services/abstractions/HCServiceBase";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
 
-@Component({
+@Options({
     components: {}
 })
 export default class FetchStatusProgressComponent extends Vue
@@ -36,7 +37,7 @@ export default class FetchStatusProgressComponent extends Vue
         return this.status.progress; 
     }
     
-    get visible(): boolean {
+    get progressVisible(): boolean {
         if (!this.status) return false;
         return this.status.inProgress || this.status.progress > 0;
     }
@@ -48,11 +49,3 @@ export default class FetchStatusProgressComponent extends Vue
     }
 }
 </script>
-
-<style lang="scss">
-.fetch-status-progress-component {
-    .v-progress-linear {
-        margin: 0;
-    }
-}
-</style>

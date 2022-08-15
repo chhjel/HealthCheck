@@ -1,63 +1,65 @@
 <!-- src/components/modules/EndpointControl/RuleFilterComponent.vue -->
 <template>
-    <div class="root">
+    <div class="rule-filter-component">
         <div class="field-list horizontal-layout">
-            <v-switch
-                v-model="enabled" 
-                label="Enabled"
+            <switch-component
+                v-model:value="enabled" 
+                falseLabel="Filter disabled"
                 color="secondary"
                 v-on:change="onDataChanged"
                 :disabled="readonly"
-            ></v-switch>
+            ></switch-component>
             
             <div class="horizontal-layout" v-if="enabled">
-                <v-select
+                <select-component
                     class="mode-select"
-                    v-model="filterMode"
+                    v-model:value="filterMode"
                     :items="filterModeOptions"
-                    item-text="text" item-value="value" color="secondary"
+                    item-text="text" item-value="value"
                     v-on:change="onDataChanged"
                     :disabled="readonly"
                     >
-                </v-select>
+                </select-component>
             </div>
 
-            <v-combobox v-if="enabled"
-                v-model="filterValue"
+            <select-component v-if="enabled"
+                v-model:value="filterValue"
                 :items="filterContentOptions"
                 :readonly="readonly"
                 no-data-text="Value required"
                 placeholder="Value to search for"
                 v-on:change="onDataChanged"
                 :disabled="readonly"
+                allowInput allowCustom
                 >
-            </v-combobox>
+            </select-component>
             <div class="horizontal-layout" v-if="enabled">
-                <v-switch
-                    v-model="caseSensitive" 
+                <switch-component
+                    v-model:value="caseSensitive" 
                     label="Case sensitive"
                     color="secondary"
                     v-on:change="onDataChanged"
                     :disabled="readonly"
-                ></v-switch>
+                ></switch-component>
 
-                <v-switch
-                    v-model="inverted" 
+                <switch-component
+                    v-model:value="inverted" 
                     label="Inverted"
                     color="secondary"
                     v-on:change="onDataChanged"
                     :disabled="readonly"
-                ></v-switch>
+                ></switch-component>
             </div>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import { EndpointControlFilterMode, EndpointControlPropertyFilter, EndpointControlRule } from "../../../models/modules/EndpointControl/EndpointControlModels";
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { EndpointControlFilterMode, EndpointControlPropertyFilter, EndpointControlRule } from '@models/modules/EndpointControl/EndpointControlModels';
 
-@Component({
+@Options({
     components: {}
 })
 export default class RuleFilterComponent extends Vue {
@@ -96,6 +98,8 @@ export default class RuleFilterComponent extends Vue {
         let items = [
             { text: 'Contains', value: EndpointControlFilterMode.Contains},
             { text: 'Matches', value: EndpointControlFilterMode.Matches},
+            { text: 'Starts with', value: EndpointControlFilterMode.StartsWith},
+            { text: 'Ends with', value: EndpointControlFilterMode.EndsWith},
             { text: 'Matches RegEx', value: EndpointControlFilterMode.RegEx}
         ];
         return items;
@@ -118,13 +122,13 @@ export default class RuleFilterComponent extends Vue {
         }
 
         let updatedObject = {...this.value, ...freshValues };
-        this.$emit('input', updatedObject);
+        this.$emit('update:value', updatedObject);
     }
 }
 </script>
 
 <style scoped lang="scss">
-.root {
+.rule-filter-component {
     margin-left: 20px;
     padding-left: 20px;
 

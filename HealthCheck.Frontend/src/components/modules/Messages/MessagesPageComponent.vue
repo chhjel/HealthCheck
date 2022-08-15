@@ -1,48 +1,38 @@
 <!-- src/components/modules/Messages/MessagesPageComponent.vue -->
 <template>
     <div>
-        <v-content>
+        <div>
             <!-- NAVIGATION DRAWER -->
-            <v-navigation-drawer
-                v-model="drawerState"
-                clipped fixed floating app
-                mobile-break-point="1000"
-                dark
-                class="menu leftside-menu">
-
+            <Teleport to="#module-nav-menu">
                 <filterable-list-component 
                     :items="menuItems"
                     :disabled="loadStatus.inProgress"
-                    v-on:itemClicked="onMenuItemClicked"
                     ref="filterableList"
                     :showFilter="false"
                     :groupByKey="`groupName`"
+                    v-on:itemClicked="onMenuItemClicked"
+                    @itemMiddleClicked="onMenuItemMiddleClicked"
                     />
-            </v-navigation-drawer>
+            </Teleport>
             
-            <!-- CONTENT -->
-            <v-container fluid fill-height class="content-root">
-            <v-layout>
-            <v-flex>
-            <v-container>
+            <div class="content-root">
                 <!-- LOAD PROGRESS -->
-                <v-progress-linear
+                <progress-linear-component
                     v-if="loadStatus.inProgress"
-                    indeterminate color="green"></v-progress-linear>
+                    indeterminate color="success"></progress-linear-component>
 
                 <!-- DATA LOAD ERROR -->
-                <v-alert :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
+                <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
                 {{ loadStatus.errorMessage }}
-                </v-alert>
+                </alert-component>
 
                 <div v-if="currentInbox != null">
                     <div style="display:flex">
                         <h1 class="mb-1">{{ currentInbox.Name }}</h1>
-                        <v-spacer></v-spacer>
-                        <v-btn color="error" flat
-                            v-if="HasAccessToDeleteMessages"
-                            :disabled="messageLoadStatus.inProgress"
-                            @click="showDeleteInbox()">Delete all</v-btn>
+                            <btn-component color="error" flat
+                                v-if="HasAccessToDeleteMessages"
+                                :disabled="messageLoadStatus.inProgress"
+                                @click="showDeleteInbox()">Delete all</btn-component>
                     </div>
                     <p v-if="currentInbox.Description != null && currentInbox.Description.length > 0">{{ currentInbox.Description }}</p>
                     <hr />
@@ -50,22 +40,22 @@
                     <paging-component
                         :count="totalMessageCount"
                         :pageSize="messagesPageSize"
-                        v-model="messagesPageIndex"
+                        v-model:value="messagesPageIndex"
                         :asIndex="true"
                         class="mb-2 mt-2"
                         />
 
                     <!-- MESSAGE LOAD PROGRESS -->
-                    <v-progress-linear
+                    <progress-linear-component
                         v-if="messageLoadStatus.inProgress"
-                        indeterminate color="green"></v-progress-linear>
+                        indeterminate color="success"></progress-linear-component>
 
                     <!-- MESSAGE DATA LOAD ERROR -->
-                    <v-alert :value="messageLoadStatus.failed" v-if="messageLoadStatus.failed" type="error">
+                    <alert-component :value="messageLoadStatus.failed" v-if="messageLoadStatus.failed" type="error">
                     {{ messageLoadStatus.errorMessage }}
-                    </v-alert>
+                    </alert-component>
                     
-                    <div class="messages-list">
+                    <div class="messages-list ml-1">
                         <div class="messages-list__item header">
                             <div class="messages-list__item__detail" style="display:none"></div>
                             <div class="messages-list__item__detail">From</div>
@@ -78,7 +68,7 @@
                             class="messages-list__item"
                             @click="showMessage(message)">
                             <div class="messages-list__item__icon">
-                                <v-icon :color="getMessageIconColor(message)">{{ getMessageIcon(message) }}</v-icon>
+                                <icon-component :color="getMessageIconColor(message)" size="20px">{{ getMessageIcon(message) }}</icon-component>
                             </div>
                             <div class="messages-list__item__detail">
                                 <b class="mobile-only">From: </b>
@@ -102,151 +92,127 @@
                             No messages found.
                         </div>
                     </div>
+
+                    <paging-component
+                        :count="totalMessageCount"
+                        :pageSize="messagesPageSize"
+                        v-model:value="messagesPageIndex"
+                        :asIndex="true"
+                        class="mb-2 mt-2"
+                        />
                 </div>
 
-            </v-container>
-            </v-flex>
-            </v-layout>
-            </v-container>
-        </v-content>
+            </div>
+        </div>
             
-        <v-dialog v-model="showMessageDialog"
-            @keydown.esc="hideMessageDialog"
-            v-if="currentlyShownMessage != null"
-            scrollable
-            max-width="1200"
-            content-class="message-dialog">
-            <v-card style="background-color: #f4f4f4">
-                <v-toolbar class="elevation-0">
-                    <div class="message-dialog__icon">
-                        <v-icon :color="getMessageIconColor(currentlyShownMessage)">{{ getMessageIcon(currentlyShownMessage) }}</v-icon>
-                    </div>
-                    <v-toolbar-title class="message-dialog__title">{{ currentlyShownMessage.Summary }}</v-toolbar-title>
-                    <v-spacer></v-spacer>
-                    <v-btn icon
-                        @click="hideMessageDialog">
-                        <v-icon>close</v-icon>
-                    </v-btn>
-                </v-toolbar>
+        <dialog-component v-model:value="showMessageDialog" v-if="currentlyShownMessage != null" width="90vw" max-width="1200">
+            <template #header>
+                <div class="flex">
+                    {{ currentlyShownMessage.Summary }}
+                    <icon-component :color="getMessageIconColor(currentlyShownMessage)" class="ml-2">{{ getMessageIcon(currentlyShownMessage) }}</icon-component>
+                </div>
+            </template>
 
-                <v-divider></v-divider>
-                
-                <v-card-text>
-                    <div class="message">
-                        <div class="message__time"><b>When: </b>{{ formatDate(currentlyShownMessage.Timestamp, true) }}</div>
-                        <div class="message__from"><b>From: </b>{{ currentlyShownMessage.From }}</div>
-                        <div class="message__to"><b>To: </b>{{ currentlyShownMessage.To }}</div>
-                        <div class="message__summary"><b>Summary: </b>{{ currentlyShownMessage.Summary }}</div>
-                        <div v-if="currentlyShownMessage.Notes && currentlyShownMessage.Notes.length > 0">
-                            <b>Notes:</b>
-                            <ul>
-                                <li class="message__note" v-for="(note, noteIndex) in currentlyShownMessage.Notes"
-                                    :key="`message-dialog-note-${noteIndex}`"
-                                    >{{ note }}</li>
-                            </ul>
-                        </div>
-                        <div v-if="currentlyShownMessage.HasError" class="message__error-note">
-                            Message contains an error, see below for details.
-                        </div>
-                        <block-component class="mt-2 mb-1">
-                            <div class="message__body" v-if="currentlyShownMessage.BodyIsHtml && !showMessageBodyRaw">
-                                <shadow-root>
-                                    <div v-html="currentlyShownMessage.Body"></div>
-                                </shadow-root>
-                            </div>
-                            <editor-component
-                                v-show="currentlyShownMessage.BodyIsHtml && showMessageBodyRaw"
-                                class="editor"
-                                :language="'xml'"
-                                v-model="currentlyShownMessage.Body"
-                                :read-only="true"
-                                ref="editor"/>
-                            <div class="message__body" v-if="!currentlyShownMessage.BodyIsHtml">{{ currentlyShownMessage.Body }}</div>
-                            <div v-if="getAdditionalDetails(currentlyShownMessage).length > 0">
-                                <code>{{ getAdditionalDetails(currentlyShownMessage) }}</code>
-                            </div>
-                        </block-component>
-                        <a v-if="currentlyShownMessage.BodyIsHtml" @click="showMessageBodyRaw = !showMessageBodyRaw" class="ml-5">Toggle HTML</a>
-                        <block-component class="mt-2 mb-1" v-if="currentlyShownMessage.HasError" title="Error">
-                            <code>{{ currentlyShownMessage.ErrorMessage }}</code>
-                        </block-component>
+            <template #footer>
+                <btn-component color="error"
+                    v-if="HasAccessToDeleteMessages"
+                    :disabled="messageLoadStatus.inProgress"
+                    @click="showDeleteMessage(currentlyShownMessage)">Delete</btn-component>
+                <btn-component color="secondary" @click="hideMessageDialog">Close</btn-component>
+            </template>
+
+            <div class="message">
+                <div class="message__time"><b>When: </b>{{ formatDate(currentlyShownMessage.Timestamp, true) }}</div>
+                <div class="message__from"><b>From: </b>{{ currentlyShownMessage.From }}</div>
+                <div class="message__to"><b>To: </b>{{ currentlyShownMessage.To }}</div>
+                <div class="message__summary"><b>Summary: </b>{{ currentlyShownMessage.Summary }}</div>
+                <div v-if="currentlyShownMessage.Notes && currentlyShownMessage.Notes.length > 0">
+                    <b>Notes:</b>
+                    <ul>
+                        <li class="message__note" v-for="(note, noteIndex) in currentlyShownMessage.Notes"
+                            :key="`message-dialog-note-${noteIndex}`"
+                            >{{ note }}</li>
+                    </ul>
+                </div>
+                <div v-if="currentlyShownMessage.HasError" class="message__error-note">
+                    Message contains an error, see below for details.
+                </div>
+                <block-component class="mt-2 mb-1">
+                    <div class="message__body" v-if="currentlyShownMessage.BodyIsHtml && !showMessageBodyRaw">
+                        <shadow-root>
+                            <div v-html="currentlyShownMessage.Body"></div>
+                        </shadow-root>
                     </div>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="error" flat
-                        v-if="HasAccessToDeleteMessages"
-                        :disabled="messageLoadStatus.inProgress"
-                        @click="showDeleteMessage(currentlyShownMessage)">Delete</v-btn>
-                    <v-btn color="success"
-                        @click="hideMessageDialog">Close</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+                    <editor-component
+                        v-show="currentlyShownMessage.BodyIsHtml && showMessageBodyRaw"
+                        class="editor"
+                        :language="'xml'"
+                        v-model:value="currentlyShownMessage.Body"
+                        :read-only="true"
+                        ref="editor"/>
+                    <div class="message__body" v-if="!currentlyShownMessage.BodyIsHtml">{{ currentlyShownMessage.Body }}</div>
+                    <div v-if="getAdditionalDetails(currentlyShownMessage).length > 0">
+                        <code>{{ getAdditionalDetails(currentlyShownMessage) }}</code>
+                    </div>
+                </block-component>
+                <a v-if="currentlyShownMessage.BodyIsHtml" @click="showMessageBodyRaw = !showMessageBodyRaw" class="ml-5 clickable">Toggle HTML</a>
+                <block-component class="mt-2 mb-1" v-if="currentlyShownMessage.HasError" title="Error">
+                    <code>{{ currentlyShownMessage.ErrorMessage }}</code>
+                </block-component>
+            </div>
+        </dialog-component>
         
-        <v-dialog v-model="deleteMessageDialogVisible"
-            @keydown.esc="deleteMessageDialogVisible = false"
-            max-width="290"
-            content-class="confirm-dialog">
-            <v-card>
-                <v-card-title class="headline">Confirm deletion</v-card-title>
-                <v-card-text>
-                    Are you sure you want to delete this message?
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="secondary" @click="deleteMessageDialogVisible = false">Cancel</v-btn>
-                    <v-btn color="error" @click="deleteMessage()">Delete it</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+        <dialog-component v-model:value="deleteMessageDialogVisible" max-width="500">
+            <template #header>Confirm deletion</template>
+            <template #footer>
+                <btn-component color="error" @click="deleteMessage()">Delete it</btn-component>
+                <btn-component color="secondary" @click="deleteMessageDialogVisible = false">Cancel</btn-component>
+            </template>
+            <div>
+                Are you sure you want to delete this message?
+            </div>
+        </dialog-component>
         
-        <v-dialog v-model="deleteInboxDialogVisible"
-            @keydown.esc="deleteInboxDialogVisible = false"
-            max-width="360"
-            content-class="confirm-dialog">
-            <v-card>
-                <v-card-title class="headline">Confirm deletion</v-card-title>
-                <v-card-text>
-                    Are you sure you want to delete all messages in the inbox?
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="secondary" @click="deleteInboxDialogVisible = false">Cancel</v-btn>
-                    <v-btn color="error" @click="deleteInbox()">Delete whole inbox</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+        <dialog-component v-model:value="deleteInboxDialogVisible" max-width="500">
+            <template #header>Confirm deletion</template>
+            <template #footer>
+                <btn-component color="error" @click="deleteInbox()">Delete whole inbox</btn-component>
+                <btn-component color="secondary" @click="deleteInboxDialogVisible = false">Cancel</btn-component>
+            </template>
+            <div>
+                Are you sure you want to delete all messages in the inbox?
+            </div>
+        </dialog-component>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import DateUtils from  '../../../util/DateUtils';
-import LinqUtils from  '../../../util/LinqUtils';
-import KeyArray from  '../../../util/models/KeyArray';
-import KeyValuePair from  '../../../models/Common/KeyValuePair';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import DateUtils from '@util/DateUtils';
+import LinqUtils from '@util/LinqUtils';
+import KeyArray from '@util/models/KeyArray';
+import KeyValuePair from '@models/Common/KeyValuePair';
 // @ts-ignore
-import IdUtils from  '../../../util/IdUtils';
-import BlockComponent from  '../../Common/Basic/BlockComponent.vue';
-import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import MessagesService from  '../../../services/MessagesService';
-import ModuleOptions from  '../../../models/Common/ModuleOptions';
-import ModuleConfig from "../../../models/Common/ModuleConfig";
-import { DataWithTotalCount, MessageItem, MessagesInboxMetadata } from "../../../models/modules/Messages/MessagesModels";
-import { FilterableListItem } from  '../../Common/FilterableListComponent.vue';
-import FilterableListComponent from  '../../Common/FilterableListComponent.vue';
-import PagingComponent from '../../Common/Basic/PagingComponent.vue';
-import EditorComponent from  '../../Common/EditorComponent.vue';
+import IdUtils from '@util/IdUtils';
+import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import MessagesService from '@services/MessagesService';
+import ModuleOptions from '@models/Common/ModuleOptions';
+import ModuleConfig from '@models/Common/ModuleConfig';
+import { DataWithTotalCount, MessageItem, MessagesInboxMetadata } from '@models/modules/Messages/MessagesModels';
+import { FilterableListItem } from '@components/Common/FilterableListComponent.vue.models';
+import FilterableListComponent from '@components/Common/FilterableListComponent.vue';
+import PagingComponent from '@components/Common/Basic/PagingComponent.vue';
+import EditorComponent from '@components/Common/EditorComponent.vue';
 
-export interface ModuleFrontendOptions {
-}
-
-@Component({
+import { ModuleFrontendOptions } from '@components/modules/EndpointControl/EndpointControlPageComponent.vue.models';
+import { StoreUtil } from "@util/StoreUtil";
+import StringUtils from "@util/StringUtils";
+import UrlUtils from "@util/UrlUtils";
+import { ModuleSpecificConfig } from "@components/HealthCheckPageComponent.vue.models";
+@Options({
     components: {
         BlockComponent,
         PagingComponent,
@@ -254,7 +220,7 @@ export interface ModuleFrontendOptions {
         EditorComponent
     }
 })
-export default class EndpointControlPageComponent extends Vue {
+export default class MessagesPageComponent extends Vue {
     @Prop({ required: true })
     config!: ModuleConfig;
     
@@ -286,7 +252,7 @@ export default class EndpointControlPageComponent extends Vue {
     ////////////////
     mounted(): void
     {
-        this.$store.commit('showMenuButton', true);
+        StoreUtil.store.commit('showMenuButton', true);
         this.loadInboxes();
     }
 
@@ -294,7 +260,7 @@ export default class EndpointControlPageComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
     get HasAccessToDeleteMessages(): boolean {
         return this.options.AccessOptions.indexOf("DeleteMessages") != -1;
@@ -322,6 +288,14 @@ export default class EndpointControlPageComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
+    // public moduleSpecificConfig(): ModuleSpecificConfig {
+    //     return {
+    //         contentStyle: (s) => {
+    //             // s['padding-left'] = '10px'
+    //         }
+    //     };
+    // }
+    
     updateUrl(): void {
         let routeParams: any = {};
 
@@ -341,7 +315,8 @@ export default class EndpointControlPageComponent extends Vue {
     }
 
     updateSelectionFromUrl(): void {
-        const idFromHash = this.$route.params.id;
+        const idFromHash = StringUtils.stringOrFirstOfArray(this.$route.params.id) || null;
+        
         if (idFromHash) {
             let inboxId: string | null = null;
             let messageId: string | null = null;
@@ -452,7 +427,7 @@ export default class EndpointControlPageComponent extends Vue {
 
     getMessageIconColor(message: MessageItem): string {
         return (message != null && message.HasError)
-            ? 'red'
+            ? '--color--error-lighten1'
             : '';
     }
 
@@ -538,9 +513,19 @@ export default class EndpointControlPageComponent extends Vue {
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
-    onMenuItemClicked(item: any): void {
+    onMenuItemClicked(item: FilterableListItem): void {
         const inboxId = item.data.id;
         this.setSelectedInbox(inboxId);
+    }
+
+    onMenuItemMiddleClicked(item: FilterableListItem): void {
+        const inboxId = item?.data?.id;
+        if (inboxId)
+        {
+            const idPart = UrlUtils.EncodeHashPart(inboxId);
+            const route = `#/messages/${idPart}`;
+            UrlUtils.openRouteInNewTab(route);
+        }
     }
 
     @Watch("messagesPageIndex")
@@ -557,22 +542,6 @@ export default class EndpointControlPageComponent extends Vue {
             this.refreshEditorSize();
         }, 100);
     }
-
-    ////////////////////
-    //  Parent Menu  //
-    //////////////////
-    drawerState: boolean = this.storeMenuState;
-    get storeMenuState(): boolean {
-        return this.$store.state.ui.menuExpanded;
-    }
-    @Watch("storeMenuState")
-    onStoreMenuStateChanged(): void {
-        this.drawerState = this.storeMenuState;
-    }
-    @Watch("drawerState")
-    onDrawerStateChanged(): void {
-        this.$store.commit('setMenuExpanded', this.drawerState);
-    }
 }
 </script>
 
@@ -588,8 +557,8 @@ export default class EndpointControlPageComponent extends Vue {
         
         &__icon {
             position: absolute;
-            left: -26px;
-            top: 3px;
+            left: -20px;
+            top: 4px;
         }
 
         &__detail {
@@ -639,7 +608,7 @@ export default class EndpointControlPageComponent extends Vue {
         height: 300px;
     }
     &__error-note {
-        color: var(--v-error-darken3);
+        color: var(--color--error-darken2);
         font-weight: 600;
     }
 }
@@ -659,43 +628,5 @@ export default class EndpointControlPageComponent extends Vue {
     .desktop-only {
         display: none;
     }
-}
-.leftside-menu {
-    background-color: hsla(0, 0%, 16%, 1) !important;
-}
-.v-list__group__header--active .v-list__group__header__prepend-icon .v-icon {
-    color: #fff;
-}
-.leftside-menu-item.active a {
-    background: hsla(0,0%,100%,.08);
-}
-.leftside-menu .v-list__tile--link:hover {
-    background: hsla(0,0%,100%,.08);
-}
-.leftside-menu-item.active .v-list__tile {
-    border-left: 4px solid #d1495b;
-    padding-left: 42px !important;
-}
-.v-list__group::before, .v-list__group::after {
-    display: none;
-}
-.v-list__tile {
-    height: 42px;
-}
-.v-list__group.v-list__group--active {
-    margin-bottom: 15px;
-}
-.leftside-menu .v-list__group__header .v-list__tile__title {
-    font-weight: 600;
-}
-.v-list__group {
-    margin-bottom: 10px;
-}
-.menu .v-list__group__header__prepend-icon {
-    padding-left: 14px !important;
-    min-width: inherit !important;
-}
-.menu-items .v-list__tile--link {
-    padding-left: 46px !important;
 }
 </style>

@@ -2,6 +2,7 @@
 using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Dev.Common;
 using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -17,6 +18,16 @@ namespace HealthCheck.DevTest.NetCore_6._0._TestImplementation
     )]
     public class FileTests
     {
+        [RuntimeTest]
+        public TestResult TestDownloadResult()
+            => TestResult.CreateSuccess($"Hopefully success?")
+                //.SetCleanMode()
+                .AddFileDownload("Test1", "Some file.txt", "Description of the file here. Also with type.", type: "url")
+                .AddFileDownload("Test2", "Some file.pdf")
+                .AddFileDownload("ascii", "Ascii file.txt")
+                .AddFileDownload("404", "missing.txt", "This one should give a 404.", title: "Even a title here")
+                .AddFileDownload(Guid.NewGuid().ToString(), "random_guid.txt");
+
         [RuntimeTest]
         public TestResult TestFileParameterType(IFormFile? file = null, List<IFormFile>? files = null)
         {

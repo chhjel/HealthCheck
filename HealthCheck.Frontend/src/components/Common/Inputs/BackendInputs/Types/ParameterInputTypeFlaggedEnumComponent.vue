@@ -2,7 +2,7 @@
 <template>
     <div>
         <parameter-input-type-enum-component
-            v-model="localValue"
+            v-model:value="localValue"
             :config="config"
             :readonly="readonly"
             :multiple="true" />
@@ -10,11 +10,12 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
-import ParameterInputTypeEnumComponent from './ParameterInputTypeEnumComponent.vue';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { HCBackendInputConfig } from '@generated/Models/Core/HCBackendInputConfig';
+import ParameterInputTypeEnumComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeEnumComponent.vue';
 
-@Component({
+@Options({
     components: {
         ParameterInputTypeEnumComponent
     }
@@ -31,7 +32,7 @@ export default class ParameterInputTypeFlaggedEnumComponent extends Vue {
 
     localValue: any = "";
 
-    mounted(): void {
+    created(): void {
         this.localValue = this.value;
     }
     
@@ -44,7 +45,7 @@ export default class ParameterInputTypeFlaggedEnumComponent extends Vue {
     @Watch('localValue')
     onLocalValueChanged(): void
     {
-        this.$emit('input', this.localValue);
+        this.$emit('update:value', this.localValue);
     }
 }
 </script>

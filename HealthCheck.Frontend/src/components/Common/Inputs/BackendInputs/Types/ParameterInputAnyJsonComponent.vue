@@ -1,60 +1,38 @@
 <!-- src/components/modules/TestSuite/paremeter_inputs/input_types/ParameterInputAnyJsonComponent.vue -->
 <template>
     <div>
-        <v-btn @click="showDialog" :disabled="readonly">{{ buttonText }}</v-btn>
+        <btn-component @click="showDialog" :disabled="readonly">{{ buttonText }}</btn-component>
         
-        <v-dialog v-model="editorDialogVisible"
-            @keydown.esc="editorDialogVisible = false"
-            scrollable
-            fullscreen
-            content-class="edit-json-value-dialog">
-            <v-card style="background-color: #f4f4f4">
-                <v-toolbar class="elevation-0">
-                    <v-toolbar-title>Edit value of parameter '{{ name }}' of type '{{ type}}'</v-toolbar-title>
-                    <v-spacer></v-spacer>
-                    <v-btn icon
-                        @click="editorDialogVisible = false">
-                        <v-icon>close</v-icon>
-                    </v-btn>
-                </v-toolbar>
+        <dialog-component v-model:value="editorDialogVisible" fullscreen dark>
+            <template #header>Edit value of parameter '{{ name }}' of type '{{ type}}'</template>
+            <template #footer>
+                <btn-component color="error" @click="setValueToNull">Set value to null</btn-component>
+                <btn-component color="secondary" v-if="hasTemplate" @click="setValueToTemplate">Reset value</btn-component>
+                <alert-component :value="error.length > 0" color="error">{{ error }}</alert-component>
+                <btn-component color="primary" @click="editorDialogVisible = false">Close</btn-component>
+            </template>
 
-                <v-divider></v-divider>
-                
-                <v-card-text>
-            
-                    <editor-component
-                        class="editor"
-                        :language="'json'"
-                        v-model="localValue"
-                        :read-only="readonly"
-                        ref="editor"/>
-                        
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions >
-                    <v-btn color="error"
-                        @click="setValueToNull">Set value to null</v-btn>
-                    <v-btn color="secondary"
-                        v-if="hasTemplate"
-                        @click="setValueToTemplate">Reset value</v-btn>
-                    <v-spacer></v-spacer>
-                    <v-alert :value="error.length > 0" color="error">{{ error }}</v-alert>
-                    <v-spacer></v-spacer>
-                    <v-btn color="primary"
-                        @click="editorDialogVisible = false">Close</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+            <div>
+                <editor-component
+                    class="editor"
+                    :language="'json'"
+                    v-model:value="localValue"
+                    :read-only="readonly"
+                    ref="editor"/>
+            </div>
+        </dialog-component>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import TestParameterTemplateViewModel from "../../../../../models/modules/TestSuite/TestParameterTemplateViewModel";
-import EditorComponent from  '../../../../Common/EditorComponent.vue';
-import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { TestParameterTemplateViewModel } from '@generated/Models/Core/TestParameterTemplateViewModel';
+import EditorComponent from '@components/Common/EditorComponent.vue';
+import { HCBackendInputConfig } from '@generated/Models/Core/HCBackendInputConfig';
+import { StoreUtil } from "@util/StoreUtil";
 
-@Component({
+@Options({
     components: {
         EditorComponent
     }
@@ -82,7 +60,8 @@ export default class ParameterInputAnyJsonComponent extends Vue {
 
     editorDialogVisible: boolean = false;
     
-    mounted(): void {
+    created(): void {
+        this.updateLocalValue();
         if (this.localValue == null) {
             this.localValue = '';
         }
@@ -107,7 +86,7 @@ export default class ParameterInputAnyJsonComponent extends Vue {
 
     get hasTemplate(): boolean {
         try {
-            const _ = (this.$store.state.tests.templateValues as Array<TestParameterTemplateViewModel>)
+            const _ = (StoreUtil.store.state.tests.templateValues as Array<TestParameterTemplateViewModel>)
                 .filter(x => x.Type == this.type)[0];
             return true;
         } catch(e)
@@ -117,7 +96,7 @@ export default class ParameterInputAnyJsonComponent extends Vue {
     }
     
     get templateValue(): string {
-        const templateData = (this.$store.state.tests.templateValues as Array<TestParameterTemplateViewModel>)
+        const templateData = (StoreUtil.store.state.tests.templateValues as Array<TestParameterTemplateViewModel>)
             .filter(x => x.Type == this.type)[0];
         return (templateData) ? templateData.Template : '{\n}';
     }
@@ -194,9 +173,9 @@ export default class ParameterInputAnyJsonComponent extends Vue {
     {
         // if (this.isListItem)
         // {
-        //     this.$emit('input', JSON.parse(this.localValue || ''));
+        //     this.$emit('update:value', JSON.parse(this.localValue || ''));
         // }
-        this.$emit('input', this.localValue);
+        this.$emit('update:value', this.localValue);
     }
 }
 </script>

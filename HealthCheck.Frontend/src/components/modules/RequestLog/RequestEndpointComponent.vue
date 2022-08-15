@@ -1,8 +1,8 @@
 <!-- src/components/modules/RequestLog/RequestEndpointComponent.vue -->
 <template>
     <div>
-        <h3 :data-endpoint-id="encodedEndpointId">
-            <v-icon large :color="stateColor">{{ stateIcon }}</v-icon>
+        <h3 :data-endpoint-id="encodedEndpointId" class="endpoint-name mb-1">
+            <icon-component :color="stateColor" class="mr-1">{{ stateIcon }}</icon-component>
             <span class="info-trigger" @click="showDetails = !showDetails">
                 <span v-if="!isGrouped">{{ entry.Controller }} - </span>{{ entry.Name }}
             </span>
@@ -17,8 +17,7 @@
             <span style="white-space: nowrap; cursor: pointer;" @click="onIdClicked(entry.EndpointId)"><b>Id:</b> {{ entry.EndpointId }}</span>
         </i>
 
-        <div v-if="visibleCalls.length > 0">
-            <br />
+        <div v-if="visibleCalls.length > 0" class="mt-1">
             <h4>Last {{ visibleCalls.length }} calls without errors:</h4>
             <ul>
                 <li
@@ -33,8 +32,7 @@
             </ul>
         </div>
 
-        <div v-if="visibleErrors.length > 0">
-            <br />
+        <div v-if="visibleErrors.length > 0" class="mt-1">
             <h4>Last {{ visibleErrors.length }} errors:</h4>
             <ul>
                 <li
@@ -59,18 +57,19 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import LoggedEndpointDefinitionViewModel from  '../../../models/modules/RequestLog/LoggedEndpointDefinitionViewModel';
-import LoggedEndpointRequestViewModel from  '../../../models/modules/RequestLog/LoggedEndpointRequestViewModel';
-import { EntryState } from  '../../../models/modules/RequestLog/EntryState';
-import DateUtils from  '../../../util/DateUtils';
-import LinqUtils from  '../../../util/LinqUtils';
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import LoggedEndpointDefinitionViewModel from '@models/modules/RequestLog/LoggedEndpointDefinitionViewModel';
+import LoggedEndpointRequestViewModel from '@models/modules/RequestLog/LoggedEndpointRequestViewModel';
+import { EntryState } from '@models/modules/RequestLog/EntryState';
+import DateUtils from '@util/DateUtils';
+import LinqUtils from '@util/LinqUtils';
 
-@Component({
+@Options({
     components: {
     }
 })
-export default class ActionLogEntryComponent extends Vue {
+export default class RequestEndpointComponent extends Vue {
     @Prop({ required: true })
     entry!: LoggedEndpointDefinitionViewModel;
     
@@ -121,25 +120,25 @@ export default class ActionLogEntryComponent extends Vue {
 
     get stateIcon(): string {
         if (this.state === EntryState.Success) {
-            return 'mdi-emoticon-happy-outline';
+            return 'emoji_emotions';
         }
         else if (this.state === EntryState.Error) {
-            return 'mdi-emoticon-sad-outline';
+            return 'sentiment_very_dissatisfied';
         }
         else {
-            return 'mdi-cow';
+            return 'pending';
         }
     }
 
     get stateColor(): string {
         if (this.state === EntryState.Success) {
-            return 'green darken-2';
+            return 'success';
         }
         else if (this.state === EntryState.Error) {
-            return 'red darken-2';
+            return 'error';
         }
         else {
-            return 'gray';
+            return '';
         }
     }
     
@@ -184,5 +183,9 @@ export default class ActionLogEntryComponent extends Vue {
             background-color: lightgray;
         }
     }
+}
+.endpoint-name {
+    display: flex;
+    align-items: flex-end;
 }
 </style>

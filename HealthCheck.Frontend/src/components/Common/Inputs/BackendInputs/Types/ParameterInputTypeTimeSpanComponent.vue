@@ -1,47 +1,36 @@
 <!-- src/components/modules/TestSuite/paremeter_inputs/input_types/ParameterInputTypeTimeSpanComponent.vue -->
 <template>
-    <div>
-        <v-layout>
-            <v-flex :xs10="!config.NotNull" :xs12="config.NotNull">
-                <timespan-input-component
-                    class="pt-0"
-                    v-model="localValue"
-                    :disabled="readonly"
-                    :minimal="true"
-                    :allowClear="false"
-                    :fill="true"
-                    :maxHour="null"
-                    />
-            </v-flex>
+    <div class="flex">
+        <timespan-input-component
+            class="pt-0 spacer"
+            v-model:value="localValue"
+            :disabled="readonly"
+            :minimal="true"
+            :allowClear="false"
+            :fill="true"
+            :maxHour="null"
+            />
 
-            <v-flex xs2
-                :xs3="isListItem"
-                class="text-sm-right"
-                v-if="!config.NotNull">
-                <v-tooltip bottom>
-                    <template v-slot:activator="{ on }">
-                        <span v-on="on">
-                            <v-btn flat icon color="primary" class="ma-0 pa-0"
-                                @click="setValueToNull"
-                                :disabled="localValue == null || readonly">
-                                <v-icon>clear</v-icon>
-                            </v-btn>
-                        </span>
-                    </template>
-                    <span>{{ clearTooltip }}</span>
-                </v-tooltip>
-            </v-flex>
-
-        </v-layout>
+        <div v-if="!config.NotNull">
+            <tooltip-component :tooltip="clearTooltip">
+                <btn-component flat icon color="primary" class="ma-0 pa-0"
+                    @click="setValueToNull"
+                    :disabled="localValue == null || readonly">
+                    <icon-component>clear</icon-component>
+                </btn-component>
+            </tooltip-component>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
-import TimespanInputComponent from '../../../Basic/TimespanInputComponent.vue'
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { HCBackendInputConfig } from '@generated/Models/Core/HCBackendInputConfig';
+import TimespanInputComponent from '@components/Common/Basic/TimespanInputComponent.vue'
+import { HCUIHint } from "@generated/Enums/Core/HCUIHint";
 
-@Component({
+@Options({
     components: {
         TimespanInputComponent
     }
@@ -61,7 +50,7 @@ export default class ParameterInputTypeTimeSpanComponent extends Vue {
 
     localValue: string | null = '';
     
-    mounted(): void {
+    created(): void {
         this.updateLocalValue();
     }
     
@@ -99,11 +88,11 @@ export default class ParameterInputTypeTimeSpanComponent extends Vue {
     onLocalValueChanged(): void
     {
         this.validateValue();
-        this.$emit('input', this.localValue);
+        this.$emit('update:value', this.localValue);
     }
 
     validateValue(): void {
-        if (this.localValue == null && this.config.NotNull) {
+        if (this.localValue == null && this.config.UIHints.includes(HCUIHint.NotNull)) {
             this.localValue = "0:0:0";
         }
         if (this.localValue != null && !this.localValue.includes(':'))

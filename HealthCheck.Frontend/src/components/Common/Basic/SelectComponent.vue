@@ -1,155 +1,567 @@
 <!-- src/components/Common/Basic/SelectComponent.vue -->
 <template>
-    <div class="select-component">
-        <div class="select-component--header" v-if="showHeader">
-            <div class="select-component--header-name">{{ name }}</div>
-            <v-icon small v-if="hasDescription"
-                color="gray" class="select-component--help-icon"
-                @click="toggleDescription">help</v-icon>
-        </div>
-
-        <div v-show="showDescription" class="select-component--description" v-html="description"></div>
+    <div class="select-component" :class="rootClasses">
+        <input-header-component :name="label" :description="description" :showDescriptionOnStart="showDescriptionOnStart" :ensureHeight="isEnsureLabelHeight" />
         
-        <v-select
-            v-model="currentValue"
-            :items="items"
-            :disabled="disabled"
-            :loading="loading"
-            @input="onInput($event)"
-            item-text="text"
-            item-value="value"
-            color="secondary">
-        </v-select>
+        <div class="input-wrapper" ref="wrapperElement">
+            <div class="select-component__input input input-padding-2"
+                @click="onInputClicked"
+                ref="inputElement"
+                tabindex="0"
+                @keypress="onSelectKeyPress">
+                <div v-for="(item, iIndex) in selectedItems"
+                    :key="`${id}-item-${iIndex}`"
+                    class="select-component__input-chip">
+                    <span class="select-component__input-chip-value">{{ item.text }}</span>
+                    <div class="select-component__input-chip-remove accent clickable hoverable" tabindex="0"
+                        @click.stop.prevent="removeValue(item.value)"
+                        v-if="showItemRemoveButton">
+                        <icon-component>clear</icon-component>
+                    </div>
+                </div>
+                <div v-if="showInput" class="select-component__textInput-wrapper">
+                    <input type="text" class="select-component__textInput input" :disabled="!allowModify"
+                        v-model="filter"
+                        :placeholder="placeholderText"
+                        @keyup.enter="onFilterEnter"
+                        @keydown="onFilterKeyDown"
+                        @keydown.esc="hideDropdown"
+                        @blur="onFilterBlur"
+                        @focus="onFilterFocus"
+                        @input="onFilterInput"
+                        ref="filterInputElement" />
+                    <icon-component v-if="isClearable" class="input-icon" :class="clearableIconClasses"
+                        title="Clear"
+                        @click.stop.prevent="clear">clear</icon-component>
+                </div>
+                <span class="select-component__placeholder input-placeholder"
+                    v-if="placeholderText && !showInput">{{ placeholderText }}</span>
+            </div>
+        </div>
+        <TeleportFix to="body">
+            <div class="select-component__dropdown box-shadow" v-show="showDropdown" ref="dropdownElement">
+                <div class="select-component__dropdown__items">
+                    <div v-for="(item, iIndex) in filteredOptionItems"
+                        :key="`${id}-item-${iIndex}`"
+                        class="select-component__dropdown__item" tabindex="0"
+                        @click.stop.prevent="onDropdownItemClicked(item)"
+                        @keyup.enter="onDropdownItemClicked(item)"
+                        @keydown.esc="hideDropdown"
+                        :class="dropdownItemClasses(item)">
+                        <icon-component v-if="isMultiple && valueIsSelected(item.value)" class="mr-1">check_box</icon-component>
+                        <icon-component v-if="isMultiple && !valueIsSelected(item.value)" class="mr-1">check_box_outline_blank</icon-component>
+                        {{ item.text }}
+                    </div>
+                </div>                
+                <div v-if="noDataText && filteredOptionItems.length == 0" class="select-component__statusText">{{ noDataText }}</div>
+            </div>
+        </TeleportFix>
 
-        <div class="select-component--error" v-if="error != null && error.length > 0">{{ error }}</div>
+        <progress-linear-component v-if="isLoading" indeterminate height="3" />
+
+        <div class="select-component__error input-error" v-if="error != null && error.length > 0">{{ error }}</div>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import { Vue, Prop, Watch, Ref } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { Teleport as teleport_, TeleportProps, VNodeProps } from 'vue';
+import IdUtils from "@util/IdUtils";
+import InputHeaderComponent from "./InputHeaderComponent.vue";
+import ValueUtils from "@util/ValueUtils";
+import ElementUtils from "@util/ElementUtils";
+import EventBus, { CallbackUnregisterShortcut } from "@util/EventBus";
 
-@Component({
-    components: {}
+interface Item {
+    value: string;
+    text: string;
+}
+
+const TeleportFix = teleport_ as {
+  new (): {
+    $props: VNodeProps & TeleportProps
+  }
+}
+@Options({
+    components: { InputHeaderComponent, TeleportFix }
 })
 export default class SelectComponent extends Vue
 {
-    @Prop({ required: true })
-    value!: string;
+    @Prop({ required: false })
+    value!: string | Array<string>;
     
     @Prop({ required: false, default: '' })
-    name!: string;
+    label!: string;
+    
+    @Prop({ required: false, default: '' })
+    description!: string;
+    
+    @Prop({ required: false, default: false })
+    showDescriptionOnStart!: boolean;
 
     @Prop({ required: true })
     items!: any;
     
-    @Prop({ required: false, default: '' })
-    description!: string;
+    @Prop({ required: false, default: '- Nothing selected -' })
+    placeholder!: string;
+    
+    @Prop({ required: false, default: '- No matches -' })
+    noDataText!: string;
+    
+    @Prop({ required: false, default: 'value' })
+    itemValue!: string;
+    
+    @Prop({ required: false, default: 'text' })
+    itemText!: string;
     
     @Prop({ required: false, default: null})
     error!: string | null;
     
     @Prop({ required: false, default: false })
-    disabled!: boolean;
+    ensureLabelHeight!: string | boolean;
     
     @Prop({ required: false, default: false })
-    showDescriptionOnStart!: boolean;
-    
-    @Prop({ required: false, default: false })
-    loading!: boolean;
+    disabled!: string | boolean;
 
-    showDescription: boolean = false;
-    currentValue: string = '';
+    @Prop({ required: false, default: false })
+    readonly!: boolean;
+    
+    @Prop({ required: false, default: false })
+    multiple!: string | boolean;
+    
+    @Prop({ required: false, default: false })
+    nullable!: string | boolean;
+    
+    @Prop({ required: false, default: false })
+    clearable!: string | boolean;
+    
+    @Prop({ required: false, default: false })
+    allowInput!: string | boolean;
+    
+    @Prop({ required: false, default: false })
+    allowCustom!: string | boolean;
+
+    @Prop({ required: false, default: false })
+    loading!: string | boolean;
+    
+    @Ref() readonly inputElement!: HTMLElement;
+    @Ref() readonly dropdownElement!: HTMLElement;
+    @Ref() readonly wrapperElement!: HTMLElement;
+    @Ref() readonly filterInputElement!: HTMLInputElement;
+
+    id: string = IdUtils.generateId();
+    selectedValues: Array<string> = [];
+    showDropdown: boolean = false;
+    filter: string = '';
+    
+    callbacks: Array<CallbackUnregisterShortcut> = [];
 
     //////////////////
     //  LIFECYCLE  //
     ////////////////
     created(): void {
-        this.currentValue = this.value;
-        this.showDescription = this.hasDescription && this.showDescriptionOnStart;
+        this.onValueChanged();
     }
 
     mounted(): void {
+        this.callbacks = [
+            EventBus.on("onModuleSwitched", this.onModuleSwitched.bind(this)),
+            EventBus.on("onWindowClick", this.onWindowClick.bind(this)),
+            EventBus.on("onWindowScroll", this.onWindowScroll.bind(this)),
+            EventBus.on("onWindowResize", this.onWindowResize.bind(this)),
+        ];
+    }
+
+    beforeUnmount(): void {
+      this.hideDropdown();
+      this.callbacks.forEach(x => x.unregister());
     }
 
     ////////////////
     //  GETTERS  //
     //////////////
-    get showHeader(): boolean {
-        return this.name != null && this.name.length > 0;
+    get selectedItems(): Array<Item> {
+        if (this.useInputOnly) return [];
+        return this.optionItems.filter(x => this.selectedValues.includes(x.value));
     }
 
-    get hasDescription(): boolean {
-        return this.description != null && this.description.length > 0;
+    get filteredOptionItems(): Array<Item> {
+        return this.optionItems.filter(x => x.text?.toLowerCase()?.includes(this.filter?.toLowerCase()));
     }
 
+    get optionItems(): Array<Item> {
+        let baseItems: Array<Item> = [];
+        if (Array.isArray(this.items) && this.items.length > 0)
+        {
+            const firstValue = this.items[0];
+            const isSimpleValue = typeof firstValue === 'string' || firstValue instanceof String;
+            baseItems = this.items.map(x => {
+                if (isSimpleValue)
+                {
+                    return {
+                        value: x,
+                        text: x
+                    };
+                }
+                else
+                {
+                    return {
+                        value: x[this.itemValue],
+                        text: x[this.itemText]
+                    };
+                }
+            });
+        }
+        else if (!Array.isArray(this.items))
+        {
+            baseItems = Object.keys(this.items).map(key => {
+                return {
+                    value: key,
+                    text: this.items[key]
+                };
+            });
+        }
+
+        this.selectedValues.forEach(x => {
+            if (!baseItems.some(b => b.value == x))
+            {
+                baseItems.push({
+                    text: x,
+                    value: x
+                });
+            }
+        });
+
+        return baseItems;
+    }
+
+    get placeholderText(): string  {
+        return (this.selectedItems.length == 0 && this.placeholder) ? this.placeholder : '';
+    }
+
+    get rootClasses(): any {
+        return {
+             'disabled': this.isDisabled,
+             'loading': this.isLoading,
+             'multiple': this.isMultiple,
+             'clickable': this.allowModify
+        };
+    }
+
+    get showItemRemoveButton(): boolean {
+        if (!this.allowModify) return false;
+        return this.isNullable || this.isMultiple;
+    }
+
+    get allowModify(): boolean {
+        return !this.isDisabled && !this.isLoading;
+    }
+
+    get showInput(): boolean {
+        return this.isAllowInput || this.isAllowCustom;
+    }
+
+    get useInputOnly(): boolean {
+        return this.showInput && (!this.items || (Array.isArray(this.items) && this.items.length == 0));
+    }
+    
+    get clearableIconClasses(): any {
+        return {
+            'clickable': !this.isDisabled
+        };
+    }
+
+    get allowNullValue(): boolean { return this.optionItems.some(x => x.value == null); }
+    get allowEmptyValue(): boolean { return this.optionItems.some(x => x.value === ''); }
+
+    get isEnsureLabelHeight(): boolean { return ValueUtils.IsToggleTrue(this.ensureLabelHeight); }
+    get isLoading(): boolean { return ValueUtils.IsToggleTrue(this.loading); }
+    get isDisabled(): boolean { return ValueUtils.IsToggleTrue(this.disabled) || ValueUtils.IsToggleTrue(this.readonly); }
+    get isReadonly(): boolean { return ValueUtils.IsToggleTrue(this.readonly) || ValueUtils.IsToggleTrue(this.disabled); }
+    get isMultiple(): boolean { return ValueUtils.IsToggleTrue(this.multiple); }
+    get isNullable(): boolean { return ValueUtils.IsToggleTrue(this.nullable) || ValueUtils.IsToggleTrue(this.clearable); }
+    get isClearable(): boolean { return ValueUtils.IsToggleTrue(this.clearable) || ValueUtils.IsToggleTrue(this.nullable); }
+    get isAllowInput(): boolean { return ValueUtils.IsToggleTrue(this.allowInput); }
+    get isAllowCustom(): boolean { return ValueUtils.IsToggleTrue(this.allowCustom); }
+    
     ////////////////
     //  METHODS  //
     //////////////
-    toggleDescription(): void {
-        this.showDescription = !this.showDescription;
+    clear(): void {
+        if (this.isReadonly || this.isDisabled || !this.selectedValues || this.selectedValues.length == 0) return;
+        this.selectedValues = [];
+        this.filter = '';
+        this.$emit('click:clear');
+        this.emitValue();
+    }
+
+    addValue(val: string): void {
+        if (!this.isMultiple) this.selectedValues = [];
+        if (!this.selectedValues.includes(val))
+        {
+            this.selectedValues.push(val);
+            this.emitValue();
+        }
+        if (!this.isMultiple) this.showDropdown = false;
+    }
+    
+    removeValue(val: string): void {
+        this.selectedValues = this.selectedValues.filter(x => x != val);
+        this.emitValue();
+    }
+
+    emitValue(): void {
+        let emittedValue: string | string[];
+        if (this.isMultiple) {
+            emittedValue = this.selectedValues;
+        }
+        else {
+            if (this.selectedValues.length == 0 && this.isNullable) emittedValue = null;
+            else if (this.allowNullValue) emittedValue = this.selectedValues[0];
+            else if (this.selectedValues[0] as any === 0) emittedValue = this.selectedValues[0];
+            else emittedValue = this.selectedValues[0] || '';
+        }
+        this.$emit('update:value', emittedValue);
+        this.$emit('change', emittedValue);
+        this.$emit('blur', emittedValue);
+    }
+
+    valueIsSelected(val: string): boolean { return this.selectedValues.includes(val); }
+
+    dropdownItemClasses(item: Item): any {
+        let classes: any = {};
+        if (!this.isMultiple && this.valueIsSelected(item.value)) {
+            classes['selected'] = true;
+        }
+        return classes;
+    }
+
+    tryAddCustomValue(): void {
+        if (!this.isAllowCustom) return;
+        else if (this.filter.trim().length == 0) return;
+        
+        const val = this.filter.trim();
+        if (this.selectedValues.includes(val)) return;
+        this.addValue(val);
+        
+        if (!this.useInputOnly) this.filter = '';
+    }
+
+    isAllowedToShowDropdown(): boolean {
+        if (this.useInputOnly) return false;
+        return !this.isDisabled && !this.isLoading;
+    }
+
+    tryShowDropdown(): void {
+        if (this.isAllowedToShowDropdown()) this.setDropdownVisible();
+    }
+
+    tryToggleDropdown(): void {
+        if (!this.isAllowedToShowDropdown())
+        {
+            this.showDropdown = false;
+            return;
+        }
+        if (this.showDropdown) this.showDropdown = false;
+        else this.setDropdownVisible();
+    }
+
+    hideDropdown(): void {
+        this.showDropdown = false;
+    }
+
+    setDropdownVisible(): void {
+        this.showDropdown = true;
+        this.$nextTick(() => this.setDropdownPosition());
+    }
+
+    setDropdownPosition(): void {
+        if (!this.showDropdown) return;
+        
+        const pos = ElementUtils.calcDropdownPosition(this.wrapperElement, this.dropdownElement);
+        this.dropdownElement.style.top = pos.top;
+        this.dropdownElement.style.left = pos.left;
     }
 
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
-    @Watch('value')
-    onValueChanged(): void {
-        this.currentValue = this.value;
+    onInputClicked(): void {
+        // this.tryToggleDropdown();
+        this.tryShowDropdown();
     }
 
-    onInput(newValue: string): void {
-        this.$emit('input', newValue);
-        this.$emit('change', newValue);
+    onDropdownItemClicked(item: Item): void {
+        if (!this.allowModify) return;
+        if (!this.valueIsSelected(item.value)) {
+            this.addValue(item.value);
+        } else if (this.isNullable || this.isMultiple || this.selectedValues.length > 1) {
+            this.removeValue(item.value);
+        }
+    }
+
+    onSelectKeyPress(e: KeyboardEvent): void {
+        // todo: allows opening dropdown while others are open as well
+        // if (e.code == 'Space' && e.currentTarget == e.target) {
+        //     e.preventDefault();
+        //     this.tryToggleDropdown();
+        // }
+    }
+
+    onFilterEnter(): void {
+        this.tryAddCustomValue();
+    }
+    onFilterBlur(): void {
+        this.tryAddCustomValue();
+    }
+    onFilterFocus(): void {
+        this.tryShowDropdown();
+    }
+    onFilterKeyDown(e: KeyboardEvent): void {
+        if (!this.isAllowInput) return;
+        if (e.key == 'Backspace'
+            && this.selectedItems && this.selectedItems.length > 0
+            && this.filter.length == 0) {
+            this.removeValue(this.selectedItems[this.selectedItems.length-1].value);
+        }
+    }
+    onFilterInput(): void {
+        this.setDropdownPosition();
+    }
+
+    @Watch('value')
+    onValueChanged(): void {
+        if (Array.isArray(this.value))
+        {
+            this.selectedValues = this.value;
+        }
+        else {
+            // Value is empty, ignore if not allowed
+            if (this.value === '' && !this.allowEmptyValue) {
+                this.selectedValues = [];
+            }
+            // Value is not null, set as selected
+            else if (this.value != null) {
+                this.selectedValues = [ this.value ];
+            // Value is null, set as value if a possible choice
+            } else {
+                this.selectedValues = this.allowNullValue ? [ this.value ] : [];
+            }
+        }
+
+        if (this.useInputOnly) {
+            if (Array.isArray(this.value) && this.value.length > 0 && this.value[0]) {
+                this.filter = this.value[0];
+            }
+            else if (!Array.isArray(this.value) && this.value) {
+                this.filter = this.value;
+            }
+        }
+    }
+    
+    // Hack until vue fixes teleported kids being orphaned
+    onModuleSwitched(): void {
+        this.hideDropdown();
+    }
+
+    onWindowClick(e: MouseEvent): void {
+        this.$nextTick(() => {
+            if (this.dropdownElement == null || this.inputElement == null || !(e.target instanceof Element)) return;
+            if (this.dropdownElement.contains(e.target) || this.inputElement.contains(e.target)) return;
+            this.showDropdown = false;
+        });
+    }
+
+    onWindowScroll(e: Event): void {
+        this.setDropdownPosition();
+        if (!ElementUtils.isScrolledIntoView(this.wrapperElement)) {
+            this.hideDropdown();
+        }
+    }
+    onWindowResize(e: UIEvent): void { this.setDropdownPosition(); }
+
+    @Watch('isLoading')
+    onIsLoadingChanged(): void {
+        if (this.isLoading) this.showDropdown = false;
     }
 }
 </script>
 
 <style scoped lang="scss">
 .select-component {
-    .select-component--header {
-        text-align: left;
+    position: relative;
+    &__input {
+        display: flex;
+        flex-wrap: wrap;
+        padding-top: 3px;
+    }
+    &__input-chip {
+        display: flex;
+        align-items: center;
+        padding-left: 5px;
+        margin-right: 5px;
+        background-color: var(--color--accent-base);
+        border-radius: 2px;
+        margin-bottom: 2px;
+        white-space: nowrap;
+    }
+    &__input-chip-value {
+        padding-right: 5px;
+        min-height: 28px;
+        display: flex;
+        align-items: center;
+    }
+    &__input-chip-remove {
+        height: 100%;
+        padding-right: 3px;
+        border-left: 1px solid var(--color--accent-darken2);
+        display: flex;
+        align-items: center;
+    }
+    &__dropdown {
+        position: absolute;
+        z-index: 99999;
+        background-color: var(--color--accent-lighten1);
+        /* padding: 5px 10px; */
+        border: 1px solid var(--color--accent-base);
+        max-height: calc(min(40vh, 400px));
+        max-width: 800px;
+        overflow-y: auto;
+    }
+    /* &__dropdown__items {
+    } */
+    &__dropdown__item {
+        padding: 5px 10px;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        @media (max-width: 600px) {
+            padding: 10px;
+        }
 
-        .select-component--header-name {
-            display: inline-block;
-            font-size: 16px;
-            color: var(--v-secondary-base);
+        &.selected {
             font-weight: 600;
         }
-
-        .select-component--help-icon {
-            user-select: none;
-            font-size: 20px !important;
-            &:hover {
-                color: #1976d2;
-            }
+        &:hover {
+            background-color: #f6f6f6;
         }
     }
-
-    .select-component--description {
-        text-align: left;
-        padding: 10px;
-        border-radius: 10px;
-        background-color: #ebf1fb;
+    &__statusText {
+        padding: 5px 10px;
     }
-}
-</style>
-
-<style lang="scss">
-.select-component {
-    input {
-        font-size: 18px;
-        color: #000 !important;
+    &__textInput-wrapper {
+        flex: 1;
+        display: flex;
     }
-
-    .v-input {
-        padding-top: 0;
+    &__textInput {
+        width: 100%;
+        padding: 5px 0 !important;
+        min-height: 28px;
+        border: none !important;
     }
-
-    .select-component--error {
-        margin-top: -21px;
-        margin-left: 2px;
-        font-weight: 600;
-        color: var(--v-error-base) !important;
-    }
+    /* &__placeholder { } */
+    /* &__error { } */
 }
 </style>

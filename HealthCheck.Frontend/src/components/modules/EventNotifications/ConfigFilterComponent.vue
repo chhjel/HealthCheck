@@ -1,93 +1,69 @@
 <!-- src/components/modules/EventNotifications/ConfigFilterComponent.vue -->
 <template>
-    <div class="root">
+    <div class="config-filter-component">
         <div class="field-list horizontal-layout">
-            
-            <div class="horizontal-layout">
-                <v-tooltip bottom>
-                    <template v-slot:activator="{ on }">
-                        <v-btn v-on="on"
-                            dark icon small
-                            :color="!isMatchingOnStringified ? `primary` : 'secondary'"
-                            :class="{ 'lighten-5': isMatchingOnStringified }"
-                            @click="isMatchingOnStringified = !isMatchingOnStringified"
-                            :disabled="readonly">
-                            <v-icon>code</v-icon>
-                        </v-btn>
-                    </template>
-                    <span>
-                        Toggle between filtering on a <b>property</b> or the <b>whole stringified event payload</b> itself.
-                    </span>
-                </v-tooltip>
-                
-                <v-text-field type="text"
-                    v-if="showPropertyName"
-                    label="Property name"
-                    v-model="propertyName"
-                    v-on:change="onDataChanged"
-                    :disabled="readonly"
-                ></v-text-field>
-
-                <v-select
-                    v-model="matchType"
-                    :items="matchTypeOptions"
-                    item-text="text" item-value="value" color="secondary"
-                    v-on:change="onDataChanged"
-                    :disabled="readonly"
-                    >
-                </v-select>
-            </div>
-
-            <v-text-field type="text"
-                label="Value to search for"
-                v-model="filter"
+            <text-field-component type="text"
+                v-if="showPropertyName"
+                v-model:value="propertyName"
                 v-on:change="onDataChanged"
                 :disabled="readonly"
-            ></v-text-field>
+                class="mb-2"
+            ></text-field-component>
 
-            <div class="horizontal-layout">
-                <v-switch
-                    v-model="caseSensitive" 
-                    label="Case sensitive"
-                    color="secondary"
-                    v-on:change="onDataChanged"
-                    :disabled="readonly"
-                ></v-switch>
-                
-                <!-- <v-tooltip bottom>
-                    <template v-slot:activator="{ on }">
-                        <v-btn v-on="on"
-                            dark icon small
-                            :color="caseSensitive ? `primary` : 'secondary'"
-                            :class="{ 'lighten-5': !caseSensitive }"
-                            @click="caseSensitive = !caseSensitive; onDataChanged();"
-                            :disabled="readonly">
-                            <v-icon small>text_fields</v-icon>
-                        </v-btn>
-                    </template>
-                    <span>
-                        Toggle case-sensitive filtering.
-                    </span>
-                </v-tooltip> -->
-                
-                <v-btn v-if="allowDelete"
-                    dark small flat
-                    color="error"
-                    @click="remove()"
-                    :disabled="readonly">
-                    Remove
-                    <!-- <v-icon>delete</v-icon> -->
-                </v-btn>
-            </div>
+            <select-component
+                v-model:value="matchType"
+                :items="matchTypeOptions"
+                item-text="text" item-value="value"
+                v-on:change="onDataChanged"
+                :disabled="readonly"
+                class="spacer mb-2"
+                >
+            </select-component>
+
+            <text-field-component type="text"
+                v-model:value="filter"
+                v-on:change="onDataChanged"
+                :disabled="readonly"
+                class="mb-2"
+            ></text-field-component>
+        
+            <switch-component
+                v-model:value="caseSensitive" 
+                label="Case sensitive"
+                color="secondary"
+                v-on:change="onDataChanged"
+                :disabled="readonly"
+                class="mb-2"
+            ></switch-component>
+            
+            <btn-component v-if="allowDelete"
+                small flat
+                color="error"
+                class="filter-action-button"
+                @click="remove()"
+                :disabled="readonly">
+                Remove
+            </btn-component>
+
+            <btn-component
+                small flat
+                color="secondary"
+                class="filter-action-button"
+                @click="isMatchingOnStringified = !isMatchingOnStringified"
+                :disabled="readonly"
+                title="Toggle between filtering on a property or the whole stringified event payload itself.">
+                Toggle mode
+            </btn-component>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import { EventSinkNotificationConfigFilter, FilterMatchType } from  '../../../models/modules/EventNotifications/EventNotificationModels';
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { EventSinkNotificationConfigFilter, FilterMatchType } from "@models/modules/EventNotifications/EventNotificationModels";
 
-@Component({
+@Options({
     components: {}
 })
 export default class ConfigFilterComponent extends Vue {
@@ -129,6 +105,8 @@ export default class ConfigFilterComponent extends Vue {
         let items = [
             { text: 'Contains', value: FilterMatchType.Contains},
             { text: 'Matches', value: FilterMatchType.Matches},
+            { text: 'Starts with', value: FilterMatchType.StartsWith},
+            { text: 'Ends with', value: FilterMatchType.EndsWith},
             { text: 'Matches RegEx', value: FilterMatchType.RegEx}
         ];
 
@@ -175,7 +153,7 @@ export default class ConfigFilterComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-.root {
+.config-filter-component {
     margin-left: 20px;
     padding-left: 20px;
 
@@ -199,10 +177,25 @@ export default class ConfigFilterComponent extends Vue {
 
         div {
             margin-right: 10px;
-            
+/*             
             @media (max-width: 900px) {
                 width: 100%;
-            }
+            } */
+        }
+    }
+    .filter-action-button {
+        position: relative;
+        top: -2px;
+    }
+}
+</style>
+
+<style lang="scss">
+.config-filter-component {
+    .field-list {
+        .btn-component.icon {
+            margin-left: 0;
+            width: 36px !important;
         }
     }
 }

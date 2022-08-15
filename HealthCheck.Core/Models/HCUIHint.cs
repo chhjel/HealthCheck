@@ -36,6 +36,18 @@ namespace HealthCheck.Core.Models
         /// <summary>
         /// Make the input field a full width vscode editor.
         /// </summary>
-        CodeArea = 16
+        CodeArea = 16,
+
+        /// <summary>
+        /// If used on DateTime[] or DateTimeOffset[] types, allows for selecting a daterange.
+        /// <para>DateTime?[] or DateTimeOffset?[] allows for omitting end.</para>
+        /// <para>Index 0 = start selection, index 1 = end selection.</para>
+        /// </summary>
+        DateRange = 32,
+
+        /// <summary>
+        /// Removes the "Generate new guid" button on guid inputs.
+        /// </summary>
+        DisableRng = 64,
     }
 }

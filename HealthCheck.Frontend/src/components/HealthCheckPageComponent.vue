@@ -1,78 +1,70 @@
 <!-- src/components/HealthCheckPageComponent.vue -->
 <template>
     <div>
-        <v-app light class="approot" v-if="!showIntegratedLogin">
+        <div v-if="!showIntegratedLogin">
             <!-- TOOLBAR -->
-            <v-toolbar clipped-left fixed app class="toolbar-main">
-                <v-toolbar-side-icon
-                    @click.stop="onSideMenuToggleButtonClicked"
-                    v-if="showMenuButton"></v-toolbar-side-icon>
-                <v-toolbar-title class="apptitle">
-                    <a v-if="hasTitleLink" :href="titleLink">{{ globalOptions.ApplicationTitle }}</a>
-                    <span v-else>{{ globalOptions.ApplicationTitle }}</span>
-                </v-toolbar-title>
-                <v-spacer></v-spacer>
-                <v-toolbar-items>
-                    <v-btn flat
-                        v-for="(mconf, mindex) in this.moduleConfigsToShowInTopMenu"
-                        :key="`module-menu-${mindex}`"
-                        :href="getModuleLinkUrl(mconf)"
-                        :class="{ 'active-tab': isModuleShowing(mconf) }"
-                        @click.left.prevent="showModule(mconf)">{{ mconf.Name }}</v-btn>
-                    <v-btn flat 
-                        v-if="showTokenKillswitch"
-                        @click.left.prevent="tokenKillswitchDialogVisible = true">
-                        <v-icon class="toolbar-icon mr-1">remove_circle</v-icon>
-                        Token killswitch
-                        </v-btn>
-                    <v-btn flat 
-                        v-if="showIntegratedProfile"
-                        @click.left.prevent="integratedProfileDialogVisible = true">
-                        <v-icon class="toolbar-icon mr-1">person</v-icon>
-                        Profile
-                        </v-btn>
-                    <v-btn flat 
-                        v-if="showLogoutLink"
-                        @click.left.prevent="logoutRedirect">
-                        <v-icon>logout</v-icon>
-                        {{ logoutLinkTitle }}
-                        </v-btn>
-                </v-toolbar-items>
-            </v-toolbar>
+            <toolbar-component fixed class="box-shadow-small" :items="toolbarItems">
+                <template #prefix>
+                    <div class="toolbar-prefix">
+                        <icon-component class="clickable toolbar-icon"
+                            @click.stop="toggleNavMenu"
+                            v-if="showModuleMenuButton"
+                            title="Toggle menu">menu</icon-component>
+                        <div class="toolbar-prefix_apptitle">
+                            <a v-if="hasTitleLink" :href="titleLink">{{ globalOptions.ApplicationTitle }}</a>
+                            <span v-else>{{ globalOptions.ApplicationTitle }}</span>
+                        </div>
+                    </div>
+                </template>
+            </toolbar-component>
 
-            <!-- CONTENT -->
             <invalid-module-configs-component
                 v-if="invalidModuleConfigs.length > 0"
                 :invalid-configs="invalidModuleConfigs" />
 
-            <router-view></router-view>
+            <div class="module-root">
+                <div id="module-nav-menu" class="toolbar-offset"
+                    :class="{ 'open': isModuleNavOpen }"
+                    ref="moduleNavMenu"></div>
+                <div class="module-nav-menu__overlay"
+                    :class="{ 'has-menu': isModuleNavOpen }"
+                    @click.stop="hideNavMenu"></div>
+                
+                <div class="module-content" :class="moduleContentClasses" :style="moduleContentStyle">
+                    <router-view ref="routerView"></router-view>
+                </div>
+            </div>
 
             <no-page-available-page-component
                 v-if="noModuleAccess"
                 v-show="noModuleAccess" />
             
-            <health-check-profile-dialog-component v-if="showIntegratedProfile" v-model="integratedProfileDialogVisible" />
-            <access-token-killswitch-dialog v-if="showTokenKillswitch" v-model="tokenKillswitchDialogVisible" />
-        </v-app>
+            <health-check-profile-dialog-component v-if="showIntegratedProfile" v-model:value="integratedProfileDialogVisible" />
+            <access-token-killswitch-dialog v-if="showTokenKillswitch" v-model:value="tokenKillswitchDialogVisible" />
+        </div>
         
         <integrated-login-page-component v-if="showIntegratedLogin" />
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import NoPageAvailablePageComponent from './NoPageAvailablePageComponent.vue';
-import InvalidModuleConfigsComponent from './InvalidModuleConfigsComponent.vue';
-import IntegratedLoginPageComponent from './modules/IntegratedLogin/IntegratedLoginPageComponent.vue';
-import ModuleConfig from "../models/Common/ModuleConfig";
-import BackendInputComponent from "./Common/Inputs/BackendInputs/BackendInputComponent.vue";
-import HealthCheckProfileDialogComponent from 'components/profile/HealthCheckProfileDialogComponent.vue';
-import AccessTokenKillswitchDialog from 'components/modules/AccessTokens/AccessTokenKillswitchDialog.vue';
-import { HCFrontEndOptions } from "generated/Models/WebUI/HCFrontEndOptions";
-import { Route } from "vue-router";
-import UrlUtils from "util/UrlUtils";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import NoPageAvailablePageComponent from '@components/NoPageAvailablePageComponent.vue';
+import InvalidModuleConfigsComponent from '@components/InvalidModuleConfigsComponent.vue';
+import IntegratedLoginPageComponent from '@components/modules/IntegratedLogin/IntegratedLoginPageComponent.vue';
+import ModuleConfig from '@models/Common/ModuleConfig';
+import BackendInputComponent from '@components/Common/Inputs/BackendInputs/BackendInputComponent.vue';
+import HealthCheckProfileDialogComponent from '@components/profile/HealthCheckProfileDialogComponent.vue';
+import AccessTokenKillswitchDialog from '@components/modules/AccessTokens/AccessTokenKillswitchDialog.vue';
+import { HCFrontEndOptions } from "@generated/Models/WebUI/HCFrontEndOptions";
+import { RouteLocationNormalized } from "vue-router";
+import UrlUtils from "@util/UrlUtils";
+import EventBus, { CallbackUnregisterShortcut } from "@util/EventBus";
+import { ModuleSpecificConfig } from "./HealthCheckPageComponent.vue.models";
+import { ToolbarComponentMenuItem } from "./Common/Basic/ToolbarComponent.vue.models";
 
-@Component({
+@Options({
     components: {
         NoPageAvailablePageComponent,
         InvalidModuleConfigsComponent,
@@ -88,20 +80,49 @@ export default class HealthCheckPageComponent extends Vue {
 
     integratedProfileDialogVisible: boolean = false;
     tokenKillswitchDialogVisible: boolean = false;
+    moduleNavMenuState: boolean = true;
+    moduleNavMenu: Element | null = null;
+    hackyTimer: number = 0;
+    theme: string = 'light';
+    moduleSpecificConfig: ModuleSpecificConfig = {};
 
     //////////////////
     //  LIFECYCLE  //
     ////////////////
-    mounted(): void
+    async mounted()
     {
-        this.setInitialPage();
+        // // Don't open menu on page load for smaller devices
+        // const isSmallMenuMode = window.matchMedia('(min-width: 961px)')
+        // this.moduleNavMenuState = isSmallMenuMode.matches;
+
+        this.theme = localStorage.getItem('theme') || 'light';
+        this.onThemeChanged();
+
+        this.moduleNavMenu = (<Element>this.$refs.moduleNavMenu);
+        await this.setInitialPage();
+        this.bindEventBusEvents();
         this.bindRootEvents();
-        this.$router.afterEach((t, f) => this.onRouteChanged(t, f));
+        this.$router.afterEach((t, f, err) => this.onRouteChanged(t, f));
+        setInterval(() => this.hackyTimer++, 100);
+
+        this.onLoadOrRouteChanged();
+    }
+
+    beforeUnmount(): void {
+        this.unbindEventBusEvents();
     }
 
     ////////////////
     //  GETTERS  //
     //////////////
+    get showModuleMenuButton(): boolean {
+        return this.hackyTimer > 0 && this.moduleNavMenu != null && this.moduleNavMenu.childNodes.length > 0;
+    }
+
+    get isModuleNavOpen(): boolean {
+        return this.moduleNavMenuState && this.showModuleMenuButton;
+    }
+
     get showTokenKillswitch(): boolean {
         return this.globalOptions.AllowAccessTokenKillswitch;
     }
@@ -143,11 +164,7 @@ export default class HealthCheckPageComponent extends Vue {
     get logoutLinkUrl(): string {
         return this.globalOptions.LogoutLinkUrl;
     }
-    
-    get showMenuButton(): boolean {
-        return this.$store.state.ui.menuButtonVisible;
-    }
-    
+        
     get noModuleAccess(): boolean {
         return this.moduleConfig.length == 0;
     }
@@ -164,16 +181,122 @@ export default class HealthCheckPageComponent extends Vue {
     get titleLink(): string {
         return this.globalOptions.ApplicationTitleLink;
     }
+
+    get moduleContentClasses(): any {
+        let classes: any =  {
+            'has-menu': this.isModuleNavOpen,
+            'full-width': this.moduleSpecificConfig?.fullWidth == true,
+            'full-height': this.moduleSpecificConfig?.fullHeight == true,
+            'dark': this.moduleSpecificConfig?.dark == true
+        };
+        return classes;
+    }
+
+    get moduleContentStyle(): any {
+        let style: any =  {};
+        if (this.moduleSpecificConfig?.contentStyle) {
+            this.moduleSpecificConfig.contentStyle(style);
+        }
+        return style;
+    }
     
+    get toolbarItems(): Array<ToolbarComponentMenuItem> {
+        let items: Array<ToolbarComponentMenuItem> = [];
+
+        // Modules
+        this.moduleConfigsToShowInTopMenu.forEach(mconf => {
+            items.push({
+                label: mconf.Name,
+                active: this.isModuleShowing(mconf),
+                data: mconf,
+                onClick: () => this.showModule(mconf),
+                href: this.getModuleLinkUrl(mconf)
+            });
+        });
+
+        items.push({ isSpacer: true });
+
+        // Utils
+        if (this.showTokenKillswitch) {
+            items.push({
+                label: 'Token killswitch',
+                icon: 'remove_circle',
+                active: false,
+                data: null,
+                onClick: () => this.tokenKillswitchDialogVisible = true,
+            });
+        }
+        if (this.showIntegratedProfile) {
+            items.push({
+                label: 'Profile',
+                icon: 'person',
+                active: false,
+                data: null,
+                onClick: () => this.integratedProfileDialogVisible = true,
+            });
+        }
+        if (this.showLogoutLink) {
+            items.push({
+                label: this.logoutLinkTitle,
+                icon: 'logout',
+                active: false,
+                data: null,
+                onClick: () => this.logoutRedirect(),
+            });
+        }
+        return items;
+    }
+
     ////////////////
     //  METHODS  //
     //////////////
+    callbacks: Array<CallbackUnregisterShortcut> = [];
+    bindEventBusEvents(): void {
+        this.callbacks = [
+            EventBus.on("FilterableList.itemClicked", this.onFilterableListItemClicked.bind(this)),
+            EventBus.on("collapseMenu", this.onCollapseMenuEmitted.bind(this))
+        ];
+    }
+    unbindEventBusEvents(): void {
+      this.callbacks.forEach(x => x.unregister());
+    }
+
+    onFilterableListItemClicked(): void {
+        // Close sidemenu on item select if on mobile
+        const isSmallMenuMode = window.matchMedia('(max-width: 960px)')
+        if (isSmallMenuMode.matches && this.showModuleMenuButton) {
+            this.moduleNavMenuState = false;
+        }
+    }
+
+    onCollapseMenuEmitted(): void {
+        this.hideNavMenu();
+    }
+
     bindRootEvents(): void {
         document.addEventListener('keyup', this.onDocumentKeyDownOrDown);
         document.addEventListener('keydown', this.onDocumentKeyDownOrDown);
+        window.addEventListener('click', this.onWindowClick);
+        window.addEventListener('scroll', this.onWindowScroll, true);
+        window.addEventListener('resize', this.onWindowResize, true);
+    }
+
+    onWindowScroll(e: Event): void {
+        EventBus.notify("onWindowScroll", e);
+    }
+
+    onWindowResize(e: UIEvent): void {
+        EventBus.notify("onWindowResize", e);
+    }
+
+    onWindowClick(e: MouseEvent): void {
+        EventBus.notify("onWindowClick", e);
     }
     
     onDocumentKeyDownOrDown(e: KeyboardEvent): void {
+        if (e.key == 'Escape') {
+            EventBus.notify("onEscapeClicked", e);
+        }
         if (this.$store.state.input.ctrlIsHeldDown != e.ctrlKey)
         {
             this.$store.commit('setCtrlHeldDown', e.ctrlKey);
@@ -186,6 +309,11 @@ export default class HealthCheckPageComponent extends Vue {
         {
             this.$store.commit('setShiftHeldDown', e.shiftKey);
         }
+    }
+
+    toggleThemes(): void {
+        if (this.theme == 'light') this.theme = 'dark';
+        else this.theme = 'light';
     }
 
     getModuleOptions(moduleId: string): any
@@ -205,8 +333,10 @@ export default class HealthCheckPageComponent extends Vue {
         if (!this.$store.state.ui.allowModuleSwitch)
         {
             this.$emit("onNotAllowedModuleSwitch");
+            EventBus.notify("onNotAllowedModuleSwitch");
             return;
         }
+        EventBus.notify("onModuleSwitched");
 
         this.$store.commit('allowModuleSwitch', true);
         this.$store.commit('showMenuButton', false);
@@ -226,7 +356,14 @@ export default class HealthCheckPageComponent extends Vue {
         return this.$route.matched.some(({ name }) => name === module.Id);
     }
 
-    setInitialPage(): void
+    hideNavMenu(): void {
+        this.moduleNavMenuState = false;
+    }
+    toggleNavMenu(): void {
+        this.moduleNavMenuState = !this.moduleNavMenuState;
+    }
+
+    async setInitialPage()
     {
         // X:ToDo: set based on prioritized order if nothing active.
         let queryState = UrlUtils.GetQueryStringParameter('h');
@@ -236,6 +373,8 @@ export default class HealthCheckPageComponent extends Vue {
             this.$router.push(queryState);
         }
         
+        await this.$router.isReady();
+
         let anyRouteActive = this.$route.matched.length > 0;
         if (!anyRouteActive && this.validModuleConfigs.length > 0)
         {
@@ -254,65 +393,167 @@ export default class HealthCheckPageComponent extends Vue {
         this.$store.commit('toggleMenuExpanded');
     }
 
-    onRouteChanged(to: Route, from: Route): void {
+    onRouteChanged(to: RouteLocationNormalized, from: RouteLocationNormalized): void {
         this.$nextTick(() => {
             this.$nextTick(() => {
+                // Update querystring from hash
                 UrlUtils.updatePerstentQueryStringKey();
             })
+
+            this.onLoadOrRouteChanged();
         });
+    }
+
+    onLoadOrRouteChanged(): void {
+        // Any of the page modules may have a method with the signature: public moduleSpecificConfig(): ModuleSpecificConfig
+        const currentPageComponent = this.$route?.matched[0]?.instances?.default;
+        const moduleSpecificConfigMethod = (<any>currentPageComponent)?.moduleSpecificConfig;
+        let moduleSpecificConfig: ModuleSpecificConfig | null = null;
+        if (moduleSpecificConfigMethod) {
+            moduleSpecificConfig = moduleSpecificConfigMethod();
+        }
+        this.processModuleSpecificConfig(moduleSpecificConfig);
+    }
+
+    processModuleSpecificConfig(config: ModuleSpecificConfig | null): void {
+        this.moduleSpecificConfig = config || {};
     }
 
     getModuleLinkUrl(mconf: ModuleConfig): string {
         let route = `#${mconf.InitialRoute}`;
         return UrlUtils.getOpenRouteInNewTabUrl(route);
     }
+
+    @Watch('theme')
+    onThemeChanged(): void {
+        document.documentElement.setAttribute('theme', this.theme);
+        localStorage.setItem('theme', this.theme);
+    }
 }
 </script>
 
 <style scoped lang="scss">
-.approot {
-    background-color: #f4f4f4;
-    /* background-color: #f7f6f4; */
-}
-.apptitle a {
-    color: inherit;
-    text-decoration: inherit;
-}
-.toolbar-main {
-    background-color: #fff;
-    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.02), 0 3px 2px 0 rgba(0, 0, 0, 0.02), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-    z-index: 99;
-}
-.content-root {
-    padding-right: 46px;
-}
-.active-tab {
-    font-weight: 900;
-}
-.application {
-    font-family: 'Montserrat';
-}
-.v-toolbar__items {
-    overflow-y: hidden;
-    overflow-x: auto;
-    overflow: overlay hidden;
-    -ms-overflow-style: none;
+.module-root {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+	padding-top: 56px;
+	@media (min-width: 960px) {
+		padding-top: 64px;
+	}
 
-    &::-webkit-scrollbar {
-        display: none;
+    #module-nav-menu {
+        transition: 0.2s all;
+        position: fixed;
+        left: -300px;
+        top: 0;
+        width: 300px;
+        background-color: #292929;
+        color: var(--color--text-light);
+        overflow-y: auto;
+        z-index: 10;
+        height: calc(100% - 56px);
+        box-shadow: 0 0 15px 10px #282828b8;
+        
+        &:not(.open) {
+            box-shadow: none;
+        }
+        &:not(:empty) {
+            &.open {
+                left: 0;
+            }
+        }
+        @media (min-width: 960px) {
+            box-shadow: none;
+            height: calc(100% - 64px);
+        }
     }
-}
-.toolbar-icon {
-    color: #0000008a !important;
+    .module-nav-menu__overlay {
+        background-color: #303f4863;
+        position: fixed;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 9;
+        &:not(.has-menu) {
+            display: none;
+        }
+        @media (min-width: 961px) {
+            display: none;
+        }
+    }
+
+    .module-content {
+        transition: 0.2s all;
+        padding: 5px 20px;
+        margin: 0 auto;
+        max-width: 1280px;
+        width: calc(100% - 40px); // - padding (20+20)
+
+        &.dark {
+            background: var(--color--background-dark);
+        }
+        &.has-menu {
+            padding-left: 300px;
+            width: calc(100% - 320px); // - padding (300+20)
+        }
+        &.full-width {
+            max-width: calc(100% - 40px);
+        }
+        &.has-menu.full-width {
+            max-width: calc(100% - 320px);
+        }
+        &.full-height {
+            height: calc(100vh - 74px);
+        }
+        @media (max-width: 960px) {
+            &.has-menu {
+                padding-left: 20px;
+                width: calc(100% - 40px); // - padding (20+20)
+            }
+            &.has-menu.full-width {
+                max-width: calc(100% - 40px);
+            }
+            &.full-height {
+                height: calc(100vh - 66px);
+            }
+        }
+    }
 }
 </style>
 
-<style lang="scss">
-input[type=number] {
-    -moz-appearance:textfield;
+<style scoped lang="scss">
+.toolbar-prefix {
+    display: flex;
+    height: 100%;
+    align-items: stretch;
+    padding-left: 10px;
+    &_apptitle {
+        display: flex;
+        align-items: center;
+        font-size: 20px;
+        font-weight: 500;
+        letter-spacing: .02em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding-left: 5px;
+        padding-right: 10px;
+        max-width: calc(100vw - 140px);
+        a {
+            color: var(--color--text);
+            text-decoration: inherit;
+        }
+    }
 }
-input[type=number]:hover,
-input[type=number]:focus {
-    -moz-appearance: number-input;
+.toolbar-icon {
+    align-self: center;
+    border-radius: 50%;
+    transition: 0.2s all;
+    padding: 5px;
+    &:hover {
+        background-color: var(--color--accent-lighten1);
+    }
 }
 </style>

@@ -1,32 +1,26 @@
 <!-- src/components/modules/RequestLog/RequestLogPageComponent.vue -->
 <template>
     <div>
-        <v-content class="pl-0">
-        <v-container fluid fill-height class="content-root">
-        <v-layout>
-        <v-flex class="pl-4 pr-4 pb-4">
-          <!-- CONTENT BEGIN -->
-            
-        <v-container grid-list-md>
-            <v-layout align-content-center wrap v-if="loadStatus.inProgress || loadStatus.failed">
+        <div class="content-root">
+            <div align-content-center wrap v-if="loadStatus.inProgress || loadStatus.failed">
                 <!-- LOAD ERROR -->
-                <v-alert
+                <alert-component
                     :value="loadStatus.failed"
                     type="error">
                 {{ loadStatus.errorMessage }}
-                </v-alert>
+                </alert-component>
 
                 <!-- PROGRESS BAR -->
-                <v-progress-linear
+                <progress-linear-component
                     v-if="loadStatus.inProgress"
-                    indeterminate color="green"></v-progress-linear>
-            </v-layout>
+                    indeterminate color="success"></progress-linear-component>
+            </div>
 
-            <v-layout align-content-center wrap v-if="entries.length == 0 && !loadStatus.inProgress && !loadStatus.failed">
-                <v-alert type="info" :value="true">
+            <div align-content-center wrap v-if="entries.length == 0 && !loadStatus.inProgress && !loadStatus.failed">
+                <alert-component type="info" :value="true">
                     No requests has been logged yet.
-                </v-alert>
-            </v-layout>
+                </alert-component>
+            </div>
 
             <div v-if="entries.length > 0" class="filter">
                 <progress-bar-component class="progress elevation-4" 
@@ -37,43 +31,43 @@
                     v-on:clickedError="showOnlyState(STATE_ERROR)"
                     v-on:clickedRemaining="showOnlyState(STATE_UNDETERMINED)" />
       
-                <v-layout row wrap>
-                    <v-flex xs12>
-                        <v-checkbox v-model="visibleStates" label="Successes" :value="STATE_SUCCESS" style="display:inline-block" class="mr-2"></v-checkbox>
-                        <v-checkbox v-model="visibleStates" label="Errors" :value="STATE_ERROR" style="display:inline-block" class="mr-2"></v-checkbox>
-                        <v-checkbox v-model="visibleStates" label="Not Called" :value="STATE_UNDETERMINED" style="display:inline-block" class="mr-4"></v-checkbox>
+                <div row wrap>
+                    <div xs12>
+                        <checkbox-component v-model:value="visibleStates" label="Successes" :toggle="STATE_SUCCESS" inline class="mr-2"></checkbox-component>
+                        <checkbox-component v-model:value="visibleStates" label="Errors" :toggle="STATE_ERROR" inline class="mr-2"></checkbox-component>
+                        <checkbox-component v-model:value="visibleStates" label="Not Called" :toggle="STATE_UNDETERMINED" inline class="mr-4"></checkbox-component>
                         
-                        <v-checkbox
+                        <checkbox-component
                             v-for="(verb, index) in verbs"
                             :key="`verb-${index}`"
-                            v-model="visibleVerbs" :label="verb" :value="verb"
-                            style="display:inline-block" class="mr-2"></v-checkbox>
-                    </v-flex>
-                </v-layout>
+                            v-model:value="visibleVerbs" :label="verb" :toggle="verb"
+                            inline class="mr-2"></checkbox-component>
+                    </div>
+                </div>
 
                 <div>
                     Order by:
-                    <v-btn x-small @click="setSortOrder(sortOption)"
+                    <btn-component x-small @click="setSortOrder(sortOption)"
                         v-for="(sortOption, index) in sortOptions"
                         :key="`sortOption-${index}`"
                         :disabled="currentlySortedBy == sortOption">
                         {{ sortOption.name }}
-                    </v-btn>
+                    </btn-component>
                 </div>
                 <br />
 
-                <v-checkbox v-model="groupEntries" label="Enable grouping" style="display:inline-block" class="mr-4"></v-checkbox>
+                <checkbox-component v-model:value="groupEntries" label="Enable grouping" inline class="mr-4"></checkbox-component>
                 <a @click="clearFilteredIpAddress()" v-if="filteredIPAddress != null" class="filtere-address-filter mr-2">
                     Filtered to source IP: {{ filteredIPAddress }}
-                    <v-icon size="20px">delete</v-icon>
+                    <icon-component size="20px">delete</icon-component>
                 </a>
-                <v-btn small @click="resetFilters" class="reset-filters-button">Reset filters</v-btn>
+                <btn-component small @click="resetFilters" class="reset-filters-button">Reset filters</btn-component>
                 <br />
 
                 <!-- Versions:
                 <div v-for="(version, index) in versions"
                      :key="`version-${index}`">
-                    <v-checkbox v-model="visibleVersions" :label="version" :value="version"></v-checkbox>
+                    <checkbox-component v-model:value="visibleVersions" :label="version" :value="version"></checkbox-component>
                 </div>
                 <br /> -->
 
@@ -111,69 +105,64 @@
                         />
                 </div>
 
-                <v-layout row wrap v-if="hasAccessToClearRequestLog">
-                    <v-flex xs12 sm6 md4>
-                        <v-btn
+                <div row wrap v-if="hasAccessToClearRequestLog">
+                    <div xs12 sm6 md4>
+                        <btn-component
                             :loading="clearStatus.inProgress"
                             :disabled="clearStatus.inProgress"
                             color="error"
                             @click="clearRequestLog(true)"
                             >
-                            <v-icon size="20px" class="mr-2">delete_forever</v-icon>
+                            <icon-component size="20px" class="mr-2">delete_forever</icon-component>
                             Clear requests + definitions
-                        </v-btn>
-                    </v-flex>
+                        </btn-component>
+                    </div>
 
-                    <v-flex xs12 sm6 md4>
-                        <v-btn
+                    <div xs12 sm6 md4>
+                        <btn-component
                             :loading="clearStatus.inProgress"
                             :disabled="clearStatus.inProgress"
                             color="error"
                             @click="clearRequestLog(false)"
                             >
-                            <v-icon size="20px" class="mr-2">delete</v-icon>
+                            <icon-component size="20px" class="mr-2">delete</icon-component>
                             Clear requests
-                        </v-btn>
-                    </v-flex>
+                        </btn-component>
+                    </div>
 
-                    <v-flex xs12 v-if="clearStatus.failed">
-                        <v-alert
+                    <div xs12 v-if="clearStatus.failed">
+                        <alert-component
                             :value="clearStatus.failed"
                             type="error">
                         {{ clearStatus.errorMessage }}
-                        </v-alert>
-                    </v-flex>
-                </v-layout>
+                        </alert-component>
+                    </div>
+                </div>
             </div>
-        </v-container>
-
-
-          <!-- CONTENT END -->
-        </v-flex>
-        </v-layout>
-        </v-container>
-        </v-content>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import LoggedEndpointDefinitionViewModel from  '../../../models/modules/RequestLog/LoggedEndpointDefinitionViewModel';
-import LoggedEndpointRequestViewModel from  '../../../models/modules/RequestLog/LoggedEndpointRequestViewModel';
-import RequestEndpointComponent from '../RequestLog/RequestEndpointComponent.vue';
-import ProgressBarComponent from  '../../Common/ProgressBarComponent.vue';
-import { EntryState } from  '../../../models/modules/RequestLog/EntryState';
-import DateUtils from  '../../../util/DateUtils';
-import LinqUtils from  '../../../util/LinqUtils';
-import KeyArray from  '../../../util/models/KeyArray';
-import KeyValuePair from  '../../../models/Common/KeyValuePair';
-import RequestLogService from  '../../../services/RequestLogService';
-import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import ModuleOptions from  '../../../models/Common/ModuleOptions';
-import ModuleConfig from  '../../../models/Common/ModuleConfig';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import LoggedEndpointDefinitionViewModel from '@models/modules/RequestLog/LoggedEndpointDefinitionViewModel';
+import LoggedEndpointRequestViewModel from '@models/modules/RequestLog/LoggedEndpointRequestViewModel';
+import RequestEndpointComponent from '@components/modules/RequestLog/RequestEndpointComponent.vue';
+import ProgressBarComponent from '@components/Common/ProgressBarComponent.vue';
+import { EntryState } from '@models/modules/RequestLog/EntryState';
+import DateUtils from '@util/DateUtils';
+import LinqUtils from '@util/LinqUtils';
+import KeyArray from '@util/models/KeyArray';
+import KeyValuePair from '@models/Common/KeyValuePair';
+import RequestLogService from '@services/RequestLogService';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import ModuleOptions from '@models/Common/ModuleOptions';
+import ModuleConfig from '@models/Common/ModuleConfig';
+import { StoreUtil } from "@util/StoreUtil";
 
-@Component({
+@Options({
     components: {
         ProgressBarComponent,
         RequestEndpointComponent
@@ -253,7 +242,7 @@ export default class RequestLogPageComponent extends Vue {
         return this.options.AccessOptions.indexOf('ClearLog') != -1;
     }
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
     
     get progressBarMax(): number {
@@ -559,7 +548,7 @@ type EntryGroup = KeyValuePair<string, Array<LoggedEndpointDefinitionViewModel>>
 
 .endpoint-group
 {
-    border-left: 5px solid var(--v-secondary-lighten5);
+    border-left: 5px solid var(--color--warning-lighten5);
     padding: 10px;
     margin-bottom: 40px;
     
@@ -570,7 +559,7 @@ type EntryGroup = KeyValuePair<string, Array<LoggedEndpointDefinitionViewModel>>
 
     .endpoint-subgroup
     {
-        border-left: 5px solid var(--v-accent-lighten4);
+        border-left: 5px solid var(--color--accent-lighten1);
         padding: 10px;
         margin-bottom: 30px;
     
@@ -586,7 +575,7 @@ type EntryGroup = KeyValuePair<string, Array<LoggedEndpointDefinitionViewModel>>
 }
 .endpoint
 {
-    border-left: 5px solid var(--v-success-lighten2);
+    border-left: 5px solid var(--color--success-lighten2);
     padding: 10px;
     margin-bottom: 20px;
 }

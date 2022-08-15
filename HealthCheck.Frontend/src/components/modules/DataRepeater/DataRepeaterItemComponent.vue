@@ -2,29 +2,33 @@
 <template>
     <div>
         <!-- LOAD PROGRESS -->
-        <v-progress-linear 
+        <progress-linear-component 
             v-if="dataLoadStatus.inProgress && item == null"
-            indeterminate color="green"></v-progress-linear>
+            indeterminate color="success"></progress-linear-component>
 
         <!-- DATA LOAD ERROR -->
-        <v-alert :value="dataLoadStatus.failed" v-if="dataLoadStatus.failed" type="error">
+        <alert-component :value="dataLoadStatus.failed" v-if="dataLoadStatus.failed" type="error">
         {{ dataLoadStatus.errorMessage }}
-        </v-alert>
+        </alert-component>
 
         <!-- NOT FOUND -->
-        <v-alert :value="itemNotFound" v-if="itemNotFound" type="info">
+        <alert-component :value="itemNotFound" v-if="itemNotFound" type="info">
         No item with the given id was found.
-        </v-alert>
+        </alert-component>
         
-        <v-btn @click="$emit('close')" v-if="itemNotFound">Close</v-btn>
+        <btn-component @click="$emit('close')" v-if="itemNotFound">Close</btn-component>
         
         <div v-if="item" class="data-repeater-item">
-            <v-btn @click="$emit('close')" class="right">Close</v-btn>
-            <v-btn @click="loadData" class="right">
-                <v-icon size="20px" class="mr-2">refresh</v-icon>Refresh
-            </v-btn>
+            <div class="header-layout">
+                <h1 class="header-layout__title">{{ stream.ItemIdName }}: {{ item.ItemId }}</h1>
+                <div class="header-layout__actions">
+                    <btn-component @click="$emit('close')">Close</btn-component>
+                    <btn-component @click="loadData">
+                        <icon-component size="20px" class="mr-2">refresh</icon-component>Refresh
+                    </btn-component>
+                </div>
+            </div>
 
-            <h1>{{ stream.ItemIdName }}: {{ item.ItemId }}</h1>
             <p v-if="item.Summary">{{ item.Summary }}</p>
             <p v-if="details && details.Description" v-html="details.Description"></p>
 
@@ -94,36 +98,34 @@
                 <editor-component
                     class="editor mt-2"
                     :language="'json'"
-                    v-model="item.SerializedData"
+                    v-model:value="item.SerializedData"
                     :allowFullscreen="true"
                     ref="editor" />
 
                 <div v-if="item.SerializedData && item.SerializedData != this.item.FirstSerializedData && hasAccessToRetry">
-                    <v-tooltip bottom>
-                        <template v-slot:activator="{ on }">
-                            <a href="#" @click.prevent="restoreOriginalData" class="right" style="cursor: help;" v-on="on">Revert to original data</a>
-                        </template>
-                        <span>Reverts the content above to the first data that was stored on {{ formatDate(item.InsertedAt) }}.</span>
-                    </v-tooltip>
+                    <tooltip-component :tooltip="`Reverts the content above to the first data that was stored on ${formatDate(item.InsertedAt)}.`">
+                        <a href="#" @click.prevent="restoreOriginalData" class="right" style="cursor: help;">Revert to original data</a>
+                    </tooltip-component>
                 </div>
 
                 <div v-if="!hasAccessToRetry" class="not-allowed-text">
                     You do not have access to retry this data.
                 </div>
 
-                <v-btn :disabled="!retryAllowed"
+                <btn-component :disabled="!retryAllowed"
                     :loading="dataLoadStatus.inProgress"
                     v-if="hasAccessToRetry"
-                    @click="showRetryDialog" class="ml-0 mr-2 mt-2">
+                    @click="showRetryDialog" class="ml-0 mr-2 mt-2"
+                    color="primary">
                     {{ (stream.RetryActionName || 'Retry') }}
-                </v-btn>
+                </btn-component>
 
-                <v-btn :disabled="!analyzeAllowed"
+                <btn-component :disabled="!analyzeAllowed"
                     :loading="dataLoadStatus.inProgress"
                     v-if="showManualAnalysis"
                     @click="showAnalyzeDialog" class="ml-0 mr-2 mt-2">
                     {{ ( stream.AnalyzeActionName || 'Analyze') }}
-                </v-btn>
+                </btn-component>
 
                 <code v-if="quickStatus" class="quickstatus">{{ quickStatus }}</code>
             </div>
@@ -145,75 +147,65 @@
         </div>
 
         <!-- DIALOGS -->
-        <v-dialog v-model="confirmRetryDialogVisible"
-            @keydown.esc="confirmRetryDialogVisible = false"
+        <dialog-component v-model:value="confirmRetryDialogVisible"
             max-width="480"
-            content-class="confirm-dialog"
             :persistent="dataLoadStatus.inProgress">
-            <v-card>
-                <v-card-title class="headline">Confirm {{ (stream.RetryActionName || 'Retry') }}</v-card-title>
-                <v-card-text>
-                    Are you sure you want to {{ (stream.RetryActionName || 'Retry') }}?
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="secondary"
-                        :disabled="dataLoadStatus.inProgress"
-                        :loading="dataLoadStatus.inProgress"
-                        @click="confirmRetryDialogVisible = false">Cancel</v-btn>
-                    <v-btn color="primary"
-                        :disabled="!retryAllowed"
-                        :loading="dataLoadStatus.inProgress"
-                        @click="retry()">{{ (stream.RetryActionName || 'Retry') }}</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-        <v-dialog v-model="confirmRunAnalysisDialogVisible"
-            @keydown.esc="confirmRunAnalysisDialogVisible = false"
+            <template #header>Confirm {{ (stream.RetryActionName || 'Retry') }}</template>
+            <template #footer>
+                <btn-component color="primary"
+                    :disabled="!retryAllowed"
+                    :loading="dataLoadStatus.inProgress"
+                    @click="retry()">{{ (stream.RetryActionName || 'Retry') }}</btn-component>
+                <btn-component color="secondary"
+                    :disabled="dataLoadStatus.inProgress"
+                    :loading="dataLoadStatus.inProgress"
+                    @click="confirmRetryDialogVisible = false">Cancel</btn-component>
+            </template>
+            <div>
+                Are you sure you want to {{ (stream.RetryActionName || 'Retry') }}?
+            </div>
+        </dialog-component>
+        <dialog-component v-model:value="confirmRunAnalysisDialogVisible"
             max-width="480"
-            content-class="confirm-dialog"
             :persistent="dataLoadStatus.inProgress">
-            <v-card>
-                <v-card-title class="headline">Confirm run analysis</v-card-title>
-                <v-card-text>
-                    Are you sure you want to run analysis?
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="secondary"
-                        :disabled="dataLoadStatus.inProgress"
-                        :loading="dataLoadStatus.inProgress"
-                        @click="confirmRunAnalysisDialogVisible = false">Cancel</v-btn>
-                    <v-btn color="primary"
-                        :disabled="!analyzeAllowed"
-                        :loading="dataLoadStatus.inProgress"
-                        @click="analyze()">Run analysis</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+            <template #header>Confirm run analysis</template>
+            <template #footer>
+                <btn-component color="primary"
+                    :disabled="!analyzeAllowed"
+                    :loading="dataLoadStatus.inProgress"
+                    @click="analyze()">Run analysis</btn-component>
+                <btn-component color="secondary"
+                    :disabled="dataLoadStatus.inProgress"
+                    :loading="dataLoadStatus.inProgress"
+                    @click="confirmRunAnalysisDialogVisible = false">Cancel</btn-component>
+            </template>
+            <div>
+                Are you sure you want to run analysis?
+            </div>
+        </dialog-component>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import DataRepeaterService, { HCDataRepeaterResultWithItem } from  '../../../services/DataRepeaterService';
-import { HCDataRepeaterStreamViewModel } from "generated/Models/Core/HCDataRepeaterStreamViewModel";
-import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
-import { HCDataRepeaterStreamItemViewModel } from "generated/Models/Core/HCDataRepeaterStreamItemViewModel";
-import ModuleConfig from "models/Common/ModuleConfig";
-import DataRepeaterItemActionComponent from "./DataRepeaterItemActionComponent.vue";
-import { HCDataRepeaterRetryResult } from "generated/Models/Core/HCDataRepeaterRetryResult";
-import EditorComponent from "components/Common/EditorComponent.vue";
-import { HCDataRepeaterStreamItemDetailsViewModel } from "generated/Models/Core/HCDataRepeaterStreamItemDetailsViewModel";
-import DateUtils from "util/DateUtils";
-import ModuleOptions from "models/Common/ModuleOptions";
-import { HCDataRepeaterItemAnalysisResult } from "generated/Models/Core/HCDataRepeaterItemAnalysisResult";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import DataRepeaterService, { HCDataRepeaterResultWithItem } from '@services/DataRepeaterService';
+import { HCDataRepeaterStreamViewModel } from "@generated/Models/Core/HCDataRepeaterStreamViewModel";
+import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
+import { HCDataRepeaterStreamItemViewModel } from "@generated/Models/Core/HCDataRepeaterStreamItemViewModel";
+import ModuleConfig from "@models/Common/ModuleConfig";
+import DataRepeaterItemActionComponent from '@components/modules/DataRepeater/DataRepeaterItemActionComponent.vue';
+import { HCDataRepeaterRetryResult } from "@generated/Models/Core/HCDataRepeaterRetryResult";
+import EditorComponent from "@components/Common/EditorComponent.vue";
+import { HCDataRepeaterStreamItemDetailsViewModel } from "@generated/Models/Core/HCDataRepeaterStreamItemDetailsViewModel";
+import DateUtils from "@util/DateUtils";
+import ModuleOptions from "@models/Common/ModuleOptions";
+import { HCDataRepeaterItemAnalysisResult } from "@generated/Models/Core/HCDataRepeaterItemAnalysisResult";
+import { StoreUtil } from "@util/StoreUtil";
 
-@Component({
+@Options({
     components: {
         BackendInputComponent,
         DataRepeaterItemActionComponent,
@@ -265,7 +257,7 @@ export default class DataRepeaterItemComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
 
     get retryAllowed(): boolean {
@@ -461,11 +453,11 @@ export default class DataRepeaterItemComponent extends Vue {
     box-shadow: none;
 
     &:not(.failed) {
-        color: #333;
+        /* color: #333; */
     }
 }
 code {
-    width: 100%;
+    width: calc(100% - 16px);
     overflow-x: auto;
 }
 .repeater-error:before {

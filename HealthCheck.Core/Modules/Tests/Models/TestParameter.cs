@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HealthCheck.Core.Models;
+using System;
 using System.Collections.Generic;
 
 namespace HealthCheck.Core.Modules.Tests.Models
@@ -54,34 +55,16 @@ namespace HealthCheck.Core.Modules.Tests.Models
         public bool IsRef { get; set; }
 
         /// <summary>
-        /// Do not allow null-values to be entered in the user interface. Does not affect nullable parameters.
-        /// </summary>
-        public bool NotNull { get; set; }
-
-        /// <summary>
         /// Use to override the label/placeholder/name displayed for any null-value.
         /// </summary>)
         public string NullName { get; set; }
 
         /// <summary>
-        /// Only affects generic lists. Does not allow new entries to be added, or existing entries to be changed.
+        /// Can be used on text inputs to require the input to match the given regex pattern.
+        /// <para>Use JavaScript format. If not starting with a '/' one will be prepended and '/g' will be appended.</para>
+        /// <para>Example: O\-\d+ or /[abc]+/gi</para>
         /// </summary>
-        public bool ReadOnlyList { get; set; }
-
-        /// <summary>
-        /// Show as text area if this is a string.
-        /// </summary>
-        public bool ShowTextArea { get; set; }
-
-        /// <summary>
-        /// Show as text area if this is a string.
-        /// </summary>
-        public bool ShowCodeArea { get; set; }
-
-        /// <summary>
-        /// Make the input field full width in size.
-        /// </summary>
-        public bool FullWidth { get; set; }
+        public string TextPattern { get; set; }
 
         /// <summary>
         /// True if this is a custom reference parameter.
@@ -92,6 +75,11 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// Factories for reference data.
         /// </summary>
         public RuntimeTestReferenceParameterFactory ReferenceFactory { get; set; }
+
+        /// <summary>
+        /// Any UIHint flags configured for this parameter.
+        /// </summary>
+        public List<HCUIHint> UIHints { get; set; }
 
         /// <summary>
         /// Get a matching parameter factory.

@@ -1,95 +1,82 @@
 <!-- src/components/modules/TestSuite/result_data/TestResultDataComponent.vue -->
 <template>
     <div class="data-dump-wrapper">
-        <div v-if="data.Title && data.Title.length > 0"
-          class="data-dump-title">{{data.Title}}</div>
+        <div v-if="resultData.Title && resultData.Title.length > 0"
+          class="data-dump-title">{{resultData.Title}}</div>
         <component
-            :class="`data-dump data-dump-${data.Type.toLowerCase()}`"
-            :data="data"
+            :class="`data-dump data-dump-${resultData.Type.toLowerCase()}`"
+            :resultData="resultData"
             :fullscreen="false"
-            :is="getDataComponentNameFromType(data.Type)"
+            :is="getDataComponentNameFromType(resultData.Type)"
             @hideCopyButton="showCopyButton = false"
             @hideFullscreenButton="showFullscreenButton = false">
         </component>
 
-        <v-card-actions v-if="clean == false" class="data-dump-actions pt-0">
-          <v-btn outline small color="secondary-darken2" class="data-dump-action-button mt-2 mr-2"
+        <div v-if="clean == false" class="data-dump-actions pt-0">
+          <btn-component outline small color="accent" class="data-dump-action-button mt-2 mr-2"
             v-if="showCopyButton"
-            @click="putDataOnClipboard">Copy</v-btn>
-
-          <v-dialog
-            v-if="showFullscreenButton"
-            v-model="showFullscreen"
-            @keydown.esc="showFullscreen = false"
-            fullscreen hide-overlay transition="dialog-transition">
-            <template v-slot:activator="{ on }">
-              <v-btn outline small color="secondary-darken2" class="data-dump-action-button mt-2 mr-2 ml-0" v-on="on">Fullscreen</v-btn>
-            </template>
-            <v-card>
-              <!-- DIALOG TOOLBAR -->
-              <v-toolbar dark color="primary">
-                <v-btn icon dark @click="showFullscreen = false">
-                  <v-icon>close</v-icon>
-                </v-btn>
-                <v-toolbar-title>{{data.Title}}</v-toolbar-title>
-                <v-spacer></v-spacer>
-                <v-toolbar-items>
-                  <v-btn dark flat @click="putDataOnClipboard">Put data on clipboard</v-btn>
-                </v-toolbar-items>
-                <v-toolbar-items>
-                  <v-btn dark flat @click="showFullscreen = false">Close</v-btn>
-                </v-toolbar-items>
-              </v-toolbar>
-              <!-- DIALOG CONTENTS -->
-              <component
-                  :class="`data-dump data-dump-${data.Type.toLowerCase()}`"
-                  :data="data"
-                  :fullscreen="showFullscreen"
-                  :is="getDataComponentNameFromType(data.Type)">
-              </component>
-            </v-card>
-          </v-dialog>
+            @click="putDataOnClipboard">Copy</btn-component>
         
-          <v-btn outline small color="secondary-darken2" class="data-dump-action-button mt-2"
+          <btn-component outline small color="accent" class="data-dump-action-button mt-2"
             @click="downloadData" 
-            v-if="showDownloadButton">Download '{{ data.DownloadFileName }}'</v-btn>
-        </v-card-actions>
+            v-if="showDownloadButton">Download '{{ resultData.DownloadFileName }}'</btn-component>
+
+          <btn-component outline small color="accent" class="data-dump-action-button mt-2 mr-2" v-if="showFullscreenButton" @click="showFullscreen=true">Fullscreen</btn-component>
+          <dialog-component v-model:value="showFullscreen" fullscreen hide-overlay :dark="isDialogDarkFor(resultData.Type)">
+            <template #header>
+              {{ fullscreenTitle }}
+            </template>
+            <template #footer>
+                  <btn-component color="primary" @click="putDataOnClipboard">Put data on clipboard</btn-component>
+                  <btn-component color="secondary" @click="showFullscreen = false">Close</btn-component>
+            </template>
+            <div>
+              <component
+                  :class="`data-dump data-dump-${resultData.Type.toLowerCase()}`"
+                  :resultData="resultData"
+                  :fullscreen="showFullscreen"
+                  :is="getDataComponentNameFromType(resultData.Type)">
+              </component>
+            </div>
+          </dialog-component>
+        </div>
         
-        <textarea style="display:none;" ref="copyValue" :value="data.Data" />
-        <v-snackbar
-          v-model="showCopyAlert"
+        <textarea style="display:none;" ref="copyValue" :value="resultData.Data" />
+        <snackbar-component
+          v-model:value="showCopyAlert"
           :timeout="5000"
           :color="copyAlertColor"
-          :bottom="true"
         >
           {{ copyAlertText }}
-          <v-btn
+          <btn-component
             flat
             @click="showCopyAlert = false">
             Close
-          </v-btn>
-        </v-snackbar>
+          </btn-component>
+        </snackbar-component>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import TestResultDataDumpViewModel from  '../../../../models/modules/TestSuite/TestResultDataDumpViewModel';
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { TestResultDataDumpViewModel } from '@generated/Models/Core/TestResultDataDumpViewModel';
 // Parameter input components
-import UnknownDataTypeComponent from './UnknownDataTypeComponent.vue';
-import TestResultPlainTextDataComponent from './data_types/TestResultPlainTextDataComponent.vue';
-import TestResultCodeDataComponent from './data_types/TestResultCodeDataComponent.vue';
-import TestResultXmlDataComponent from './data_types/TestResultXmlDataComponent.vue';
-import TestResultJsonDataComponent from './data_types/TestResultJsonDataComponent.vue';
-import TestResultHtmlDataComponent from './data_types/TestResultHtmlDataComponent.vue';
-import TestResultImageUrlsDataComponent from './data_types/TestResultImageUrlsDataComponent.vue';
-import TestResultUrlsDataComponent from './data_types/TestResultUrlsDataComponent.vue';
-import TestResultTimelineDataComponent from './data_types/TestResultTimelineDataComponent.vue';
-import TestResultTimingsDataComponent from './data_types/TestResultTimingsDataComponent.vue';
-import TestResultFileDownloadDataComponent from './data_types/TestResultFileDownloadDataComponent.vue';
-import DownloadUtil from 'util/DownloadUtil';
+import UnknownDataTypeComponent from '@components/modules/TestSuite/result_data/UnknownDataTypeComponent.vue';
+import TestResultPlainTextDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultPlainTextDataComponent.vue';
+import TestResultCodeDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultCodeDataComponent.vue';
+import TestResultXmlDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultXmlDataComponent.vue';
+import TestResultJsonDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultJsonDataComponent.vue';
+import TestResultHtmlDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultHtmlDataComponent.vue';
+import TestResultImageUrlsDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultImageUrlsDataComponent.vue';
+import TestResultUrlsDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultUrlsDataComponent.vue';
+import TestResultTimelineDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultTimelineDataComponent.vue';
+import TestResultTimingsDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultTimingsDataComponent.vue';
+import TestResultFileDownloadDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultFileDownloadDataComponent.vue';
+import DownloadUtil from '@util/DownloadUtil';
+import { TestResultDataDumpType } from "@generated/Enums/Core/TestResultDataDumpType";
 
-@Component({
+@Options({
     components: {
       // Parameter input components
       UnknownDataTypeComponent,
@@ -107,7 +94,7 @@ import DownloadUtil from 'util/DownloadUtil';
 })
 export default class TestResultDataComponent extends Vue {
     @Prop({ required: true })
-    data!: TestResultDataDumpViewModel;
+    resultData!: TestResultDataDumpViewModel;
     @Prop()
     clean!: boolean;
 
@@ -130,17 +117,30 @@ export default class TestResultDataComponent extends Vue {
         : "UnknownDataTypeComponent";
     }
 
+    isDialogDarkFor(type: TestResultDataDumpType) {
+      if (type == TestResultDataDumpType.Code
+        || type == TestResultDataDumpType.Xml
+        || type == TestResultDataDumpType.Json) {
+          return true;
+        }
+      return false;
+    }
+
     get hasTitle(): boolean {
-      return this.data.Title != null && this.data.Title.length > 0;
+      return this.resultData.Title != null && this.resultData.Title.length > 0;
     }
 
     get rowCount(): number {
-      let lineCount = this.data.Data.split(/\r\n|\r|\n/).length;
+      let lineCount = this.resultData.Data.split(/\r\n|\r|\n/).length;
       return Math.min(10, lineCount);
     }
 
     get showDownloadButton(): boolean {
-      return !!this.data.DownloadFileName;
+      return !!this.resultData.DownloadFileName;
+    }
+
+    get fullscreenTitle(): string {
+      return this.resultData.Title ?? 'Result data';
     }
     
     putDataOnClipboard(): void {
@@ -174,8 +174,8 @@ export default class TestResultDataComponent extends Vue {
     }
 
     downloadData(): void {
-      const filename = this.data.DownloadFileName || 'data.txt';
-      DownloadUtil.downloadText(filename, this.data.Data || '');
+      const filename = this.resultData.DownloadFileName || 'data.txt';
+      DownloadUtil.downloadText(filename, this.resultData.Data || '');
     }
 }
 </script>
@@ -196,14 +196,13 @@ export default class TestResultDataComponent extends Vue {
   max-width: 100%;
 }
 </style>
+
 <style lang="scss">
-.data-dump-action-button {
-  .v-btn__content {
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-    max-width: 100%;
-    display: inline-block;
+.dialog-component_modal_content {
+  .data-dump-code, .data-dump-xml, .data-dump-json {
+    .editor-component {
+      height: calc(100vh - 160px);
+    }
   }
 }
 </style>

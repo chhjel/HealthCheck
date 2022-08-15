@@ -174,6 +174,30 @@ namespace HealthCheck.Core.Util
                 return (T)Convert.ChangeType(DateTime.Now, typeof(T));
             else if (inputType == typeof(DateTimeOffset) && DATETIME_ALIAS_NOW.Contains(trimmedLowerInput))
                 return (T)Convert.ChangeType(DateTimeOffset.Now, typeof(T));
+            // Date ranges
+            else if (inputType == typeof(DateTime[]) || inputType == typeof(DateTime?[])
+                || inputType == typeof(DateTimeOffset[]) || inputType == typeof(DateTimeOffset?[]))
+            {
+                var parts = input?.Split(new[] { " - " }, 2, StringSplitOptions.None) ?? new string[0];
+                string startStr = null;
+                string endStr = null;
+                if (parts.Length >= 2)
+                {
+                    startStr = parts[0];
+                    endStr = parts[1];
+                }
+                static DateTime parseDate(string val) => string.IsNullOrWhiteSpace(val) ? DateTime.Now : DateTime.Parse(val);
+                static DateTime? parseDateNullable(string val) => string.IsNullOrWhiteSpace(val) ? null : DateTime.Parse(val);
+                static DateTimeOffset parseDateOffset(string val) => string.IsNullOrWhiteSpace(val) ? DateTimeOffset.Now : DateTimeOffset.Parse(val);
+                static DateTimeOffset? parseDateOffsetNullable(string val) => string.IsNullOrWhiteSpace(val) ? null : DateTimeOffset.Parse(val);
+
+                if (inputType == typeof(DateTime[])) return (T)Convert.ChangeType(new[] { parseDate(startStr), parseDate(endStr) }, typeof(T));
+                if (inputType == typeof(DateTime?[])) return (T)Convert.ChangeType(new[] { parseDateNullable(startStr), parseDateNullable(endStr) }, typeof(T));
+                if (inputType == typeof(DateTimeOffset[])) return (T)Convert.ChangeType(new[] { parseDateOffset(startStr), parseDateOffset(endStr) }, typeof(T));
+                else return (T)Convert.ChangeType(new[] { parseDateOffsetNullable(startStr), parseDateOffsetNullable(endStr) }, typeof(T));
+            }
+            
+            // 2022-08-07T09:45:24 - 2022-08-07T09:45:24
 
             // Fallback to TryParse or throw
             if (inputType == typeof(String))

@@ -1,24 +1,24 @@
 <!-- src/components/modules/TestSuite/paremeter_inputs/input_types/ParameterInputTypeEnumComponent.vue -->
 <template>
     <div class="fixed-height-select">
-        <v-select
-            v-model="localValue"
+        <select-component
+            v-model:value="localValue"
             :items="items"
             :multiple="multiple"
             :chips="multiple"
             :disabled="readonly"
             v-on:change="onChanged"
-            color="secondary"
             class="parameter-select pt-0">
-        </v-select>
+        </select-component>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { HCBackendInputConfig } from '@generated/Models/Core/HCBackendInputConfig';
 
-@Component({
+@Options({
     components: {
     }
 })
@@ -37,7 +37,7 @@ export default class ParameterInputTypeEnumComponent extends Vue {
 
     localValue: string | string[] = "";
     
-    mounted(): void {
+    created(): void {
         this.$nextTick(() => {
             this.updateLocalValue();
             this.onChanged();
@@ -91,9 +91,9 @@ export default class ParameterInputTypeEnumComponent extends Vue {
     onChanged(): void {
         if (this.multiple) {
             let selected = <Array<string>>this.localValue;
-            this.$emit('input', selected.join(", "));
+            this.$emit('update:value', selected.join(", "));
         } else {
-            this.$emit('input', <string>this.localValue);
+            this.$emit('update:value', <string>this.localValue);
         }
     }
 }
@@ -102,10 +102,5 @@ export default class ParameterInputTypeEnumComponent extends Vue {
 <style lang="scss">
 .parameter-checkbox label {
     color: #000 !important;
-}
-.fixed-height-select {
-    .v-select--chips .v-input__slot {
-        height: 32px;
-    }
 }
 </style>

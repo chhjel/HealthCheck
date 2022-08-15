@@ -3,15 +3,9 @@
     <div class="dce_page">
         <loading-screen-component ref="loadingscreen" text="LOADING DCE..." />
 
-        <v-content>
+        <div>
             <!-- NAVIGATION DRAWER -->
-            <v-navigation-drawer
-                v-model="drawerState"
-                clipped fixed floating app
-                mobile-break-point="1000"
-                :dark="localOptions.darkTheme"
-                class="menu testset-menu">
-
+            <Teleport to="#module-nav-menu">
                 <filterable-list-component 
                     :items="menuItems"
                     :sortByKey="`Name`"
@@ -24,251 +18,220 @@
                     v-on:itemClicked="onMenuItemClicked"
                     />
                     
-                <div class="pl-1 pr-1 pt-2 pb-2 menu-bottom-nav">
-                    <v-btn flat :dark="localOptions.darkTheme"
+                <div class="pl-1 pr-1 pt-2 pb-2 menu-bottom-nav forced-flat-dark-hover-bg">
+                    <btn-component flat :dark="localOptions.darkTheme"
                         color="#62b5e4"
                         @click="configDialogVisible = true"
-                        ><v-icon>settings</v-icon>Settings</v-btn>
+                        ><icon-component>settings</icon-component>Settings</btn-component>
 
-                    <v-tooltip top v-if="showCreateNewScriptButton">
-                        <template v-slot:activator="{ on }">
-                            <span v-on="on">
-                            <v-btn flat :dark="localOptions.darkTheme"
-                                color="#62b5e4"
-                                @click="onNewScriptClicked"
-                                :disabled="loadStatus.inProgress || !allowCreateNewScript"
-                                ><v-icon>add</v-icon>New script</v-btn>
-                            </span>
-                        </template>
-                        <span>{{ createNewScriptButtonTooltip }}</span>
-                    </v-tooltip>
+                    <tooltip-component v-if="showCreateNewScriptButton" :tooltip="createNewScriptButtonTooltip">
+                        <btn-component flat :dark="localOptions.darkTheme"
+                            color="#62b5e4"
+                            @click="onNewScriptClicked"
+                            :disabled="loadStatus.inProgress || !allowCreateNewScript">
+                            <icon-component>add</icon-component>New script
+                        </btn-component>
+                    </tooltip-component>
                 </div>
-            </v-navigation-drawer>
+            </Teleport>
 
-            <!-- CONTENT -->
-            <v-container fluid fill-height class="content-root pt-3 pb-0 pl-0 pr-0">
-            <v-layout>
-            <v-flex>
-            <v-container class="pt-0 pb-1 pl-0 pr-0 wrapper-container">
+            
+            <div class="content-root pt-3 pb-0 pl-0 pr-0">
+                <div class="pt-0 pb-1 pl-0 pr-0 wrapper-container">
 
-                <!-- DATA LOAD ERROR -->
-                <v-alert :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
-                {{ loadStatus.errorMessage }}
-                </v-alert>
+                    <!-- DATA LOAD ERROR -->
+                    <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
+                    {{ loadStatus.errorMessage }}
+                    </alert-component>
 
-                <editor-component
-                    class="codeeditor codeeditor__input"
-                    language="csharp"
-                    :theme="editorTheme"
-                    :allowFullscreen="true"
-                    v-model="code"
-                    v-on:editorInit="onEditorInit"
-                    :readOnly="isEditorReadOnly"
-                    :title="currentScriptTitle"
-                    :suggestions="suggestions"
-                    :includeBuiltInSuggestions="true"
-                    ref="editor"
-                    ></editor-component>
+                    <editor-component
+                        class="codeeditor codeeditor__input"
+                        language="csharp"
+                        :theme="editorTheme"
+                        :allowFullscreen="true"
+                        v-model:value="code"
+                        v-on:editorInit="onEditorInit"
+                        :readOnly="isEditorReadOnly"
+                        :title="currentScriptTitle"
+                        :suggestions="suggestions"
+                        :includeBuiltInSuggestions="true"
+                        ref="editor"
+                        ></editor-component>
 
-                <div class="middle-toolbar">
-                    <v-btn flat :dark="localOptions.darkTheme"
-                        color="#62b5e4"
-                        :disabled="!hasUnsavedChanges || loadStatus.inProgress"
-                        v-if="showSaveButton"
-                        @click="onSaveClicked"
-                        >Save</v-btn>
+                    <div class="middle-toolbar forced-flat-dark-hover-bg">
+                        <btn-component flat :dark="localOptions.darkTheme"
+                            color="#62b5e4"
+                            :disabled="!hasUnsavedChanges || loadStatus.inProgress"
+                            v-if="showSaveButton"
+                            @click="onSaveClicked"
+                            >Save</btn-component>
 
-                    <v-btn flat :dark="localOptions.darkTheme"
-                        color="#ff6768"
-                        @click="onDeleteClicked"
-                        v-if="showDeleteButton"
-                        :disabled="currentScript == null || loadStatus.inProgress || !canDeleteCurrentScript"
-                        >Delete</v-btn>
-                    
-                    <v-btn flat outline :dark="localOptions.darkTheme"
-                        color="#62b5e4"
-                        class="right"
-                        @click="onExecuteClicked"
-                        :loading="loadStatus.inProgress"
-                        v-if="showExecuteButton"
-                        :disabled="currentScript == null || loadStatus.inProgress"
-                        >
-                        <v-icon class="mr-2">code</v-icon>
-                        Execute</v-btn>
+                        <btn-component flat :dark="localOptions.darkTheme"
+                            color="#ff6768"
+                            @click="onDeleteClicked"
+                            v-if="showDeleteButton"
+                            :disabled="currentScript == null || loadStatus.inProgress || !canDeleteCurrentScript"
+                            >Delete</btn-component>
+                        
+                        <btn-component flat outline :dark="localOptions.darkTheme"
+                            color="#62b5e4"
+                            class="right"
+                            @click="onExecuteClicked"
+                            :loading="loadStatus.inProgress"
+                            v-if="showExecuteButton"
+                            :disabled="currentScript == null || loadStatus.inProgress"
+                            >
+                            <icon-component class="mr-2">code</icon-component>
+                            Execute</btn-component>
+                    </div>
+
+                    <editor-component
+                        ref="outputEditor"
+                        class="codeeditor codeeditor__output"
+                        language="json"
+                        :theme="editorTheme"
+                        :allowFullscreen="true"
+                        v-model:value="resultData"
+                        :title="'Output'"
+                        :readOnly="loadStatus.inProgress || currentScript == null"
+                        ></editor-component>
+
                 </div>
-
-                <editor-component
-                    ref="outputEditor"
-                    class="codeeditor codeeditor__output"
-                    language="json"
-                    :theme="editorTheme"
-                    :allowFullscreen="true"
-                    v-model="resultData"
-                    :title="'Output'"
-                    :readOnly="loadStatus.inProgress || currentScript == null"
-                    ></editor-component>
-
-            </v-container>
-            </v-flex>
-            </v-layout>
-            </v-container>
-        </v-content>
+            </div>
+        </div>
         
         <!-- ##################### -->
         <!-- ###### DIALOGS ######-->
-        <v-dialog v-model="deleteScriptDialogVisible"
-            @keydown.esc="deleteScriptDialogVisible = false"
-            max-width="350" dark
-            content-class="dce-dialog">
-            <v-card color="secondary" class="white--text">
-                <v-card-title class="headline">Confirm deletion</v-card-title>
-                <v-card-text>
-                    {{ deleteScriptDialogText }}
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="primary" @click="deleteScriptDialogVisible = false">Cancel</v-btn>
-                    <v-btn color="error" @click="deleteScript(currentScript)">Delete it</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+        <dialog-component v-model:value="deleteScriptDialogVisible" max-width="350" dark>
+            <template #header>Confirm deletion</template>
+            <template #footer>
+                <btn-component color="error" @click="deleteScript(currentScript)">Delete it</btn-component>
+                <btn-component color="secondary" @click="deleteScriptDialogVisible = false">Cancel</btn-component>
+            </template>
+            <div>
+                {{ deleteScriptDialogText }}
+            </div>
+        </dialog-component>
         <!-- ##################### -->
-        <v-dialog v-model="confirmUnchangedDialogVisible"
-            @keydown.esc="unsavedChangesDialogGoBack()"
-            max-width="350" dark
-            content-class="dce-dialog">
-            <v-card color="secondary" class="white--text">
-                <v-card-title class="headline">Unsaved changes</v-card-title>
-                <v-card-text>
-                    It seems you have some unsaved changes.
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="primary"
-                        @click="unsavedChangesDialogGoBack()"
-                        >Go back</v-btn>
-                    <v-btn color="error"
-                        @click="unsavedChangesDialogConfirmed()"
-                        >Discard changes</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+        <dialog-component v-model:value="confirmUnchangedDialogVisible" max-width="350" dark>
+            <template #header>Unsaved changes</template>
+            <template #footer>
+                <btn-component color="error"
+                    @click="unsavedChangesDialogConfirmed"
+                    >Discard changes</btn-component>
+                <btn-component color="secondary"
+                    @click="unsavedChangesDialogGoBack"
+                    >Go back</btn-component>
+            </template>
+            <div>
+                It seems you have some unsaved changes.
+            </div>
+        </dialog-component>
         <!-- ##################### -->
-        <v-dialog v-model="saveScriptDialogVisible"
-            @keydown.esc="saveScriptDialogVisible = false"
-            max-width="400" dark
-            content-class="dce-dialog">
-            <v-card color="secondary" class="white--text">
-                <v-card-title class="headline">Save new script</v-card-title>
-                <v-card-text>
-                    Choose where to save this script.
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="primary" @click="saveScriptDialogVisible = false">Cancel</v-btn>
-                    <v-btn color="primary" @click="saveScript(currentScript, 'local')"
-                        :disabled="loadStatus.inProgress"
-                        :loading="loadStatus.inProgress"
-                        >Local storage</v-btn>
-                    <v-btn color="primary" @click="saveScript(currentScript, 'server')"
-                        :disabled="loadStatus.inProgress"
-                        :loading="loadStatus.inProgress"
-                        >Server</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+        <dialog-component v-model:value="saveScriptDialogVisible" max-width="500" dark>
+            <template #header>Save new script</template>
+            <template #footer>
+                <btn-component color="primary" @click="saveScript(currentScript, 'local')"
+                    :disabled="loadStatus.inProgress"
+                    :loading="loadStatus.inProgress"
+                    >Local storage</btn-component>
+                <btn-component color="primary" @click="saveScript(currentScript, 'server')"
+                    :disabled="loadStatus.inProgress"
+                    :loading="loadStatus.inProgress"
+                    >Server</btn-component>
+                <btn-component color="secondary" @click="saveScriptDialogVisible = false">Cancel</btn-component>
+            </template>
+            <div>
+                Choose where to save this script.
+            </div>
+        </dialog-component>
         <!-- ##################### -->
-        <v-dialog v-model="configDialogVisible"
-            @keydown.esc="configDialogVisible = false"
-            max-width="600" dark
-            content-class="dce-dialog">
-            <v-card color="secondary" class="white--text">
-                <v-card-title class="headline">Settings</v-card-title>
-                <v-card-text class="pt-0">
-                    <div class="dce-dialog--option">
-                        <v-checkbox
-                            v-model="localOptions.autoFormatResult"
-                            @change="(v) => setLocalConfig(o => o.autoFormatResult = v)"
-                            label="Auto-format results" style="display:block"></v-checkbox>
-                        <div class="dce-dialog--option--description">
-                            Automatically formats json in result after execution.
-                        </div>
+        <dialog-component v-model:value="configDialogVisible" max-width="600" dark class="dce-dialog">
+            <template #header>Settings</template>
+            <template #footer>
+                <btn-component color="secondary" @click="configDialogVisible = false">Close</btn-component>
+            </template>
+            <div>
+                <div class="dce-dialog--option">
+                    <checkbox-component
+                        v-model:value="localOptions.autoFormatResult"
+                        @change="(v) => setLocalConfig(o => o.autoFormatResult = v)"
+                        label="Auto-format results"></checkbox-component>
+                    <div class="dce-dialog--option--description">
+                        Automatically formats json in result after execution.
                     </div>
+                </div>
 
-                    <div class="dce-dialog--option">
-                        <v-checkbox
-                            v-model="localOptions.autoFoldRegions"
-                            @change="(v) => setLocalConfig(o => o.autoFoldRegions = v)"
-                            label="Auto-fold regions" style="display:block"></v-checkbox>
-                        <div class="dce-dialog--option--description">
-                            Automatically folds any #regions in editor after execution.
-                        </div>
+                <div class="dce-dialog--option">
+                    <checkbox-component
+                        v-model:value="localOptions.autoFoldRegions"
+                        @change="(v) => setLocalConfig(o => o.autoFoldRegions = v)"
+                        label="Auto-fold regions"></checkbox-component>
+                    <div class="dce-dialog--option--description">
+                        Automatically folds any #regions in editor after execution.
                     </div>
+                </div>
 
-                    <div class="dce-dialog--option">
-                        <v-checkbox
-                            v-model="localOptions.updateLocalCodeFromRemote"
-                            @change="(v) => setLocalConfig(o => o.updateLocalCodeFromRemote = v)"
-                            label="Update local code from pre-processed" style="display:block"></v-checkbox>
-                        <div class="dce-dialog--option--description">
-                            Updates local code with its pre-processed version after execution.
-                        </div>
+                <div class="dce-dialog--option">
+                    <checkbox-component
+                        v-model:value="localOptions.updateLocalCodeFromRemote"
+                        @change="(v) => setLocalConfig(o => o.updateLocalCodeFromRemote = v)"
+                        label="Update local code from pre-processed"></checkbox-component>
+                    <div class="dce-dialog--option--description">
+                        Updates local code with its pre-processed version after execution.
                     </div>
-                    
-                    
-                    <h3 class="mt-4 mb-2">Code pre-processors</h3>
-                    <div v-for="(prepro, ppindex) in options.Options.PreProcessors"
-                        :key="`dce_options_preprocessor-${ppindex}`"
-                        class="dce-dialog--option"
-                        >
-                        <v-checkbox
-                            :label="prepro.Name"
-                            class="mt-0"
-                            :disabled="!prepro.CanBeDisabled"
-                            :input-value="isPreProcessorEnabled(prepro)"
-                            @change="(v) => onPreProcessorToggled(prepro, v)"
-                            ></v-checkbox>
-                        <div class="dce-dialog--option--description"
-                            v-if="prepro.Description != null && prepro.Description.trim().length > 0">
-                            {{ prepro.Description }}
-                        </div>
+                </div>
+                
+                
+                <h3 class="mt-4 mb-2" v-if="options.Options.PreProcessors.length > 0">Code pre-processors</h3>
+                <div v-for="(prepro, ppindex) in options.Options.PreProcessors"
+                    :key="`dce_options_preprocessor-${ppindex}`"
+                    class="dce-dialog--option"
+                    >
+                    <checkbox-component
+                        :label="prepro.Name"
+                        class="mt-0"
+                        :disabled="!prepro.CanBeDisabled"
+                        :value="isPreProcessorEnabled(prepro)"
+                        @change="(v) => onPreProcessorToggled(prepro, v)"
+                        ></checkbox-component>
+                    <div class="dce-dialog--option--description"
+                        v-if="prepro.Description != null && prepro.Description.trim().length > 0">
+                        {{ prepro.Description }}
                     </div>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="primary" @click="configDialogVisible = false">Close</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+                </div>
+            </div>
+        </dialog-component>
         <!-- ##################### -->
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import DateUtils from  '../../../util/DateUtils';
-import LinqUtils from  '../../../util/LinqUtils';
-import KeyArray from  '../../../util/models/KeyArray';
-import KeyValuePair from  '../../../models/Common/KeyValuePair';
-import BlockComponent from  '../../Common/Basic/BlockComponent.vue';
-import ModuleConfig from  '../../../models/Common/ModuleConfig';
-import ModuleOptions from  '../../../models/Common/ModuleOptions';
-import EditorComponent from  '../../Common/EditorComponent.vue';
-import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import DynamicCodeExecutionService from  '../../../services/DynamicCodeExecutionService';
-import { DynamicCodeExecutionResultModel, DynamicCodeScript, AutoCompleteRequest, AutoCompleteData, CodeSnippet } from  '../../../models/modules/DynamicCodeExecution/Models';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import DateUtils from '@util/DateUtils';
+import LinqUtils from '@util/LinqUtils';
+import KeyArray from '@util/models/KeyArray';
+import KeyValuePair from '@models/Common/KeyValuePair';
+import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
+import ModuleConfig from '@models/Common/ModuleConfig';
+import ModuleOptions from '@models/Common/ModuleOptions';
+import EditorComponent from '@components/Common/EditorComponent.vue';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import DynamicCodeExecutionService from '@services/DynamicCodeExecutionService';
+import { DynamicCodeExecutionResultModel, DynamicCodeScript, AutoCompleteRequest, AutoCompleteData, CodeSnippet } from '@models/modules/DynamicCodeExecution/Models';
 import { MarkerSeverity } from "monaco-editor";
-import { FilterableListItem } from  '../../Common/FilterableListComponent.vue';
-import FilterableListComponent from  '../../Common/FilterableListComponent.vue';
-import IdUtils from  '../../../util/IdUtils';
+import { FilterableListItem } from '@components/Common/FilterableListComponent.vue.models';
+import FilterableListComponent from '@components/Common/FilterableListComponent.vue';
+import IdUtils from '@util/IdUtils';
 import * as monaco from 'monaco-editor'
-import HealthCheckPageComponent from  '../../HealthCheckPageComponent.vue';
-import LoadingScreenComponent from  '../../Common/LoadingScreenComponent.vue';
+import HealthCheckPageComponent from '@components/HealthCheckPageComponent.vue';
+import LoadingScreenComponent from '@components/Common/LoadingScreenComponent.vue';
+import StringUtils from "@util/StringUtils";
+import { StoreUtil } from "@util/StoreUtil";
+import EventBus, { CallbackUnregisterShortcut } from "@util/EventBus";
+import { ModuleSpecificConfig } from "@components/HealthCheckPageComponent.vue.models";
 
 interface DynamicCodeExecutionPageOptions {
     DefaultScript: string | null;
@@ -306,7 +269,7 @@ interface LocalOptions {
     disabledPreProcessorIds: Array<string>;
 }
 
-@Component({
+@Options({
     components: {
         BlockComponent,
         EditorComponent,
@@ -338,12 +301,17 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
     confirmUnchangedDialogVisible: boolean = false;
     configDialogVisible: boolean = false;
 
+    callbacks: Array<CallbackUnregisterShortcut> = [];
+    
     //////////////////
     //  LIFECYCLE  //
     ////////////////
     mounted(): void
     {
-        this.$store.commit('showMenuButton', true);
+        this.callbacks = [
+            EventBus.on("onNotAllowedModuleSwitch", this.onNotAllowedModuleSwitch.bind(this))
+        ];
+        StoreUtil.store.commit('showMenuButton', true);
         this.loadData();
 
         window.addEventListener("beforeunload", (e) => this.onWindowUnload(e));
@@ -352,11 +320,12 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
     }
 
     created(): void {
-        this.$parent.$parent.$on("onNotAllowedModuleSwitch", this.onNotAllowedModuleSwitch);
+        // (<any>this.$parent)?.$parent.$on("onNotAllowedModuleSwitch", this.onNotAllowedModuleSwitch);
     }
 
-    beforeDestroy(): void {
-      this.$parent.$parent.$off('onNotAllowedModuleSwitch', this.onNotAllowedModuleSwitch);
+    beforeUnmount(): void {
+      this.callbacks.forEach(x => x.unregister());
+    //   (<any>this.$parent)?.$parent.$off('onNotAllowedModuleSwitch', this.onNotAllowedModuleSwitch);
     }
 
     ////////////////
@@ -394,7 +363,7 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
     }
 
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
 
     get currentScriptTitle(): string {
@@ -545,28 +514,20 @@ namespace CodeTesting
     ///////////////
     @Watch("shouldNotifyUnsavedChanges")
     onShouldNotifyUnsavedChangesCanged(): void {
-        this.$store.commit('allowModuleSwitch', !this.shouldNotifyUnsavedChanges);
-    }
-
-    ////////////////////
-    //  Parent Menu  //
-    //////////////////
-    drawerState: boolean = this.storeMenuState;
-    get storeMenuState(): boolean {
-        return this.$store.state.ui.menuExpanded;
-    }
-    @Watch("storeMenuState")
-    onStoreMenuStateChanged(): void {
-        this.drawerState = this.storeMenuState;
-    }
-    @Watch("drawerState")
-    onDrawerStateChanged(): void {
-        this.$store.commit('setMenuExpanded', this.drawerState);
+        StoreUtil.store.commit('allowModuleSwitch', !this.shouldNotifyUnsavedChanges);
     }
 
     ////////////////
     //  METHODS  //
     //////////////
+    public moduleSpecificConfig(): ModuleSpecificConfig {
+        return {
+            fullWidth: true,
+            fullHeight: true,
+            dark: true
+        };
+    }
+
     updateUrl(): void {
         let routeParams: any = {};
         if (this.currentScript != null && this.currentScript.IsDraft != true)
@@ -577,7 +538,7 @@ namespace CodeTesting
     }
 
     updateSelectionFromUrl(): void {
-        const selectedScriptId = this.$route.params.id;
+        const selectedScriptId = StringUtils.stringOrFirstOfArray(this.$route.params.id) || '';
 
         if (selectedScriptId !== undefined && selectedScriptId.length > 0) {
             let script = this.localScripts.concat(this.serverScripts)
@@ -708,7 +669,7 @@ namespace CodeTesting
         
         if (updateUrl)
         {
-            const idInUrl = this.$route.params.id;
+            const idInUrl = StringUtils.stringOrFirstOfArray(this.$route.params.id);
             if (idInUrl !== script.Id)
             {
                 this.updateUrl();
@@ -884,7 +845,7 @@ namespace CodeTesting
     onEditorInit(editor: monaco.editor.IStandaloneCodeEditor): void {
         this.editor.foldRegions();
 
-        editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, () => {            
+        editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {            
             this.onSaveClicked();
         });
 
@@ -983,7 +944,7 @@ namespace CodeTesting
 
     preprocessBeforeSave(script: DynamicCodeScript): void
     {
-        Vue.set(script, 'IsDraft', false);
+        script['IsDraft'] = false;
         delete script.IsDraft;
 
         const titleFromCode = this.getTitleFromComment(script.Code);
@@ -1172,7 +1133,7 @@ namespace CodeTesting
                 if (confirmed && this.currentScript != null)
                 {
                     this.code = this.currentScript.Code;
-                    setTimeout(() => (this.$parent.$parent as HealthCheckPageComponent).retryShowModule(), 50);
+                    setTimeout(() => ((<any>this.$parent)?.$parent as HealthCheckPageComponent).retryShowModule(), 50);
                 }
             });
     }
@@ -1202,33 +1163,32 @@ namespace CodeTesting
         }
     }
 
-    .menu {
-        overflow: hidden;
-    }
-
-    .menu > div:first-of-type {
-        height: calc(100% - 62px);
-        overflow-y: auto;
-    }
-
-    .menu-bottom-nav {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 62px;
-        overflow: hidden;
-        display: flex;
-        /* justify-content: flex-end; */
-        box-shadow: 0px 0px 13px 0px #1b1b1b;
-
-        button {
-            flex: 1;
-        }
-    }
-
     /* .dce-config-dialog {
     } */
+}
+.menu {
+    overflow: hidden;
+}
+
+.menu > div:first-of-type {
+    height: calc(100% - 62px);
+    overflow-y: auto;
+}
+
+.menu-bottom-nav {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 62px;
+    overflow: hidden;
+    display: flex;
+    /* justify-content: flex-end; */
+    box-shadow: 0px 0px 13px 0px #1b1b1b;
+
+    button {
+        flex: 1;
+    }
 }
 </style>
 
@@ -1237,18 +1197,6 @@ namespace CodeTesting
     .dce-dialog--option {
         margin-bottom: 10px;
 
-        .v-input {
-            margin-top: 0;
-
-            .v-messages {
-                display: none;
-            }
-        }
-
-        .v-input__slot {
-            margin-bottom: 0 !important;
-        }
-        
         .dce-dialog--option--description {
             font-size: small;
             margin-left: 32px;

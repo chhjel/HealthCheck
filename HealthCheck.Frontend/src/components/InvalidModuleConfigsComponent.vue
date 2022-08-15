@@ -1,12 +1,9 @@
 <!-- src/components/InvalidModuleConfigsComponent.vue -->
 <template>
     <div>
-        <v-content class="pl-0">
-        <v-container fluid fill-height class="content-root">
-        <v-layout>
-        <v-flex>
-            <!-- CONTENT BEGIN -->
-            <v-alert
+        <div>
+            
+            <alert-component
                 v-for="(module, mindex) in invalidConfigs"
                 :key="`invalid-module-${mindex}`"
                 :value="true" color="error"
@@ -24,24 +21,22 @@
                         <code v-if="module.LoadErrorStacktrace != null">{{ module.LoadErrorStacktrace }}</code>
                     </ul>
                 </div>
-            </v-alert>
-            <!-- CONTENT END -->
-        </v-flex>
-        </v-layout>
-        </v-container>
-        </v-content>
+            </alert-component>
+            
+        </div>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import ModuleConfig from "../models/Common/ModuleConfig";
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import ModuleConfig from '@models/Common/ModuleConfig';
 
-@Component({
+@Options({
     components: {
     }
 })
-export default class NoPageAvailablePageComponent extends Vue {
+export default class InvalidModuleConfigsComponent extends Vue {
     @Prop({ required: true })
     invalidConfigs!: Array<ModuleConfig>;
 

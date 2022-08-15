@@ -11,17 +11,18 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import TestResultDataDumpViewModel from  '../../../../../models/modules/TestSuite/TestResultDataDumpViewModel';
-import HyperLinkViewModel from  '../../../../../models/Common/HyperLinkViewModel';
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { TestResultDataDumpViewModel } from '@generated/Models/Core/TestResultDataDumpViewModel';
+import HyperLinkViewModel from '@models/Common/HyperLinkViewModel';
 
-@Component({
+@Options({
     components: {
     }
 })
-export default class TestResultImageUrlsDataComponent extends Vue {
+export default class TestResultUrlsDataComponent extends Vue {
     @Prop({ required: true })
-    data!: TestResultDataDumpViewModel;
+    resultData!: TestResultDataDumpViewModel;
     @Prop({ required: true })
     fullscreen!: boolean;
 
@@ -33,7 +34,7 @@ export default class TestResultImageUrlsDataComponent extends Vue {
     }
 
     get links(): Array<HyperLinkViewModel> {
-      let lines = this.data.Data.split(/\r\n|\r|\n/)
+      let lines = this.resultData.Data.split(/\r\n|\r|\n/)
         .filter(x => x.trim().length > 0);
       
       return lines.map(x => {
@@ -76,11 +77,5 @@ export default class TestResultImageUrlsDataComponent extends Vue {
 }
 .image-result-data-item {
   min-height: 100px;
-}
-</style>
-
-<style>
-.v-dialog .data-dump-imageurls {
-    height: calc(100vh - 64px);
 }
 </style>

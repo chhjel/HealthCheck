@@ -72,6 +72,74 @@ namespace HealthCheck.Core.Modules.Tests.Services
             where TAccessRolesEnum : Enum
             => DiscoverTestDefinitions(includeInvalidTests, onlyTestsAllowedToBeManuallyExecuted, userRoles, testFilter, defaultTestAccessLevel, userCategoryAccess);
 
+        private static List<TestClassDefinition> _testClassDefinitionCache;
+        private static object _testClassDefinitionCacheGenLock = new();
+        private void EnsureTestClassDefinitionCache(IEnumerable<Assembly> assemblies)
+        {
+            lock (_testClassDefinitionCacheGenLock)
+            {
+                if (_testClassDefinitionCache != null) return;
+
+                _testClassDefinitionCache = new List<TestClassDefinition>();
+                var testClassTypesCache = assemblies
+                    .SelectMany(x => x.GetTypes())
+                    .Where(x => x.GetCustomAttribute<RuntimeTestClassAttribute>(inherit: true) != null)
+                    .ToList();
+
+                foreach (var classType in testClassTypesCache)
+                {
+                    var testClassAttribute = classType.GetCustomAttribute<RuntimeTestClassAttribute>(inherit: true);
+                    var classDef = new TestClassDefinition(classType, testClassAttribute);
+                    var methods = classType.GetMethods();
+
+                    foreach (var testMethod in methods)
+                    {
+                        var testAttribute = testMethod.GetCustomAttribute<RuntimeTestAttribute>();
+                        var proxyTestAttribute = testMethod.GetCustomAttribute<ProxyRuntimeTestsAttribute>();
+
+                        // Normal tests
+                        if (testAttribute != null)
+                        {
+                            var testDef = new TestDefinition(testMethod, testAttribute, classDef, ReferenceParameterFactories);
+                            classDef.Tests.Add(testDef);
+                        }
+                        // Proxy class tests
+                        else if (proxyTestAttribute != null && IncludeProxyTests)
+                        {
+                            // Check for load errors
+                            var errors = ValidateProxyTestMethod(classType, testMethod);
+                            if (errors.Any())
+                            {
+                                var testDef = new TestDefinition(testMethod, classDef, ReferenceParameterFactories)
+                                {
+                                    LoadErrors = errors
+                                };
+                                classDef.Tests.Add(testDef);
+                                continue;
+                            }
+
+                            var config = testMethod.Invoke(null, new object[0]) as ProxyRuntimeTestConfig;
+                            var proxyMethods = config.TargetClassType.GetMethods()
+                                .Where(t => !_excludedProxyMethodNames.Contains(t.Name) && !t.IsSpecialName && t.IsPublic && !t.IsStatic && !t.IsGenericMethod)
+                                .Where(m => !m.GetCustomAttributes(typeof(CompilerGeneratedAttribute), true).Any())
+                                .Where(m => config?.MethodFilter?.Invoke(m) != false);
+                            foreach (var proxyMethod in proxyMethods)
+                            {
+                                var testDef = new TestDefinition(proxyMethod, proxyTestAttribute, config, classDef, ReferenceParameterFactories);
+                                classDef.Tests.Add(testDef);
+                            }
+                        }
+                    }
+
+                    // Only include test set if it has any tests
+                    if (classDef.Tests.Any())
+                    {
+                        _testClassDefinitionCache.Add(classDef);
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// Discover tests.
         /// </summary>
@@ -91,74 +159,20 @@ namespace HealthCheck.Core.Modules.Tests.Services
                     $"{nameof(AssembliesContainingTests)} must contain at least one assembly to retrieve tests from.");
             }
 
-            var testClassTypes = assemblies
-                .SelectMany(x => x.GetTypes())
-                .Where(x => x.GetCustomAttribute<RuntimeTestClassAttribute>(inherit: true) != null)
-                .ToList();
+            EnsureTestClassDefinitionCache(assemblies);
 
-            var testDefinitions = new List<TestClassDefinition>();
-            foreach (var classType in testClassTypes)
-            {
-                var testClassAttribute = classType.GetCustomAttribute<RuntimeTestClassAttribute>(inherit: true);
-                var classDef = new TestClassDefinition(classType, testClassAttribute);
-                var methods = classType.GetMethods();
-
-                foreach(var testMethod in methods)
+            return _testClassDefinitionCache
+                .Select(classDef =>
                 {
-                    var testAttribute = testMethod.GetCustomAttribute<RuntimeTestAttribute>();
-                    var proxyTestAttribute = testMethod.GetCustomAttribute<ProxyRuntimeTestsAttribute>();
-
-                    // Normal tests
-                    if (testAttribute != null)
+                    var classDefCopy = classDef.Clone((testDef) =>
                     {
-                        var testDef = new TestDefinition(testMethod, testAttribute, classDef, ReferenceParameterFactories);
-
                         bool includeTest = ShouldIncludeTest(includeInvalidTests, onlyTestsAllowedToBeManuallyExecuted, userRolesEnum, testDef, defaultTestAccessLevel, userCategoryAccess, userIdAccess);
-                        if (includeTest && testFilter?.Invoke(testDef) != false)
-                        {
-                            classDef.Tests.Add(testDef);
-                        }
-                    }
-                    // Proxy class tests
-                    else if (proxyTestAttribute != null && IncludeProxyTests)
-                    {
-                        // Check for load errors
-                        var errors = ValidateProxyTestMethod(classType, testMethod);
-                        if (errors.Any())
-                        {
-                            var testDef = new TestDefinition(testMethod, classDef, ReferenceParameterFactories)
-                            {
-                                LoadErrors = errors
-                            };
-                            classDef.Tests.Add(testDef);
-                            continue;
-                        }
-
-                        var config = testMethod.Invoke(null, new object[0]) as ProxyRuntimeTestConfig;
-                        var proxyMethods = config.TargetClassType.GetMethods()
-                            .Where(t => !_excludedProxyMethodNames.Contains(t.Name) && !t.IsSpecialName && t.IsPublic && !t.IsStatic && !t.IsGenericMethod)
-                            .Where(m => !m.GetCustomAttributes(typeof(CompilerGeneratedAttribute), true).Any())
-                            .Where(m => config?.MethodFilter?.Invoke(m) != false);
-                        foreach (var proxyMethod in proxyMethods)
-                        {
-                            var testDef = new TestDefinition(proxyMethod, proxyTestAttribute, config, classDef, ReferenceParameterFactories);
-                            bool includeTest = ShouldIncludeTest(includeInvalidTests, onlyTestsAllowedToBeManuallyExecuted, userRolesEnum, testDef, defaultTestAccessLevel, userCategoryAccess, userIdAccess);
-                            if (includeTest && testFilter?.Invoke(testDef) != false)
-                            {
-                                classDef.Tests.Add(testDef);
-                            }
-                        }
-                    }
-                }
-
-                // Only include test set if it has any tests
-                if (classDef.Tests.Any())
-                {
-                    testDefinitions.Add(classDef);
-                }
-            }
-
-            return testDefinitions;
+                        return includeTest && testFilter?.Invoke(testDef) != false;
+                    });
+                    return classDefCopy;
+                })
+                .Where(x => x?.Tests?.Any() == true)
+                .ToList();
         }
 
         private readonly string[] _excludedProxyMethodNames = typeof(object).GetMethods().Select(x => x.Name).ToArray();

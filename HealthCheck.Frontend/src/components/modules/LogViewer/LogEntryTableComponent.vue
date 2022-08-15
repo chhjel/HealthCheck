@@ -16,10 +16,10 @@
                 </thead>
                 <tbody>
                     <template 
-                        v-for="(row, entryRowIndex) in rows">
+                        v-for="(row, entryRowIndex) in rows"
+                        :key="`log-entry-row-${entryRowIndex}`">
                         <tr class="log-table-row"
                             :class="getEntryRowClasses(row.Entry)"
-                            :key="`log-entry-row-${entryRowIndex}`"
                             @click="onRowClicked(entryRowIndex)">
 
                             <td class="text-xs-left"
@@ -54,13 +54,14 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import LinqUtils from  '../../../util/LinqUtils';
-import LogEntrySearchResultItem from  '../../../models/modules/LogViewer/LogEntrySearchResultItem';
-import { FilterDelimiterMode } from  '../../../models/modules/LogViewer/FilterDelimiterMode';
-import DateUtils from  '../../../util/DateUtils';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import LinqUtils from '@util/LinqUtils';
+import { LogEntrySearchResultItem } from '@generated/Models/Core/LogEntrySearchResultItem';
+import { FilterDelimiterMode } from '@models/modules/LogViewer/FilterDelimiterMode';
+import DateUtils from '@util/DateUtils';
 import * as XRegExp from 'xregexp';
-import { LogEntrySeverity } from  '../../../models/modules/LogViewer/LogEntrySeverity';
+import { LogEntrySeverity } from '@generated/Enums/Core/LogEntrySeverity';
 
 interface TableEntryRow {
     Entry: LogEntrySearchResultItem;
@@ -71,7 +72,7 @@ interface ColumnsAndValues {
     Values: Array<string>;
 }
 
-@Component({
+@Options({
     components: { }
 })
 export default class LogEntryTableComponent extends Vue {
@@ -181,7 +182,7 @@ export default class LogEntryTableComponent extends Vue {
 
                 if (regexMatches != null) {
                     const matchWithoutGroupsKeys = XRegExp.exec('asdasd', XRegExp('asd', 'gism'));
-                    const discardedKeys = Object.keys(matchWithoutGroupsKeys);
+                    const discardedKeys = matchWithoutGroupsKeys == null ? [] : Object.keys(matchWithoutGroupsKeys);
                     const matchKeys = Object.keys(regexMatches);
                     const groupNames = matchKeys.filter(x => 
                         discardedKeys.indexOf(x) == -1 && !/^[0-9]+$/.test(x)
@@ -276,16 +277,16 @@ export default class LogEntryTableComponent extends Vue {
     border-left: 25px solid #edf7ff;
 }
 .log-entry-error {
-    border-left: 25px solid var(--v-error-lighten1);
+    border-left: 25px solid var(--color--error-lighten1);
 }
 .log-entry-error:hover {
-    border-left: 25px solid var(--v-error-lighten2);
+    border-left: 25px solid var(--color--error-lighten2);
 }
 .log-entry-warning {
-    border-left: 25px solid var(--v-warning-lighten1);
+    border-left: 25px solid var(--color--warning-lighten1);
 }
 .log-entry-warning:hover {
-    border-left: 25px solid var(--v-warning-lighten2);
+    border-left: 25px solid var(--color--warning-lighten2);
 }
 .log-entry-details-row {
     border-left-width: 50px !important;

@@ -33,30 +33,14 @@ namespace HealthCheck.Core.Attributes
         /// </summary>)
         public string NullName { get; set; }
 
-        private static readonly HCStringConverter _stringConverter = new();
-
         /// <summary>
-        /// Create flags options for frontend consumption.
+        /// Can be used on text inputs to require the input to match the given regex pattern.
+        /// <para>Use JavaScript format. If not starting with a '/' one will be prepended and '/g' will be appended.</para>
+        /// <para>Example: O\-\d+ or /[abc]+/gi</para>
         /// </summary>
-        protected virtual List<string> CreateFlags()
-        {
-            var flags = new List<string>();
+        public string TextPattern { get; set; }
 
-            if (UIHints.HasFlag(HCUIHint.ReadOnlyList))
-            {
-                flags.Add("ReadOnlyList");
-            }
-            if (UIHints.HasFlag(HCUIHint.TextArea))
-            {
-                flags.Add("TextArea");
-            }
-            if (UIHints.HasFlag(HCUIHint.CodeArea))
-            {
-                flags.Add("CodeArea");
-            }
-
-            return flags;
-        }
+        private static readonly HCStringConverter _stringConverter = new();
 
         /// <summary></summary>
         protected virtual Dictionary<string, string> GetExtraValues() => new();
@@ -113,11 +97,11 @@ namespace HealthCheck.Core.Attributes
                 Type = CreateParameterTypeName(type),
                 Description = attr?.Description ?? "",
                 Nullable = isNullable,
-                NotNull = attr?.UIHints.HasFlag(HCUIHint.NotNull) == true,
                 NullName = attr?.NullName,
-                FullWidth = attr?.UIHints.HasFlag(HCUIHint.FullWidth) == true,
+                TextPattern = HCBackendInputConfig.EnsureJsRegexIsWrappedIfNotEmpty(attr?.TextPattern),
                 DefaultValue = defaultValue,
-                Flags = attr?.CreateFlags() ?? new List<string>(),
+                Flags = new(),
+                UIHints = EnumUtils.GetFlaggedEnumValues<HCUIHint>(attr?.UIHints) ?? new(),
                 ParameterIndex = null,
                 PossibleValues = possibleValues,
                 ExtraValues = attr?.GetExtraValues() ?? new Dictionary<string, string>(),
@@ -194,6 +178,11 @@ namespace HealthCheck.Core.Attributes
             {
                 var innerType = EnumUtils.IsTypeEnumFlag(type.GetGenericArguments()[0]) ? "FlaggedEnum" : "Enum";
                 typeName = $"List<{innerType}>";
+            }
+            else if (type.IsArray && type.GetElementType().IsNullable())
+            {
+                var innerType = CreateParameterTypeName(type.GetElementType());
+                typeName = $"{innerType}[]";
             }
             return typeName;
         }

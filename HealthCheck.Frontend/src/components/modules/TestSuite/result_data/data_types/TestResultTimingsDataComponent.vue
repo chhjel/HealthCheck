@@ -5,25 +5,19 @@
         :key="`${id}-timing-${itemIndex}`"
         class="timingbar">
         
-        <v-tooltip bottom>
-            <template v-slot:activator="{ on }">
-              <span class="timingbar-label" v-on="on">{{ item.Description }}</span>
-            </template>
-            <span>{{ item.Description }}</span>
-        </v-tooltip>
+        <tooltip-component :tooltip="item.Description">
+          <span class="timingbar-label">{{ item.Description }}</span>
+        </tooltip-component>
 
         <div class="timingbar-bar-wrapper">
-          <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <div class="timingbar-bar" :style="getBarStyle(item, itemIndex)" v-on="on">
-                  <div class="timing-bar-details-wrapper">
-                    <div class="timing-bar-details">{{ item.DurationText }}</div>
-                  </div>
-                  <div class="timingbar-bar-inner" :style="getInnerBarStyle(item, itemIndex)"></div>
-                </div>
-              </template>
-              <span>{{ item.DurationText }}</span>
-          </v-tooltip>
+          <tooltip-component :tooltip="item.DurationText">
+            <div class="timingbar-bar" :style="getBarStyle(item, itemIndex)">
+              <div class="timing-bar-details-wrapper">
+                <div class="timing-bar-details">{{ item.DurationText }}</div>
+              </div>
+              <div class="timingbar-bar-inner" :style="getInnerBarStyle(item, itemIndex)"></div>
+            </div>
+          </tooltip-component>
         </div>
           
       </div>
@@ -31,10 +25,11 @@
 </template>
 
 <script lang="ts">
-import IdUtils from "util/IdUtils";
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import TestResultDataDumpViewModel from  'models/modules/TestSuite/TestResultDataDumpViewModel';
-import DateUtils from "util/DateUtils";
+import IdUtils from "@util/IdUtils";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import TestResultDataDumpViewModel from '@models/modules/TestSuite/TestResultDataDumpViewModel';
+import DateUtils from "@util/DateUtils";
 
 interface Timing {
   Description: string;
@@ -47,13 +42,13 @@ interface TimingExt extends Timing {
   EndPercentage: number;
 }
 
-@Component({
+@Options({
     components: {
     }
 })
 export default class TestResultTimingsDataComponent extends Vue {
     @Prop({ required: true })
-    data!: TestResultDataDumpViewModel;
+    resultData!: TestResultDataDumpViewModel;
     @Prop({ required: true })
     fullscreen!: boolean;
     
@@ -67,7 +62,7 @@ export default class TestResultTimingsDataComponent extends Vue {
     ];
 
     mounted(): void {
-      let rawTimings: Array<Timing> = JSON.parse(this.data.Data);
+      let rawTimings: Array<Timing> = JSON.parse(this.resultData.Data);
       let maxValue = Math.max(...rawTimings.map(x => x.EndMilliseconds));
 
       this.items = rawTimings.map(x => {
@@ -133,6 +128,7 @@ export default class TestResultTimingsDataComponent extends Vue {
     background-color: #eee;
 
     .timingbar-bar {
+      box-sizing: border-box;
       position: relative;
       min-width: 5px;
       height: 30px;

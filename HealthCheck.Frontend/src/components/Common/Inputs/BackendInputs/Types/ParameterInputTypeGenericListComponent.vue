@@ -1,76 +1,74 @@
 <!-- src/components/modules/TestSuite/paremeter_inputs/input_types/ParameterInputTypeGenericListComponent.vue -->
 <template>
     <div>
-        <v-list dense class="parameter-list-input" v-if="items.length > 0">
+        <div class="parameter-list-input" v-if="items.length > 0">
             <draggable
                 v-model="items"
-                group="grp"
+                :item-key="x => `${id}-item-${x.id}`"
+                :group="`grp-${id}`"
                 style="min-height: 10px"
                 @end="onChanged">
-                <template v-for="(item, itemIndex) in items">
-                    <v-list-tile :key="`${id}-item-${item.id}`" class="parameter-list-input-tile">
-                        <v-list-tile-action v-if="items.length > 1">
-                            <v-icon class="handle-icon">drag_handle</v-icon>
-                        </v-list-tile-action>
+                <template #item="{element}">
+                    <div class="parameter-list-input-tile">
+                        <div v-if="items.length > 1">
+                            <icon-component class="handle-icon">drag_handle</icon-component>
+                        </div>
 
-                        <v-tooltip bottom v-if="!isReadOnlyList" >
-                            <template v-slot:activator="{ on }">
-                                <v-list-tile-action v-if="!isReadOnlyList" @click="removeItem(itemIndex)" v-on="on">
-                                    <v-btn flat icon color="error" :disabled="readonly">
-                                        <v-icon>remove</v-icon>
-                                    </v-btn>
-                                </v-list-tile-action>
-                            </template>
-                            <span>Remove</span>
-                        </v-tooltip>
+                        <tooltip-component v-if="!isReadOnlyList" tooltip="Remove">
+                            <btn-component flat icon color="error" :disabled="readonly" @click="removeItem(itemIndex)" style="min-width: 34px">
+                                <icon-component>remove</icon-component>
+                            </btn-component>
+                        </tooltip-component>
 
-                        <v-list-tile-content style="max-width: 100%;">
+                        <div style="max-width: 100%;">
                             <backend-input-component v-if="!isReadOnlyList"
-                                :key="`${id}-item-input-${item.id}`"
+                                :key="`${id}-item-input-${element.id}`"
                                 :forceType="listType"
                                 forceName=""
-                                v-model="item.value"
+                                v-model:value="element.value"
                                 :config="config"
                                 :isListItem="true"
                                 :isCustomReferenceType="isCustomReferenceType"
-                                :parameterDetailContext="`${parameterDetailContext}_${item.id}`"
+                                :parameterDetailContext="`${parameterDetailContext}_${element.id}`"
                                 :referenceValueFactoryConfig="referenceValueFactoryConfig"
                                 @isAnyJson="notifyIsAnyJson()"
                                 style="max-width: 100%;" />
-                            <span v-if="isReadOnlyList">{{ item.value }}</span>
-                        </v-list-tile-content>
-                    </v-list-tile>
+                            <span v-if="isReadOnlyList">{{ element.value }}</span>
+                        </div>
+                    </div>
                 </template>
             </draggable>
-        </v-list>
-        <v-btn v-if="!isReadOnlyList" small color="primary" @click="addNewItem()" :disabled="readonly" class="ml-0">
-            <v-icon>add</v-icon>
-        </v-btn>
+        </div>
+        <btn-component v-if="!isReadOnlyList" small color="primary" @click="addNewItem()" :disabled="readonly" class="ml-0">
+            <icon-component>add</icon-component>
+        </btn-component>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch, Inject } from "vue-property-decorator";
+import { Vue, Prop, Watch, Inject } from "vue-property-decorator";
+import { Options } from "vue-class-component";
 
 //@ts-ignore
 import draggable from 'vuedraggable'
-import DateUtils from  'util/DateUtils';
-import IdUtils from "util/IdUtils";
-import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
-import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
-import TestsUtils from "util/TestsModule/TestsUtils";
-import { ReferenceValueFactoryConfigViewModel } from "generated/Models/Core/ReferenceValueFactoryConfigViewModel";
+import DateUtils from '@util/DateUtils';
+import IdUtils from "@util/IdUtils";
+import { HCBackendInputConfig } from '@generated/Models/Core/HCBackendInputConfig';
+// import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
+import TestsUtils from "@util/TestsModule/TestsUtils";
+import { ReferenceValueFactoryConfigViewModel } from "@generated/Models/Core/ReferenceValueFactoryConfigViewModel";
+import { StoreUtil } from "@util/StoreUtil";
+import { HCUIHint } from "@generated/Enums/Core/HCUIHint";
 
 interface ListItem {
     id: string;
     value: string | null;
 }
 
-@Component({
-    name: "BackendInputComponent",
+@Options({
     components: {
         draggable,
-        BackendInputComponent
+        // BackendInputComponent: () => import("@components/Common/Inputs/BackendInputs/BackendInputComponent.vue")
     }
 })
 export default class ParameterInputTypeGenericListComponent extends Vue {
@@ -113,7 +111,7 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
         this.$options.components.BackendInputComponent = require('../BackendInputComponent.vue').default
     }
 
-    mounted(): void {
+    created(): void {
         const loadedValue = this.getParameterDetail('selection');
         if (loadedValue) { this.items = loadedValue as Array<ListItem>; }
 
@@ -129,7 +127,7 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
     }
 
     get isReadOnlyList(): boolean {
-        return this.config.Flags.includes("ReadOnlyList");
+        return this.config.UIHints.includes(HCUIHint.ReadOnlyList);
     }
 
     notifyIsAnyJson(): void {
@@ -146,7 +144,7 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
     @Watch('localValue')
     onLocalValueChanged(): void
     {
-        this.$emit('input', this.localValue);
+        this.$emit('update:value', this.localValue);
     }
 
     onChanged(): void {
@@ -197,10 +195,10 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
         return this.parameterDetailContext + "_" + this.config.Id;
     }
     setParameterDetail<T>(key: string, value: T): void {
-        return TestsUtils.setParameterDetail<T>(this.$store, this.createParameterDetailKey(), key, value);
+        return TestsUtils.setParameterDetail<T>(StoreUtil.store, this.createParameterDetailKey(), key, value);
     }
     getParameterDetail<T>(key: string): T | null {
-        return TestsUtils.getParameterDetail<T>(this.$store, this.createParameterDetailKey(), key);
+        return TestsUtils.getParameterDetail<T>(StoreUtil.store, this.createParameterDetailKey(), key);
     }
 }
 </script>
@@ -212,16 +210,9 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
 .parameter-list-input {
     background: none;
 }
-</style>
-
-<style>
-.parameter-list-input .v-list__tile {
-    padding: 0;
-}
-.parameter-list-input .v-list__tile__action {
-    min-width: 32px;
-}
 .parameter-list-input-tile {
     overflow: hidden;
+    display: flex;
+    align-items: center;
 }
 </style>

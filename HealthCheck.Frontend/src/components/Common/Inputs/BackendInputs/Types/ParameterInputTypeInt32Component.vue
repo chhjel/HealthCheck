@@ -1,21 +1,21 @@
 <!-- src/components/modules/TestSuite/paremeter_inputs/input_types/ParameterInputTypeInt32Component.vue -->
 <template>
     <div>
-        <v-text-field
+        <text-field-component
             type="number"
             class="pt-0"
-            v-model="localValue"
+            v-model:value="localValue"
             :placeholder="placeholderText"
-            :disabled="readonly"
-            required />
+            :disabled="readonly" />
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { HCBackendInputConfig } from '@generated/Models/Core/HCBackendInputConfig';
 
-@Component({
+@Options({
     components: {
     }
 })
@@ -31,13 +31,16 @@ export default class ParameterInputTypeInt32Component extends Vue {
 
     localValue: string | null = '';
     
-    mounted(): void {
+    created(): void {
         this.updateLocalValue();
     }
 
     validateValue(): void {
         if (this.localValue == null || this.localValue === '') {
             this.localValue = this.isNullable ? null : "0";
+        }
+        else if (!isNaN(Number(this.localValue))) {
+            this.localValue = Math.floor(Number(this.localValue)).toString();
         }
     }
 
@@ -67,7 +70,7 @@ export default class ParameterInputTypeInt32Component extends Vue {
     onLocalValueChanged(): void
     {
         this.validateValue();
-        this.$emit('input', this.localValue);
+        this.$emit('update:value', this.localValue);
     }
 }
 </script>

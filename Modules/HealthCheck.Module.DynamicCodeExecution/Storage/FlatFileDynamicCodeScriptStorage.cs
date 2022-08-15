@@ -1,4 +1,4 @@
-﻿#if NETFULL
+﻿#if NETFULL || TRUE
 using HealthCheck.Core.Util;
 using HealthCheck.Module.DynamicCodeExecution.Abstractions;
 using HealthCheck.Module.DynamicCodeExecution.Models;

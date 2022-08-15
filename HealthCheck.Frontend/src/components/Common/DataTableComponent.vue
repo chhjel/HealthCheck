@@ -19,9 +19,8 @@
                     </tr>
 
                     <!-- VALUES -->
-                    <template v-for="(row, rowIndex) in group.items">
-                        <tr class="data-table--row-values"
-                            :key="`dtable-row-${groupIndex}-${rowIndex}`">
+                    <template v-for="(row, rowIndex) in group.items" :key="`dtable-row-${groupIndex}-${rowIndex}`">
+                        <tr class="data-table--row-values">
                             <td v-for="(value, valueIndex) in row.values"
                                 :key="`dtable-item-values-${groupIndex}-${rowIndex}-${valueIndex}`"
                                 @click="setExpanded(`dtable-row-${groupIndex}-${rowIndex}`)"
@@ -44,19 +43,11 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
 
-export interface DataTableGroup
-{
-    title: string;
-    items: Array<DataTableItem>;
-}
-export interface DataTableItem
-{
-    values: Array<any>;
-}
-
-@Component({
+import { DataTableGroup, DataTableItem } from '@components/Common/DataTableComponent.vue.models';
+@Options({
     components: {}
 })
 export default class DataTableComponent extends Vue
@@ -101,8 +92,6 @@ export default class DataTableComponent extends Vue
 
 <style scoped lang="scss">
 .data-table {
-    /* background-color: #292929;
-    color: #eee; */
     overflow-x: auto;
     padding: 10px;
     background-color: #fff;
@@ -110,10 +99,6 @@ export default class DataTableComponent extends Vue
     table {
         width: 100%;
         border-collapse: collapse;
-
-        /* th, td {
-            min-width: 100px;
-        } */
 
         th {
             text-align: left;

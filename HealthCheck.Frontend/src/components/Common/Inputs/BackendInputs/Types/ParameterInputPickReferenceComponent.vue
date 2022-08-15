@@ -2,99 +2,78 @@
 <template>
     <div>
         <div class="pick-ref-button-wrapper">
-            
-            <v-tooltip bottom :disabled="!tooltip">
-                <template v-slot:activator="{ on }">
-                    <v-btn @click="showDialog" :disabled="readonly" class="pick-ref-button ml-0 mr-0" v-on="on">{{ selectedChoiceLabel }}</v-btn>
-                </template>
-                <span>{{tooltip}}</span>
-            </v-tooltip>
+            <tooltip-component :disabled="!tooltip" :tooltip="tooltip">
+                <btn-component @click="showDialog" :disabled="readonly" class="pick-ref-button ml-0 mr-0">{{ selectedChoiceLabel }}</btn-component>
+            </tooltip-component>
         
-            <v-tooltip bottom v-if="localValue" >
-                <template v-slot:activator="{ on }">
-                    <v-btn flat small icon color="primary" v-if="localValue" class="mr-0" @click="copyToClipboard" v-on="on">
-                        <v-icon small>content_copy</v-icon>
-                    </v-btn>
-                </template>
-                <span>Copy to clipboard</span>
-            </v-tooltip>
+            <tooltip-component v-if="localValue" tooltip="Copy to clipboard">
+                <btn-component flat small icon color="primary" v-if="localValue" class="mr-0" @click="copyToClipboard">
+                    <icon-component small>content_copy</icon-component>
+                </btn-component>
+            </tooltip-component>
         </div>
 
         <textarea style="display:none;" ref="copyValue" :value="localValue" />
-        <v-snackbar v-model="showCopyAlert" :timeout="5000" :color="copyAlertColor" :bottom="true">
+        <snackbar-component v-model:value="showCopyAlert" :timeout="5000" :color="copyAlertColor">
           {{ copyAlertText }}
-          <v-btn flat @click="showCopyAlert = false">Close</v-btn>
-        </v-snackbar>
+          <btn-component flat @click="showCopyAlert = false">Close</btn-component>
+        </snackbar-component>
         
-        <v-dialog v-model="choicesDialogVisible"
-            @keydown.esc="choicesDialogVisible = false"
-            scrollable
-            max-width="600"
-            content-class="select-reference-item-dialog">
-            <v-card style="background-color: #f4f4f4">
-                <v-toolbar class="elevation-0">
-                    <v-toolbar-title>{{ dialogTitle }}</v-toolbar-title>
-                    <v-spacer></v-spacer>
-                    <v-btn icon
-                        @click="choicesDialogVisible = false">
-                        <v-icon>close</v-icon>
-                    </v-btn>
-                </v-toolbar>
+        <dialog-component v-model:value="choicesDialogVisible" max-width="600">
+            <template #header>{{ dialogTitle }}</template>
+            <template #footer>
+                <btn-component color="secondary"
+                    @click="choicesDialogVisible = false">Cancel</btn-component>
+            </template>
 
-                <v-divider></v-divider>
-                
-                <v-card-text>
-                    <p v-if="dialogDescription">{{ dialogDescription }}</p>
-                    <v-layout row>
-                        <v-flex xs9>
-                            <v-text-field
-                                class="pb-1"
-                                v-model="choicesFilterText"
-                                placeholder="Filter.." />
-                        </v-flex>
-                        <v-flex xs3>
-                            <v-btn @click="loadChoices" :disabled="loadingChoicesStatus.inProgress">{{ dialogSearchButtonText }}</v-btn>
-                        </v-flex>
-                    </v-layout>
-                    <small>{{ choices.length - 1 }} results</small>
-                    <div
-                        v-for="(choice, cindex) in choices"
-                        :key="`${config.parameterIndex}-choices-${cindex}`"
-                        class="mb-2">
-                        <v-btn class="select-reference-item"
-                            @click="selectChoice(choice)"
-                            :color="choiceColor(choice)"
-                            :disabled="readonly"
-                            >
-                            <div class="select-reference-item__name">{{ choice.Name }}</div>
-                            <div class="select-reference-item__desc" v-if="choice.Description">{{ choice.Description }}</div>
-                        </v-btn>
+            <div>
+                <p v-if="dialogDescription">{{ dialogDescription }}</p>
+                <div row>
+                    <div xs9>
+                        <text-field-component
+                            class="pb-1"
+                            v-model:value="choicesFilterText"
+                            placeholder="Filter.." />
                     </div>
-                    <v-progress-linear
-                        v-if="loadingChoicesStatus.inProgress"
-                        indeterminate color="primary"></v-progress-linear>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions >
-                    <v-spacer></v-spacer>
-                    <v-btn color="primary"
-                        @click="choicesDialogVisible = false">Cancel</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+                    <div xs3>
+                        <btn-component @click="loadChoices" :disabled="loadingChoicesStatus.inProgress">{{ dialogSearchButtonText }}</btn-component>
+                    </div>
+                </div>
+                <small>{{ choices.length - 1 }} results</small>
+                <div
+                    v-for="(choice, cindex) in choices"
+                    :key="`${config.parameterIndex}-choices-${cindex}`"
+                    class="mb-2">
+                    <btn-component class="select-reference-item"
+                        @click="selectChoice(choice)"
+                        :color="choiceColor(choice)"
+                        :disabled="readonly"
+                        >
+                        <div class="select-reference-item__name">{{ choice.Name }}</div>
+                        <div class="select-reference-item__desc" v-if="choice.Description">{{ choice.Description }}</div>
+                    </btn-component>
+                </div>
+                <progress-linear-component
+                    v-if="loadingChoicesStatus.inProgress"
+                    indeterminate color="primary"></progress-linear-component>
+            </div>
+        </dialog-component>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import { TestParameterReferenceChoiceViewModel } from  '../../../../../models/modules/TestSuite/TestParameterViewModel';
-import { FetchStatus, ServiceFetchCallbacks } from "../../../../../services/abstractions/HCServiceBase";
-import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
-import TestsUtils from "util/TestsModule/TestsUtils";
-import ClipboardUtil from "util/ClipboardUtil";
-import { ReferenceValueFactoryConfigViewModel } from "generated/Models/Core/ReferenceValueFactoryConfigViewModel";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { TestParameterReferenceChoiceViewModel } from '@models/modules/TestSuite/TestParameterViewModel';
+import { FetchStatus, ServiceFetchCallbacks } from '@services/abstractions/HCServiceBase';
+import { HCBackendInputConfig } from '@generated/Models/Core/HCBackendInputConfig';
+import TestsUtils from "@util/TestsModule/TestsUtils";
+import ClipboardUtil from "@util/ClipboardUtil";
+import { ReferenceValueFactoryConfigViewModel } from "@generated/Models/Core/ReferenceValueFactoryConfigViewModel";
+import { StoreUtil } from "@util/StoreUtil";
+import EventBus from "@util/EventBus";
 
-@Component({
+@Options({
     components: {
     }
 })
@@ -132,7 +111,7 @@ export default class ParameterInputPickReferenceComponent extends Vue {
     copyAlertText: string = "";
     copyAlertColor: string = "success";
     
-    mounted(): void {
+    created(): void {
         const loadedValue = this.getParameterDetail('choice');
         if (loadedValue) { this.selectedChoice = loadedValue as TestParameterReferenceChoiceViewModel; }
 
@@ -215,15 +194,23 @@ export default class ParameterInputPickReferenceComponent extends Vue {
             }
         };
 
-        this.$root.$emit('hc__loadTestParameterChoices', 
+        EventBus.notify("loadTestParameterChoices", 
             {
                 'component': this,
                 'loadStatus' : this.loadingChoicesStatus,
                 'callbacks': callbacks,
                 'parameterIndex': this.config.ParameterIndex,
                 'filter': this.choicesFilterText ?? ''
-            }
-        );
+            });
+        // this.$root?.$emit('hc__loadTestParameterChoices', 
+        //     {
+        //         'component': this,
+        //         'loadStatus' : this.loadingChoicesStatus,
+        //         'callbacks': callbacks,
+        //         'parameterIndex': this.config.ParameterIndex,
+        //         'filter': this.choicesFilterText ?? ''
+        //     }
+        // );
     }
 
     selectChoice(choice: TestParameterReferenceChoiceViewModel): void
@@ -265,10 +252,10 @@ export default class ParameterInputPickReferenceComponent extends Vue {
         return this.parameterDetailContext + "_" + this.config.Id;
     }
     setParameterDetail<T>(key: string, value: T): void {
-        return TestsUtils.setParameterDetail<T>(this.$store, this.createParameterDetailKey(), key, value);
+        return TestsUtils.setParameterDetail<T>(StoreUtil.store, this.createParameterDetailKey(), key, value);
     }
     getParameterDetail<T>(key: string): T | null {
-        return TestsUtils.getParameterDetail<T>(this.$store, this.createParameterDetailKey(), key);
+        return TestsUtils.getParameterDetail<T>(StoreUtil.store, this.createParameterDetailKey(), key);
     }
 
     /////////////////
@@ -283,7 +270,7 @@ export default class ParameterInputPickReferenceComponent extends Vue {
     @Watch('localValue')
     onLocalValueChanged(): void
     {
-        this.$emit('input', this.localValue);
+        this.$emit('update:value', this.localValue);
     }
 }
 </script>
@@ -310,12 +297,6 @@ export default class ParameterInputPickReferenceComponent extends Vue {
     padding: 10px 10px;
     min-width: inherit;
     
-    .v-btn__content {
-        white-space: normal;
-        flex-direction: column;
-        display: flex;
-        align-items: flex-start;
-    }
     .select-reference-item__name {
         max-width: 524px;
         text-align: left;

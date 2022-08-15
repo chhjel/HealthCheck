@@ -660,6 +660,28 @@ namespace HealthCheck.WebUI.Util
     <meta charset={Q}utf-8{Q}>
     {noIndexMeta}
     <meta name={Q}viewport{Q} content={Q}width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui{Q}>
+    <script>
+        window.__hcLoadErrors = [];
+        function showErrorsDelayed() {{
+            setTimeout(() => {{
+                var errors = window.__hcLoadErrors
+                    .filter(x => x.type == 'error' && (x.target.localName == 'script' || x.target.localName == 'link'))
+                    .map(x => {{
+                        var type = x.target.localName == 'script' ? 'code' : 'style';
+                        var url = x.target.localName == 'script' ? x.target.src : x.target.href;
+                        return `ERR: Failed to load ${{type}} from '${{url}}'`;
+                    }});
+                if (errors.length == 0) return;
+                var errContainer = document.getElementById('hc-load-errors');
+                errContainer.innerHTML = errors.join('\n');
+            }}, 2000);
+        }}
+
+        window.addEventListener('error', (x) => {{
+            window.__hcLoadErrors.push(event);
+            showErrorsDelayed();
+        }}, true);
+    </script>
     {cssTagsHtml}
     {pageOptions.CustomHeadHtml}
     {loaderStyling}
@@ -672,6 +694,7 @@ namespace HealthCheck.WebUI.Util
         <ul class={Q}bg-bubbles{Q}>
             <li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li>
         </ul>
+        <div id={Q}hc-load-errors{Q}></div>
     </div>
 
     <script>
@@ -689,11 +712,22 @@ namespace HealthCheck.WebUI.Util
         {
             return @"
 <style>
+#hc-load-errors {
+    white-space: pre;
+    text-align: center;
+    padding: 10px;
+    line-height: 18px;
+    font-family: monospace;
+    font-weight: 800;
+    color: #973a3a;
+    text-transform: uppercase;
+}
 .floating-squares-effect {
     width: 100%;
     height: 100%;
     position: fixed;
     background-color: #fff;
+    z-index: -10;
 }
 
 .floating-squares-effect .bg-bubbles {
@@ -812,6 +846,11 @@ namespace HealthCheck.WebUI.Util
     color: #516d87;
     text-align: center;
     margin-top: 12%;
+    animation: loaderFadeIn 1s;
+}
+@keyframes loaderFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 </style>
 ";

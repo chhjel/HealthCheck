@@ -1,190 +1,173 @@
 <!-- src/components/modules/Overview/OverviewPageComponent.vue -->
 <template>
     <div>
-        <v-content class="pl-0">
-        <v-container fluid fill-height class="content-root">
-        <v-layout>
-        <v-flex class="pl-4 pr-4 pb-4 overview-page-content">
-          <!-- CONTENT BEGIN -->
+        <div class="content-root overview-page-content">
+            <!-- LOAD ERROR -->
+            <alert-component
+                :value="loadStatus.failed"
+                type="error">
+            {{ loadStatus.errorMessage }}
+            </alert-component>
+
+            <!-- PROGRESS BAR -->
+            <progress-linear-component
+                v-if="loadStatus.inProgress"
+                indeterminate color="success"></progress-linear-component>
             
-        <v-container grid-list-md>
-            <v-layout align-content-center wrap>
-                <!-- LOAD ERROR -->
-                <v-alert
-                    :value="loadStatus.failed"
-                    type="error">
-                {{ loadStatus.errorMessage }}
-                </v-alert>
+            <!-- SUMMARY -->
+            <div v-if="showContent" class="mb-4" >
+                <div class="header-layout">
+                    <h1 class="header-layout__title">Current status</h1>
+                    <div class="header-layout__actions">
+                        <btn-component flat v-if="options.Options.ShowFilter && !showFilter" @click="showFilter = !showFilter">Filter data..</btn-component>
+                        <btn-component flat v-if="options.Options.ShowFilter && showFilter" @click="showFilter = !showFilter">Hide filter</btn-component>
 
-                <!-- PROGRESS BAR -->
-                <v-progress-linear
-                    v-if="loadStatus.inProgress"
-                    indeterminate color="green"></v-progress-linear>
-                
-                <!-- SUMMARY -->
-                <v-flex sm12 v-if="showContent" class="mb-4" >
-                    <div style="display: flex">
-                        <h1 class="mb-2" style="flex: 1">Current status</h1>
-                        
-                        <v-btn flat v-if="options.Options.ShowFilter && !showFilter" @click="showFilter = !showFilter">Filter data..</v-btn>
-                        <v-btn flat v-if="options.Options.ShowFilter && showFilter" @click="showFilter = !showFilter">Hide filter</v-btn>
-
-                        <v-btn @click="toggleAutoRefresh"
+                        <btn-component @click="toggleAutoRefresh"
                             :loading="deleteStatus.inProgress"
                             :disabled="deleteStatus.inProgress"
                             color="secondary"
                             flat class="mr-0">
-                            <v-icon class="mr-2" v-if="!autoRefreshEnabled">update_disabled</v-icon>
-                            <v-progress-circular
+                            <icon-component class="mr-2" v-if="!autoRefreshEnabled">update_disabled</icon-component>
+                            <progress-circular-component
                                 v-if="autoRefreshEnabled"
                                 :size="20"
                                 :width="3"
                                 :value="autoRefreshValue"
                                 color="primary"
                                 style="margin-right: 10px;"
-                                ></v-progress-circular>
+                                ></progress-circular-component>
                             Auto-refresh
-                        </v-btn>
+                        </btn-component>
             
                         <div v-if="canDeleteEvents">
-                            <v-btn @click="deleteAllDialogVisible = true"
+                            <btn-component @click="deleteAllDialogVisible = true"
                                 :loading="deleteStatus.inProgress"
                                 :disabled="deleteStatus.inProgress || !siteEvents || siteEvents.length == 0"
                                 flat color="error" class="mr-0">
-                                <v-icon class="mr-2">clear</v-icon>
+                                <icon-component class="mr-2">clear</icon-component>
                                 Delete all
-                            </v-btn>
+                            </btn-component>
                         </div>
                     </div>
-                
-                    <!-- CUSTOM HTML -->
-                    <div class="mb-2 mt-2" v-if="options.Options.CustomHtml" v-html="options.Options.CustomHtml"></div>
+                </div>
+            
+                <!-- CUSTOM HTML -->
+                <div class="mb-2 mt-2" v-if="options.Options.CustomHtml" v-html="options.Options.CustomHtml"></div>
 
-                    <!-- FILTER -->
-                    <div v-if="options.Options.ShowFilter" class="mb-2">
-                        <input-component v-if="showFilter" v-model="filterInternal" name="Filter" />
-                    </div>
+                <!-- FILTER -->
+                <div v-if="options.Options.ShowFilter" class="mb-2">
+                    <input-component v-if="showFilter" v-model:value="filterInternal" name="Filter" />
+                </div>
 
-                    <status-component :type="summaryType" :text="summaryText" />
+                <status-component :type="summaryType" :text="summaryText" v-if="summaryText && showTopStatus" />
 
-                    <site-events-summary-component
-                        v-if="currentEvents.length > 0"
-                        :events="currentEvents"
-                        v-on:eventClicked="showEventDetailsDialog" />
-                </v-flex>
+                <site-events-summary-component
+                    v-if="currentEvents.length > 0 && showOngoingEvents"
+                    :events="currentEvents"
+                    v-on:eventClicked="showEventDetailsDialog" />
+            </div>
 
-                <!-- TIMELINE -->
-                <v-flex sm12 v-if="showContent" class="mb-4">
-                    <h2>Past events</h2>
-                    <event-timeline-component
-                        :events="timelineEvents"
-                        v-on:eventClicked="showEventDetailsDialog"
-                        class="timeline" />
-                </v-flex>
+            <!-- TIMELINE -->
+            <div v-if="showContent && showRecentEvents" class="mb-4">
+                <h2>Recent events</h2>
+                <event-timeline-component
+                    :events="timelineEvents"
+                    v-on:eventClicked="showEventDetailsDialog"
+                    class="timeline" />
+            </div>
 
-                <!-- CALENDAR -->
-                <v-flex sm12 v-if="showContent">
-                    <h2>History</h2>
-                    <event-calendar-component
-                        :events="calendarEvents"
-                        v-on:eventClicked="showEventDetailsDialog"
-                        class="calendar" />
-                </v-flex>
-            </v-layout>
-        </v-container>
-
-          <!-- CONTENT END -->
-        </v-flex>
-        </v-layout>
-        </v-container>
-        </v-content>
+            <!-- CALENDAR -->
+            <div v-if="showContent && showCalendar">
+                <h2 class="mb-2">History</h2>
+                <event-calendar-component
+                    :events="calendarEvents"
+                    :initialMode="initialCalendarMode"
+                    :allowedModes="allowedCalendarModes"
+                    v-on:eventClicked="showEventDetailsDialog"
+                    class="calendar" />
+            </div>
+        </div>
 
         <!-- ##################### -->
         <!-- ###### DIALOGS ######-->
-        <v-dialog v-model="eventDetailsDialogState" width="700">
+        <dialog-component v-model:value="eventDetailsDialogState" width="700"
+            :headerColor="getEventSeverityColorClass(selectedEventForDetails?.Severity)">
+            <template #header v-if="selectedEventForDetails != null">
+                <icon-component>{{ getEventSeverityIcon(selectedEventForDetails.Severity) }}</icon-component>
+                <div class="details-title">{{ selectedEventForDetails.Title }}</div>
+            </template>
+            <template #headerRight v-if="selectedEventForDetails != null">
+                <div class="details-date">
+                    {{ getEventTimeLine1(selectedEventForDetails) }}<br />{{ getEventTimeLine2(selectedEventForDetails) }}
+                </div>
+            </template>
+            <template #footer>
+                <btn-component @click="showDeleteSingleDialog(selectedEventForDetails)"
+                    v-if="canDeleteEvents"
+                    :loading="deleteStatus.inProgress"
+                    :disabled="deleteStatus.inProgress"
+                    color="error">
+                    <icon-component size="20px" class="mr-2">clear</icon-component>
+                    Delete
+                </btn-component>
+                <btn-component color="secondary" @click="eventDetailsDialogState = false">
+                    Close
+                </btn-component>
+            </template>
+
             <site-event-details-component :event="selectedEventForDetails" v-if="selectedEventForDetails != null">
-                <template v-slot:actions>
-                    <v-btn flat color="secondary" @click="eventDetailsDialogState = false">
-                        Close
-                    </v-btn>
-                    <v-btn @click="showDeleteSingleDialog(selectedEventForDetails)"
-                        v-if="canDeleteEvents"
-                        :loading="deleteStatus.inProgress"
-                        :disabled="deleteStatus.inProgress"
-                        flat color="error">
-                        <v-icon size="20px" class="mr-2">clear</v-icon>
-                        Delete
-                    </v-btn>
-                </template>
             </site-event-details-component>
-        </v-dialog>
+        </dialog-component>
         <!-- ##################### -->
-        <v-dialog v-model="deleteAllDialogVisible"
-            @keydown.esc="deleteAllDialogVisible = false"
-            max-width="350">
-            <v-card>
-                <v-card-title class="headline">Confirm deletion</v-card-title>
-                <v-card-text>
-                    Clear all site events?
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="primary" @click="deleteAllDialogVisible = false">Cancel</v-btn>
-                    <v-btn color="error" @click="clearAllEvents">Clear all</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+        <dialog-component v-model:value="deleteAllDialogVisible" max-width="500">
+            <template #header>Confirm delete</template>
+            <template #footer>
+                <btn-component color="error" @click="clearAllEvents">Clear all</btn-component>
+                <btn-component color="secondary" @click="deleteAllDialogVisible = false">Cancel</btn-component>
+            </template>
+            <div>
+                Clear all site events?
+            </div>
+        </dialog-component>
         <!-- ##################### -->
-        <v-dialog v-model="deleteSingleDialogVisible"
-            @keydown.esc="deleteSingleDialogVisible = false"
-            max-width="550">
-            <v-card>
-                <v-card-title class="headline">{{ deleteSingleDialogTitle }}</v-card-title>
-                <v-card-text>
-                    {{ deleteSingleDialogText }}
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="primary" @click="deleteSingleDialogVisible = false">Cancel</v-btn>
-                    <v-btn color="error" @click="deleteSingleEvent">Delete</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+        <dialog-component v-model:value="deleteSingleDialogVisible" max-width="550">
+            <template #header>{{ deleteSingleDialogTitle }}</template>
+            <template #footer>
+                <btn-component color="error" @click="deleteSingleEvent">Delete</btn-component>
+                <btn-component color="secondary" @click="deleteSingleDialogVisible = false">Cancel</btn-component>
+            </template>
+            <div>
+                {{ deleteSingleDialogText }}
+            </div>
+        </dialog-component>
         <!-- DIALOGS END -->
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import CalendarEvent from  '../../../models/Common/CalendarEvent';
-import SiteEventViewModel from  '../../../models/modules/SiteEvents/SiteEventViewModel';
-import { SiteEventSeverity } from  '../../../models/modules/SiteEvents/SiteEventSeverity';
-import EventTimelineComponent from '../Overview/EventTimelineComponent.vue';
-import EventCalendarComponent from '../Overview/EventCalendarComponent.vue';
-import SiteEventDetailsComponent from '../Overview/SiteEventDetailsComponent.vue';
-import SiteEventsSummaryComponent from '../Overview/SiteEventsSummaryComponent.vue';
-import StatusComponent from '../Overview/StatusComponent.vue';
-import DateUtils from  '../../../util/DateUtils';
-import LinqUtils from  '../../../util/LinqUtils';
-import OverviewService from  '../../../services/OverviewService';
-import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import ModuleOptions from  '../../../models/Common/ModuleOptions';
-import ModuleConfig from  '../../../models/Common/ModuleConfig';
-import { SiteEvent } from "generated/Models/Core/SiteEvent";
-import InputComponent from "components/Common/Basic/InputComponent.vue";
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import EventTimelineComponent from '@components/modules/Overview/EventTimelineComponent.vue';
+import EventCalendarComponent from '@components/modules/Overview/EventCalendarComponent.vue';
+import SiteEventDetailsComponent from '@components/modules/Overview/SiteEventDetailsComponent.vue';
+import SiteEventsSummaryComponent from '@components/modules/Overview/SiteEventsSummaryComponent.vue';
+import StatusComponent from '@components/modules/Overview/StatusComponent.vue';
+import DateUtils from '@util/DateUtils';
+import LinqUtils from '@util/LinqUtils';
+import OverviewService from '@services/OverviewService';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import ModuleOptions from '@models/Common/ModuleOptions';
+import ModuleConfig from '@models/Common/ModuleConfig';
+import SiteEventViewModel from "@models/modules/SiteEvents/SiteEventViewModel";
+import { SiteEventSeverity } from "@models/modules/SiteEvents/SiteEventSeverity";
+import { SiteEvent } from "@generated/Models/Core/SiteEvent";
+import { HCSiteEventsModuleFrontendOptionsModel } from "@generated/Models/Core/HCSiteEventsModuleFrontendOptionsModel";
+import { StoreUtil } from "@util/StoreUtil";
+import InputComponent from "@components/Common/Basic/InputComponent.vue";
+import { HCSiteEventsModuleCalendarMode } from "@generated/Enums/Core/HCSiteEventsModuleCalendarMode";
 
-interface OverviewPageOptions
-{
-    CurrentEventBufferMinutes: number;
-    FrontendAutoRefreshSecondsInterval: number;
-    CustomHtml: string;
-    ShowFilter: boolean;
-}
-
-@Component({
+@Options({
     components: {
         EventTimelineComponent,
         EventCalendarComponent,
@@ -199,7 +182,7 @@ export default class OverviewPageComponent extends Vue {
     config!: ModuleConfig;
     
     @Prop({ required: true })
-    options!: ModuleOptions<OverviewPageOptions>;
+    options!: ModuleOptions<HCSiteEventsModuleFrontendOptionsModel>;
 
     // Dialogs
     eventDetailsDialogState: boolean = false;
@@ -218,23 +201,38 @@ export default class OverviewPageComponent extends Vue {
 
     siteEvents: Array<SiteEventViewModel> = [];
     autoRefreshEnabled: boolean = false;
-    autoRefreshRef: number = 0;
+    autoRefreshRef: any = 0;
     autoRefreshValue: number = 100;
     nextAutoRefresh: Date | null = null;
     filterInternal: string = '';
     showFilter: boolean = false;
+    
+    initialCalendarMode: string = '';
+    allowedCalendarModes: Array<string> | null = null;
 
     //////////////////
     //  LIFECYCLE  //
     ////////////////
-    mounted(): void
-    {
+    created(): void {
         if (this.options.Options.FrontendAutoRefreshSecondsInterval < 5)
         {
             this.options.Options.FrontendAutoRefreshSecondsInterval = 5;
         }
-        setInterval(() => { this.autoRefreshValueCalc(); }, 1000);
+        this.initialCalendarMode = this.translateCalendarMode(this.options.Options?.Sections?.Calendar?.InitialMode);
+        this.allowedCalendarModes = (this.options.Options?.Sections?.Calendar?.AllowedModes || []).map(x => this.translateCalendarMode(x));
+    }
 
+    translateCalendarMode(mode: HCSiteEventsModuleCalendarMode | null | undefined): string {
+        if (mode == HCSiteEventsModuleCalendarMode.Month) return 'dayGridMonth';
+        else if (mode == HCSiteEventsModuleCalendarMode.Week) return 'timeGridWeek';
+        else if (mode == HCSiteEventsModuleCalendarMode.Day) return 'timeGridDay';
+        else if (mode == HCSiteEventsModuleCalendarMode.List) return 'listWeek';
+        else return '';
+    }
+
+    mounted(): void
+    {
+        setInterval(() => { this.autoRefreshValueCalc(); }, 1000);
         this.loadData();
     }
 
@@ -242,12 +240,28 @@ export default class OverviewPageComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
 
     get filter(): string {
         if (!this.showFilter) return '';
-        else return this.filterInternal;
+        else return this.filterInternal || '';
+    }
+
+    get showTopStatus(): boolean {
+        return this.options.Options.Sections?.Status?.Enabled == true;
+    }
+
+    get showOngoingEvents(): boolean {
+        return this.options.Options.Sections?.OngoingEvents?.Enabled == true;
+    }
+
+    get showRecentEvents(): boolean {
+        return this.options.Options.Sections?.RecentEvents?.Enabled == true;
+    }
+
+    get showCalendar(): boolean {
+        return this.options.Options.Sections?.Calendar?.Enabled == true;
     }
 
     get performFiltering(): boolean { return this.filter != ''; }
@@ -258,8 +272,9 @@ export default class OverviewPageComponent extends Vue {
     }
 
     get timelineEvents(): Array<SiteEventViewModel> {
+        const maxDays = this.options.Options.Sections?.RecentEvents?.MaxNumberOfDays || 3;
         let fromDate = new Date();
-        fromDate.setDate(fromDate.getDate() - 3);
+        fromDate.setDate(fromDate.getDate() - maxDays);
         fromDate.setHours(23);
         fromDate.setMinutes(59);
         
@@ -296,7 +311,7 @@ export default class OverviewPageComponent extends Vue {
         }
 
         let thresholdDate = new Date();
-        thresholdDate.setMinutes(thresholdDate.getMinutes() - this.options.Options.CurrentEventBufferMinutes);
+        thresholdDate.setMinutes(thresholdDate.getMinutes() - this.options.Options.Sections?.OngoingEvents?.BufferMinutes || 0);
         
         let eventEndDate = new Date(event.Timestamp);
         eventEndDate.setMinutes(eventEndDate.getMinutes() + event.Duration);
@@ -318,6 +333,7 @@ export default class OverviewPageComponent extends Vue {
             .filter(x => x.Severity == severity)
             .map(x => x.Title);
 
+        // More than a single of highest severity
         if (relevantMessages.length > 1) {
             if (severity == SiteEventSeverity.Information) {
                 return "Some informative events have been reported";
@@ -332,8 +348,22 @@ export default class OverviewPageComponent extends Vue {
                 return "The site is currently experiencing a few errors";
             }
         }
-
-        return relevantMessages[0];
+        // Has some events
+        else if (relevantEvents.length >= 1) {
+            if (severity == SiteEventSeverity.Information) {
+                return "An informative event has been reported";
+            }
+            else if (severity == SiteEventSeverity.Warning) {
+                return "A warning has been reported";
+            }
+            else if (severity == SiteEventSeverity.Error) {
+                return "An error is currently ongoing";
+            }
+            else if (severity == SiteEventSeverity.Fatal) {
+                return "The site is currently experiencing an error";
+            }
+        }
+        return null;//relevantMessages[0];
     }
 
     get summaryType(): string {
@@ -429,6 +459,61 @@ export default class OverviewPageComponent extends Vue {
         }
     }
 
+    getEventSeverityColorClass(severity: SiteEventSeverity): string {
+        if (severity == SiteEventSeverity.Information) {
+            return 'info';
+        } else if (severity == SiteEventSeverity.Warning) {
+            return 'warning';
+        } else if (severity == SiteEventSeverity.Error) {
+            return 'error';
+        } else if (severity == SiteEventSeverity.Fatal) {
+            return 'fatal';
+        } else {
+            return '';
+        }
+    }
+
+    getEventSeverityIcon(severity: SiteEventSeverity): string {
+        if (severity == SiteEventSeverity.Information) {
+            return 'info';
+        } else if (severity == SiteEventSeverity.Warning) {
+            return 'warning';
+        } else if (severity == SiteEventSeverity.Error) {
+            return 'error';
+        } else if (severity == SiteEventSeverity.Fatal) {
+            return 'report';
+        } else {
+            return '';
+        }
+    }
+
+    getEventTimeLine1(event: SiteEventViewModel) : string {
+        if (event.Timestamp.getDate() === event.EndTime.getDate()) {
+            let dateFormat = 'dd. MMMM';
+            return DateUtils.FormatDate(event.Timestamp, dateFormat);
+        } else {
+            let timeFormat = 'HH:mm';
+            let dateFormat = 'dd. MMM';
+            return `${DateUtils.FormatDate(event.Timestamp, `${dateFormat} ${timeFormat}`)} -`;
+        }
+    }
+
+    getEventTimeLine2(event: SiteEventViewModel) : string {
+        let timeFormat = 'HH:mm';
+        if (event.Timestamp.getDate() === event.EndTime.getDate()) {
+            let start = event.Timestamp;
+            let end = this.getEventEndDate(event);
+            if (end == null) {
+                return DateUtils.FormatDate(start, timeFormat);
+            } else {
+                return `${DateUtils.FormatDate(start, timeFormat)} - ${DateUtils.FormatDate(end, timeFormat)}`;
+            }
+        } else {
+            let dateFormat = 'dd. MMM';
+            return `${DateUtils.FormatDate(event.EndTime, `${dateFormat} ${timeFormat}`)}`;
+        }
+    }
+
     getEventDateRange(event: SiteEventViewModel) : string {
         let timeFormat = 'HH:mm';
         let start = event.Timestamp;
@@ -492,13 +577,16 @@ export default class OverviewPageComponent extends Vue {
     @media (max-width: 540px) {
         padding-left: 0 !important;
         padding-right: 0 !important;
-        .container {
-            padding-left: 0 !important;
-            padding-right: 0 !important;
-        }
     }
 }
-</style>
-
-<style>
+.details-title {
+    flex: 2;
+    margin-left: 5px;
+}
+.details-date {
+    font-size: 12px;
+    /* color: var(--color--accent-darken9); */
+    text-align: right;
+    margin-left: 10px;
+}
 </style>

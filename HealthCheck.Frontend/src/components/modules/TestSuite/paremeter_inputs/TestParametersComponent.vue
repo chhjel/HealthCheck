@@ -1,39 +1,37 @@
 <!-- src/components/modules/TestSuite/paremeter_inputs/TestParametersComponent.vue -->
 <template>
-    <div>
-        <v-container grid-list-lg class="parameter-container">
-          <v-layout row wrap>
-              <v-flex xs12 sm12 :md6="allowMediumSize(parameter)" :lg3="allowSmallSize(parameter)"
-                  v-for="(parameter, index) in filteredParameters"
-                  :key="`test-${test.Id}-parameter`+index"
-                  class="parameter-block"
-                  v-show="!parameter.Hidden">
+    <div class="parameter-container flex layout">
+          <div v-for="(parameter, index) in filteredParameters"
+              :key="`test-${test.Id}-parameter`+index"
+              class="parameter-block"
+              :class="parameterClasses(parameter)"
+              v-show="!parameter.Hidden">
 
-                  <backend-input-component 
-                      v-model="parameter.Value"
-                      :forceType="cleanType(parameter.Type)"
-                      :forceName="parameter.Name"
-                      :forceDescription="parameter.Description"
-                      :isCustomReferenceType="parameter.IsCustomReferenceType"
-                      :config="createConfig(parameter, index)"
-                      :parameterDetailContext="test.Id"
-                      :referenceValueFactoryConfig="parameter.ReferenceValueFactoryConfig"
-                      @isAnyJson="onIsAnyJson(parameter)"
-                      :feedback="parameter.Feedback" />
-              </v-flex>
-          </v-layout>
-        </v-container>
+              <backend-input-component 
+                  v-model:value="parameter.Value"
+                  :forceType="cleanType(parameter.Type)"
+                  :forceName="parameter.Name"
+                  :forceDescription="parameter.Description"
+                  :isCustomReferenceType="parameter.IsCustomReferenceType"
+                  :config="createConfig(parameter, index)"
+                  :parameterDetailContext="test.Id"
+                  :referenceValueFactoryConfig="parameter.ReferenceValueFactoryConfig"
+                  @isAnyJson="onIsAnyJson(parameter)"
+                  :feedback="parameter.Feedback" />
+        </div>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import TestViewModel from  '../../../../models/modules/TestSuite/TestViewModel';
-import TestParameterViewModel from  '../../../../models/modules/TestSuite/TestParameterViewModel';
-import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
-import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { HCBackendInputConfig } from '@generated/Models/Core/HCBackendInputConfig';
+import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
+import { TestViewModel } from "@generated/Models/Core/TestViewModel";
+import { TestParameterViewModel } from "@generated/Models/Core/TestParameterViewModel";
+import { HCUIHint } from "@generated/Enums/Core/HCUIHint";
 
-@Component({
+@Options({
     components: {
       BackendInputComponent
     }
@@ -53,21 +51,25 @@ export default class TestParametersComponent extends Vue {
         'TimeSpan',
         'Nullable<TimeSpan>'
       ];
-      return !parameter.FullWidth
+      return !parameter.UIHints.includes(HCUIHint.FullWidth)
         && !largerParameters.some(x => parameter.Type == x)
-        && !(parameter.Type == 'String' && parameter.ShowTextArea && parameter.ShowCodeArea);
+        && !((parameter.Type == 'DateTimeOffset[]' || parameter.Type == 'DateTime[]' || parameter.Type == 'Nullable<DateTimeOffset>[]' || parameter.Type == 'Nullable<DateTime>[]') && parameter.UIHints.includes(HCUIHint.DateRange))
+        && !(parameter.Type == 'String' && parameter.UIHints.includes(HCUIHint.TextArea) && parameter.UIHints.includes(HCUIHint.CodeArea));
     }
 
     allowMediumSize(parameter: TestParameterViewModel): boolean
     {
-      return !parameter.FullWidth;
+      return !parameter.UIHints.includes(HCUIHint.FullWidth);
     }
 
     cleanType(type: string): string {
       if (type.startsWith("Nullable<"))
       {
         type = type.substring("Nullable<".length);
-        type = type.substr(0, type.length - 1);
+        const lastIndexOfEndTag = type.lastIndexOf(">");
+        if (lastIndexOfEndTag > -1) {
+          type = type.slice(0, lastIndexOfEndTag) + type.slice(lastIndexOfEndTag + 1);
+        }
       }
       else if (type.startsWith("Nullable"))
       {
@@ -78,25 +80,22 @@ export default class TestParametersComponent extends Vue {
 
     createConfig(parameter: TestParameterViewModel, index: number): HCBackendInputConfig {
       let flags: Array<string> = [];
-      if (parameter.ShowTextArea) { flags.push('TextArea') };
-      if (parameter.ShowCodeArea) { flags.push('CodeArea') };
-      if (parameter.ReadOnlyList) { flags.push('ReadOnlyList') };
 
       return {
         Id: parameter.Name,
         Type: parameter.Type,
         Name: parameter.Name,
         Description: parameter.Description,
-        NotNull: parameter.NotNull,
         Nullable: parameter.Type.startsWith("Nullable"),
         DefaultValue: parameter.DefaultValue,
         Flags: flags,
-        FullWidth: parameter.FullWidth,
+        UIHints: parameter.UIHints,
         PossibleValues: parameter.PossibleValues,
         ParameterIndex: index,
         ExtraValues: {},
         PropertyInfo: {},
-        NullName: parameter.NullName
+        NullName: parameter.NullName,
+        TextPattern: parameter.TextPattern
       };
     }
 
@@ -106,6 +105,16 @@ export default class TestParametersComponent extends Vue {
 
     get filteredParameters(): Array<TestParameterViewModel> {
       return this.test.Parameters;//.filter(x => !x.Hidden); //todo: v-show instead
+    }
+
+    parameterClasses(parameter: TestParameterViewModel): Array<string> {
+      let classes: Array<string> = [
+        'xs12'
+      ];
+      if (this.allowMediumSize(parameter)) classes.push('md6');
+      if (this.allowSmallSize(parameter)) classes.push('lg3');
+      // xs-12 sm-12 :md-6="allowMediumSize(parameter)" :lg-3="allowSmallSize(parameter)"
+      return classes;
     }
 }
 </script>
@@ -118,5 +127,6 @@ export default class TestParametersComponent extends Vue {
 .parameter-block {
   padding-right: 40px !important;
   padding-left: 0 !important;
+  margin-bottom: 10px;
 }
 </style>

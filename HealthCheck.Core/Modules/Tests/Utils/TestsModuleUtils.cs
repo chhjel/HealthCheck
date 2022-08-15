@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HealthCheck.Core.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -12,6 +13,12 @@ namespace HealthCheck.Core.Modules.Tests.Utils
             if (_builtInTypeSupport.Contains(type)
                 || _builtInTypeNameSupport.Contains(type.Name)
                 || type.IsEnum)
+            {
+                return true;
+            }
+
+            // Nullable enum type
+            if (type.IsNullable() && type.GenericTypeArguments[0].IsEnum)
             {
                 return true;
             }
@@ -47,6 +54,8 @@ namespace HealthCheck.Core.Modules.Tests.Utils
             typeof(bool), typeof(bool?),
             typeof(DateTime), typeof(DateTime?),
             typeof(DateTimeOffset), typeof(DateTimeOffset?),
+            typeof(DateTime[]), typeof(DateTime?[]),
+            typeof(DateTimeOffset[]), typeof(DateTimeOffset?[]),
             typeof(Enum),
             typeof(CancellationToken),
             typeof(Guid), typeof(Guid?)

@@ -2,30 +2,31 @@
 <template>
     <div>
         <shadow-root v-if="useShadowDom">
-            <div v-html="data.Data"></div>
+            <div v-html="resultData.Data"></div>
         </shadow-root>
-        <div v-if="!useShadowDom" v-html="data.Data"></div>
+        <div v-if="!useShadowDom" v-html="resultData.Data"></div>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import TestResultDataDumpViewModel from  '../../../../../models/modules/TestSuite/TestResultDataDumpViewModel';
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { TestResultDataDumpViewModel } from '@generated/Models/Core/TestResultDataDumpViewModel';
 
-@Component({
+@Options({
     components: {
     }
 })
 export default class TestResultHtmlDataComponent extends Vue {
     @Prop({ required: true })
-    data!: TestResultDataDumpViewModel;
+    resultData!: TestResultDataDumpViewModel;
     @Prop({ required: true })
     fullscreen!: boolean;
 
     useShadowDom: boolean = false;
 
     mounted(): void {
-        this.useShadowDom = this.data && this.data.Flags && this.data.Flags.includes("ShadowDom");
+        this.useShadowDom = this.resultData && this.resultData.Flags && this.resultData.Flags.includes("ShadowDom");
     }
 }
 </script>

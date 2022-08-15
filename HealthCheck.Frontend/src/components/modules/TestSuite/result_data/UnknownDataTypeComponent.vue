@@ -1,28 +1,29 @@
 <!-- src/components/modules/TestSuite/result_data/UnknownDataTypeComponent.vue -->
 <template>
     <div>
-        <v-alert
+        <alert-component
         :value="true"
         color="warning"
         icon="priority_high"
         outline
         >
-            Unknown data type '{{data.Type}}'. No data component created for this type yet.
-        </v-alert>
+            Unknown data type '{{datax.Type}}'. No data component created for this type yet.
+        </alert-component>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import TestResultDataDumpViewModel from  '../../../../models/modules/TestSuite/TestResultDataDumpViewModel';
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { TestResultDataDumpViewModel } from '@generated/Models/Core/TestResultDataDumpViewModel';
 
-@Component({
+@Options({
     components: {
     }
 })
 export default class UnknownDataTypeComponent extends Vue {
     @Prop({ required: true })
-    data!: TestResultDataDumpViewModel;
+    datax!: TestResultDataDumpViewModel;
 
     mounted(): void {
     }

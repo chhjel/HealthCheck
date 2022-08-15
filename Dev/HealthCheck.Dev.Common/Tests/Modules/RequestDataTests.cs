@@ -3,7 +3,7 @@ using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Util;
 using HealthCheck.WebUI.Extensions;
 
-namespace HealthCheck.Dev.Common.Tests
+namespace HealthCheck.Dev.Common.Tests.Modules
 {
     [RuntimeTestClass(
         Name = "Request data",

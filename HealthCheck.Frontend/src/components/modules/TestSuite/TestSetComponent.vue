@@ -4,20 +4,20 @@
         <div class="testset-header">
             <div class="title-button-wrapper">
                 <h2 class="testset-title font-weight-bold">{{ testSet.Name }}</h2>
-                <v-btn ripple color="primary" outline
+                <btn-component color="primary" outline round
                     v-if="testSet.AllowRunAll"
                     @click.stop.prevent="executeAllTestsInSet()"
                     :disabled="anyTestInProgress"
                     class="run-all-tests-button">
 
-                    <v-progress-circular class="mr-2"
+                    <progress-circular-component class="mr-2"
                         v-if="anyTestInProgress" size="22"
                         :indeterminate="showIndeterminateProgress"
-                        :value="allTestsProgress"></v-progress-circular>
-                    <v-icon color="primary"  v-if="!anyTestInProgress">play_arrow</v-icon>
+                        :value="allTestsProgress"></progress-circular-component>
+                    <icon-component color="primary"  v-if="!anyTestInProgress">play_arrow</icon-component>
                     
                     {{executeAllTestsInSetButtonText}}
-                </v-btn>
+                </btn-component>
             </div>
             <div class="subheading testset-subtitle" v-html="testSet.Description"></div>
         </div>
@@ -39,13 +39,16 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import TestSetViewModel from  '../../../models/modules/TestSuite/TestSetViewModel';
-import TestViewModel from  '../../../models/modules/TestSuite/TestViewModel';
-import TestComponent from './TestComponent.vue';
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { TestSetViewModel } from '@generated/Models/Core/TestSetViewModel';
+import { TestViewModel } from '@generated/Models/Core/TestViewModel';
+import TestComponent from '@components/modules/TestSuite/TestComponent.vue';
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import { StoreUtil } from "@util/StoreUtil";
+import EventBus from "@util/EventBus";
 
-@Component({
+@Options({
     components: {
         TestComponent
     }
@@ -73,7 +76,7 @@ export default class TestSetComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
     
     get filteredTests(): Array<TestViewModel>
@@ -115,7 +118,8 @@ export default class TestSetComponent extends Vue {
         this.showIndeterminateProgress = false;
         this.testsFinishedCount = 0;
         this.testsTotalCount = this.testSet.Tests.length;
-        this.$emit("executeAllTestsInSet");
+        // this.$emit("executeAllTestsInSet");
+        EventBus.notify("executeAllTestsInSet");
     }
 
     onTestStarted(testId: string): void {
@@ -144,9 +148,6 @@ export default class TestSetComponent extends Vue {
     padding-right: 16px;
     border-width: 2px;
     font-weight: 600;
-}
-.run-all-tests-button .v-icon {
-    margin-right: 5px;
 }
 .testset-title{
     font-size: 26px;

@@ -1,11 +1,14 @@
 <!-- src/components/Common/Basic/InputHeaderComponent.vue -->
 <template>
-    <div class="input-header-component">
+    <div class="input-header-component" v-if="showHeader || showDescription || isEnsureHeight">
         <div class="input-component--header" v-if="showHeader">
             <div class="input-component--header-name">{{ name }}</div>
-            <v-icon small v-if="hasDescription"
-                color="gray" class="input-component--help-icon"
-                @click="toggleDescription">help</v-icon>
+            <icon-component small v-if="hasDescription"
+                color="gray" class="input-component--help-icon clickable"
+                @click="toggleDescription">help</icon-component>
+            <icon-component v-if="showActionIcon"
+                color="gray" class="input-component--action-icon clickable"
+                @click="onActionIconClicked">{{ actionIcon }}</icon-component>
         </div>
 
         <div v-show="showDescription" class="input-component--description" v-html="description"></div>
@@ -13,12 +16,14 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import ValueUtils from "@util/ValueUtils";
 
-@Component({
+@Options({
     components: {}
 })
-export default class InputComponent extends Vue
+export default class InputHeaderComponent extends Vue
 {
     @Prop({ required: false, default: '' })
     name!: string;
@@ -28,6 +33,12 @@ export default class InputComponent extends Vue
     
     @Prop({ required: false, default: false })
     showDescriptionOnStart!: boolean;
+
+    @Prop({ required: false, default: false })
+    ensureHeight!: string | boolean;
+    
+    @Prop({ required: false, default: '' })
+    actionIcon!: string;
 
     showDescription: boolean = false;
 
@@ -53,6 +64,12 @@ export default class InputComponent extends Vue
         return this.description != null && this.description.length > 0;
     }
 
+    get isEnsureHeight(): boolean { return ValueUtils.IsToggleTrue(this.ensureHeight); }
+
+    get showActionIcon(): boolean {
+        return !!this.actionIcon && this.actionIcon.length > 0;
+    }
+
     ////////////////
     //  METHODS  //
     //////////////
@@ -63,26 +80,44 @@ export default class InputComponent extends Vue
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
+    onActionIconClicked(): void {
+        this.$emit('actionIconClicked');
+    }
 }
 </script>
 
 <style scoped lang="scss">
 .input-header-component {
+    min-height: 19px;
+    
     .input-component--header {
         text-align: left;
-
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        
         .input-component--header-name {
             display: inline-block;
             font-size: 16px;
-            color: var(--v-secondary-base);
+            color: var(--color--secondary-base);
             font-weight: 600;
+            white-space: nowrap;
         }
 
         .input-component--help-icon {
             user-select: none;
             font-size: 20px !important;
+            margin-left: 2px;
             &:hover {
-                color: #1976d2;
+                color: var(--color--info-base) !important;
+            }
+        }
+        .input-component--action-icon {
+            user-select: none;
+            font-size: 20px !important;
+            margin-left: 4px;
+            &:hover {
+                color: var(--color--info-base) !important;
             }
         }
     }
@@ -91,6 +126,7 @@ export default class InputComponent extends Vue
         text-align: left;
         padding: 10px;
         border-radius: 10px;
+        color: var(--color--text) !important;
         background-color: #ebf1fb;
     }
 }

@@ -1,14 +1,15 @@
 ﻿using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Models;
 using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Modules.Tests.Services;
+using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using static HealthCheck.Core.Modules.Tests.Attributes.RuntimeTestParameterAttribute;
 
 namespace HealthCheck.Core.Modules.Tests.Models
 {
@@ -200,11 +201,11 @@ namespace HealthCheck.Core.Modules.Tests.Models
                 var referenceFactory = TryFindParameterFactory(referenceChoicesFactoryMethodName, parameter);
                 var isCustomReferenceType = referenceFactory != null;
 
-                var isCodeArea = parameterAttribute?.UIHints.HasFlag(UIHint.CodeArea) == true;
-                var fullWidth = parameterAttribute?.UIHints.HasFlag(UIHint.FullWidth) == true
-                    || isCodeArea;
-                var notNull = parameterAttribute?.UIHints.HasFlag(UIHint.NotNull) == true
-                    || isCodeArea;
+                var uiHints = EnumUtils.GetFlaggedEnumValues<HCUIHint>(parameterAttribute?.UIHints) ?? new();
+                // Ensure FullWidth if CodeArea
+                if (uiHints.Contains(HCUIHint.CodeArea) && !uiHints.Contains(HCUIHint.FullWidth)) uiHints.Add(HCUIHint.FullWidth);
+                // Ensure NotNull if CodeArea
+                if (uiHints.Contains(HCUIHint.CodeArea) && !uiHints.Contains(HCUIHint.NotNull)) uiHints.Add(HCUIHint.NotNull);
 
                 Parameters[i] = new TestParameter()
                 {
@@ -214,12 +215,9 @@ namespace HealthCheck.Core.Modules.Tests.Models
                     Description = parameterAttribute?.Description.EnsureDotAtEndIfNotNull(),
                     DefaultValue = GetDefaultValue(parameter, parameterAttribute),
                     ParameterType = type,
-                    NotNull = notNull,
+                    UIHints = uiHints,
                     NullName = parameterAttribute?.NullName,
-                    ReadOnlyList = parameterAttribute?.UIHints.HasFlag(UIHint.ReadOnlyList) == true,
-                    ShowTextArea = parameterAttribute?.UIHints.HasFlag(UIHint.TextArea) == true,
-                    ShowCodeArea = isCodeArea,
-                    FullWidth = fullWidth,
+                    TextPattern = parameterAttribute?.TextPattern,
                     PossibleValues = HCCustomPropertyAttribute.GetPossibleValues(parameter.ParameterType),
                     IsCustomReferenceType = isCustomReferenceType,
                     ReferenceFactory = referenceFactory,

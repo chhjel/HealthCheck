@@ -1,27 +1,28 @@
 <!-- src/components/modules/TestSuite/result_data/data_types/TestResultPlainTextDataComponent.vue -->
 <template>
     <div>
-        <v-textarea
+        <textarea-component
           :value="text"
           readonly
           :rows="rowCount"
           class="data-textarea mt-0"
           :autoGrow="fullscreen"
-        ></v-textarea>
+        ></textarea-component>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import TestResultDataDumpViewModel from  '../../../../../models/modules/TestSuite/TestResultDataDumpViewModel';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { TestResultDataDumpViewModel } from '@generated/Models/Core/TestResultDataDumpViewModel';
 
-@Component({
+@Options({
     components: {
     }
 })
 export default class TestResultPlainTextDataComponent extends Vue {
     @Prop({ required: true })
-    data!: TestResultDataDumpViewModel;
+    resultData!: TestResultDataDumpViewModel;
     @Prop({ required: true })
     fullscreen!: boolean;
 
@@ -31,11 +32,11 @@ export default class TestResultPlainTextDataComponent extends Vue {
     }
 
     get text(): string {
-      return this.data.Data + this.extraText;
+      return this.resultData.Data + this.extraText;
     }
 
     get rowCount(): number {
-      let lineCount = this.data.Data.split(/\r\n|\r|\n/).length;
+      let lineCount = this.resultData.Data.split(/\r\n|\r|\n/).length;
       return Math.min(10, lineCount);
     }
 

@@ -2,28 +2,30 @@
 <template>
     <div class="root">
         <!-- DATA LOAD ERROR -->
-        <v-alert :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
+        <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
         {{ loadStatus.errorMessage }}
-        </v-alert>
+        </alert-component>
         
         <!-- LOAD PROGRESS -->
-        <v-progress-linear
+        <progress-linear-component
             v-if="loadStatus.inProgress"
-            indeterminate color="green"></v-progress-linear>
+            indeterminate color="success"></progress-linear-component>
 
-        <select-component style="display: inline-block" class="right"
-            v-if="graphs && chartEntries.length > 0"
-            v-model="barChartSortMode"
-            :items="barChartSortOptions"
-            @input="onBarChartSortModeChanged"
-            />
-        <v-btn :disabled="loadStatus.inProgress"
-            @click="onRefreshClicked"
-            class="mb-3">
-            <v-icon size="20px" class="mr-2">refresh</v-icon>
-            Refresh
-        </v-btn>
-        <div style="clear:both" class="mt-3"></div>
+        <div class="mb-3 flex flex-sm-col">
+            <btn-component :disabled="loadStatus.inProgress"
+                @click="onRefreshClicked"
+                class="mb-3">
+                <icon-component size="20px" class="mr-2">refresh</icon-component>
+                Refresh
+            </btn-component>
+            <div class="spacer"></div>
+            <select-component style="display: inline-block"
+                v-if="graphs && chartEntries.length > 0"
+                v-model:value="barChartSortMode"
+                :items="barChartSortOptions"
+                @input="onBarChartSortModeChanged"
+                />
+        </div>
 
         <div v-if="graphs && (chartEntries.length > 0 || iPChartBars.length > 0 || chartBars.length > 0)">
             <bar-chart-component
@@ -51,10 +53,10 @@
 
         <div v-if="log && logEntries.length > 0">
             <h3>Latest {{ logEntries.length }} logged requests</h3>
-            <simple-paging-component
+            <paging-component
                 :items="logEntries"
                 :pageSize="logEntriesPageSize"
-                v-model="logEntriesPage"
+                v-model:value="logEntriesPage"
                 />
             <!-- <a @click="prevLogPage">&lt;&lt;</a>
             <a @click="nextLogPage">&gt;&gt;</a> -->
@@ -76,22 +78,26 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import DateUtils from  '../../../util/DateUtils';
-import IdUtils from  '../../../util/IdUtils';
-import EndpointControlUtils from  '../../../util/EndpointControl/EndpointControlUtils';
-import BlockComponent from  '../../Common/Basic/BlockComponent.vue';
-import EndpointControlService from "../../../services/EndpointControlService";
-import { EndpointControlCountOverDuration, EndpointControlEndpointDefinition, EndpointControlPropertyFilter, EndpointControlRule, EndpointRequestDetails, EndpointRequestSimpleDetails } from "../../../models/modules/EndpointControl/EndpointControlModels";
-import DataOverTimeChartComponent, { ChartEntry, ChartSet } from '../../Common/Charts/DataOverTimeChartComponent.vue';
-import BarChartComponent, { BarChartBar, BarChartSet } from '../../Common/Charts/BarChartComponent.vue';
-import SimplePagingComponent from '../../Common/Basic/SimplePagingComponent.vue';
-import SelectComponent from '../../Common/Basic/SelectComponent.vue';
-import { FetchStatus } from "../../../services/abstractions/HCServiceBase";
-import { ModuleFrontendOptions } from "./EndpointControlPageComponent.vue";
-import LinqUtils from "../../../util/LinqUtils";
-import { Dictionary } from "../../../models/modules/EventNotifications/EventNotificationModels";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import DateUtils from '@util/DateUtils';
+import IdUtils from '@util/IdUtils';
+import EndpointControlUtils from '@util/EndpointControl/EndpointControlUtils';
+import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
+import EndpointControlService from '@services/EndpointControlService';
+import { EndpointControlCountOverDuration, EndpointControlEndpointDefinition, EndpointControlPropertyFilter, EndpointControlRule, EndpointRequestDetails, EndpointRequestSimpleDetails } from '@models/modules/EndpointControl/EndpointControlModels';
+import DataOverTimeChartComponent from '@components/Common/Charts/DataOverTimeChartComponent.vue';
+import { ChartEntry, ChartSet } from '@components/Common/Charts/DataOverTimeChartComponent.vue.models';
+import BarChartComponent from '@components/Common/Charts/BarChartComponent.vue';
+import { BarChartBar, BarChartSet } from '@components/Common/Charts/BarChartComponent.vue.models';
+import PagingComponent from '@components/Common/Basic/PagingComponent.vue';
+import SelectComponent from '@components/Common/Basic/SelectComponent.vue';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import { ModuleFrontendOptions } from '@components/modules/EndpointControl/EndpointControlPageComponent.vue.models';
+import LinqUtils from '@util/LinqUtils';
+import { Dictionary } from '@models/modules/EventNotifications/EventNotificationModels';
+import { StoreUtil } from "@util/StoreUtil";
 
 interface BarChartSortOption {
     text: string;
@@ -103,11 +109,11 @@ enum BarChartSortMode {
     BlockedPercentage
 }
 
-@Component({
+@Options({
     components: {
         BlockComponent,
         DataOverTimeChartComponent,
-        SimplePagingComponent,
+        PagingComponent,
         BarChartComponent,
         SelectComponent
     }
@@ -161,7 +167,7 @@ export default class LatestRequestsComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
 
     get ipSortModeDescription(): string {
@@ -414,11 +420,11 @@ export default class LatestRequestsComponent extends Vue {
     padding: 10px;
 
     &.blocked {
-        border-left: 3px solid var(--v-error-base);
+        border-left: 3px solid var(--color--error-base);
     }
 
     &.allowed {
-        border-left: 3px solid var(--v-success-base);
+        border-left: 3px solid var(--color--success-base);
 
         code {
             color: #666;

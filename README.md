@@ -24,9 +24,9 @@ Available modules:
 * Downloads module where files can be made available for download, optionally protected by password, expiration date and download count limit.
 * Metrics module that outputs some simple metrics you can track manually.
 * Request log module that lists controllers and actions with their latest requests and errors.
-* Log searcher module for searching through logfiles on disk.
-* Documentation module that shows generated sequence diagrams from code decorated with attributes.
 * Release notes module that can show release notes.
+* *[Not styled yet in 4.x+]* Documentation module that shows generated sequence diagrams from code decorated with attributes.
+* *[Deprecated in 4.x+]* Log searcher module for searching through logfiles on disk.
 
 ## Getting started
 
@@ -51,7 +51,8 @@ Available modules:
 5. For .NET Core configure HttpContextAccessor and your instance resolver:
 
 * `services.AddHttpContextAccessor()`
-* `HCGlobalConfig.DefaultInstanceResolver = (type) => app.Services.GetService(type);`
+* `HCGlobalConfig.DefaultInstanceResolver = (type) => app.ApplicationServices.GetService(type);`
+* `or HCGlobalConfig.DefaultInstanceResolver = (type) => app.Services.GetService(type);`
 
 <details><summary>Example controller</summary>
 <p>
@@ -187,6 +188,8 @@ HCAssetGlobalConfig.DefaultReleaseNotesSummaryJavascriptUrl = $"{hcController}/G
 
 Allows given backend methods to be executed in a UI to check the status of integrations, run utility methods and other things. Any exception thrown from a test will be included in full detail in the UI for easy debugging.
 
+Hold ctrl-shift to view any test categories and show links to open tests in single-mode.
+
 ### Setup
 
 ```csharp
@@ -254,6 +257,7 @@ Supported parameter types:
 * `decimal`, `decimal?`
 * `bool`, `bool?`
 * `DateTime`, `DateTime?`, `DateTimeOffset`, `DateTimeOffset?`
+* `DateTime[]`, `DateTime?[]`, `DateTimeOffset[]`, `DateTimeOffset?[]` (-> date range selection)
 * `TimeSpan`, `TimeSpan?`
 * `Enum`, `Enum?` (-> select)
 * `Enum` with `[Flags]` (-> multiselect)
@@ -392,6 +396,7 @@ The `TestResult` class has a few static factory methods for quick creation of a 
 |AddTimingData|Creates timing metric display.|
 |AddTimelineData|Creates a timeline from the given steps. Each step can show a dialog with more info/links.|
 |AddFileDownload|Creates a download button that can download e.g. larger files by id. Requires `HCTestsModuleOptions.FileDownloadHandler` to be implemented, see further below.|
+|AddExceptionData|Creates a summary of a given exception to display.|
 
 ##### Cosmetics
 
@@ -402,6 +407,15 @@ The following methods can be called on the testresult instance to tweak the outp
 |`SetCleanMode()`|Removes expansion panel and copy/fullscreeen/download buttons. Always shows any dump data.|
 |`DisallowDataExpansion()`|Always shows any dump data.|
 |`SetDataExpandedByDefault()`|Expands any dump data by default.|
+
+##### Validation
+
+If you want to display validation errors on input fields, you can use the following methods on the testresult instance.
+
+|Method|Effect|
+|-|-|
+|`SetParameterFeedback(..)`| Sets parameter feedback for a single parameter.|
+|`SetParametersFeedback(..)`|Sets parameter feedback conditionally for all parameters.|
 
 ##### FileDownloadHandler
 
@@ -551,7 +565,7 @@ IAuditEventStorage auditEventStorage = new FlatFileAuditEventStorage(HostingEnvi
 
 ---------
 
-## Module: Log Viewer
+## Module: Log Viewer *[Deprecated in 4.x+]*
 
 UI for searching through logfiles.
 
@@ -1034,9 +1048,11 @@ Requires an additional nuget package installed [![Nuget](https://img.shields.io/
 The module allows for filtering and exporting data. The type of data source you have available determines how to filter it.
 
 * IQueryable: Lets the user enter a linq query to filter on.
-* IEnumerable&lt;T&gt;: Lets the user filter the data either using an entered linq query or custom parametet inputs depending on your stream implementation.
+* IEnumerable&lt;T&gt;: Lets the user filter the data either using an entered linq query or custom parameter inputs depending on your stream implementation.
 
 A default implementation `HCDataExportService` is provided that picks up any registered `IHCDataExportStream` streams.
+
+If the request only has access to load presets + export, a simplified version of the interface will be displayed.
 
 ### Setup
 
@@ -1079,8 +1095,8 @@ public class MyDataExportStreamA : HCDataExportStreamBase<MyModel>
     // - Enumerable uses GetEnumerableItemsAsync(int pageIndex, int pageSize, Func<MyModel, bool> predicate)
     // - EnumerableWithCustomFilter GetEnumerableWithCustomFilterAsync(..)
     public override IHCDataExportStream.QueryMethod Method => IHCDataExportStream.QueryMethod.Queryable;
-    // Optionally set any allowed column formatters. Any built-in ones can be found below the HealthCheck.Module.DataExport.Formatters namespace.
-    public override IEnumerable<IHCDataExportValueFormatter> ValueFormatters => new[] { new HCDataExportDateTimeValueFormatter() };
+    // Optionally set any allowed column formatters. Defaults to allowing all built-in implementations.
+    // public override IEnumerable<IHCDataExportValueFormatter> ValueFormatters => new[] { new HCDataExportDateTimeValueFormatter() };
     
     // Optional stream group name
     // public override string StreamGroupName => null;
@@ -1711,7 +1727,7 @@ HCMetricsContext.AddError("etc", ex);
 
 ---------
 
-## Module: Documentation
+## Module: Documentation *[Not styled yet in 4.x+]*
 
 Work in progress. At the moment sequence diagrams and flowcharts generated from decorated code will be shown.
 
