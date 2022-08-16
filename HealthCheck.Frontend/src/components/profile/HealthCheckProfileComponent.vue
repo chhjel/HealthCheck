@@ -206,7 +206,7 @@
                     :disabled="disableTotpElevate"
                     :clearable="true"
                     :loading="show2FACodeExpirationTime"
-                    :loadingProgress="twoFactorInputProgress"
+                    :loadingValue="twoFactorInputProgress"
                     :loadingColor="twoFactorInputColor"
                 ></input-component>
 

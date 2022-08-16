@@ -34,7 +34,8 @@
         
         <progress-linear-component v-if="loading"
             class="mt-0"
-            indeterminate
+            :indeterminate="loadingIsIndeterminate"
+            :value="loadingValue || 0"
             :color="loadingColor"
             :height="loadingHeight"
         ></progress-linear-component>
@@ -91,6 +92,9 @@ export default class InputComponent extends Vue
     @Prop({ required: false, default: 'success' })
     loadingColor!: string;
     
+    @Prop({ required: false, default: null })
+    loadingValue!: number | null;
+    
     @Prop({ required: false, default: 4 })
     loadingHeight!: number;
 
@@ -113,6 +117,10 @@ export default class InputComponent extends Vue
     //////////////
     get showActionIcon(): boolean {
         return this.actionIcon != null && this.actionIcon.length > 0;
+    }
+
+    get loadingIsIndeterminate(): boolean {
+        return this.loadingValue == null;
     }
 
     ////////////////
