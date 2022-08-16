@@ -231,10 +231,10 @@ public class MyClass
 
 [RuntimeTest("Get data from somewhere", "Retrieves data from service X and shows the response data.")]
 [RuntimeTestParameter(target: "id", name: "Data id", description: "Id of the thing to get")]
-[RuntimeTestParameter(target: "orgName", name: "Organization name", description: "Name of the organization the data belongs to", uIHints: RuntimeTestParameterAttribute.UIHint.NotNull)]
+[RuntimeTestParameter(target: "orgName", name: "Organization name", description: "Name of the organization the data belongs to", uIHints: HCUIHint.NotNull)]
 public async Task<TestResult> GetDataFromServiceX(int id = 42, string orgName = "Test Organization")
 {
-    var data = await dataService.GetData(id, orgName, allowCache, maxResults);
+    var data = await dataService.GetData(id, orgName);
     return TestResult.CreateSuccess("Recieved data successfully")
         .AddSerializedData(data, data.Name);
 }
