@@ -1392,7 +1392,7 @@ new FlatFileAccessManagerTokenStorage(@"e:\config\access-tokens.json")
 
 ## Module: Event Notifications
 
-Enables notifications of custom events. Rules for notifications can be edited in a UI and events are easily triggered from code. Notifications are delivered through implementations of `IEventNotifier`. Built-in implementations: `DefaultEventDataSink`, `WebHookEventNotifier`, `HCMailEventNotifierBase`.
+Enables notifications of custom events. Rules for notifications can be edited in a UI and events are easily triggered from code. Notifications are delivered through implementations of `IEventNotifier`. Built-in implementations: `DefaultEventDataSink`, `HCWebHookEventNotifier`, `HCMailEventNotifierBase`.
 
 Events can be filtered on their id, stringified payload or properties on their payload, and limits and distinctions can be set.
 
@@ -1638,7 +1638,9 @@ To create new types of results that can be selected in the UI, create custom imp
 
 Built in custom types:
 
-* `EndpointControlForwardedRequestResult`: Forwards request to a given url without blocking them.
+* `EndpointControlForwardedRequestResult`: Forwards request to a given url without blocking them. (Currently only for .Net Framework)
+* `EndpointControlContentResult`: Allows custom content on block, e.g. some json.
+* `EndpointControlRedirectResult`: Redirects to a given url on block.
 
 ---------
 

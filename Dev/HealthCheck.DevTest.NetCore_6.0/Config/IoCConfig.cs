@@ -36,6 +36,7 @@ using HealthCheck.Module.DataExport.Storage;
 using HealthCheck.Module.DynamicCodeExecution.Abstractions;
 using HealthCheck.Module.DynamicCodeExecution.Storage;
 using HealthCheck.Module.EndpointControl.Abstractions;
+using HealthCheck.Module.EndpointControl.Results;
 using HealthCheck.Module.EndpointControl.Services;
 using HealthCheck.Module.EndpointControl.Storage;
 using HealthCheck.WebUI.Services;
@@ -61,7 +62,16 @@ namespace HealthCheck.DevTest.NetCore_6._0.Config
             services.AddSingleton<IEndpointControlRuleStorage>((x) => new FlatFileEndpointControlRuleStorage(GetFilePath(@"App_Data\ec_rules.json", env)));
             services.AddSingleton<IEndpointControlEndpointDefinitionStorage>((x) => new FlatFileEndpointControlEndpointDefinitionStorage(GetFilePath(@"App_Data\ec_defs.json", env)));
             services.AddSingleton<IEndpointControlRequestHistoryStorage>((x) => new FlatFileEndpointControlRequestHistoryStorage(GetFilePath(@"App_Data\ec_history.json", env)));
-            services.AddSingleton<IEndpointControlService, DefaultEndpointControlService>();
+            services.AddSingleton<IEndpointControlService>((s) =>
+            {
+                return new DefaultEndpointControlService(
+                    s.GetService<IEndpointControlRequestHistoryStorage>(),
+                    s.GetService<IEndpointControlEndpointDefinitionStorage>(),
+                    s.GetService<IEndpointControlRuleStorage>()
+                    )
+                    .AddCustomBlockedResult(new EndpointControlContentResult())
+                    .AddCustomBlockedResult(new EndpointControlRedirectResult());
+            });
 
             // Data Repeater
             services.AddSingleton<IHCDataRepeaterStream, TestOrderDataRepeaterStream>();
