@@ -39,15 +39,14 @@
                             Auto-refresh
                         </btn-component>
             
-                        <div v-if="canDeleteEvents">
-                            <btn-component @click="deleteAllDialogVisible = true"
-                                :loading="deleteStatus.inProgress"
-                                :disabled="deleteStatus.inProgress || !siteEvents || siteEvents.length == 0"
-                                flat color="error" class="mr-0">
-                                <icon-component class="mr-2">clear</icon-component>
-                                Delete all
-                            </btn-component>
-                        </div>
+                        <btn-component @click="deleteAllDialogVisible = true"
+                            v-if="canDeleteEvents"
+                            :loading="deleteStatus.inProgress"
+                            :disabled="deleteStatus.inProgress || !siteEvents || siteEvents.length == 0"
+                            flat color="error" class="mr-0">
+                            <icon-component class="mr-2">clear</icon-component>
+                            Delete all
+                        </btn-component>
                     </div>
                 </div>
             
