@@ -20,11 +20,11 @@
             </alert-component>
 
             <div v-if="datax" class="release-notes">
-                <h1 v-if="datax.Title" class="release-notes__title">{{ data.Title }} (Version {{ data.Version }})</h1>
-                <p v-if="datax.Description" class="release-notes__description">{{ data.Description }}</p>
+                <h1 v-if="datax.Title" class="release-notes__title">{{ datax.Title }} (Version {{ datax.Version }})</h1>
+                <p v-if="datax.Description" class="release-notes__description">{{ datax.Description }}</p>
 
                 <chip-component v-if="datax.BuiltAt" class="release-notes__metadata">Built at {{ formatDate(datax.BuiltAt) }}</chip-component>
-                <chip-component v-if="datax.BuiltCommitHash" class="release-notes__metadata">Built hash: {{ data.BuiltCommitHash }}</chip-component>
+                <chip-component v-if="datax.BuiltCommitHash" class="release-notes__metadata">Built hash: {{ datax.BuiltCommitHash }}</chip-component>
                 <chip-component v-if="datax.DeployedAt" class="release-notes__metadata">Deployed at {{ formatDate(datax.DeployedAt) }}</chip-component>
 
                 <div class="release-notes__changes" v-if="datax.Changes">
@@ -67,7 +67,7 @@
                 </div>
             </div>
 
-            <div v-if="HasAccessToDevDetails" class="mt-4">
+            <div v-if="HasAccessToDevDetails && !loadStatus.inProgress" class="mt-4">
                 <btn-component flat @click.left="loadDataToggled()">{{ (forcedWithoutDevDetails) ? 'Show with dev details' : 'Show without dev details' }}</btn-component>
             </div>
         </div>

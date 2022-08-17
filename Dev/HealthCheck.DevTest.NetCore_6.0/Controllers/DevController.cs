@@ -20,6 +20,8 @@ using HealthCheck.Core.Modules.Messages.Abstractions;
 using HealthCheck.Core.Modules.Metrics;
 using HealthCheck.Core.Modules.Metrics.Abstractions;
 using HealthCheck.Core.Modules.Metrics.Context;
+using HealthCheck.Core.Modules.ReleaseNotes;
+using HealthCheck.Core.Modules.ReleaseNotes.Abstractions;
 using HealthCheck.Core.Modules.SecureFileDownload;
 using HealthCheck.Core.Modules.SecureFileDownload.Abstractions;
 using HealthCheck.Core.Modules.SecureFileDownload.FileStorage;
@@ -94,7 +96,8 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             IHCDataRepeaterService dataRepeaterService,
             IHCDataExportService dataExportService,
             IHCDataExportPresetStorage dataExportPresetStorage,
-            IHCMessageStorage messageStore
+            IHCMessageStorage messageStore,
+            IHCReleaseNotesProvider releaseNotesProvider
         )
             : base()
         {
@@ -102,6 +105,30 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             _eventDataSink = eventDataSink;
             _auditEventStorage = auditEventStorage;
 
+            UseModule(new HCTestsModule(new HCTestsModuleOptions()
+            {
+                AssembliesContainingTests = new[]
+                    {
+                        typeof(DevController).Assembly,
+                        typeof(RuntimeTestConstants).Assembly
+                    },
+                ReferenceParameterFactories = CreateReferenceParameterFactories,
+                FileDownloadHandler = (type, id) =>
+                {
+                    if (id == "404") return null;
+                    else if (Guid.TryParse(id, out var fileGuid)) return HealthCheckFileDownloadResult.CreateFromString("guid.txt", $"The guid was {id}");
+                    else if (id == "ascii") return HealthCheckFileDownloadResult.CreateFromString("Success.txt", $"Type: {type}, Id: {id}. ÆØÅæøå etc ôasd. ASCII", encoding: Encoding.ASCII);
+                    else return HealthCheckFileDownloadResult.CreateFromString("Success.txt", $"Type: {type}, Id: {id}. ÆØÅæøå etc ôasd.");
+                },
+            }))
+                .ConfigureGroups((options) => options
+                    .ConfigureGroup(RuntimeTestConstants.Group.TopGroup, uiOrder: 130)
+                    .ConfigureGroup(RuntimeTestConstants.Group.Modules, uiOrder: 120)
+                    .ConfigureGroup(RuntimeTestConstants.Group.AdminStuff, uiOrder: 100)
+                    .ConfigureGroup(RuntimeTestConstants.Group.AlmostTopGroup, uiOrder: 50)
+                    .ConfigureGroup(RuntimeTestConstants.Group.AlmostBottomGroup, uiOrder: -20)
+                    .ConfigureGroup(RuntimeTestConstants.Group.BottomGroup, uiOrder: -50)
+                );
             UseModule(new HCMessagesModule(new HCMessagesModuleOptions() { MessageStorage = messageStore }
                 .DefineInbox("mail", "Mail", "All sent email ends up here.")
                 .DefineInbox("sms", "SMS", "All sent sms ends up here.")
@@ -143,30 +170,6 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             {
                 TokenStorage = accessManagerTokenStorage
             }));
-            UseModule(new HCTestsModule(new HCTestsModuleOptions()
-            {
-                AssembliesContainingTests = new[]
-                    {
-                        typeof(DevController).Assembly,
-                        typeof(RuntimeTestConstants).Assembly
-                    },
-                ReferenceParameterFactories = CreateReferenceParameterFactories,
-                FileDownloadHandler = (type, id) =>
-                {
-                    if (id == "404") return null;
-                    else if (Guid.TryParse(id, out var fileGuid)) return HealthCheckFileDownloadResult.CreateFromString("guid.txt", $"The guid was {id}");
-                    else if (id == "ascii") return HealthCheckFileDownloadResult.CreateFromString("Success.txt", $"Type: {type}, Id: {id}. ÆØÅæøå etc ôasd. ASCII", encoding: Encoding.ASCII);
-                    else return HealthCheckFileDownloadResult.CreateFromString("Success.txt", $"Type: {type}, Id: {id}. ÆØÅæøå etc ôasd.");
-                },
-            }))
-                .ConfigureGroups((options) => options
-                    .ConfigureGroup(RuntimeTestConstants.Group.TopGroup, uiOrder: 130)
-                    .ConfigureGroup(RuntimeTestConstants.Group.Modules, uiOrder: 120)
-                    .ConfigureGroup(RuntimeTestConstants.Group.AdminStuff, uiOrder: 100)
-                    .ConfigureGroup(RuntimeTestConstants.Group.AlmostTopGroup, uiOrder: 50)
-                    .ConfigureGroup(RuntimeTestConstants.Group.AlmostBottomGroup, uiOrder: -20)
-                    .ConfigureGroup(RuntimeTestConstants.Group.BottomGroup, uiOrder: -50)
-                );
             UseModule(new HCEventNotificationsModule(new HCEventNotificationsModuleOptions() { EventSink = eventDataSink }));
             UseModule(new HCLogViewerModule(new HCLogViewerModuleOptions() { LogSearcherService = logSearcherService }));
             UseModule(new HCDocumentationModule(new HCDocumentationModuleOptions()
@@ -190,6 +193,10 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
                     value = HCSensitiveDataUtils.MaskAllEmails(value);
                     return value;
                 }
+            }));
+            UseModule(new HCReleaseNotesModule(new HCReleaseNotesModuleOptions
+            {
+                ReleaseNotesProvider = releaseNotesProvider
             }));
             UseModule(new HCSiteEventsModule(new HCSiteEventsModuleOptions() { SiteEventService = siteEventService, CustomHtml = "<h2>Something custom here</h2><p>And some more.</p>" }));
             UseModule(new HCSettingsModule(new HCSettingsModuleOptions() { Service = settingsService, ModelType = typeof(TestSettings) }));
@@ -268,7 +275,8 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             );
 
             config.GiveRolesAccessToModule(RuntimeTestAccessRole.SystemAdmins, TestModuleB.TestModuleBAccessOption.NumberOne);
-
+            
+            config.GiveRolesAccessToModuleWithFullAccess<HCReleaseNotesModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCDataRepeaterModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCDataExportModule>(RuntimeTestAccessRole.WebAdmins);
             //config.GiveRolesAccessToModuleWithFullAccess<HCDataExportModule>(RuntimeTestAccessRole.QuerystringTest);
