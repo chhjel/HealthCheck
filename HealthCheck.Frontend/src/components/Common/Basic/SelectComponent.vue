@@ -19,6 +19,9 @@
                         <icon-component>clear</icon-component>
                     </div>
                 </div>
+                <span class="select-component__placeholder input-placeholder"
+                    v-if="placeholderText && !showInput">{{ placeholderText }}</span>
+                <span class="spacer" v-if="!showInput"></span>
                 <div v-if="showInput" class="select-component__textInput-wrapper">
                     <input type="text" class="select-component__textInput input" :disabled="!allowModify"
                         v-model="filter"
@@ -34,8 +37,9 @@
                         title="Clear"
                         @click.stop.prevent="clear">clear</icon-component>
                 </div>
-                <span class="select-component__placeholder input-placeholder"
-                    v-if="placeholderText && !showInput">{{ placeholderText }}</span>
+                <span class="select-component__expandIcon" @click.stop.prevent="tryToggleDropdown">
+                    <icon-component medium color="--color--accent-darken7">expand_more</icon-component>
+                </span>
             </div>
         </div>
         <TeleportFix to="body">
@@ -242,6 +246,7 @@ export default class SelectComponent extends Vue
 
     get rootClasses(): any {
         return {
+             'open': this.showDropdown,
              'disabled': this.isDisabled,
              'loading': this.isLoading,
              'multiple': this.isMultiple,
@@ -560,6 +565,16 @@ export default class SelectComponent extends Vue
         padding: 5px 0 !important;
         min-height: 28px;
         border: none !important;
+    }
+    &.open {
+        .select-component__expandIcon {
+            transform: rotate(180deg);
+        }
+    }
+    &__expandIcon {
+        margin-bottom: -4px;
+        transform-origin: 50% 40%;
+        transition: transform 0.25s;
     }
     /* &__placeholder { } */
     /* &__error { } */
