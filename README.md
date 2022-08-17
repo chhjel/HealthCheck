@@ -190,6 +190,8 @@ Allows given backend methods to be executed in a UI to check the status of integ
 
 Hold ctrl-shift to view any test categories and show links to open tests in single-mode.
 
+By default test definitions are cached statically, if this is not desired call `TestDiscoveryService.UseCache = false` on project startup.
+
 ### Setup
 
 ```csharp

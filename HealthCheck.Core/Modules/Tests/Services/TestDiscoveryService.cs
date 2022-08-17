@@ -31,6 +31,12 @@ namespace HealthCheck.Core.Modules.Tests.Services
         public bool IncludeProxyTests { get; set; } = true;
 
         /// <summary>
+        /// Allow caching of test definitions.
+        /// <para>Defaults to true.</para>
+        /// </summary>
+        public static bool UseCache { get; set; } = true;
+
+        /// <summary>
         /// Create a new <see cref="TestDiscoveryService"/>.
         /// </summary>
         public TestDiscoveryService() {}
@@ -73,71 +79,68 @@ namespace HealthCheck.Core.Modules.Tests.Services
             => DiscoverTestDefinitions(includeInvalidTests, onlyTestsAllowedToBeManuallyExecuted, userRoles, testFilter, defaultTestAccessLevel, userCategoryAccess);
 
         private static List<TestClassDefinition> _testClassDefinitionCache;
-        private static object _testClassDefinitionCacheGenLock = new();
-        private void EnsureTestClassDefinitionCache(IEnumerable<Assembly> assemblies)
+        private static readonly object _testClassDefinitionCacheGenLock = new();
+
+        private List<TestClassDefinition> CreateTestClassDefinitions(IEnumerable<Assembly> assemblies)
         {
-            lock (_testClassDefinitionCacheGenLock)
+            var defs = new List<TestClassDefinition>();
+            var classTypes = assemblies
+                .SelectMany(x => x.GetTypes())
+                .Where(x => x.GetCustomAttribute<RuntimeTestClassAttribute>(inherit: true) != null)
+                .ToList();
+
+            foreach (var classType in classTypes)
             {
-                if (_testClassDefinitionCache != null) return;
+                var testClassAttribute = classType.GetCustomAttribute<RuntimeTestClassAttribute>(inherit: true);
+                var classDef = new TestClassDefinition(classType, testClassAttribute);
+                var methods = classType.GetMethods();
 
-                _testClassDefinitionCache = new List<TestClassDefinition>();
-                var testClassTypesCache = assemblies
-                    .SelectMany(x => x.GetTypes())
-                    .Where(x => x.GetCustomAttribute<RuntimeTestClassAttribute>(inherit: true) != null)
-                    .ToList();
-
-                foreach (var classType in testClassTypesCache)
+                foreach (var testMethod in methods)
                 {
-                    var testClassAttribute = classType.GetCustomAttribute<RuntimeTestClassAttribute>(inherit: true);
-                    var classDef = new TestClassDefinition(classType, testClassAttribute);
-                    var methods = classType.GetMethods();
+                    var testAttribute = testMethod.GetCustomAttribute<RuntimeTestAttribute>();
+                    var proxyTestAttribute = testMethod.GetCustomAttribute<ProxyRuntimeTestsAttribute>();
 
-                    foreach (var testMethod in methods)
+                    // Normal tests
+                    if (testAttribute != null)
                     {
-                        var testAttribute = testMethod.GetCustomAttribute<RuntimeTestAttribute>();
-                        var proxyTestAttribute = testMethod.GetCustomAttribute<ProxyRuntimeTestsAttribute>();
-
-                        // Normal tests
-                        if (testAttribute != null)
+                        var testDef = new TestDefinition(testMethod, testAttribute, classDef, ReferenceParameterFactories);
+                        classDef.Tests.Add(testDef);
+                    }
+                    // Proxy class tests
+                    else if (proxyTestAttribute != null && IncludeProxyTests)
+                    {
+                        // Check for load errors
+                        var errors = ValidateProxyTestMethod(classType, testMethod);
+                        if (errors.Any())
                         {
-                            var testDef = new TestDefinition(testMethod, testAttribute, classDef, ReferenceParameterFactories);
+                            var testDef = new TestDefinition(testMethod, classDef, ReferenceParameterFactories)
+                            {
+                                LoadErrors = errors
+                            };
+                            classDef.Tests.Add(testDef);
+                            continue;
+                        }
+
+                        var config = testMethod.Invoke(null, new object[0]) as ProxyRuntimeTestConfig;
+                        var proxyMethods = config.TargetClassType.GetMethods()
+                            .Where(t => !_excludedProxyMethodNames.Contains(t.Name) && !t.IsSpecialName && t.IsPublic && !t.IsStatic && !t.IsGenericMethod)
+                            .Where(m => !m.GetCustomAttributes(typeof(CompilerGeneratedAttribute), true).Any())
+                            .Where(m => config?.MethodFilter?.Invoke(m) != false);
+                        foreach (var proxyMethod in proxyMethods)
+                        {
+                            var testDef = new TestDefinition(proxyMethod, proxyTestAttribute, config, classDef, ReferenceParameterFactories);
                             classDef.Tests.Add(testDef);
                         }
-                        // Proxy class tests
-                        else if (proxyTestAttribute != null && IncludeProxyTests)
-                        {
-                            // Check for load errors
-                            var errors = ValidateProxyTestMethod(classType, testMethod);
-                            if (errors.Any())
-                            {
-                                var testDef = new TestDefinition(testMethod, classDef, ReferenceParameterFactories)
-                                {
-                                    LoadErrors = errors
-                                };
-                                classDef.Tests.Add(testDef);
-                                continue;
-                            }
-
-                            var config = testMethod.Invoke(null, new object[0]) as ProxyRuntimeTestConfig;
-                            var proxyMethods = config.TargetClassType.GetMethods()
-                                .Where(t => !_excludedProxyMethodNames.Contains(t.Name) && !t.IsSpecialName && t.IsPublic && !t.IsStatic && !t.IsGenericMethod)
-                                .Where(m => !m.GetCustomAttributes(typeof(CompilerGeneratedAttribute), true).Any())
-                                .Where(m => config?.MethodFilter?.Invoke(m) != false);
-                            foreach (var proxyMethod in proxyMethods)
-                            {
-                                var testDef = new TestDefinition(proxyMethod, proxyTestAttribute, config, classDef, ReferenceParameterFactories);
-                                classDef.Tests.Add(testDef);
-                            }
-                        }
-                    }
-
-                    // Only include test set if it has any tests
-                    if (classDef.Tests.Any())
-                    {
-                        _testClassDefinitionCache.Add(classDef);
                     }
                 }
+
+                // Only include test set if it has any tests
+                if (classDef.Tests.Any())
+                {
+                    defs.Add(classDef);
+                }
             }
+            return defs;
         }
 
         /// <summary>
@@ -159,7 +162,22 @@ namespace HealthCheck.Core.Modules.Tests.Services
                     $"{nameof(AssembliesContainingTests)} must contain at least one assembly to retrieve tests from.");
             }
 
-            EnsureTestClassDefinitionCache(assemblies);
+            List<TestClassDefinition> testClassDefs;
+            if (UseCache)
+            {
+                lock (_testClassDefinitionCacheGenLock)
+                {
+                    if (_testClassDefinitionCache == null)
+                    {
+                        _testClassDefinitionCache = CreateTestClassDefinitions(assemblies);
+                    }
+                    testClassDefs = _testClassDefinitionCache;
+                }
+            }
+            else
+            {
+                testClassDefs = CreateTestClassDefinitions(assemblies);
+            }
 
             return _testClassDefinitionCache
                 .Select(classDef =>
