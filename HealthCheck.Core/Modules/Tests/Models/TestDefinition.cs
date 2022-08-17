@@ -274,7 +274,10 @@ namespace HealthCheck.Core.Modules.Tests.Models
             if (parameterAttribute?.DefaultValueFactoryMethod != null)
             {
                 var factoryMethod = GetCustomDefaultValueMethod(parameterAttribute, parameter);
-                return factoryMethod?.Invoke(null, new object[0]);
+                var factoryParameters = factoryMethod?.GetParameters()?.Length == 0
+                    ? new object[0]
+                    : new object[] { parameter.Name };
+                return factoryMethod?.Invoke(null, factoryParameters);
             }
             else if (parameter.DefaultValue == null || (parameter.DefaultValue is DBNull))
             {
@@ -296,7 +299,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
             var classType = Method.DeclaringType;
             return classType.GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .FirstOrDefault(x => x.Name == parameterAttribute.DefaultValueFactoryMethod 
-                    && x.GetParameters().Length == 0
+                    && (x.GetParameters().Length == 0 || (x.GetParameters().Length == 1 && x.GetParameters()[0].ParameterType == typeof(string)))
                     && x.ReturnType == parameterInfo.ParameterType);
         }
 

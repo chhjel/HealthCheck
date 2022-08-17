@@ -46,8 +46,8 @@ namespace HealthCheck.Dev.Common.Tests
         [RuntimeTestParameter(target: "textPattern2", "String with pattern B", "Testing some pattern validation.", TextPattern = @"/^X\-\d+/gi")]
         public TestResult TestParameterTypes(
             Guid guid, Guid? nullableGuid,
-            [RuntimeTestParameter(UIHints = HCUIHint.DisableRng)] Guid guidWithoutRng,
-            [RuntimeTestParameter(UIHints = HCUIHint.DisableRng)] Guid? nullableGuidWithoutRng,
+            [RuntimeTestParameter(UIHints = HCUIHint.AllowRandom)] Guid guidWithRng,
+            [RuntimeTestParameter(UIHints = HCUIHint.AllowRandom)] Guid? nullableGuidWithRng,
             DateTime date, [RuntimeTestParameter(nullName: "<no date>")] DateTime? nullableDate = null,
             DateTimeOffset dateOffset = default, [RuntimeTestParameter(nullName: "<no datetimeoffset>")] DateTimeOffset? nullableDateOffset = null,
             [RuntimeTestParameter(UIHints = HCUIHint.DateRange)] DateTime[] dateRange = default,
@@ -168,6 +168,24 @@ namespace HealthCheck.Dev.Common.Tests
                                 )
                 );
         }
+
+        [RuntimeTest]
+        [RuntimeTestParameter("value", "Value", "Some description here.", DefaultValueFactoryMethod = nameof(SimpleString_Default))]
+        public TestResult DefaultValueFactoryMethodWithoutParameterTest(string value)
+        {
+            return TestResult.CreateSuccess($"Value: {value}");
+        }
+        public static string SimpleString_Default() => "The default value.";
+
+        [RuntimeTest]
+        [RuntimeTestParameter("value", "Value", "Some description here.", DefaultValueFactoryMethod = nameof(AdvancedString_Default))]
+        [RuntimeTestParameter("anotherValue", "Another Value", "Some description here.", DefaultValueFactoryMethod = nameof(AdvancedString_Default))]
+        public TestResult DefaultValueFactoryMethodWithParameterTest(string value, string anotherValue)
+        {
+            return TestResult.CreateSuccess($"Value: {value} and {anotherValue}");
+        }
+        public static string AdvancedString_Default(string parameterName) => $"Name is '{parameterName}'.";
+
 
         [RuntimeTest]
         public TestResult TestCleanMode()

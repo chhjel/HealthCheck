@@ -261,7 +261,7 @@ Supported parameter types:
 * `TimeSpan`, `TimeSpan?`
 * `Enum`, `Enum?` (-> select)
 * `Enum` with `[Flags]` (-> multiselect)
-* `Guid`, `Guid?`
+* `Guid`, `Guid?` (combine with HCUIHint.AllowRandom to allow new guid generation)
 * `byte[]`, `HttpPostedFileBase` (.NET Framework), `IFormFile` (.NET Core) (-> file upload)
 * `List<T>` where `<T>` is any of the above types (w/ option for readable list for setting order only)
 * `CancellationToken` to make the method cancellable, see below.
@@ -478,7 +478,8 @@ Can be applied to either the method itself using the `Target` property or the pa
 |Description|Description of the property. Shown as a help text and can contain html.|
 |UIHint|Options for parameter display can be set here. Read only lists, prevent null-values, text areas etc.|
 |NullName|Override "null"-placeholder values for nullable types if desired.|
-|DefaultValueFactoryMethod|For property types that cannot have default values (e.g. lists), use this to specify the name of a public static method in the same class as the method. The method should have the same return type as this parameter, and have zero parameters.|
+|TextPattern|Can be used on text inputs to require the input to match the given regex pattern. Input is validated on blur.|
+|DefaultValueFactoryMethod|For property types that cannot have default values (e.g. lists), use this to specify the name of a public static method in the same class as the method. The method should have the same return type as this parameter, and have zero parameters or one string parameter. If the method has one string parameter, the name of the parameter will be its value.|
 
 #### [ProxyRuntimeTests]
 

@@ -27,7 +27,8 @@ namespace HealthCheck.Core.Modules.Tests.Attributes
         public string Description { get; set; }
 
         /// <summary>
-        /// Method name of a public static method in the same class as this method. The method should have the same return type as this parameter, and have zero parameters.
+        /// Method name of a public static method in the same class as this method. The method should have the same return type as this parameter, and have zero parameters or one string parameter.
+        /// <para>If the method has one string parameter, the name of the parameter will be its value.</para>
         /// </summary>
         public string DefaultValueFactoryMethod { get; set; }
 

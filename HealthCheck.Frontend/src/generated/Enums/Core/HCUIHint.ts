@@ -10,5 +10,5 @@ export enum HCUIHint {
 	FullWidth = "FullWidth", 
 	CodeArea = "CodeArea", 
 	DateRange = "DateRange", 
-	DisableRng = "DisableRng"
+	AllowRandom = "AllowRandom"
 }

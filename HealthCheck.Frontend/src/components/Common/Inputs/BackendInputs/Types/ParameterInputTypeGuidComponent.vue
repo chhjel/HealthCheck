@@ -77,7 +77,7 @@ export default class ParameterInputTypeGuidComponent extends Vue {
     }
 
     get showRngGen(): boolean {
-        return this.config.UIHints.includes(HCUIHint.DisableRng);
+        return this.config.UIHints.includes(HCUIHint.AllowRandom);
     }
 
     get placeholderText(): string {

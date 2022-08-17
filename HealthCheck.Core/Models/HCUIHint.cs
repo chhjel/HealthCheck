@@ -46,8 +46,9 @@ namespace HealthCheck.Core.Models
         DateRange = 32,
 
         /// <summary>
-        /// Removes the "Generate new guid" button on guid inputs.
+        /// Allows frontend to generate a random value. Supported for the following:
+        /// <para>Guid inputs - shows a button to generate a new random guid value.</para>
         /// </summary>
-        DisableRng = 64,
+        AllowRandom = 64,
     }
 }
