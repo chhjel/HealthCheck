@@ -1,12 +1,23 @@
 <!-- src/components/modules/ReleaseNotes/ReleaseNotesSummaryComponent.vue -->
 <template>
-    <div>
+    <div v-if="isVisible">
         <shadow-root>
             <div @click="toggleVisibility" :style="styleToggleMetrics" :class="{ 'pulsating-circle': hasNewChanges }"
               title="Latest changes">{{ toggleButtonContent }}</div>
 
             <div :style="styleRoot" v-if="visible">
-                <h3 v-if="config.Title" style="margin-top: 0;">{{ config.Title }} ({{ config.Version }})</h3>
+                <div style="display: flex; flex-wrap: wrap; align-items: baseline;">
+                  <h3 v-if="config.Title" style="margin-top: 0; flex: 1; white-space: nowrap">{{ config.Title }} ({{ config.Version }})</h3>
+                  <div style="font-size: small; font-family: monospace;">
+                    When to show release notes? 
+                    <div style="display:inline-block">
+                      <span v-for="(choice, index) in visiblityChoices"
+                        :key="`${id}-${index}-vischoice`"
+                        :style="styleVisibilityConfigChoice(choice.visibility)"
+                        @click.stop.prevent="setVisibilityConfig(choice.visibility)">[{{ choice.label }}]</span>
+                    </div>
+                  </div>
+                </div>
                 <p v-if="config.Description">{{ config.Description }}</p>
                 <p v-if="config.BuiltAt">Built on {{ formatBuiltDate(config.BuiltAt) }}</p>
 
@@ -14,7 +25,7 @@
                 <ul>
                     <li v-for="(item, itemIndex) in includedChanges"
                         :key="`rn-item-${itemIndex}`">
-                        <a :href="item.MainLink">{{ item.Title }}</a><div v-if="item.Description">{{ item.Description }}</div>
+                        <a :href="item.MainLink" target="_blank">{{ item.Title }}</a><div v-if="item.Description">{{ item.Description }}</div>
                     </li>
                 </ul>
             </div>
@@ -31,6 +42,11 @@ import DateUtils from "@util/DateUtils";
 import { HCReleaseNotesViewModel } from "@generated/Models/Core/HCReleaseNotesViewModel";
 import { HCReleaseNoteChangeViewModel } from "@generated/Models/Core/HCReleaseNoteChangeViewModel";
 
+interface VisibilityConfigOption {
+  label: string;
+  visibility: Visibility;
+}
+type Visibility = 'never' | 'onNewVersion' | 'always';
 @Options({
     components: {
     }
@@ -42,7 +58,15 @@ export default class ReleaseNotesSummaryComponent extends Vue {
     id: string = IdUtils.generateId();
     visible: boolean = false;
     hasNewChanges: boolean = false;
+    hadNewChangesOnMounted: boolean = false;
     lastViewedVersionStorageKey: string = '__HC_ReleaseNotes_LastViewedVersion';
+    visibilityStorageKey: string = '__HC_ReleaseNotes_Visibility';
+    visibilityConfig: Visibility = 'always';
+    visiblityChoices: Array<VisibilityConfigOption> = [
+      { label: 'Always', visibility: "always" },
+      { label: 'New versions only', visibility: "onNewVersion" },
+      { label: 'Never', visibility: "never" }
+    ];
 
     //////////////////
     //  LIFECYCLE  //
@@ -51,6 +75,8 @@ export default class ReleaseNotesSummaryComponent extends Vue {
         this.createStyle();
 
         this.hasNewChanges = !!this.config.Version && localStorage.getItem(this.lastViewedVersionStorageKey) !== this.config.Version;
+        this.hadNewChangesOnMounted = this.hasNewChanges;
+        this.loadVisibilityConfig();
     }
 
     getInnerBarStyle(): any
@@ -58,6 +84,17 @@ export default class ReleaseNotesSummaryComponent extends Vue {
       return {
         'background-color': 'red'
       };
+    }
+
+    loadVisibilityConfig(): void {
+        const storedVisibilityConfig = localStorage.getItem(this.visibilityStorageKey);
+        if (storedVisibilityConfig == 'never') this.visibilityConfig = 'never';
+        else if (storedVisibilityConfig == 'onNewVersion') this.visibilityConfig = 'onNewVersion';
+    }
+
+    setVisibilityConfig(vis: Visibility): void {
+      this.visibilityConfig = vis;
+      localStorage.setItem(this.visibilityStorageKey, vis);
     }
 
     ////////////////
@@ -71,10 +108,29 @@ export default class ReleaseNotesSummaryComponent extends Vue {
         return '📝';
     }
 
+    get isVisible(): boolean {
+      return this.visibilityConfig == 'always'
+        || (this.visibilityConfig == "onNewVersion" && this.hadNewChangesOnMounted);
+    }
+
     //////////////
     //  STYLE  //
     ////////////
     // Using style getters because of shadow-dom
+    styleVisibilityConfigChoice(vis: Visibility): any {
+      let style: any = {
+        'margin-right': '5px',
+        'color': '#4d6d89'
+      };
+      if (this.visibilityConfig == vis) {
+        style['font-weight'] = '600';
+        style['color'] = '#111';
+      } else {
+        style['cursor'] = 'pointer';
+      }
+      return style;
+    }
+
     get styleToggleMetrics(): any {
         const base: any = {
             "height": "1cm",
@@ -117,7 +173,8 @@ export default class ReleaseNotesSummaryComponent extends Vue {
             "left": "0",
             "max-height": "75%",
             "max-width": "65%",
-            "overflow-x": "auto"
+            "overflow-x": "auto",
+            "box-shadow": "0 0 20px 1px #3a3a3a75"
         };
     }
 
