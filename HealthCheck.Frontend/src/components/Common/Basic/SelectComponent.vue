@@ -42,7 +42,7 @@
                 </span>
             </div>
         </div>
-        <TeleportFix to="body">
+        <TeleportFix to="body" :disabled="!showDropdown">
             <div class="select-component__dropdown box-shadow" v-show="showDropdown" ref="dropdownElement">
                 <div class="select-component__dropdown__items">
                     <div v-for="(item, iIndex) in filteredOptionItems"
