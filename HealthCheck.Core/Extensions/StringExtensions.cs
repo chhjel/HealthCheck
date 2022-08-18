@@ -132,11 +132,12 @@ namespace HealthCheck.Core.Extensions
         }
 
         /// <summary>
-        /// If the string is not null, ensure a dot is at the end.
+        /// If the string is not null or empty, ensure a dot is at the end.
         /// </summary>
-        public static string EnsureDotAtEndIfNotNull(this string text, bool trim = true)
+        public static string EnsureDotAtEndIfNotNullOrEmpty(this string text, bool trim = true)
         {
-            if (text == null) return null;
+            if (string.IsNullOrWhiteSpace(text)) return text;
+            
             if (trim)
             {
                 text = text?.Trim();

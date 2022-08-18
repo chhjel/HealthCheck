@@ -14,6 +14,60 @@ namespace HealthCheck.Core.Tests.Extensions
         }
 
         [Fact]
+        public void EnsureDotAtEndIfNotNullOrEmpty_WithContent_AddsDot()
+        {
+            var input = "Some string";
+            var expected = "Some string.";
+            var output = input.EnsureDotAtEndIfNotNullOrEmpty();
+            Assert.Equal(expected, output);
+        }
+
+        [Fact]
+        public void EnsureDotAtEndIfNotNullOrEmpty_WithEmpty_ReturnsEmpty()
+        {
+            var input = "";
+            var expected = "";
+            var output = input.EnsureDotAtEndIfNotNullOrEmpty();
+            Assert.Equal(expected, output);
+        }
+
+        [Fact]
+        public void EnsureDotAtEndIfNotNullOrEmpty_WithNull_ReturnsNull()
+        {
+            string input = null;
+            string expected = null;
+            var output = input.EnsureDotAtEndIfNotNullOrEmpty();
+            Assert.Equal(expected, output);
+        }
+
+        [Fact]
+        public void EnsureDotAtEndIfNotNullOrEmpty_WithSpaces_ReturnsSame()
+        {
+            var input = "   ";
+            var expected = "   ";
+            var output = input.EnsureDotAtEndIfNotNullOrEmpty();
+            Assert.Equal(expected, output);
+        }
+
+        [Fact]
+        public void EnsureDotAtEndIfNotNullOrEmpty_WithTabs_ReturnsSame()
+        {
+            var input = "\t\t";
+            var expected = "\t\t";
+            var output = input.EnsureDotAtEndIfNotNullOrEmpty();
+            Assert.Equal(expected, output);
+        }
+
+        [Fact]
+        public void EnsureDotAtEndIfNotNullOrEmpty_WithTabsAndSpaces_ReturnsSame()
+        {
+            var input = "\t  \t";
+            var expected = "\t  \t";
+            var output = input.EnsureDotAtEndIfNotNullOrEmpty();
+            Assert.Equal(expected, output);
+        }
+
+        [Fact]
         public void Pluralize_WithoutCount_ReturnsInput()
         {
             var input = "thing";

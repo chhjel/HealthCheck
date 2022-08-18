@@ -131,7 +131,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
             : this(method, parentClass, referenceParameterFactories)
         {
             Name = testAttribute.Name ?? Method.Name.SpacifySentence();
-            Description = testAttribute.Description.EnsureDotAtEndIfNotNull();
+            Description = testAttribute.Description.EnsureDotAtEndIfNotNullOrEmpty();
             AllowParallelExecution = testAttribute.AllowParallelExecution == null ? default(bool?) : (bool)testAttribute.AllowParallelExecution;
             AllowManualExecution = (testAttribute.AllowManualExecution is bool allowManualExecution ? allowManualExecution : parentClass.DefaultAllowManualExecution);
             RolesWithAccess =  testAttribute.RolesWithAccess ?? parentClass.DefaultRolesWithAccess;
@@ -212,7 +212,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
                     Index = i,
                     Id = parameter.Name,
                     Name = parameterAttribute?.Name ?? parameter.Name.SpacifySentence(),
-                    Description = parameterAttribute?.Description.EnsureDotAtEndIfNotNull(),
+                    Description = parameterAttribute?.Description.EnsureDotAtEndIfNotNullOrEmpty(),
                     DefaultValue = GetDefaultValue(parameter, parameterAttribute),
                     ParameterType = type,
                     UIHints = uiHints,
