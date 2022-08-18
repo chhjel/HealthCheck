@@ -435,9 +435,9 @@ export default class TestComponent extends Vue {
   color: #fff;
   background-color: var(--color--success-base);
   height: 33px;
-  padding: 8px;
+  padding: 0 8px;
+  font-weight: 600;
   margin-right: 8px;
-  padding-top: 5px;
   align-self: center;
   display: flex;
   align-items: center;
