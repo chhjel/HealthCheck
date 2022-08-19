@@ -28,10 +28,8 @@ namespace HealthCheck.Dev.Common.DataExport
                     Name = $"Item {x * 100}\nWith some newlines.\r\nAnd\tanother\n\rone\retc.",
                     Value = x
                 })
-                .Where(x => string.IsNullOrWhiteSpace(filter.Parameters.StringFilter) || x.Name.Contains(filter.Parameters.StringFilter))
-                .Where(x => filter.Parameters.MinValue == null || x.Value >= filter.Parameters.MinValue)
-                .Where(x => filter.Parameters.MaxValue == null || x.Value <= filter.Parameters.MaxValue)
-                .Where(filter.QueryPredicate);
+                .Where(filter.QueryPredicate)
+                .Take(filter.Parameters.MaxResults);
 
             var pageItems = matches
                 .Skip(filter.PageIndex * filter.PageSize)
@@ -53,27 +51,14 @@ namespace HealthCheck.Dev.Common.DataExport
 
         public class Parameters
         {
-            public DateTimeOffset DateTimeOffsetTest { get; set; }
-            public DateTime DateTimeTest { get; set; }
-            public DateTimeOffset DateTimeOffsetTestWDef { get; set; } = DateTimeOffset.Now.AddDays(-60);
-            public DateTime DateTimeTestWDef { get; set; } = DateTime.Now.AddDays(-30);
-            public DateTimeOffset DateTimeOffsetTestNow { get; set; } = DateTimeOffset.Now;
-            public DateTime DateTimeTestMin { get; set; } = DateTime.MinValue;
-            public string StringFilter { get; set; }
-            public string StringFilterWDef { get; set; } = "Default stringPls";
-            public int? MinValue { get; set; }
-            [HCCustomProperty(NullName = "<9001>")]
-            public int? MaxValue { get; set; } = 900001;
-            public TestEnum SomeEnum { get; set; } = TestEnum.ValueA;
-            [HCCustomProperty(NullName = "<Any>")]
-            public TestEnum? SomeNullableEnum { get; set; } = TestEnum.ValueB;
-            public List<TestEnum> SomeEnumList { get; set; }
-            public float SomeFloat { get; set; } = 12.34f;
-            public float? SomeNullableFloat { get; set; }
-        }
-        public enum TestEnum
-        {
-            ValueA, ValueB, ValueC
+            [HCCustomProperty(NullName = "Oldest")]
+            public DateTime? From { get; set; } = DateTime.Now.AddDays(-30);
+
+            [HCCustomProperty(NullName = "Newest")]
+            public DateTime? To { get; set; }
+
+            [HCCustomProperty(Description = "Limit max results in order to gain some performance.")]
+            public int MaxResults { get; set; } = 1000;
         }
     }
 }

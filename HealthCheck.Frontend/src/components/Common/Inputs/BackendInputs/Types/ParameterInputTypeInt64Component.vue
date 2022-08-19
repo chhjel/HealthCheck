@@ -30,14 +30,23 @@ export default class ParameterInputTypeInt64Component extends Vue {
     readonly!: boolean;
 
     localValue: string | null = '';
+    isCreated: boolean = false;
     
     created(): void {
         this.updateLocalValue();
+        this.isCreated = true;
     }
 
     validateValue(): void {
         if (this.localValue == null || this.localValue === '') {
-            this.localValue = this.isNullable ? null : "0";
+            if (this.config && this.config.DefaultValue && !this.isCreated) {
+                this.localValue = this.config.DefaultValue;
+            } else {
+                this.localValue = this.isNullable ? null : "0";
+            }
+        }
+        else if (!isNaN(Number(this.localValue))) {
+            this.localValue = Math.floor(Number(this.localValue)).toString();
         }
     }
 

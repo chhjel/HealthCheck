@@ -30,14 +30,20 @@ export default class ParameterInputTypeDoubleComponent extends Vue {
     readonly!: boolean;
 
     localValue: string | null = '';
+    isCreated: boolean = false;
     
     created(): void {
         this.updateLocalValue();
+        this.isCreated = true;
     }
 
     validateValue(): void {
         if (this.localValue == null || this.localValue === '') {
-            this.localValue = this.isNullable ? null : "0";
+            if (this.config && this.config.DefaultValue && !this.isCreated) {
+                this.localValue = this.config.DefaultValue;
+            } else {
+                this.localValue = this.isNullable ? null : "0";
+            }
         }
     }
 
