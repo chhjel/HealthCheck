@@ -82,5 +82,15 @@ namespace HealthCheck.Core.Modules.Tests.Attributes
         /// <para>Method must be public/private/internal static and not have any parameters.</para>
         /// </summary>
         public string ReferenceParameterFactoryProviderMethodName { get; set; }
+
+        /// <summary>
+        /// If true, any input will not be included in any audit logging.
+        /// </summary>
+        public bool HideInputFromAuditLog { get; set; }
+
+        /// <summary>
+        /// If true, any result message will not be included in any audit logging.
+        /// </summary>
+        public bool HideResultMessageFromAuditLog { get; set; }
     }
 }

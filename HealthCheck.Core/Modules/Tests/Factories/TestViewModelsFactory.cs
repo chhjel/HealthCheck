@@ -255,7 +255,9 @@ namespace HealthCheck.Core.Modules.Tests.Factories
                 ParameterFeedback = parameterFeedback,
                 ExpandDataByDefault = testResult.ExpandDataByDefault || !testResult.AllowExpandData,
                 DurationInMilliseconds = testResult.DurationInMilliseconds,
-                Data = dumps
+                Data = dumps,
+                InputWasAllowedAuditLogged = !testResult.Test.HideInputFromAuditLog,
+                ResultMessageWasAllowedAuditLogged = !testResult.Test.HideResultMessageFromAuditLog
             };
 
             return vm;

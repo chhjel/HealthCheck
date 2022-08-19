@@ -280,6 +280,30 @@ namespace HealthCheck.Dev.Common.Tests
             return TestResult.CreateSuccess($"Recieved: [{PrettifyValue(number)}, {PrettifyValue(checkbox)}, {PrettifyValue(date)}, {PrettifyValue(dateOffset)}]");
         }
 
+        [RuntimeTest]
+        public TestResult AllowAudit(string input)
+        {
+            return TestResult.CreateSuccess($"AllowAudit output here, input was \"{input}\".");
+        }
+
+        [RuntimeTest(HideInputFromAuditLog = true)]
+        public TestResult PreventAuditInput(string input)
+        {
+            return TestResult.CreateSuccess($"PreventAuditInput output here, input was \"{input}\".");
+        }
+
+        [RuntimeTest(HideResultMessageFromAuditLog = true)]
+        public TestResult PreventAuditResult(string input)
+        {
+            return TestResult.CreateSuccess($"PreventAuditResult output here, input was \"{input}\".");
+        }
+
+        [RuntimeTest(HideResultMessageFromAuditLog = true, HideInputFromAuditLog = true)]
+        public TestResult PreventAuditResultAndInput(string input)
+        {
+            return TestResult.CreateSuccess($"PreventAuditResultAndInput output here, input was \"{input}\".");
+        }
+
         private string PrettifyValue(object value)
         {
             if (value == null) return "null";

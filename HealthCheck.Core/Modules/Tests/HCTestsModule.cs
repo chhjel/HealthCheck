@@ -180,14 +180,23 @@ namespace HealthCheck.Core.Modules.Tests
         {
             var result = await ExecuteTest(context.CurrentRequestRoles, context.CurrentModuleCategoryAccess, context.CurrentModuleIdAccess,
                 data, context.HasAccess(AccessOption.IncludeExceptionStackTraces));
-            var parameters = data?.Parameters?.Select(x => context.TryStripSensitiveData(x.Value))
-                ?? Enumerable.Empty<string>();
-            var testOutput = context.TryStripSensitiveData(result?.Message);
+
+            IEnumerable<string> parameters = null;
+            if (result.InputWasAllowedAuditLogged)
+            {
+                parameters = data?.Parameters?.Select(x => context.TryStripSensitiveData(x.Value))
+                    ?? Enumerable.Empty<string>();
+            }
+            string testOutput = null;
+            if (result.ResultMessageWasAllowedAuditLogged)
+            {
+                testOutput = context.TryStripSensitiveData(result?.Message);
+            }
 
             context.AddAuditEvent(action: "Test executed", subject: result?.TestName)
                 .AddDetail("Test id", data?.TestId)
-                .AddDetail("Parameters", $"[{string.Join(", ", parameters)}]")
-                .AddDetail("Result", testOutput)
+                .AddDetail("Parameters", parameters == null ? null : $"[{string.Join(", ", parameters)}]", true)
+                .AddDetail("Result", testOutput, true)
                 .AddDetail("Duration", $"{result?.DurationInMilliseconds}ms");
 
             return result;

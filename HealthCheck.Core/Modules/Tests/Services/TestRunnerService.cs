@@ -106,7 +106,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
                             UserAccessRoles = new List<string>()
                         }
                         .AddDetail("Test id", result?.Test?.Id)
-                        .AddDetail("Result", result?.Message)
+                        .AddDetail("Result", result?.Test?.HideResultMessageFromAuditLog == true ? null : result?.Message)
                         .AddDetail("Duration", duration + "ms");
                     await onAuditEvent(auditEvent);
                 }

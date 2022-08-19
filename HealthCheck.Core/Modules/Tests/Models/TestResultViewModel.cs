@@ -69,6 +69,16 @@ namespace HealthCheck.Core.Modules.Tests.Models
         public long DurationInMilliseconds { get; set; }
 
         /// <summary>
+        /// True if input was allowed to be audit logged.
+        /// </summary>
+        public bool InputWasAllowedAuditLogged { get; set; }
+
+        /// <summary>
+        /// True if input was allowed to be audit logged.
+        /// </summary>
+        public bool ResultMessageWasAllowedAuditLogged { get; set; }
+
+        /// <summary>
         /// Create a new <see cref="TestResultViewModel"/> with error status code.
         /// </summary>
         public static TestResultViewModel CreateError(string message, string testId = null, string testName = null)

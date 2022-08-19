@@ -76,6 +76,16 @@ namespace HealthCheck.Core.Modules.Tests.Models
         public bool IsCancellable { get; set; }
 
         /// <summary>
+        /// If true, any input will not be included in any audit logging.
+        /// </summary>
+        public bool HideInputFromAuditLog { get; set; }
+
+        /// <summary>
+        /// If true, any result message will not be included in any audit logging.
+        /// </summary>
+        public bool HideResultMessageFromAuditLog { get; set; }
+
+        /// <summary>
         /// Test method.
         /// </summary>
         internal MethodInfo Method { get; private set; }
@@ -137,6 +147,8 @@ namespace HealthCheck.Core.Modules.Tests.Models
             RolesWithAccess =  testAttribute.RolesWithAccess ?? parentClass.DefaultRolesWithAccess;
             RunButtonText = testAttribute.RunButtonText;
             RunningButtonText = testAttribute.RunningButtonText;
+            HideInputFromAuditLog = testAttribute.HideInputFromAuditLog;
+            HideResultMessageFromAuditLog = testAttribute.HideResultMessageFromAuditLog;
 
             var methodParams = Method.GetParameters();
             IsCancellable = (methodParams.FirstOrDefault()?.ParameterType == typeof(CancellationToken));
