@@ -1,5 +1,5 @@
-﻿using HealthCheck.Core.Exceptions;
-using HealthCheck.Core.Util;
+﻿using HealthCheck.Core.Util;
+using HealthCheck.Module.DataExport.Models;
 using HealthCheck.Module.DataExport.Services;
 using System;
 using System.Collections.Generic;
@@ -50,7 +50,7 @@ namespace HealthCheck.Module.DataExport.Abstractions
         public virtual HCMemberFilterRecursive IncludedMemberFilter { get; } = new();
 
         /// <inheritdoc />
-        public bool SupportsQuery => Method != IHCDataExportStream.QueryMethod.EnumerableWithCustomFilter;
+        public virtual bool SupportsQuery() => Method == IHCDataExportStream.QueryMethod.Queryable;
 
         /// <summary>
         /// Formatters that can be selected per column.
@@ -60,19 +60,19 @@ namespace HealthCheck.Module.DataExport.Abstractions
 
         /// <summary>
         /// Defines what method to use for querying.
-        /// <para><see cref="IHCDataExportStream.QueryMethod.Queryable"/> uses <see cref="GetQueryableItemsAsync()"/></para>
+        /// <para><see cref="IHCDataExportStream.QueryMethod.Queryable"/> uses <see cref="GetQueryableItemsAsync"/></para>
         /// <para><see cref="IHCDataExportStream.QueryMethod.Enumerable"/> uses <see cref="GetEnumerableItemsAsync"/></para>
-        /// <para><see cref="IHCDataExportStream.QueryMethod.EnumerableWithCustomFilter"/> uses <see cref="GetEnumerableWithCustomFilterAsync"/></para>
         /// </summary>
         public abstract IHCDataExportStream.QueryMethod Method { get; }
 
         /// <inheritdoc />
-        public virtual async Task<IQueryable> GetQueryableAsync()
-            => await GetQueryableItemsAsync();
+        public virtual async Task<IQueryable> GetQueryableAsync() => await GetQueryableItemsAsync();
 
         /// <inheritdoc />
-        public virtual async Task<IHCDataExportStream.EnumerableResult> GetEnumerableAsync(int pageIndex, int pageSize, string query)
+        public virtual async Task<IHCDataExportStream.EnumerableResult> GetEnumerableAsync(HCDataExportFilterData filter)
         {
+            var query = filter.QueryRaw;
+
             // Cache for a bit since it takes some time on every page when exporting
             var predicate = _predicateCache.GetValue<Func<TItem, bool>>(query, null);
             if (predicate == null)
@@ -89,18 +89,29 @@ namespace HealthCheck.Module.DataExport.Abstractions
                 _predicateCache.SetValue(query, predicate, TimeSpan.FromMinutes(1));
             }
 
-            var result = await GetEnumerableItemsAsync(pageIndex, pageSize, predicate);
+            var result = await GetEnumerableItemsInternalAsync(filter, predicate);
             return new IHCDataExportStream.EnumerableResult
             {
                 TotalCount = result.TotalCount,
                 PageItems = result.PageItems
             };
         }
-        private static readonly HCSimpleMemoryCache _predicateCache = new();
 
-        /// <inheritdoc />
-        public virtual Task<IHCDataExportStream.EnumerableResult> GetEnumerableWithCustomFilterAsync(int pageIndex, int pageSize, object parameters)
-            => throw new HCException($"To use {nameof(IHCDataExportStream.QueryMethod.EnumerableWithCustomFilter)} you must either override {nameof(GetEnumerableWithCustomFilterAsync)} or use the {nameof(HCDataExportStreamBase<object, object>)} base class.");
+        /// <summary></summary>
+        internal virtual async Task<TypedEnumerableResult> GetEnumerableItemsInternalAsync(HCDataExportFilterData filter, Func<TItem, bool> predicate)
+        {
+            var typedFilter = new HCDataExportFilterDataTyped<TItem>
+            {
+                PageIndex = filter.PageIndex,
+                PageSize = filter.PageSize,
+                QueryRaw = filter.QueryRaw,
+                QueryPredicate = predicate,
+                ParametersObj = filter.ParametersObj
+            };
+            return await GetEnumerableItemsAsync(typedFilter);
+        }
+
+        private static readonly HCSimpleMemoryCache _predicateCache = new();
 
         /// <inheritdoc />
         public virtual object DefaultFormatValue(string propertyName, Type propertyType, object value)
@@ -152,12 +163,12 @@ namespace HealthCheck.Module.DataExport.Abstractions
         /// Get items to be filtered and exported.
         /// <para>Only used when <see cref="Method"/> is <see cref="IHCDataExportStream.QueryMethod.Enumerable"/></para>
         /// </summary>
-        protected virtual Task<TypedEnumerableResult> GetEnumerableItemsAsync(int pageIndex, int pageSize, Func<TItem, bool> predicate) => Task.FromResult(new TypedEnumerableResult());
+        protected virtual Task<TypedEnumerableResult> GetEnumerableItemsAsync(HCDataExportFilterDataTyped<TItem> filter) => Task.FromResult(new TypedEnumerableResult());
     }
 
     /// <summary>
     /// Stream of items that can be filtered and exported upon.
-    /// <para>Base class for use with <see cref="IHCDataExportStream.QueryMethod.EnumerableWithCustomFilter"/>.</para>
+    /// <para>Base class for use with <see cref="IHCDataExportStream.QueryMethod.Enumerable"/>.</para>
     /// </summary>
     public abstract class HCDataExportStreamBase<TItem, TParameters> : HCDataExportStreamBase<TItem>
         where TParameters : class
@@ -166,23 +177,27 @@ namespace HealthCheck.Module.DataExport.Abstractions
         public override Type CustomParametersType => typeof(TParameters);
 
         /// <inheritdoc />
-        public override IHCDataExportStream.QueryMethod Method => IHCDataExportStream.QueryMethod.EnumerableWithCustomFilter;
+        public override IHCDataExportStream.QueryMethod Method => IHCDataExportStream.QueryMethod.Enumerable;
 
         /// <inheritdoc />
-        public override async Task<IHCDataExportStream.EnumerableResult> GetEnumerableWithCustomFilterAsync(int pageIndex, int pageSize, object parameters)
+        internal override async Task<TypedEnumerableResult> GetEnumerableItemsInternalAsync(HCDataExportFilterData filter, Func<TItem, bool> predicate)
         {
-            var result = await GetEnumerableItemsWithCustomFilterAsync(pageIndex, pageSize, parameters as TParameters);
-            return new IHCDataExportStream.EnumerableResult
+            var typedFilter = new HCDataExportFilterDataTyped<TItem, TParameters>
             {
-                TotalCount = result.TotalCount,
-                PageItems = result.PageItems
+                PageIndex = filter.PageIndex,
+                PageSize = filter.PageSize,
+                QueryRaw = filter.QueryRaw,
+                QueryPredicate = predicate,
+                ParametersObj = filter.ParametersObj,
+                Parameters = filter.ParametersObj as TParameters
             };
+            return await GetEnumerableItemsAsync(typedFilter);
         }
 
         /// <summary>
         /// Get items to be filtered and exported.
-        /// <para>Only used when <see cref="HCDataExportStreamBase{TItem}.Method"/> is <see cref="IHCDataExportStream.QueryMethod.EnumerableWithCustomFilter"/></para>
+        /// <para>Only used when <see cref="Method"/> is <see cref="IHCDataExportStream.QueryMethod.Enumerable"/></para>
         /// </summary>
-        protected abstract Task<TypedEnumerableResult> GetEnumerableItemsWithCustomFilterAsync(int pageIndex, int pageSize, TParameters parameters);
+        protected virtual Task<TypedEnumerableResult> GetEnumerableItemsAsync(HCDataExportFilterDataTyped<TItem, TParameters> filter) => Task.FromResult(new TypedEnumerableResult());
     }
 }

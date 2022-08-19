@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Util;
+using HealthCheck.Module.DataExport.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -71,8 +72,10 @@ namespace HealthCheck.Module.DataExport.Abstractions
 
         /// <summary>
         /// True to show query input.
+        /// <para>If true, the query input will be visible and value will be passed through the filter.</para>
+        /// <para>If false, the query input will be hidden and null-values will be passed through the filter.</para>
         /// </summary>
-        bool SupportsQuery { get; }
+        bool SupportsQuery();
 
         /// <summary>
         /// Formatters that can be selected per column.
@@ -88,18 +91,8 @@ namespace HealthCheck.Module.DataExport.Abstractions
         /// <summary>
         /// Get items to be filtered and exported. Invoked when <see cref="Method"/> is <see cref="QueryMethod.Enumerable"/>.
         /// </summary>
-        /// <param name="pageIndex">Index of the page to fetch.</param>
-        /// <param name="pageSize">Size of the page to fetch.</param>
-        /// <param name="query">The raw query input from frontend.</param>
-        Task<EnumerableResult> GetEnumerableAsync(int pageIndex, int pageSize, string query);
-
-        /// <summary>
-        /// Get items to be filtered and exported. Invoked when <see cref="Method"/> is <see cref="QueryMethod.EnumerableWithCustomFilter"/>.
-        /// </summary>
-        /// <param name="pageIndex">Index of the page to fetch.</param>
-        /// <param name="pageSize">Size of the page to fetch.</param>
-        /// <param name="parameters">Custom parameter input if <see cref="CustomParametersType"/> is set. Is an instance of the type <see cref="CustomParametersType"/>.</param>
-        Task<EnumerableResult> GetEnumerableWithCustomFilterAsync(int pageIndex, int pageSize, object parameters);
+        /// <param name="filter">Input filter.</param>
+        Task<EnumerableResult> GetEnumerableAsync(HCDataExportFilterData filter);
 
         /// <summary>
         /// Optionally format the value.
@@ -131,19 +124,14 @@ namespace HealthCheck.Module.DataExport.Abstractions
         public enum QueryMethod
         {
             /// <summary>
-            /// Use the get queryable method without any parameters.
+            /// Use the get queryable method.
             /// </summary>
             Queryable,
 
             /// <summary>
-            /// Use the get enumerable method with query parameter.
+            /// Use the get enumerable method.
             /// </summary>
-            Enumerable,
-
-            /// <summary>
-            /// Use the get enumerable method with custom filter.
-            /// </summary>
-            EnumerableWithCustomFilter
+            Enumerable
         }
     }
 }

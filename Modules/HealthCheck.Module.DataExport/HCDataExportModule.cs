@@ -106,7 +106,7 @@ namespace HealthCheck.Module.DataExport
             {
                 var valueFormatters = (stream.ValueFormatters ?? Array.Empty<IHCDataExportValueFormatter>());
                 var itemDef = Options.Service.GetStreamItemDefinition(stream.GetType().FullName, stream.ItemType, valueFormatters);
-                var showQueryInput = stream.SupportsQuery;
+                var showQueryInput = stream.SupportsQuery();
                 var streamModel = new HCDataExportStreamViewModel
                 {
                     Id = stream.GetType().FullName,

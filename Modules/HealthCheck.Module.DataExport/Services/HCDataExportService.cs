@@ -112,14 +112,15 @@ namespace HealthCheck.Module.DataExport.Services
             }
             else if (stream.Method == IHCDataExportStream.QueryMethod.Enumerable)
             {
-                var enumerableResult = await stream.GetEnumerableAsync(request.PageIndex, request.PageSize, request.Query);
-                pageItems = enumerableResult?.PageItems?.Cast<object>()?.ToArray() ?? Array.Empty<object>();
-                totalCount = enumerableResult?.TotalCount ?? 0;
-            }
-            else if (stream.Method == IHCDataExportStream.QueryMethod.EnumerableWithCustomFilter)
-            {
                 object parametersObject = stream.CustomParametersType == null ? null : HCValueConversionUtils.ConvertInputModel(stream.CustomParametersType, request.CustomParameters);
-                var enumerableResult = await stream.GetEnumerableWithCustomFilterAsync(request.PageIndex, request.PageSize, parametersObject);
+                var filter = new HCDataExportFilterData
+                {
+                    PageIndex = request.PageIndex,
+                    PageSize = request.PageSize,
+                    ParametersObj = parametersObject,
+                    QueryRaw = request.Query
+                };
+                var enumerableResult = await stream.GetEnumerableAsync(filter);
                 pageItems = enumerableResult?.PageItems?.Cast<object>()?.ToArray() ?? Array.Empty<object>();
                 totalCount = enumerableResult?.TotalCount ?? 0;
             }

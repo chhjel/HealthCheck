@@ -1,29 +1,27 @@
-﻿using HealthCheck.Core.Util.Collections;
-using HealthCheck.Module.DataExport.Abstractions;
+﻿using HealthCheck.Module.DataExport.Abstractions;
 using HealthCheck.Module.DataExport.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
+using static HealthCheck.Dev.Common.DataExport.TestDataExportStreamEnumerableWithQuery;
 
 namespace HealthCheck.Dev.Common.DataExport
 {
-    public class TestDataExportStreamHeavy : HCDataExportStreamBase<TestDataExportStreamHeavy.HeavyItem>
+    public class TestDataExportStreamEnumerableWithQuery : HCDataExportStreamBase<TestExportItem>
     {
-        public override string StreamDisplayName => "Heavy prop stream";
+        public override string StreamDisplayName => "Enumerable stream with query";
         public override string StreamDescription => "A test for use during dev.";
         //public override string StreamGroupName => null;
         //public override object AllowedAccessRoles => null;
         public override List<string> Categories => new List<string> { "Test category here" };
         public override int ExportBatchSize => 50000;
-        public override int? MaxMemberDiscoveryDepth => 1000;
         public override IHCDataExportStream.QueryMethod Method => IHCDataExportStream.QueryMethod.Enumerable;
+        public override bool SupportsQuery() => true;
 
-        protected override Task<TypedEnumerableResult> GetEnumerableItemsAsync(HCDataExportFilterDataTyped<HeavyItem> filter)
+        protected override Task<TypedEnumerableResult> GetEnumerableItemsAsync(HCDataExportFilterDataTyped<TestExportItem> filter)
         {
-            var matches = Enumerable.Range(1, 1000)
-                .Select(x => new HeavyItem
+            var matches = Enumerable.Range(1, 1000000)
+                .Select(x => new TestExportItem
                 {
                     Id = $"#{x}",
                     Name = $"Item {x * 100}\nWith some newlines.\r\nAnd\tanother\n\rone\retc.",
@@ -42,22 +40,11 @@ namespace HealthCheck.Dev.Common.DataExport
             });
         }
 
-        public class HeavyItem
+        public class TestExportItem
         {
             public string Id { get; set; }
             public string Name { get; set; }
             public int Value { get; set; }
-            public object Obj { get; set; }
-            public Array Arr { get; set; }
-            public Semaphore Sema { get; set; }
-            public HCDelayedBufferQueue<string> DBQ { get; set; }
-            public RecursiveSubItem RecursiveSub { get; set; }
-        }
-        public class RecursiveSubItem
-        {
-            public string Id { get; set; }
-            public string Name { get; set; }
-            public RecursiveSubItem Parent { get;  set; }
         }
     }
 }

@@ -81,8 +81,11 @@ namespace HealthCheck.DevTest
         private static readonly IHCDataExportService _dataExportService = new HCDataExportService(new IHCDataExportStream[]
         {
             new TestDataExportStreamQueryable(),
-            new TestDataExportStreamEnumerable(),
-            new TestDataExportStreamEnumerableWithCustomParameters()
+            new TestDataExportStreamEnumerableWithCustomParameters(),
+            new TestDataExportStreamEnumerableWithQuery(),
+            new TestDataExportStreamEnumerableWithQueryAndCustomParameters(),
+            new TestDataExportStreamEnumerableWithoutInput(),
+            new TestDataExportStreamHeavy()
         });
         private static readonly IHCDataExportPresetStorage _dataExportPresetStorage = new HCFlatFileDataExportPresetStorage(@"C:\temp\DataExportPreset.json");
 

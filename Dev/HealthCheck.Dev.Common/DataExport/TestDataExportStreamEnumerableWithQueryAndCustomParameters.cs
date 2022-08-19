@@ -5,18 +5,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using static HealthCheck.Dev.Common.DataExport.TestDataExportStreamEnumerableWithCustomParameters;
+using static HealthCheck.Dev.Common.DataExport.TestDataExportStreamEnumerableWithQueryAndCustomParameters;
 
 namespace HealthCheck.Dev.Common.DataExport
 {
-    public class TestDataExportStreamEnumerableWithCustomParameters : HCDataExportStreamBase<TestExportItem, Parameters>
+    public class TestDataExportStreamEnumerableWithQueryAndCustomParameters : HCDataExportStreamBase<TestExportItem, Parameters>
     {
-        public override string StreamDisplayName => "Enumerable stream with custom parameters";
+        public override string StreamDisplayName => "Enumerable stream with query and custom parameters";
         public override string StreamDescription => "A test for use during dev.";
         //public override string StreamGroupName => null;
         //public override object AllowedAccessRoles => null;
         public override List<string> Categories => new List<string> { "Test category here" };
         public override int ExportBatchSize => 50000;
+        public override bool SupportsQuery() => true;
 
         protected override Task<TypedEnumerableResult> GetEnumerableItemsAsync(HCDataExportFilterDataTyped<TestExportItem, Parameters> filter)
         {
@@ -29,7 +30,8 @@ namespace HealthCheck.Dev.Common.DataExport
                 })
                 .Where(x => string.IsNullOrWhiteSpace(filter.Parameters.StringFilter) || x.Name.Contains(filter.Parameters.StringFilter))
                 .Where(x => filter.Parameters.MinValue == null || x.Value >= filter.Parameters.MinValue)
-                .Where(x => filter.Parameters.MaxValue == null || x.Value <= filter.Parameters.MaxValue);
+                .Where(x => filter.Parameters.MaxValue == null || x.Value <= filter.Parameters.MaxValue)
+                .Where(filter.QueryPredicate);
 
             var pageItems = matches
                 .Skip(filter.PageIndex * filter.PageSize)

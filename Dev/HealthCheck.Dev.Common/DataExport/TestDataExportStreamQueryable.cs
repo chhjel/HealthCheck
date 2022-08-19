@@ -1,6 +1,4 @@
 ﻿using HealthCheck.Module.DataExport.Abstractions;
-using HealthCheck.Module.DataExport.Formatters;
-using HealthCheck.Module.DataExport.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;

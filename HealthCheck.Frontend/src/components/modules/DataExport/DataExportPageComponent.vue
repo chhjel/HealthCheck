@@ -24,6 +24,23 @@
                 <h2 v-if="selectedStream.Name">{{ selectedStream.Name }}</h2>
                 <p v-if="selectedStream.Description" v-html="selectedStream.Description"></p>
 
+                <!-- CUSTOM PARAMETERS -->
+                <div v-if="showCustomInputs">
+                    <div style="display: flex; width: 100%" class="mb-2">
+                        <b>{{ customParametersTitle }}</b>
+                    </div>
+
+                    <div class="export-parameter-items">
+                        <backend-input-component
+                            v-for="(parameterDef, pIndex) in selectedStream.CustomParameterDefinitions"
+                            :key="`export-parameter-item-${selectedStream.Id}-${pIndex}`"
+                            class="export-parameter-item"
+                            v-model:value="customParameters[parameterDef.Id]"
+                            :config="parameterDef"
+                            :readonly="isLoading || !hasAccessToQueryCustom"
+                            />
+                    </div>
+                </div>
                 <!-- QUERY INPUT -->
                 <div class="data-export-filters" v-if="showQuery">
                     <div style="display: flex; width: 100%">
@@ -38,23 +55,6 @@
                         v-model:value="queryInput"
                         :read-only="isLoading || !hasAccessToQueryCustom"
                         ref="editor" />
-                </div>
-                <!-- CUSTOM PARAMETERS -->
-                <div v-if="showCustomInputs">
-                    <div style="display: flex; width: 100%" class="mb-2">
-                        <b>{{ queryTitle }}</b>
-                    </div>
-
-                    <div class="export-parameter-items">
-                        <backend-input-component
-                            v-for="(parameterDef, pIndex) in selectedStream.CustomParameterDefinitions"
-                            :key="`export-parameter-item-${selectedStream.Id}-${pIndex}`"
-                            class="export-parameter-item"
-                            v-model:value="customParameters[parameterDef.Id]"
-                            :config="parameterDef"
-                            :readonly="isLoading || !hasAccessToQueryCustom"
-                            />
-                    </div>
                 </div>
 
                 <code v-if="queryError"
@@ -691,17 +691,16 @@ export default class DataExportPageComponent extends Vue {
             && (this.hasAccessToQueryCustom || this.selectedPresetId != null);
     }
 
-    get queryTitle(): string {
-        const def = this.showQuery ? 'Query' : 'Filter';
-
-        if (this.hasAccessToQueryCustom) return def;
-        else if (!this.selectedPresetId) return def;
-
-        const preset = this.presets.filter(x => x.Id == this.selectedPresetId)[0];
-        if (!preset) return def;
-        return preset.Name || def;
+    get customParametersTitle(): string {
+        return this.createTopFilterTitle();
     }
     
+    get queryTitle(): string {
+        return (this.showQuery && this.showCustomInputs)
+            ? 'Query'
+            : this.createTopFilterTitle();
+    }
+
     get isLoading(): boolean {
         return this.metadataLoadStatus.inProgress || this.dataLoadStatus.inProgress;
     }
@@ -781,6 +780,17 @@ export default class DataExportPageComponent extends Vue {
     //////////////
     hasAccess(option: string): boolean {
         return this.options.AccessOptions.indexOf(option) != -1;
+    }
+
+    createTopFilterTitle(): string {
+        const def = (this.showQuery && !this.showCustomInputs) ? 'Query' : 'Filter';
+
+        if (this.hasAccessToQueryCustom) return def;
+        else if (!this.selectedPresetId) return def;
+
+        const preset = this.presets.filter(x => x.Id == this.selectedPresetId)[0];
+        if (!preset) return def;
+        return preset.Name || def;
     }
 
     refreshEditorSize(): void {

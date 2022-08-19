@@ -1,15 +1,15 @@
 ﻿using HealthCheck.Module.DataExport.Abstractions;
-using System;
+using HealthCheck.Module.DataExport.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using static HealthCheck.Dev.Common.DataExport.TestDataExportStreamEnumerable;
+using static HealthCheck.Dev.Common.DataExport.TestDataExportStreamEnumerableWithoutInput;
 
 namespace HealthCheck.Dev.Common.DataExport
 {
-    public class TestDataExportStreamEnumerable : HCDataExportStreamBase<TestExportItem>
+    public class TestDataExportStreamEnumerableWithoutInput : HCDataExportStreamBase<TestExportItem>
     {
-        public override string StreamDisplayName => "Enumerable stream";
+        public override string StreamDisplayName => "Enumerable stream without input";
         public override string StreamDescription => "A test for use during dev.";
         //public override string StreamGroupName => null;
         //public override object AllowedAccessRoles => null;
@@ -17,7 +17,7 @@ namespace HealthCheck.Dev.Common.DataExport
         public override int ExportBatchSize => 50000;
         public override IHCDataExportStream.QueryMethod Method => IHCDataExportStream.QueryMethod.Enumerable;
 
-        protected override Task<TypedEnumerableResult> GetEnumerableItemsAsync(int pageIndex, int pageSize, Func<TestExportItem, bool> predicate)
+        protected override Task<TypedEnumerableResult> GetEnumerableItemsAsync(HCDataExportFilterDataTyped<TestExportItem> filter)
         {
             var matches = Enumerable.Range(1, 1000000)
                 .Select(x => new TestExportItem
@@ -28,11 +28,11 @@ namespace HealthCheck.Dev.Common.DataExport
                     ListOfStrings = Enumerable.Range(1, 5).Select(s => $"SubItem{s}").ToList(),
                     ArrayOfInt = Enumerable.Range(55, 3).ToArray()
                 })
-                .Where(predicate);
+                .Where(filter.QueryPredicate);
 
             var pageItems = matches
-                .Skip(pageIndex * pageSize)
-                .Take(pageSize);
+                .Skip(filter.PageIndex * filter.PageSize)
+                .Take(filter.PageSize);
 
             return Task.FromResult(new HCDataExportStreamBase<TestExportItem>.TypedEnumerableResult
             {
