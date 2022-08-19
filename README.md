@@ -1128,14 +1128,16 @@ public class MyDataExportStreamB : HCDataExportStreamBase<MyModel, MyDataExportS
     public override string StreamDisplayName => "My stream B";
     public override string StreamDescription => "Some optional description of the stream.";
     public override int ExportBatchSize => 500;
+    // Optionally override SupportsQuery to true if you want a predicate available in addition to custom inputs.
+    // public override bool SupportsQuery() => true;
     
-    protected override async Task<TypedEnumerableResult> GetEnumerableItemsWithCustomFilterAsync(int pageIndex, int pageSize, Parameters parameters)
+    protected override Task<TypedEnumerableResult> GetEnumerableItemsAsync(HCDataExportFilterDataTyped<MyModel, MyDataExportStreamB.Parameters> filter)
     {
-        var matches = await _something.GetDataAsync(parameters.StringParameter, parameters.SomeValue, parameters.AnotherValue);
+        var matches = await _something.GetDataAsync(filter.Parameters.StringParameter, filter.Parameters.SomeValue, filter.Parameters.AnotherValue);
 
         var pageItems = matches
-            .Skip(pageIndex * pageSize)
-            .Take(pageSize);
+            .Skip(filter.PageIndex * filter.PageSize)
+            .Take(filter.PageSize);
 
         return new TypedEnumerableResult
         {
