@@ -194,14 +194,6 @@ export default class ReleaseNotesSummaryComponent extends Vue {
         {
             localStorage.setItem(this.lastViewedVersionStorageKey, this.config.Version);
             this.hasNewChanges = false;
-
-            setTimeout(() => {
-                window.scrollTo({
-                    top: (window.pageYOffset || document.documentElement.scrollTop) 
-                        + this.$el.getBoundingClientRect().top - 100,
-                    behavior: 'smooth'
-                });
-            }, 10);
         }
     }
 
