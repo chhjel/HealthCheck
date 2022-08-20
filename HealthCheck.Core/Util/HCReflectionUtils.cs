@@ -173,7 +173,9 @@ namespace HealthCheck.Core.Util
 		/// <para>Ignores members that can't be read and also indexers.</para>
 		/// </summary>
 		public static List<TypeMemberData> GetTypeMembersRecursive(Type type, int maxDepth, HCMemberFilterRecursive filter = null)
-			=> GetTypeMembersRecursive(type, null, 0, maxDepth, null, filter);
+			=> GetTypeMembersRecursive(type, null, 0, maxDepth, null, filter)
+					.GroupBy(x => x.Name).Select(x => x.First())
+					.ToList();
 
 		private static List<TypeMemberData> GetTypeMembersRecursive(Type type, string path = null, int currentDepth = 0, int maxDepth = 4,
 			List<TypeMemberData> worklist = null, HCMemberFilterRecursive filter = null)
