@@ -19,6 +19,8 @@ export interface TestDefinition
 	RunButtonText: string;
 	RunningButtonText: string;
 	IsCancellable: boolean;
+	HideInputFromAuditLog: boolean;
+	HideResultMessageFromAuditLog: boolean;
 	Method: any;
 	ParentClass: TestClassDefinition;
 	ClassProxyConfig: ProxyRuntimeTestConfig;

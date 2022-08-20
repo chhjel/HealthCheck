@@ -26,7 +26,38 @@ namespace HealthCheck.Dev.Common.DataExport
                 {
                     Id = $"#{x}",
                     Name = $"Item {x * 100}\nWith some newlines.\r\nAnd\tanother\n\rone\retc.",
-                    Value = x
+                    Value = x,
+                    Forms = new List<TestExportItemForm>
+                    {
+                        new TestExportItemForm
+                        {
+                            FormId = "f1",
+                            FormName = "The one form",
+                            FormValue = 1111,
+                            Shipments = new List<TestExportItemShipment>
+                            {
+                                new TestExportItemShipment
+                                {
+                                    ShipmentId = "s1",
+                                    StreetName = "Customer street name",
+                                    StreetNumber = 23
+                                },
+                                new TestExportItemShipment
+                                {
+                                    ShipmentId = "s2",
+                                    StreetName = "Return street name",
+                                    StreetNumber = 88
+                                }
+                            }
+                        },
+                        new TestExportItemForm
+                        {
+                            FormId = "f2",
+                            FormName = "nope",
+                            FormValue = 2222,
+                            Shipments = null
+                        }
+                    }
                 })
                 .Where(filter.QueryPredicate)
                 .Take(filter.Parameters.MaxResults);
@@ -47,6 +78,20 @@ namespace HealthCheck.Dev.Common.DataExport
             public string Id { get; set; }
             public string Name { get; set; }
             public int Value { get; set; }
+            public List<TestExportItemForm> Forms { get; set; }
+        }
+        public class TestExportItemForm
+        {
+            public string FormId { get; set; }
+            public string FormName { get; set; }
+            public int FormValue { get; set; }
+            public List<TestExportItemShipment> Shipments { get; set; }
+        }
+        public class TestExportItemShipment
+        {
+            public string ShipmentId { get; set; }
+            public string StreetName { get; set; }
+            public int StreetNumber { get; set; }
         }
 
         public class Parameters

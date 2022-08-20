@@ -67,6 +67,7 @@ namespace HealthCheck.Module.DataExport.Services
                     .Select(x => new HCDataExportStreamItemDefinitionMember
                     {
                         Name = x.Name,
+                        NameWithCleanIndices = x.Name.StripIndices(includeWrappers: true),
                         Type = x.Type,
                         FormatterIds = valueFormatters
                             .Where(f => f.SupportedTypes?.Any(t => t.IsAssignableFromIncludingNullable(x.Type)) == true
@@ -148,7 +149,44 @@ namespace HealthCheck.Module.DataExport.Services
             var itemDef = GetStreamItemDefinition(streamId, itemType, valueFormatters);
 
             var dict = new Dictionary<string, object>();
-            var allowedIncludedProperties = itemDef.Members.Where(x => includedProperties.Count == 0 || includedProperties.Any(m => m == x.Name));
+            var allowedIncludedProperties = itemDef.Members
+                .Where(x => includedProperties.Count == 0
+                         || includedProperties.Any(m => m == x.Name))
+                .ToList();
+
+            // Handle array props
+            foreach(var includedArrayProp in includedProperties.Where(x => x.Contains("[")))
+            {
+                if (allowedIncludedProperties.Any(x => x.Name == includedArrayProp))
+                    continue;
+
+                var withStrippedIndices = includedArrayProp.StripIndices(includeWrappers: true);
+                // Find matching name
+                var memberDefClone = itemDef.Members
+                    .FirstOrDefault(m => m.NameWithCleanIndices == withStrippedIndices
+                                        || m.NameWithCleanIndices == includedArrayProp.StripIndices(includeWrappers: false))
+                    ?.Clone();
+
+                // Edge cases
+                if (memberDefClone == null
+                    && withStrippedIndices.EndsWith("[]")
+                    && itemDef.Members.Any(m => m.NameWithCleanIndices.StartsWith($"{withStrippedIndices}.")))
+                {
+                    // a[] => a or a[].b[] => a[].b
+                    var withoutLastIndexer = withStrippedIndices.Substring(0, withStrippedIndices.Length - 2);
+                    memberDefClone = itemDef.Members
+                        .FirstOrDefault(m => m.NameWithCleanIndices == withoutLastIndexer)
+                        ?.Clone();
+                }
+
+                if (memberDefClone == null)
+                    continue;
+
+                memberDefClone.Name = includedArrayProp;
+                allowedIncludedProperties.Add(memberDefClone);
+            }
+
+            // Get values
             foreach (var prop in allowedIncludedProperties)
             {
                 var value = prop.GetValue(item);
@@ -156,6 +194,12 @@ namespace HealthCheck.Module.DataExport.Services
                 var customFormatterConfig = valueFormatterConfigs?.ContainsKey(prop.Name) == true ? valueFormatterConfigs[prop.Name] : null;
                 var customFormatter = (customFormatterConfig?.FormatterId != null && formatters.ContainsKey(customFormatterConfig.FormatterId))
                     ? formatters[customFormatterConfig.FormatterId] : null;
+
+                var propType = prop.Type;
+                if (prop.Name.EndsWith("]"))
+                {
+                    propType = propType.GetUnderlyingEnumerableType() ?? propType;
+                }
 
                 // Custom format
                 if (customFormatter != null)
@@ -167,12 +211,12 @@ namespace HealthCheck.Module.DataExport.Services
                             ?? Activator.CreateInstance(customFormatter.CustomParametersType);
                     }
 
-                    value = customFormatter.FormatValue(prop.Name, prop.Type, value, customFormatterConfig.Parameters);
+                    value = customFormatter.FormatValue(prop.Name, propType, value, customFormatterConfig.Parameters);
                 }
                 // Default format
                 else
                 {
-                    value = stream.DefaultFormatValue(prop.Name, prop.Type, value);
+                    value = stream.DefaultFormatValue(prop.Name, propType, value);
                 }
 
                 dict[prop.Name] = value;

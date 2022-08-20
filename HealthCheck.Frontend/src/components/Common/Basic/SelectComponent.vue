@@ -12,7 +12,8 @@
                 <div v-for="(item, iIndex) in selectedItems"
                     :key="`${id}-item-${iIndex}`"
                     class="select-component__input-chip">
-                    <span class="select-component__input-chip-value">{{ item.text }}</span>
+                    <span class="select-component__input-chip-value"
+                        @click.stop.prevent="onChipClicked(item)">{{ item.text }}</span>
                     <div class="select-component__input-chip-remove accent clickable hoverable" tabindex="0"
                         @click.stop.prevent="removeValue(item.value)"
                         v-if="showItemRemoveButton">
@@ -76,6 +77,7 @@ import InputHeaderComponent from "./InputHeaderComponent.vue";
 import ValueUtils from "@util/ValueUtils";
 import ElementUtils from "@util/ElementUtils";
 import EventBus, { CallbackUnregisterShortcut } from "@util/EventBus";
+import { StoreUtil } from "@util/StoreUtil";
 
 interface Item {
     value: string;
@@ -389,9 +391,23 @@ export default class SelectComponent extends Vue
         this.dropdownElement.style.left = pos.left;
     }
 
+    setFilterFromShortcutIfSuitable(item: Item): boolean {
+        if (StoreUtil.store.state.input.ctrlIsHeldDown && this.isAllowCustom && this.allowModify)
+        {
+            this.filter = item.text;
+            this.hideDropdown();
+            return true;
+        }
+        return false;
+    }
+
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
+    onChipClicked(item: Item): void {
+        this.setFilterFromShortcutIfSuitable(item);
+    }
+
     onInputClicked(): void {
         // this.tryToggleDropdown();
         this.tryShowDropdown();
@@ -399,6 +415,8 @@ export default class SelectComponent extends Vue
 
     onDropdownItemClicked(item: Item): void {
         if (!this.allowModify) return;
+        else if (this.setFilterFromShortcutIfSuitable(item)) return;
+
         if (!this.valueIsSelected(item.value)) {
             this.addValue(item.value);
         } else if (this.isNullable || this.isMultiple || this.selectedValues.length > 1) {

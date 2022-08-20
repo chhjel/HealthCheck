@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HealthCheck.Core.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -213,14 +214,23 @@ namespace HealthCheck.Core.Util
 					Type = prop.PropertyType
 				});
 
+				string indexedSuffix = null;
+				var typeToRecurse = prop.PropertyType;
+				if (typeToRecurse.IsListOrArray())
+				{
+					indexedSuffix = "[0]";
+					typeToRecurse = typeToRecurse.GetUnderlyingEnumerableType() ?? typeToRecurse;
+				}
 				if (!prop.IsSpecialName
 					&& prop.GetMethod != null
 					&& prop.CanRead
-					&& allowRecurseType(prop.PropertyType)
+					&& allowRecurseType(typeToRecurse)
 					&& prop.GetCustomAttribute<CompilerGeneratedAttribute>() == null
 					&& prop.GetIndexParameters()?.Any() != true)
 				{
-					GetTypeMembersRecursive(prop.PropertyType, $"{(string.IsNullOrWhiteSpace(path) ? "" : $"{path}.")}{prop.Name}", currentDepth + 1, maxDepth, paths, filter);
+					GetTypeMembersRecursive(typeToRecurse,
+						$"{(string.IsNullOrWhiteSpace(path) ? "" : $"{path}.")}{prop.Name}{indexedSuffix}",
+						currentDepth + 1, maxDepth, paths, filter);
 				}
 			}
 
@@ -239,11 +249,20 @@ namespace HealthCheck.Core.Util
 					Type = field.FieldType
 				});
 
+				string indexedSuffix = null;
+				var typeToRecurse = field.FieldType;
+				if (typeToRecurse.IsListOrArray())
+				{
+					indexedSuffix = "[0]";
+					typeToRecurse = typeToRecurse.GetUnderlyingEnumerableType() ?? typeToRecurse;
+				}
 				if (!field.IsSpecialName
-					&& allowRecurseType(field.FieldType)
+					&& allowRecurseType(typeToRecurse)
 					&& field.GetCustomAttribute<CompilerGeneratedAttribute>() == null)
 				{
-					GetTypeMembersRecursive(field.FieldType, $"{(string.IsNullOrWhiteSpace(path) ? "" : $"{path}.")}{field.Name}", currentDepth + 1, maxDepth, paths, filter);
+					GetTypeMembersRecursive(typeToRecurse,
+						$"{(string.IsNullOrWhiteSpace(path) ? "" : $"{path}.")}{field.Name}{indexedSuffix}",
+						currentDepth + 1, maxDepth, paths, filter);
 				}
 			}
 
@@ -251,7 +270,7 @@ namespace HealthCheck.Core.Util
 		}
 
 		/// <summary>
-		/// Get a property by its dotted path.
+		/// Get a property by its dotted and optionally indexed path.
 		/// <para>Returns null if not found.</para>
 		/// </summary>
 		public static object GetValue(object rootInstance, string path)
@@ -264,21 +283,46 @@ namespace HealthCheck.Core.Util
 				found = false;
 				if (instance == null) return null;
 
-				var prop = GetLowestProperty(instance.GetType(), membName);
+				var cleanName = membName;
+				if (cleanName.Contains("["))
+                {
+					cleanName = cleanName.Substring(0, cleanName.IndexOf("["));
+                }
+
+				// First look for matching property
+				object memberValue = null;
+				var prop = GetLowestProperty(instance.GetType(), cleanName);
 				if (prop != null && prop.CanRead && prop.GetIndexParameters()?.Any() != true)
 				{
 					found = true;
-					return prop.GetValue(instance);
+					memberValue = prop.GetValue(instance);
 				}
 
-				var field = GetLowestField(instance.GetType(), membName);
-				if (field != null)
+				// Then look for matching field
+				if (!found)
 				{
-					found = true;
-					return field.GetValue(instance);
+					var field = GetLowestField(instance.GetType(), cleanName);
+					if (field != null)
+					{
+						found = true;
+						memberValue = field.GetValue(instance);
+					}
 				}
 
-				return null;
+				// Check if member is indexed
+				var targetIndex = -1;
+				if (membName.Contains("["))
+                {
+					var strIndex = membName.Substring(membName.IndexOf("[") + 1);
+					strIndex = strIndex.Substring(0, strIndex.IndexOf("]"));
+					targetIndex = int.Parse(strIndex);
+				}
+				if (targetIndex > -1 && memberValue?.GetType()?.HasNumericIndex() == true)
+                {
+					return memberValue.GetType().GetIndexedValue(memberValue, targetIndex);
+				}
+
+				return memberValue;
 			}
 
 			while (path.Contains("."))

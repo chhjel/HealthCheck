@@ -19,4 +19,6 @@ export interface TestResultViewModel
 	ParameterFeedback: { [key:number]: string };
 	Data: TestResultDataDumpViewModel[];
 	DurationInMilliseconds: number;
+	InputWasAllowedAuditLogged: boolean;
+	ResultMessageWasAllowedAuditLogged: boolean;
 }

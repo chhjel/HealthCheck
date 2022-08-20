@@ -5,6 +5,7 @@
 export interface HCDataExportStreamItemDefinitionMember
 {
 	Name: string;
+	NameWithCleanIndices: string;
 	Type: any;
 	FormatterIds: string[];
 }

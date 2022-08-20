@@ -71,8 +71,10 @@
                         :items="availableProperties"
                         clearable
                         :label="includedProperties.length == 0 ? 'Included properties - All' : 'Included properties'"
+                        :description="availablePropertiesDescription"
                         multiple
                         allowInput
+                        :allowCustom="availablePropertiesIncludesAnArray"
                         ></select-component>
                 </div>
             
@@ -773,6 +775,15 @@ export default class DataExportPageComponent extends Vue {
             });
         }
         return obj;
+    }
+
+    get availablePropertiesIncludesAnArray(): boolean {
+        return this.availableProperties?.some(x => x.includes('[')) == true;
+    }
+
+    get availablePropertiesDescription(): string {
+        if (!this.availablePropertiesIncludesAnArray) return '';
+        else return 'Available properties contains at least one collection. To use other indices than the default 0, enter the full property name with indices manually. Values in the dropdown or selected values can be copied to text by holding ctrl and clicking them.';
     }
 
     ////////////////

@@ -161,6 +161,40 @@ namespace HealthCheck.Core.Extensions
         }
 
         /// <summary>
+        /// Strips any ['s and ]'s including content, optionally keeping the brackets themselves.
+        /// </summary>
+        public static string StripIndices(this string value, bool includeWrappers = false)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return value;
+
+            var output = new StringBuilder();
+            var isInsideIndexer = false;
+            for (int i = 0; i < value.Length; i++)
+            {
+                if (value[i] == '[')
+                {
+                    isInsideIndexer = true;
+                    if (includeWrappers)
+                    {
+                        output.Append(value[i]);
+                    }
+                }
+                else if (value[i] == ']')
+                {
+                    isInsideIndexer = false;
+                    if (!includeWrappers) continue;
+                }
+
+                if (!isInsideIndexer)
+                {
+                    output.Append(value[i]);
+                }
+            }
+            return output.ToString();
+        }
+
+        /// <summary>
         /// Appends a space before all capital letters and numbers in a sentence, except the first character.
         /// Also trims and capitalizes first character unless disabled.
         /// </summary>

@@ -86,6 +86,59 @@ namespace HealthCheck.Core.Extensions
             else return false;
         }
 
+        /// <summary>
+        /// Determines if the type is a list or array.
+        /// </summary>
+        public static bool IsListOrArray(this Type type)
+            => type.IsArray
+            || typeof(System.Collections.IList).IsAssignableFrom(type);
+
+        /// <summary>
+        /// Determines if the type contains a numeric index.
+        /// </summary>
+        public static bool HasNumericIndex(this Type type)
+            // todo cache?
+            => type.IsListOrArray()
+            || type.GetProperties().Any(p => p.GetIndexParameters().Count(x => x.ParameterType == typeof(int)) == 1);
+
+        /// <summary>
+        /// Try to get underlying array/list type.
+        /// </summary>
+        public static Type GetUnderlyingEnumerableType(this Type type)
+        {
+            if (type.IsArray)
+                return type.GetElementType();
+            else if (type.IsGenericType && typeof(System.Collections.IList).IsAssignableFrom(type))
+                return type.GenericTypeArguments[0];
+            else
+                return null;
+        }
+
+        /// <summary>
+        /// Try to get value from an indexer.
+        /// </summary>
+        public static object GetIndexedValue(this Type type, object instance, int index)
+        {
+            if (type.IsArray)
+            {
+                var array = (Array)instance;
+                return index >= array.Length ? null : array.GetValue(index);
+            }
+            else if (instance is System.Collections.IList list)
+            {
+                return index >= list.Count ? null : list[index];
+            }
+
+            var indexer = type.GetProperties()
+                .FirstOrDefault(p => p.GetIndexParameters().Count(x => x.ParameterType == typeof(int)) == 1);
+            if (indexer != null)
+            {
+                return indexer.GetValue(instance, new object[] { index });
+            }
+
+            return null;
+        }
+
         private static string ResolveInputTypeAlias(string name, Dictionary<string, string> aliases = null)
         {
             if (aliases?.Any() != true)
