@@ -1,6 +1,7 @@
 ﻿using HealthCheck.Core.Exceptions;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -24,6 +25,7 @@ namespace HealthCheck.Core.Util
         private readonly string[] BOOL_ALIAS_TRUE = new[] { "yes", "ja", "jup" };
         private readonly string[] BOOL_ALIAS_FALSE = new[] { "no", "nei", "nope", "0x90" };
         private readonly string[] DATETIME_ALIAS_NOW = new[] { "now", "today" };
+        private static readonly CultureInfo _culture = new("en-US");
 
         /// <summary>
         /// Register a new converter that converts a string to the given type.
@@ -67,14 +69,21 @@ namespace HealthCheck.Core.Util
                 return SerializeCollection(obj, objType.GetElementType());
             }
             // Serialize lists as json
-            else if(objType.IsGenericType && objType.GetGenericTypeDefinition() == typeof(List<>))
+            else if (objType.IsGenericType && objType.GetGenericTypeDefinition() == typeof(List<>))
             {
                 return JsonSerialize(obj);
             }
+            // Handle culture specific
+            else if (obj is DateTime date) return date.ToString(_culture);
+            else if (obj is DateTimeOffset dateOffset) return dateOffset.ToString(_culture);
+            else if (obj is float floatValue) return floatValue.ToString(_culture);
+            else if (obj is double doubleValue) return doubleValue.ToString(_culture);
+            else if (obj is decimal decimalValue) return decimalValue.ToString(_culture);
 
             // Fallback to basic stringifying.
             return obj?.ToString();
         }
+
 
         /// <summary>
         /// Attempt to convert the given string to the given type.

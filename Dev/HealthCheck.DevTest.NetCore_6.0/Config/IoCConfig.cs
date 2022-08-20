@@ -83,7 +83,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Config
             services.AddSingleton<IHCDataExportStream, TestDataExportStreamEnumerableWithQuery>();
             services.AddSingleton<IHCDataExportStream, TestDataExportStreamEnumerableWithQueryAndCustomParameters>();
             services.AddSingleton<IHCDataExportStream, TestDataExportStreamEnumerableWithoutInput>();
-            services.AddSingleton<IHCDataExportStream, TestDataExportStreamHeavy>();
+            //services.AddSingleton<IHCDataExportStream, TestDataExportStreamHeavy>();
             services.AddSingleton<IHCDataExportService, HCDataExportService>();
             services.AddSingleton<IHCDataExportPresetStorage>(x => new HCFlatFileDataExportPresetStorage(@"C:\temp\DataExportPreset.json"));
 
