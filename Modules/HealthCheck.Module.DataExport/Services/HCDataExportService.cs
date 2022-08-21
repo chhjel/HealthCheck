@@ -196,27 +196,38 @@ namespace HealthCheck.Module.DataExport.Services
                     ? formatters[customFormatterConfig.FormatterId] : null;
 
                 var propType = prop.Type;
+                var allowFormat = true;
                 if (prop.Name.EndsWith("]"))
                 {
-                    propType = propType.GetUnderlyingEnumerableType() ?? propType;
-                }
-
-                // Custom format
-                if (customFormatter != null)
-                {
-                    // Only build parameter object once
-                    if (customFormatterConfig.Parameters == null)
+                    var underlyingType = propType.GetUnderlyingCollectionType();
+                    if (underlyingType != null)
                     {
-                        customFormatterConfig.Parameters = HCValueConversionUtils.ConvertInputModel(customFormatter.CustomParametersType, customFormatterConfig.CustomParameters)
-                            ?? Activator.CreateInstance(customFormatter.CustomParametersType);
+                        propType = underlyingType;
+                    } else
+                    {
+                        allowFormat = false;
                     }
-
-                    value = customFormatter.FormatValue(prop.Name, propType, value, customFormatterConfig.Parameters);
                 }
-                // Default format
-                else
+
+                if (allowFormat)
                 {
-                    value = stream.DefaultFormatValue(prop.Name, propType, value);
+                    // Custom format
+                    if (customFormatter != null)
+                    {
+                        // Only build parameter object once
+                        if (customFormatterConfig.Parameters == null)
+                        {
+                            customFormatterConfig.Parameters = HCValueConversionUtils.ConvertInputModel(customFormatter.CustomParametersType, customFormatterConfig.CustomParameters)
+                                ?? Activator.CreateInstance(customFormatter.CustomParametersType);
+                        }
+
+                        value = customFormatter.FormatValue(prop.Name, propType, value, customFormatterConfig.Parameters);
+                    }
+                    // Default format
+                    else
+                    {
+                        value = stream.DefaultFormatValue(prop.Name, propType, value);
+                    }
                 }
 
                 dict[prop.Name] = value;

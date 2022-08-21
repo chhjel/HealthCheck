@@ -93,22 +93,32 @@ namespace HealthCheck.Core.Extensions
             => type.IsArray
             || typeof(System.Collections.IList).IsAssignableFrom(type);
 
+        // todo: support IEnumerable without index using skip & firstordefault
+
         /// <summary>
-        /// Determines if the type contains a numeric index.
+        /// Determines if the type is supported used with <see cref="GetCollectionValueIndexed"/>.
         /// </summary>
-        public static bool HasNumericIndex(this Type type)
-            // todo cache?
-            => type.IsListOrArray()
-            || type.GetProperties().Any(p => p.GetIndexParameters().Count(x => x.ParameterType == typeof(int)) == 1);
+        public static bool SupportsGetCollectionValueIndexed(this Type type)
+            => type != typeof(string)
+            && (
+                type.IsListOrArray()
+                || typeof(System.Collections.IEnumerable).IsAssignableFrom(type)
+                || (typeof(System.Collections.ICollection).IsAssignableFrom(type))
+                || type.GetProperties().Any(p => p.GetIndexParameters().Count(x => x.ParameterType == typeof(int)) == 1)
+            );
 
         /// <summary>
         /// Try to get underlying array/list type.
         /// </summary>
-        public static Type GetUnderlyingEnumerableType(this Type type)
+        public static Type GetUnderlyingCollectionType(this Type type)
         {
             if (type.IsArray)
                 return type.GetElementType();
             else if (type.IsGenericType && typeof(System.Collections.IList).IsAssignableFrom(type))
+                return type.GenericTypeArguments[0];
+            else if (type.IsGenericType && typeof(System.Collections.ICollection).IsAssignableFrom(type))
+                return type.GenericTypeArguments[0];
+            else if (type.IsGenericType && typeof(System.Collections.IEnumerable).IsAssignableFrom(type))
                 return type.GenericTypeArguments[0];
             else
                 return null;
@@ -116,24 +126,63 @@ namespace HealthCheck.Core.Extensions
 
         /// <summary>
         /// Try to get value from an indexer.
+        /// <para>Allows for -1 for last, -2 for 2nd last etc.</para>
         /// </summary>
-        public static object GetIndexedValue(this Type type, object instance, int index)
+        public static object GetCollectionValueIndexed(this Type type, object instance, int index)
         {
+            int? resolveIndex(int length)
+            {
+                var idx = index;
+                if (idx < 0) idx = length + idx;
+                return (idx >= length || idx < 0) ? null : idx;
+            }
+
+            // Array
             if (type.IsArray)
             {
                 var array = (Array)instance;
-                return index >= array.Length ? null : array.GetValue(index);
+                var resolvedIndex = resolveIndex(array.Length);
+                return resolvedIndex == null ? null : array.GetValue(resolvedIndex.Value);
             }
+            // IList
             else if (instance is System.Collections.IList list)
             {
-                return index >= list.Count ? null : list[index];
+                var resolvedIndex = resolveIndex(list.Count);
+                return resolvedIndex == null ? null : list[resolvedIndex.Value];
             }
+            // ICollection<T>
+            else if (instance is System.Collections.ICollection collectionT && type.IsGenericType)
+            {
+                var resolvedIndex = resolveIndex(collectionT.Cast<object>().Count());
+                return resolvedIndex == null ? null : collectionT.Cast<object>().Skip(resolvedIndex.Value).FirstOrDefault();
+            }
+            // ICollection
+            else if (instance is System.Collections.ICollection collection)
+            {
+                var resolvedIndex = resolveIndex(collection.Count);
+                return resolvedIndex == null ? null : collection.Cast<object>().Skip(resolvedIndex.Value).FirstOrDefault();
+            }
+            // IEnumerable<T>
+            else if (instance is System.Collections.IEnumerable enumerableT && type.IsGenericType)
+            {
+                var resolvedIndex = resolveIndex(enumerableT.Cast<object>().Count());
+                return resolvedIndex == null ? null : enumerableT.Cast<object>().Skip(resolvedIndex.Value).FirstOrDefault();
+            }
+            // IEnumerable with positive index
+            else if (instance is System.Collections.IEnumerable enumerable && index >= 0)
+            {
+                var resolvedIndex = resolveIndex(index);
+                return resolvedIndex == null ? null : enumerable.Cast<object>().Skip(resolvedIndex.Value).FirstOrDefault();
+            }
+
+            var finalResolvedIndex = resolveIndex(index);
+            if (finalResolvedIndex == null) return null;
 
             var indexer = type.GetProperties()
                 .FirstOrDefault(p => p.GetIndexParameters().Count(x => x.ParameterType == typeof(int)) == 1);
             if (indexer != null)
             {
-                return indexer.GetValue(instance, new object[] { index });
+                return indexer.GetValue(instance, new object[] { finalResolvedIndex.Value });
             }
 
             return null;

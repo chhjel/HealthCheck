@@ -27,6 +27,7 @@ namespace HealthCheck.Dev.Common.DataExport
                     Id = $"#{x}",
                     Name = $"Item {x * 100}\nWith some newlines.\r\nAnd\tanother\n\rone\retc.",
                     Value = x,
+                    StringList = new List<string> { "A1", "B2", "C3" },
                     Forms = new List<TestExportItemForm>
                     {
                         new TestExportItemForm
@@ -34,6 +35,7 @@ namespace HealthCheck.Dev.Common.DataExport
                             FormId = "f1",
                             FormName = "The one form",
                             FormValue = 1111,
+                            Values = new List<string> { "A", "B", "C"},
                             Shipments = new List<TestExportItemShipment>
                             {
                                 new TestExportItemShipment
@@ -55,9 +57,14 @@ namespace HealthCheck.Dev.Common.DataExport
                             FormId = "f2",
                             FormName = "nope",
                             FormValue = 2222,
-                            Shipments = null
+                            Shipments = null,
+                            Values = new List<string> { "aa", "bb", "cc"},
                         }
-                    }
+                    },
+                    EnumerableTest = Enumerable.Range(0, 10).Select(x => new SimpleObj(x, $"Enumerable #{x}")).ToList(),
+                    EnumerableTTest = Enumerable.Range(0, 10).Select(x => new SimpleObj(x, $"Enumerable T #{x}")).ToList(),
+                    CollectionTest = Enumerable.Range(0, 10).Select(x => new SimpleObj(x, $"Collection #{x}")).ToList(),
+                    CollectionTTest = Enumerable.Range(0, 10).Select(x => new SimpleObj(x, $"Collection T #{x}")).ToList()
                 })
                 .Where(filter.QueryPredicate)
                 .Take(filter.Parameters.MaxResults);
@@ -73,19 +80,36 @@ namespace HealthCheck.Dev.Common.DataExport
             });
         }
 
+        public class SimpleObj
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public SimpleObj(int id, string name)
+            {
+                Id = id;
+                Name = name;
+            }
+        }
+
         public class TestExportItem
         {
             public string Id { get; set; }
             public string Name { get; set; }
             public int Value { get; set; }
-            public List<TestExportItemForm> Forms { get; set; }
+            public List<string> StringList { get; set; }
+            public ICollection<TestExportItemForm> Forms { get; set; }
+            public System.Collections.ICollection CollectionTest { get; set; }
+            public ICollection<SimpleObj> CollectionTTest { get; set; }
+            public System.Collections.IEnumerable EnumerableTest { get; set; }
+            public IEnumerable<SimpleObj> EnumerableTTest { get; set; }
         }
         public class TestExportItemForm
         {
             public string FormId { get; set; }
             public string FormName { get; set; }
             public int FormValue { get; set; }
-            public List<TestExportItemShipment> Shipments { get; set; }
+            public List<string> Values { get; set; }
+            public ICollection<TestExportItemShipment> Shipments { get; set; }
         }
         public class TestExportItemShipment
         {

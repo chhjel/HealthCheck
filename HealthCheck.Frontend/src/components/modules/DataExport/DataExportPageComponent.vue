@@ -783,7 +783,9 @@ export default class DataExportPageComponent extends Vue {
 
     get availablePropertiesDescription(): string {
         if (!this.availablePropertiesIncludesAnArray) return '';
-        else return 'Available properties contains at least one collection. To use other indices than the default 0, enter the full property name with indices manually. Values in the dropdown or selected values can be copied to text by holding ctrl and clicking them.';
+        else return `Available properties contains at least one collection.
+ To use other indices than the default 0, enter the full property name with indices manually. Index -1 can be used to get the last item, -2 for the 2nd last etc.
+ Values in the dropdown or selected values can be copied to text by holding ctrl and clicking them.`;
     }
 
     ////////////////

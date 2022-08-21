@@ -216,10 +216,15 @@ namespace HealthCheck.Core.Util
 
 				string indexedSuffix = null;
 				var typeToRecurse = prop.PropertyType;
-				if (typeToRecurse.IsListOrArray())
+				if (typeToRecurse.SupportsGetCollectionValueIndexed())
 				{
 					indexedSuffix = "[0]";
-					typeToRecurse = typeToRecurse.GetUnderlyingEnumerableType() ?? typeToRecurse;
+					typeToRecurse = typeToRecurse.GetUnderlyingCollectionType() ?? typeToRecurse;
+					paths.Add(new TypeMemberData
+					{
+						Name = name + indexedSuffix,
+						Type = prop.PropertyType.GetUnderlyingCollectionType() ?? typeof(object)
+					});
 				}
 				if (!prop.IsSpecialName
 					&& prop.GetMethod != null
@@ -251,10 +256,15 @@ namespace HealthCheck.Core.Util
 
 				string indexedSuffix = null;
 				var typeToRecurse = field.FieldType;
-				if (typeToRecurse.IsListOrArray())
+				if (typeToRecurse.SupportsGetCollectionValueIndexed())
 				{
 					indexedSuffix = "[0]";
-					typeToRecurse = typeToRecurse.GetUnderlyingEnumerableType() ?? typeToRecurse;
+					typeToRecurse = typeToRecurse.GetUnderlyingCollectionType() ?? typeToRecurse;
+					paths.Add(new TypeMemberData
+					{
+						Name = name + indexedSuffix,
+						Type = field.FieldType.GetUnderlyingCollectionType() ?? typeof(object)
+					});
 				}
 				if (!field.IsSpecialName
 					&& allowRecurseType(typeToRecurse)
@@ -310,16 +320,16 @@ namespace HealthCheck.Core.Util
 				}
 
 				// Check if member is indexed
-				var targetIndex = -1;
+				int? targetIndex = null;
 				if (membName.Contains("["))
                 {
 					var strIndex = membName.Substring(membName.IndexOf("[") + 1);
 					strIndex = strIndex.Substring(0, strIndex.IndexOf("]"));
 					targetIndex = int.Parse(strIndex);
 				}
-				if (targetIndex > -1 && memberValue?.GetType()?.HasNumericIndex() == true)
+				if (targetIndex != null && memberValue?.GetType()?.SupportsGetCollectionValueIndexed() == true)
                 {
-					return memberValue.GetType().GetIndexedValue(memberValue, targetIndex);
+					return memberValue.GetType().GetCollectionValueIndexed(memberValue, targetIndex.Value);
 				}
 
 				return memberValue;
