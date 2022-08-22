@@ -212,7 +212,7 @@ export default class ToolbarComponent extends Vue {
 
 <style scoped lang="scss">
 .toolbar-component {
-    background-color: #f5f5f5;
+    background-color: #fff;
     width: 100%;
     position: relative;
     z-index: 99;
