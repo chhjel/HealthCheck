@@ -1,7 +1,9 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Modules.ReleaseNotes.Models;
+using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace HealthCheck.Core.Modules.ReleaseNotes
@@ -34,7 +36,10 @@ namespace HealthCheck.Core.Modules.ReleaseNotes
         /// <summary>
         /// Get frontend options for this module.
         /// </summary>
-        public override object GetFrontendOptionsObject(HealthCheckModuleContext context) => null;
+        public override object GetFrontendOptionsObject(HealthCheckModuleContext context) => new HCReleaseNotesFrontendOptions
+        {
+            TopLinks = GetAllowedTopLinks(context) ?? new()
+        };
 
         /// <summary>
         /// Get config for this module.
@@ -71,5 +76,14 @@ namespace HealthCheck.Core.Modules.ReleaseNotes
             return model?.WithDevDetails ?? new HCReleaseNotesViewModel { ErrorMessage = "No release notes found." };
         }
         #endregion
+
+        private List<HCReleaseNoteLinkWithAccess> GetAllowedTopLinks(HealthCheckModuleContext context)
+        {
+            if (Options.TopLinks?.Any() != true) return Options.TopLinks;
+
+            return Options.TopLinks
+                .Where(x => x.AccessRequired == null || context.HasAnyOfRoles(x.AccessRequired))
+                .ToList();
+        }
     }
 }

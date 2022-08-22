@@ -23,9 +23,17 @@
                 <h1 v-if="datax.Title" class="release-notes__title">{{ datax.Title }} (Version {{ datax.Version }})</h1>
                 <p v-if="datax.Description" class="release-notes__description">{{ datax.Description }}</p>
 
-                <chip-component v-if="datax.BuiltAt" class="release-notes__metadata">Built at {{ formatDate(datax.BuiltAt) }}</chip-component>
-                <chip-component v-if="datax.BuiltCommitHash" class="release-notes__metadata">Built hash: {{ datax.BuiltCommitHash }}</chip-component>
-                <chip-component v-if="datax.DeployedAt" class="release-notes__metadata">Deployed at {{ formatDate(datax.DeployedAt) }}</chip-component>
+                <div class="flex flex-wrap">
+                    <chip-component v-if="datax.BuiltAt" class="release-notes__metadata mr-1 mt-1">Built at {{ formatDate(datax.BuiltAt) }}</chip-component>
+                    <chip-component v-if="datax.BuiltCommitHash" class="release-notes__metadata mr-1 mt-1">Built hash: {{ datax.BuiltCommitHash }}</chip-component>
+                    <chip-component v-if="datax.DeployedAt" class="release-notes__metadata mr-1 mt-1">Deployed at {{ formatDate(datax.DeployedAt) }}</chip-component>
+                    <div class="spacer"></div>
+                    <btn-component v-for="(link, lIndex) in topLinks"
+                        :key="`toplink-${lIndex}-${id}`"
+                        :href="link.Url">
+                        {{ link.Title }}
+                    </btn-component>
+                </div>
 
                 <div class="release-notes__changes" v-if="datax.Changes">
                     <h2 class="release-notes-changes__title">{{ changesTitle }}</h2>
@@ -85,9 +93,12 @@ import ReleaseNotesService from '@services/ReleaseNotesService';
 import ModuleOptions from '@models/Common/ModuleOptions';
 import ModuleConfig from '@models/Common/ModuleConfig';
 import { HCReleaseNotesViewModel } from "@generated/Models/Core/HCReleaseNotesViewModel";
+import { HCReleaseNotesFrontendOptions } from "@generated/Models/Core/HCReleaseNotesFrontendOptions";
 
-import { ModuleFrontendOptions } from '@components/modules/EndpointControl/EndpointControlPageComponent.vue.models';
 import { StoreUtil } from "@util/StoreUtil";
+import { HCReleaseNoteLinkWithAccess } from "@generated/Models/Core/HCReleaseNoteLinkWithAccess";
+import IdUtils from "@util/IdUtils";
+
 @Options({
     components: {
         BlockComponent
@@ -98,11 +109,12 @@ export default class ReleaseNotesPageComponent extends Vue {
     config!: ModuleConfig;
     
     @Prop({ required: true })
-    options!: ModuleOptions<ModuleFrontendOptions>;
+    options!: ModuleOptions<HCReleaseNotesFrontendOptions>;
 
     service: ReleaseNotesService = new ReleaseNotesService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
     datax: HCReleaseNotesViewModel | null = null;
     forcedWithoutDevDetails: boolean = false;
+    id: string = IdUtils.generateId();
 
     // UI STATE
     loadStatus: FetchStatus = new FetchStatus();
@@ -132,6 +144,10 @@ export default class ReleaseNotesPageComponent extends Vue {
         const changeCount = this.datax.Changes.length;
         const suffix = (changeCount === 1) ? '' : 's';
         return `${changeCount} change${suffix}`;
+    }
+
+    get topLinks(): HCReleaseNoteLinkWithAccess[] {
+        return this.options?.Options?.TopLinks || [];
     }
 
     ////////////////

@@ -22,6 +22,7 @@ using HealthCheck.Core.Modules.Metrics.Abstractions;
 using HealthCheck.Core.Modules.Metrics.Context;
 using HealthCheck.Core.Modules.ReleaseNotes;
 using HealthCheck.Core.Modules.ReleaseNotes.Abstractions;
+using HealthCheck.Core.Modules.ReleaseNotes.Models;
 using HealthCheck.Core.Modules.SecureFileDownload;
 using HealthCheck.Core.Modules.SecureFileDownload.Abstractions;
 using HealthCheck.Core.Modules.SecureFileDownload.FileStorage;
@@ -196,7 +197,13 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             }));
             UseModule(new HCReleaseNotesModule(new HCReleaseNotesModuleOptions
             {
-                ReleaseNotesProvider = releaseNotesProvider
+                ReleaseNotesProvider = releaseNotesProvider,
+                TopLinks = new List<HCReleaseNoteLinkWithAccess>
+                {
+                    new HCReleaseNoteLinkWithAccess("Link for anyone", "https://www.google.com?q=some+link+here"),
+                    new HCReleaseNoteLinkWithAccess("Link for webadmins", "https://www.google.com?q=some+link+here", RuntimeTestAccessRole.WebAdmins),
+                    new HCReleaseNoteLinkWithAccess("Link for sysadmins", "https://www.google.com?q=some+link+here", RuntimeTestAccessRole.SystemAdmins)
+                }
             }));
             UseModule(new HCSiteEventsModule(new HCSiteEventsModuleOptions() { SiteEventService = siteEventService, CustomHtml = "<h2>Something custom here</h2><p>And some more.</p>" }));
             UseModule(new HCSettingsModule(new HCSettingsModuleOptions() { Service = settingsService, ModelType = typeof(TestSettings) }));
@@ -488,7 +495,11 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             {
                 roles &= ~RuntimeTestAccessRole.SystemAdmins;
             }
-            
+            if (request.Query.ContainsKey("notwebadmin"))
+            {
+                roles &= ~RuntimeTestAccessRole.WebAdmins;
+            }
+
             if (request.Query.ContainsKey("key") && request.Query["key"] == "test")
             {
                 roles |= RuntimeTestAccessRole.API;
