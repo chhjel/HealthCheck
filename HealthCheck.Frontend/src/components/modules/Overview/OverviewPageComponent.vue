@@ -260,7 +260,8 @@ export default class OverviewPageComponent extends Vue {
     }
 
     get showCalendar(): boolean {
-        return this.options.Options.Sections?.Calendar?.Enabled == true;
+        return this.options.Options.Sections?.Calendar?.Enabled == true
+            && this.calendarEvents.length > 0;
     }
 
     get performFiltering(): boolean { return this.filter != '' && this.filter != null; }
