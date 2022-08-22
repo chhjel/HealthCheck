@@ -71,7 +71,7 @@
 <script lang="ts">
 import { Vue, Prop, Watch, Ref } from "vue-property-decorator";
 import { Options } from "vue-class-component";
-import { Teleport as teleport_, TeleportProps, VNodeProps } from 'vue';
+import { nextTick, Teleport as teleport_, TeleportProps, VNodeProps } from 'vue';
 import IdUtils from "@util/IdUtils";
 import InputHeaderComponent from "./InputHeaderComponent.vue";
 import ValueUtils from "@util/ValueUtils";
@@ -419,6 +419,7 @@ export default class SelectComponent extends Vue
 
         if (!this.valueIsSelected(item.value)) {
             this.addValue(item.value);
+            this.filter = '';
         } else if (this.isNullable || this.isMultiple || this.selectedValues.length > 1) {
             this.removeValue(item.value);
         }
@@ -435,8 +436,11 @@ export default class SelectComponent extends Vue
     onFilterEnter(): void {
         this.tryAddCustomValue();
     }
-    onFilterBlur(): void {
-        this.tryAddCustomValue();
+    onFilterBlur(e: FocusEvent): void {
+        const isDropDown = ElementUtils.isChildOf(e.relatedTarget as HTMLElement, this.dropdownElement);
+        if (!isDropDown) {
+            this.tryAddCustomValue();
+        }
     }
     onFilterFocus(): void {
         this.tryShowDropdown();

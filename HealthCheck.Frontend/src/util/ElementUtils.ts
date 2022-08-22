@@ -15,6 +15,13 @@ export default class ElementUtils
 		}
 	}
 
+    static isChildOf(child: Node, parent: Node): boolean
+    {
+      let c: any = child;
+      while ((c = c?.parentNode) && c !== parent);
+      return !!c; 
+    }
+
 	static calcDropdownPosition(input: HTMLElement, dropdown: HTMLElement, yOffset: number = 0): { top: string, left: string } {
         // Calculate some values
         const bodyOffsetLeft = window.scrollX + document.body.getBoundingClientRect().left;
