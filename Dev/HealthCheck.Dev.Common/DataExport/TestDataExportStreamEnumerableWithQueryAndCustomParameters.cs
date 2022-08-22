@@ -28,6 +28,13 @@ namespace HealthCheck.Dev.Common.DataExport
                     Name = $"Item {x * 100}\nWith some newlines.\r\nAnd\tanother\n\rone\retc.",
                     Value = x,
                     StringList = new List<string> { "A1", "B2", "C3" },
+                    ComplexCollection = new ComplexCollection()
+                    {
+                        new SimpleObj(1, "Item #1"),
+                        new SimpleObj(2, "Item #2"),
+                        new SimpleObj(3, "Item #3"),
+                        new SimpleObj(4, "Item #4")
+                    },
                     Forms = new List<TestExportItemForm>
                     {
                         new TestExportItemForm
@@ -91,11 +98,22 @@ namespace HealthCheck.Dev.Common.DataExport
             }
         }
 
+        public class ComplexCollection : ComplexCollectionBase<SimpleObj>
+        {
+
+        }
+
+        public class ComplexCollectionBase<T> : List<T>, IEnumerable<T>
+        {
+
+        }
+
         public class TestExportItem
         {
             public string Id { get; set; }
             public string Name { get; set; }
             public int Value { get; set; }
+            public ComplexCollection ComplexCollection { get; set; }
             public List<string> StringList { get; set; }
             public ICollection<TestExportItemForm> Forms { get; set; }
             public System.Collections.ICollection CollectionTest { get; set; }

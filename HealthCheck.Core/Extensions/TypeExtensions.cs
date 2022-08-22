@@ -120,8 +120,16 @@ namespace HealthCheck.Core.Extensions
                 return type.GenericTypeArguments[0];
             else if (type.IsGenericType && typeof(System.Collections.IEnumerable).IsAssignableFrom(type))
                 return type.GenericTypeArguments[0];
-            else
-                return null;
+
+            while (type != null && type != typeof(object))
+            {
+                type = type?.BaseType;
+                if (type == null) break;
+                var underlyingType = GetUnderlyingCollectionType(type);
+                if (underlyingType != null) return underlyingType;
+            }
+
+            return null;
         }
 
         /// <summary>
