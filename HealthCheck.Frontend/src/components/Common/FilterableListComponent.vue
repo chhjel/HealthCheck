@@ -150,7 +150,7 @@ export default class FilterableListComponent extends Vue {
     {
         if (this.groups.length > 0) return [];
         return this.items
-            .sort((a, b) => LinqUtils.SortBy(a, b, (x: any) => x[this.sortByKey || '']));
+            .sort((a, b) => LinqUtils.SortBy(a, b, (x: any) => x.data[this.sortByKey || '']));
     }
 
     get groups(): Array<FilterableListGroup>
@@ -175,7 +175,7 @@ export default class FilterableListComponent extends Vue {
         {
             for (let i=0;i<groupList.length;i++)
             {
-                groupList[i].items = groupList[i].items.sort((a, b) => LinqUtils.SortBy(a, b, (x: any) => x[this.sortByKey || '']));
+                groupList[i].items = groupList[i].items.sort((a, b) => LinqUtils.SortBy(a, b, (x: any) => x.data[this.sortByKey || '']));
             }
         }
         // Sort groups
