@@ -1,11 +1,10 @@
 .content-root {
 	flex: 1;
 	max-width: 100%;
-	padding-top: 20px;
-}
-.has-menu {
-	.content-root {
-		padding-left: 20px;
+	padding: 50px;
+	@media (max-width: 960px) {
+		padding: 0;
+		padding-top: 20px;
 	}
 }
 .toolbar-offset {
