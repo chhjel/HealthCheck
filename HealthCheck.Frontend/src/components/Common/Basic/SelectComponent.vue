@@ -64,7 +64,7 @@
 
         <progress-linear-component v-if="isLoading" indeterminate height="3" />
 
-        <div class="select-component__error input-error" v-if="error != null && error.length > 0">{{ error }}</div>
+        <div class="select-component__error input-error" v-if="resolvedError != null && resolvedError.length > 0">{{ resolvedError }}</div>
     </div>
 </template>
 
@@ -148,6 +148,9 @@ export default class SelectComponent extends Vue
     @Prop({ required: false, default: false })
     allowCustom!: string | boolean;
 
+    @Prop({ required: false, default: null })
+    validateCustomInput: null | ((val: string) => string | null | boolean);
+
     @Prop({ required: false, default: false })
     loading!: string | boolean;
     
@@ -160,6 +163,7 @@ export default class SelectComponent extends Vue
     selectedValues: Array<string> = [];
     showDropdown: boolean = false;
     filter: string = '';
+    resolvedError: string = '';
     
     callbacks: Array<CallbackUnregisterShortcut> = [];
 
@@ -167,6 +171,7 @@ export default class SelectComponent extends Vue
     //  LIFECYCLE  //
     ////////////////
     created(): void {
+        this.resolvedError = this.error;
         this.onValueChanged();
     }
 
@@ -296,7 +301,8 @@ export default class SelectComponent extends Vue
     //  METHODS  //
     //////////////
     clear(): void {
-        if (this.isReadonly || this.isDisabled || !this.selectedValues || this.selectedValues.length == 0) return;
+        if (this.isReadonly || this.isDisabled
+            || ((!this.selectedValues || this.selectedValues.length == 0) && !this.filter)) return;
         this.selectedValues = [];
         this.filter = '';
         this.$emit('click:clear');
@@ -349,10 +355,35 @@ export default class SelectComponent extends Vue
         else if (this.filter.trim().length == 0) return;
         
         const val = this.filter.trim();
+        const validationResult = this.tryValidateCustomValue(val);
+        let allowed = false;
+        let validationMessage = '';
+        if (typeof validationResult === 'string') { allowed = !validationResult; validationMessage = validationResult; }
+        else if (typeof validationResult == "boolean") { allowed = validationResult; }
+
+        if (!allowed) {
+            this.resolvedError = validationMessage;
+            return;
+        } else {
+            this.resolvedError = '';
+        }
+
         if (this.selectedValues.includes(val)) return;
         this.addValue(val);
         
         if (!this.useInputOnly) this.filter = '';
+    }
+
+    // Returning:
+    //  - a string = false w/ validation message.
+    //  - true = allow
+    //  - false = disallow w/o validation message
+    tryValidateCustomValue(val: string): string | boolean {
+        if (this.validateCustomInput == null) return null;
+        const result = this.validateCustomInput(val);
+        if (typeof result === 'string') return result;
+        else if (typeof result == "boolean") return result;
+        else return true;
     }
 
     isAllowedToShowDropdown(): boolean {
@@ -386,7 +417,8 @@ export default class SelectComponent extends Vue
     setDropdownPosition(): void {
         if (!this.showDropdown) return;
         
-        const pos = ElementUtils.calcDropdownPosition(this.wrapperElement, this.dropdownElement);
+        const yOffset = !!this.resolvedError ? 24 : 0;
+        const pos = ElementUtils.calcDropdownPosition(this.wrapperElement, this.dropdownElement, yOffset);
         this.dropdownElement.style.top = pos.top;
         this.dropdownElement.style.left = pos.left;
     }
@@ -437,6 +469,7 @@ export default class SelectComponent extends Vue
         this.tryAddCustomValue();
     }
     onFilterBlur(e: FocusEvent): void {
+        this.resolvedError = this.error;
         const isDropDown = ElementUtils.isChildOf(e.relatedTarget as HTMLElement, this.dropdownElement);
         if (!isDropDown) {
             this.tryAddCustomValue();
@@ -459,6 +492,8 @@ export default class SelectComponent extends Vue
 
     @Watch('value')
     onValueChanged(): void {
+        this.resolvedError = this.error;
+
         if (Array.isArray(this.value))
         {
             this.selectedValues = this.value;
@@ -511,6 +546,16 @@ export default class SelectComponent extends Vue
     @Watch('isLoading')
     onIsLoadingChanged(): void {
         if (this.isLoading) this.showDropdown = false;
+    }
+
+    @Watch('error')
+    onErrorChanged(): void {
+        this.resolvedError = this.error;
+    }
+
+    @Watch('resolvedError')
+    onResolvedErrorChanged(): void {
+        this.$nextTick(() => this.setDropdownPosition());
     }
 }
 </script>

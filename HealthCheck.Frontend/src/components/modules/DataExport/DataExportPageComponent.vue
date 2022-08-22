@@ -75,6 +75,7 @@
                         multiple
                         allowInput
                         :allowCustom="availablePropertiesIncludesAnArray"
+                        :validateCustomInput="validateCustomFilterInput"
                         ></select-component>
                 </div>
             
@@ -793,6 +794,16 @@ export default class DataExportPageComponent extends Vue {
     //////////////
     hasAccess(option: string): boolean {
         return this.options.AccessOptions.indexOf(option) != -1;
+    }
+
+    validateCustomFilterInput(val: string): string | null | boolean{
+        const errMessage = `"${val}" does not seem to be a valid property.`;
+        if (!val) return true;
+        else if (!StringUtils.anyIndicesAreValid(val)) return errMessage;
+
+        let stripped = StringUtils.stripIndices(val, true, 0);
+        let allowed = this.availableProperties.includes(stripped);
+        return allowed ? true : errMessage;
     }
 
     createTopFilterTitle(): string {
