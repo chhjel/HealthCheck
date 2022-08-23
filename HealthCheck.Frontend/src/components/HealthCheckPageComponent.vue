@@ -116,7 +116,11 @@ export default class HealthCheckPageComponent extends Vue {
     //  GETTERS  //
     //////////////
     get showModuleMenuButton(): boolean {
-        return this.hackyTimer > 0 && this.moduleNavMenu != null && this.moduleNavMenu.childNodes.length > 0;
+        return this.hackyTimer > 0
+            && this.moduleNavMenu != null
+            && this.moduleNavMenu.childNodes.length > 0
+            // v-if hidden navigation causes this one
+            && !(this.moduleNavMenu.childNodes.length <= 2 && this.moduleNavMenu.childNodes[0].textContent == 'v-if' && this.moduleNavMenu.childNodes[1].textContent == '');
     }
 
     get isModuleNavOpen(): boolean {

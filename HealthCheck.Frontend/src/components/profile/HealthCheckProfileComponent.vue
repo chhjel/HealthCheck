@@ -129,14 +129,16 @@
                     @click="addWebAuthnDialogVisible = false">Close</btn-component>
             </template>
             <div>
-                <input-component
-                    name="Confirm account password"
-                    autocomplete="current-password"
-                    v-model:value="registerWebAuthnPassword"
-                    :disabled="webAuthnAddLoadStatus.inProgress"
-                    type="password"
-                    :clearable="true"
-                ></input-component>
+                <form @submit.stop.prevent>
+                    <input-component
+                        name="Confirm account password"
+                        autocomplete="current-password"
+                        v-model:value="registerWebAuthnPassword"
+                        :disabled="webAuthnAddLoadStatus.inProgress"
+                        type="password"
+                        :clearable="true"
+                    ></input-component>
+                </form>
 
                 <btn-component
                     round color="primary" large
@@ -165,14 +167,16 @@
             <div>
                 <p>Confirm removal of WebAuthn authenticator from your account.</p>
 
-                <input-component
-                    name="Confirm account password"
-                    autocomplete="current-password"
-                    v-model:value="removeWebAuthnPassword"
-                    :disabled="disableWebAuthnAdd"
-                    type="password"
-                    :clearable="true"
-                ></input-component>
+                <form @submit.stop.prevent>
+                    <input-component
+                        name="Confirm account password"
+                        autocomplete="current-password"
+                        v-model:value="removeWebAuthnPassword"
+                        :disabled="disableWebAuthnAdd"
+                        type="password"
+                        :clearable="true"
+                    ></input-component>
+                </form>
 
                 <btn-component
                     round color="primary" large
@@ -247,14 +251,16 @@
                     :clearable="true"
                 ></input-component>
 
-                <input-component
-                    name="Confirm account password"
-                    autocomplete="current-password"
-                    v-model:value="registerTotpPassword"
-                    :disabled="disableTotpAdd"
-                    type="password"
-                    :clearable="true"
-                ></input-component>
+                <form @submit.stop.prevent>
+                    <input-component
+                        name="Confirm account password"
+                        autocomplete="current-password"
+                        v-model:value="registerTotpPassword"
+                        :disabled="disableTotpAdd"
+                        type="password"
+                        :clearable="true"
+                    ></input-component>
+                </form>
 
                 <btn-component 
                     round color="primary" large
@@ -283,14 +289,16 @@
             <div>
                 <p>Confirm removal of TOTP authenticator from your account.</p>
 
-                <input-component
-                    name="Confirm account password"
-                    autocomplete="current-password"
-                    v-model:value="removeTotpPassword"
-                    :disabled="disableTotpRemove"
-                    type="password"
-                    :clearable="true"
-                ></input-component>
+                <form @submit.stop.prevent>
+                    <input-component
+                        name="Confirm account password"
+                        autocomplete="current-password"
+                        v-model:value="removeTotpPassword"
+                        :disabled="disableTotpRemove"
+                        type="password"
+                        :clearable="true"
+                    ></input-component>
+                </form>
 
                 <btn-component
                     round color="error" large

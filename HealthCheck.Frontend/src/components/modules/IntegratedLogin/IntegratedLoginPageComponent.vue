@@ -9,53 +9,56 @@
                     <!-- INPUTS -->
                     <div>
                         <h1 class="login-title">{{ title }}</h1>
-                        <text-field-component
-                            v-model:value="username"
-                            :disabled="loadStatus.inProgress"
-                            v-on:keyup.enter="onLoginClicked"
-                            type="text"
-                            label="Username"
-                            placeholder=" "
-                            class="pt-0 mt-5" />
+                        
+                        <form @submit.stop.prevent>
+                            <text-field-component
+                                v-model:value="username"
+                                :disabled="loadStatus.inProgress"
+                                v-on:keyup.enter="onLoginClicked"
+                                type="text"
+                                label="Username"
+                                placeholder=" "
+                                class="pt-0 mt-5" />
 
-                        <text-field-component
-                            v-model:value="password"
-                            :disabled="loadStatus.inProgress"
-                            v-on:keyup.enter="onLoginClicked"
-                            label="Password"
-                            placeholder=" "
-                            :type="showPassword ? 'text' : 'password'"
-                            :append-icon="showPassword ? 'visibility' : 'visibility_off'"
-                            @click:append="showPassword = !showPassword"
-                            class="pt-0 mt-2" />
+                            <text-field-component
+                                v-model:value="password"
+                                :disabled="loadStatus.inProgress"
+                                v-on:keyup.enter="onLoginClicked"
+                                label="Password"
+                                placeholder=" "
+                                :type="showPassword ? 'text' : 'password'"
+                                :append-icon="showPassword ? 'visibility' : 'visibility_off'"
+                                @click:append="showPassword = !showPassword"
+                                class="pt-0 mt-2" />
 
-                        <div v-if="showTwoFactorCodeInput" class="mb-4 mt-2">
-                            <div class="flex layout">
-                                <div :class="mfaInputClasses">
-                                    <text-field-component
-                                        v-model:value="twoFactorCode"
-                                        :disabled="loadStatus.inProgress"
-                                        v-on:keyup.enter="onLoginClicked"
-                                        label="Two factor code"
-                                        placeholder=" "
-                                        type="text"
-                                        class="pt-0 mt-0"
-                                        :loading="show2FACodeExpirationTime"
-                                        :loadingValue="twoFactorInputProgress"
-                                        :loadingColor="twoFactorInputColor"
-                                        loadingHeight="7">
-                                    </text-field-component>
+                            <div v-if="showTwoFactorCodeInput" class="mb-4 mt-2">
+                                <div class="flex layout">
+                                    <div :class="mfaInputClasses">
+                                        <text-field-component
+                                            v-model:value="twoFactorCode"
+                                            :disabled="loadStatus.inProgress"
+                                            v-on:keyup.enter="onLoginClicked"
+                                            label="Two factor code"
+                                            placeholder=" "
+                                            type="text"
+                                            class="pt-0 mt-0"
+                                            :loading="show2FACodeExpirationTime"
+                                            :loadingValue="twoFactorInputProgress"
+                                            :loadingColor="twoFactorInputColor"
+                                            loadingHeight="7">
+                                        </text-field-component>
+                                    </div>
+                                    <div class="xs6" v-if="show2FASendCodeButton">
+                                        <btn-component round color="secondary" class="mt-0"
+                                            @click.prevent="onSendCodeClicked"
+                                            :disabled="loadStatus.inProgress">
+                                            <span style="white-space: normal;">{{ send2FASCodeButtonText }}</span>
+                                        </btn-component>
+                                    </div>
                                 </div>
-                                <div class="xs6" v-if="show2FASendCodeButton">
-                                    <btn-component round color="secondary" class="mt-0"
-                                        @click.prevent="onSendCodeClicked"
-                                        :disabled="loadStatus.inProgress">
-                                        <span style="white-space: normal;">{{ send2FASCodeButtonText }}</span>
-                                    </btn-component>
-                                </div>
+                                <div v-if="note2FA" class="mfa-note tfa">{{note2FA}}</div>
                             </div>
-                            <div v-if="note2FA" class="mfa-note tfa">{{note2FA}}</div>
-                        </div>
+                        </form>
                     </div>
 
                     <div v-if="showWebAuthnInput">

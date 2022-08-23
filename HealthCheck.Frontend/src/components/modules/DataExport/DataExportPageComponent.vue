@@ -1055,7 +1055,11 @@ export default class DataExportPageComponent extends Vue {
     createQueryPayload(exporterId: string | null = null): HCDataExportQueryRequest {
         if (this.includedProperties.length == 0)
         {
-            this.includedProperties = this.availableProperties.filter(x => !this.availableProperties.some(a => a.startsWith(`${x}.`)));
+            this.includedProperties = this.availableProperties
+                // Exclude collection values
+                .filter(x => !x.includes('['))
+                // Exclude parent properties since children are included
+                .filter(x => !this.availableProperties.some(a => a.startsWith(`${x}.`)));
         }
 
         // Update headers

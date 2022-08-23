@@ -577,12 +577,15 @@ export default class SelectComponent extends Vue
         border-radius: 2px;
         margin-bottom: 2px;
         white-space: nowrap;
+        max-width: calc(100% - 38px);
     }
     &__input-chip-value {
         padding-right: 5px;
         min-height: 28px;
         display: flex;
         align-items: center;
+        max-width: 100%;
+        overflow: hidden;
     }
     &__input-chip-remove {
         height: 100%;
@@ -631,6 +634,7 @@ export default class SelectComponent extends Vue
         width: 100%;
         padding: 5px 0 !important;
         min-height: 28px;
+        min-width: 30px;
         border: none !important;
     }
     &.open {
