@@ -673,7 +673,9 @@ namespace HealthCheck.WebUI.Util
                     }});
                 if (errors.length == 0) return;
                 var errContainer = document.getElementById('hc-load-errors');
-                errContainer.innerHTML = errors.join('\n');
+                if (errContainer) {{
+                    errContainer.innerHTML = errors.join('\n');
+                }}
             }}, 2000);
         }}
 
