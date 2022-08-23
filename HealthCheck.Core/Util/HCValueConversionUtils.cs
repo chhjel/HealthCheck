@@ -67,6 +67,10 @@ namespace HealthCheck.Core.Util
 
                         prop.SetValue(instance, value);
                     }
+                    else
+                    {
+                        prop.SetValue(instance, null);
+                    }
                 }
             }
 
