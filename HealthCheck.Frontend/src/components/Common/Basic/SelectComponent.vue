@@ -15,7 +15,7 @@
                     <span class="select-component__input-chip-value"
                         @click.stop.prevent="onChipClicked(item)">{{ item.text }}</span>
                     <div class="select-component__input-chip-remove accent clickable hoverable" tabindex="0"
-                        @click.stop.prevent="removeValue(item.value)"
+                        @click.stop.prevent="onRemoveValueClicked(item.value)"
                         v-if="showItemRemoveButton">
                         <icon-component>clear</icon-component>
                     </div>
@@ -324,6 +324,11 @@ export default class SelectComponent extends Vue
         this.emitValue();
     }
 
+    onRemoveValueClicked(val: string): void {
+        this.removeValue(val);
+        this.hideDropdown();
+    }
+
     emitValue(): void {
         let emittedValue: string | string[];
         if (this.isMultiple) {
@@ -437,7 +442,8 @@ export default class SelectComponent extends Vue
     //  EVENT HANDLERS  //
     /////////////////////
     onChipClicked(item: Item): void {
-        this.setFilterFromShortcutIfSuitable(item);
+        if (this.setFilterFromShortcutIfSuitable(item)) return;
+        this.onInputClicked();
     }
 
     onInputClicked(): void {
