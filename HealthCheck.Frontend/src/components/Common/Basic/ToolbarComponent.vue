@@ -27,7 +27,7 @@
             :style="overflowButtonStyle"
             @click="showOverflow = !showOverflow">
             <icon-component class="mr-1">more_horiz</icon-component>
-            +{{ overflowMenuItems.length }}
+            +{{ overflowMenuItemCount }}
         </div>
         <div class="toolbar-component__overflow" ref="overflowContainer" v-show="showOverflow">
             <template
@@ -126,6 +126,10 @@ export default class ToolbarComponent extends Vue {
     get overflowMenuItems(): Array<ToolbarComponentMenuItem> {
         return this.itemStates.filter(x => x.overflow).map(x => x.item);
     };
+
+    get overflowMenuItemCount(): number {
+        return this.overflowMenuItems.filter(x => !x.isSpacer).length;
+    }
 
     get isOverflowing(): boolean {
         return this.itemStates.some(x => x.overflow);
