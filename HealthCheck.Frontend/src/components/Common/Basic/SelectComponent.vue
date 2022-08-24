@@ -15,7 +15,7 @@
                     <span class="select-component__input-chip-value"
                         @click.stop.prevent="onChipClicked(item)">{{ item.text }}</span>
                     <div class="select-component__input-chip-remove accent clickable hoverable" tabindex="0"
-                        @click.stop.prevent="removeValue(item.value)"
+                        @click.stop.prevent="onRemoveValueClicked(item.value)"
                         v-if="showItemRemoveButton">
                         <icon-component>clear</icon-component>
                     </div>
@@ -46,17 +46,14 @@
         <TeleportFix to="body" :disabled="!showDropdown">
             <div class="select-component__dropdown box-shadow" v-show="showDropdown" ref="dropdownElement">
                 <div class="select-component__dropdown__items">
-                    <div v-for="(item, iIndex) in filteredOptionItems"
-                        :key="`${id}-item-${iIndex}`"
-                        class="select-component__dropdown__item" tabindex="0"
-                        @click.stop.prevent="onDropdownItemClicked(item)"
-                        @keyup.enter="onDropdownItemClicked(item)"
-                        @keydown.esc="hideDropdown"
-                        :class="dropdownItemClasses(item)">
-                        <icon-component v-if="isMultiple && valueIsSelected(item.value)" class="mr-1">check_box</icon-component>
-                        <icon-component v-if="isMultiple && !valueIsSelected(item.value)" class="mr-1">check_box_outline_blank</icon-component>
-                        {{ item.text }}
-                    </div>
+                    <virtual-list
+                        class="select-component__dropdown-scroller"
+                        :data-key="'value'"
+                        :data-sources="filteredOptionItems"
+                        :data-component="dropdownItemType"
+                        :extra-props="extraItemProps"
+                        :estimate-size="34"
+                    />
                 </div>                
                 <div v-if="noDataText && filteredOptionItems.length == 0" class="select-component__statusText">{{ noDataText }}</div>
             </div>
@@ -71,13 +68,16 @@
 <script lang="ts">
 import { Vue, Prop, Watch, Ref } from "vue-property-decorator";
 import { Options } from "vue-class-component";
-import { nextTick, Teleport as teleport_, TeleportProps, VNodeProps } from 'vue';
+import { shallowRef, Teleport as teleport_, TeleportProps, VNodeProps } from 'vue';
 import IdUtils from "@util/IdUtils";
 import InputHeaderComponent from "./InputHeaderComponent.vue";
 import ValueUtils from "@util/ValueUtils";
 import ElementUtils from "@util/ElementUtils";
 import EventBus, { CallbackUnregisterShortcut } from "@util/EventBus";
 import { StoreUtil } from "@util/StoreUtil";
+import VirtualList from 'vue3-virtual-scroll-list';
+import Item from './Items.vue';
+import SelectDropdownItemComponent from "./SelectDropdownItemComponent.vue";
 
 interface Item {
     value: string;
@@ -90,10 +90,18 @@ const TeleportFix = teleport_ as {
   }
 }
 @Options({
-    components: { InputHeaderComponent, TeleportFix }
+    components: {
+        InputHeaderComponent,
+        SelectDropdownItemComponent,
+        TeleportFix,
+        VirtualList
+    }
 })
 export default class SelectComponent extends Vue
 {
+    asd = [{id: 'unique_1', text: 'abc'}, {id: 'unique_2', text: 'xyz'}];
+    dropdownItemType = shallowRef(SelectDropdownItemComponent);
+
     @Prop({ required: false })
     value!: string | Array<string>;
     
@@ -199,6 +207,15 @@ export default class SelectComponent extends Vue
 
     get filteredOptionItems(): Array<Item> {
         return this.optionItems.filter(x => x.text?.toLowerCase()?.includes(this.filter?.toLowerCase()));
+    }
+
+    get extraItemProps(): object {
+        return {
+            isMultiple: this.isMultiple,
+            valueIsSelected: this.valueIsSelected,
+            onDropdownItemClicked: this.onDropdownItemClicked,
+            hideDropdown: this.hideDropdown
+        };
     }
 
     get optionItems(): Array<Item> {
@@ -324,6 +341,11 @@ export default class SelectComponent extends Vue
         this.emitValue();
     }
 
+    onRemoveValueClicked(val: string): void {
+        this.removeValue(val);
+        this.hideDropdown();
+    }
+
     emitValue(): void {
         let emittedValue: string | string[];
         if (this.isMultiple) {
@@ -341,14 +363,6 @@ export default class SelectComponent extends Vue
     }
 
     valueIsSelected(val: string): boolean { return this.selectedValues.includes(val); }
-
-    dropdownItemClasses(item: Item): any {
-        let classes: any = {};
-        if (!this.isMultiple && this.valueIsSelected(item.value)) {
-            classes['selected'] = true;
-        }
-        return classes;
-    }
 
     tryAddCustomValue(): void {
         if (!this.isAllowCustom) return;
@@ -437,7 +451,8 @@ export default class SelectComponent extends Vue
     //  EVENT HANDLERS  //
     /////////////////////
     onChipClicked(item: Item): void {
-        this.setFilterFromShortcutIfSuitable(item);
+        if (this.setFilterFromShortcutIfSuitable(item)) return;
+        this.onInputClicked();
     }
 
     onInputClicked(): void {
@@ -598,31 +613,15 @@ export default class SelectComponent extends Vue
         position: absolute;
         z-index: 99999;
         background-color: var(--color--accent-lighten1);
-        /* padding: 5px 10px; */
         border: 1px solid var(--color--accent-base);
-        max-height: calc(min(40vh, 400px));
         max-width: 800px;
+    }
+    &__dropdown-scroller {
+        max-height: calc(min(40vh, 400px));
         overflow-y: auto;
     }
     /* &__dropdown__items {
     } */
-    &__dropdown__item {
-        padding: 5px 10px;
-        display: flex;
-        align-items: center;
-        cursor: pointer;
-        transition: all 0.2s;
-        @media (max-width: 600px) {
-            padding: 10px;
-        }
-
-        &.selected {
-            font-weight: 600;
-        }
-        &:hover {
-            background-color: #f6f6f6;
-        }
-    }
     &__statusText {
         padding: 5px 10px;
     }
