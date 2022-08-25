@@ -1,6 +1,7 @@
 ﻿using HealthCheck.Core.Modules.ContentPermutation.Abstractions;
 using HealthCheck.Core.Modules.ContentPermutation.Models;
 using HealthCheck.Core.Util;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,6 +10,8 @@ namespace HealthCheck.Dev.Common.ContentPermutation
 {
     public class DevProductPermutationHandler : HCContentPermutationContentHandlerBase<ProductPermutations>
 	{
+		protected override TimeSpan? CacheDuration => TimeSpan.FromSeconds(10);
+
 		private static readonly List<DevProduct> _all = HCPermutationUtils.CreatePermutationsOf<ProductPermutations>()
 			.SelectMany((p, i) => Enumerable.Range(0, 10)
 				.Select(e => new DevProduct

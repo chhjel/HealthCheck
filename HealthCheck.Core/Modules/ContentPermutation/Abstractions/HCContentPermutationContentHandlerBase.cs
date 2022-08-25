@@ -1,5 +1,8 @@
-﻿using HealthCheck.Core.Modules.ContentPermutation.Attributes;
+﻿using HealthCheck.Core.Config;
+using HealthCheck.Core.Modules.ContentPermutation.Attributes;
 using HealthCheck.Core.Modules.ContentPermutation.Models;
+using HealthCheck.Core.Util;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -12,10 +15,28 @@ namespace HealthCheck.Core.Modules.ContentPermutation.Abstractions
         where TPermutation : class, new()
     {
         /// <summary>
+        /// Optional cache duration for the resolved content.
+        /// </summary>
+        protected virtual TimeSpan? CacheDuration { get; }
+
+        private static readonly HCSimpleMemoryCache<List<HCPermutatedContentItemViewModel>> _cache = new();
+        private bool IsCacheEnabled => CacheDuration != null && HCGlobalConfig.Serializer != null;
+
+        /// <summary>
         /// Get content to display for a type decorated with <see cref="HCContentPermutationTypeAttribute"/>.
         /// </summary>
         public async Task<List<HCPermutatedContentItemViewModel>> GetContentForAsync(HCGetContentPermutationContentOptions options)
         {
+            string cacheKey = null;
+            if (IsCacheEnabled)
+            {
+                cacheKey = HCGlobalConfig.Serializer.Serialize(options.PermutationObj, pretty: false);
+                if (_cache.TryGetValue<List<HCPermutatedContentItemViewModel>>(cacheKey, out var cachedValue))
+                {
+                    return cachedValue;
+                }
+            }
+
             if (options.PermutationObj is TPermutation permutationTyped)
             {
                 var opts = new HCGetContentPermutationContentOptions<TPermutation>
@@ -25,7 +46,13 @@ namespace HealthCheck.Core.Modules.ContentPermutation.Abstractions
                     Type = options.Type,
                     MaxCount = options.MaxCount
                 };
-                return await GetContentForAsync(opts);
+
+                var content = await GetContentForAsync(opts);
+                if (IsCacheEnabled)
+                {
+                    _cache.Set(cacheKey, content, CacheDuration.Value);
+                }
+                return content;
             }
             return null;
         }

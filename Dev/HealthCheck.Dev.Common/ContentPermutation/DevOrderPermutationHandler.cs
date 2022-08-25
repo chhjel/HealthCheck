@@ -9,7 +9,7 @@ namespace HealthCheck.Dev.Common.ContentPermutation
 {
     public class DevOrderPermutationHandler : HCContentPermutationContentHandlerBase<OrderPermutations>
 	{
-		private static readonly List<DevOrder> _all = HCPermutationUtils.CreatePermutationsOf<OrderPermutations>()
+        private static readonly List<DevOrder> _all = HCPermutationUtils.CreatePermutationsOf<OrderPermutations>()
 			.SelectMany((p, i) => Enumerable.Range(0, 10)
 				.Select(e => new DevOrder
 				{
