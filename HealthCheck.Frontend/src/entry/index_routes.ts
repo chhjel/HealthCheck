@@ -17,6 +17,7 @@ import ReleaseNotesPageComponent from '../components/modules/ReleaseNotes/Releas
 import MetricsPageComponent from '../components/modules/Metrics/MetricsPageComponent.vue';
 import DataRepeaterPageComponent from '../components/modules/DataRepeater/DataRepeaterPageComponent.vue';
 import DataExportPageComponent from '../components/modules/DataExport/DataExportPageComponent.vue';
+import ContentPermutationPageComponent from '../components/modules/ContentPermutation/ContentPermutationPageComponent.vue';
 import CustomPageComponent from '../components/modules/Custom/CustomPageComponent.vue';
 import NoPageAvailablePageComponent from '../components/NoPageAvailablePageComponent.vue';
 import DevPageComponent from '../components/modules/Dev/DevPageComponent.vue';
@@ -45,6 +46,7 @@ export default function createHCRouter(moduleConfig: Array<ModuleConfig>): Route
     'MetricsPageComponent': MetricsPageComponent,
     'DataRepeaterPageComponent': DataRepeaterPageComponent,
     'DataExportPageComponent': DataExportPageComponent,
+    'ContentPermutationPageComponent': ContentPermutationPageComponent,
     'CustomPageComponent': CustomPageComponent
 };
 

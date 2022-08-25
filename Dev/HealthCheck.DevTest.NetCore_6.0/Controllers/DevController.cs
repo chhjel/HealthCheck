@@ -6,6 +6,8 @@ using HealthCheck.Core.Modules.AccessTokens.Abstractions;
 using HealthCheck.Core.Modules.AuditLog;
 using HealthCheck.Core.Modules.AuditLog.Abstractions;
 using HealthCheck.Core.Modules.AuditLog.Models;
+using HealthCheck.Core.Modules.ContentPermutation;
+using HealthCheck.Core.Modules.ContentPermutation.Abstractions;
 using HealthCheck.Core.Modules.Dataflow;
 using HealthCheck.Core.Modules.Dataflow.Abstractions;
 using HealthCheck.Core.Modules.DataRepeater;
@@ -98,7 +100,8 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             IHCDataExportService dataExportService,
             IHCDataExportPresetStorage dataExportPresetStorage,
             IHCMessageStorage messageStore,
-            IHCReleaseNotesProvider releaseNotesProvider
+            IHCReleaseNotesProvider releaseNotesProvider,
+            IHCContentPermutationContentDiscoveryService permutationContentDiscoveryService
         )
             : base()
         {
@@ -130,6 +133,15 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
                     .ConfigureGroup(RuntimeTestConstants.Group.AlmostBottomGroup, uiOrder: -20)
                     .ConfigureGroup(RuntimeTestConstants.Group.BottomGroup, uiOrder: -50)
                 );
+            UseModule(new HCContentPermutationModule(new HCContentPermutationModuleOptions
+            {
+                AssembliesContainingPermutationTypes = new[]
+                    {
+                        typeof(DevController).Assembly,
+                        typeof(RuntimeTestConstants).Assembly
+                    },
+                Service = permutationContentDiscoveryService
+            }));
             UseModule(new HCMessagesModule(new HCMessagesModuleOptions() { MessageStorage = messageStore }
                 .DefineInbox("mail", "Mail", "All sent email ends up here.")
                 .DefineInbox("sms", "SMS", "All sent sms ends up here.")
@@ -286,6 +298,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             config.GiveRolesAccessToModuleWithFullAccess<HCReleaseNotesModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCDataRepeaterModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCDataExportModule>(RuntimeTestAccessRole.WebAdmins);
+            config.GiveRolesAccessToModuleWithFullAccess<HCContentPermutationModule>(RuntimeTestAccessRole.WebAdmins);
             //config.GiveRolesAccessToModuleWithFullAccess<HCDataExportModule>(RuntimeTestAccessRole.QuerystringTest);
             config.GiveRolesAccessToModuleWithFullAccess<HCTestsModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCSettingsModule>(RuntimeTestAccessRole.WebAdmins);

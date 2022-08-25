@@ -2,6 +2,8 @@ using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Modules.AccessTokens.Abstractions;
 using HealthCheck.Core.Modules.AuditLog.Abstractions;
 using HealthCheck.Core.Modules.AuditLog.Services;
+using HealthCheck.Core.Modules.ContentPermutation.Abstractions;
+using HealthCheck.Core.Modules.ContentPermutation.Services;
 using HealthCheck.Core.Modules.Dataflow.Abstractions;
 using HealthCheck.Core.Modules.Dataflow.Models;
 using HealthCheck.Core.Modules.Dataflow.Services;
@@ -24,6 +26,7 @@ using HealthCheck.Core.Modules.SiteEvents.Abstractions;
 using HealthCheck.Core.Modules.SiteEvents.Services;
 using HealthCheck.Dev.Common;
 using HealthCheck.Dev.Common.Config;
+using HealthCheck.Dev.Common.ContentPermutation;
 using HealthCheck.Dev.Common.DataExport;
 using HealthCheck.Dev.Common.Dataflow;
 using HealthCheck.Dev.Common.DataRepeater;
@@ -86,6 +89,11 @@ namespace HealthCheck.DevTest.NetCore_6._0.Config
             services.AddSingleton<IHCDataExportStream, TestDataExportStreamHeavy>();
             services.AddSingleton<IHCDataExportService, HCDataExportService>();
             services.AddSingleton<IHCDataExportPresetStorage>(x => new HCFlatFileDataExportPresetStorage(@"C:\temp\DataExportPreset.json"));
+
+            // Permutations
+            services.AddSingleton<IHCContentPermutationContentHandler, DevOrderPermutationHandler>();
+            services.AddSingleton<IHCContentPermutationContentHandler, DevProductPermutationHandler>();
+            services.AddSingleton<IHCContentPermutationContentDiscoveryService, HCContentPermutationContentDiscoveryService>();
 
             // Messages
             services.AddSingleton<IHCMessageStorage>(x => new HCFlatFileMessageStore(@"c:\temp\hc_messages"));
