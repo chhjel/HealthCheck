@@ -5,7 +5,7 @@ namespace HealthCheck.Core.Modules.ContentPermutation
 {
     internal class HCContentPermutationModuleConfig : IHealthCheckModuleConfig
     {
-        public string Name { get; } = "Content Permutation";
+        public string Name { get; } = "Content Permutations";
         public string ComponentName => "ContentPermutationPageComponent";
         public string DefaultRootRouteSegment => "contentPermutation";
         public string InitialRoute => "/{0}";

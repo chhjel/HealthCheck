@@ -6,6 +6,6 @@ namespace HealthCheck.Core.Modules.ContentPermutation.Models
     public class HCGetPermutationTypesViewModel
     {
         /// <summary></summary>
-        public List<HCContentPermutationType> Types { get; set; } = new();
+        public List<HCContentPermutationTypeViewModel> Types { get; set; } = new();
     }
 }

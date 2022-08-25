@@ -1,6 +1,5 @@
 ﻿using HealthCheck.Core.Modules.ContentPermutation.Attributes;
 using HealthCheck.Core.Modules.ContentPermutation.Models;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -13,13 +12,20 @@ namespace HealthCheck.Core.Modules.ContentPermutation.Abstractions
         where TPermutation : class, new()
     {
         /// <summary>
-        /// Get content to display for the type <paramref name="type"/> decorated with <see cref="HCContentPermutationTypeAttribute"/>.
+        /// Get content to display for a type decorated with <see cref="HCContentPermutationTypeAttribute"/>.
         /// </summary>
-        public async Task<List<HCPermutatedContentItemViewModel>> GetContentForAsync(Type type, object permutation)
+        public async Task<List<HCPermutatedContentItemViewModel>> GetContentForAsync(HCGetContentPermutationContentOptions options)
         {
-            if (permutation is TPermutation permutationTyped)
+            if (options.PermutationObj is TPermutation permutationTyped)
             {
-                return await GetContentForAsync(permutationTyped);
+                var opts = new HCGetContentPermutationContentOptions<TPermutation>
+                {
+                    PermutationObj = options.PermutationObj,
+                    Permutation = permutationTyped,
+                    Type = options.Type,
+                    MaxCount = options.MaxCount
+                };
+                return await GetContentForAsync(opts);
             }
             return null;
         }
@@ -27,6 +33,6 @@ namespace HealthCheck.Core.Modules.ContentPermutation.Abstractions
         /// <summary>
         /// Get content to display for the type <typeparamref name="TPermutation"/> decorated with <see cref="HCContentPermutationTypeAttribute"/>.
         /// </summary>
-        public abstract Task<List<HCPermutatedContentItemViewModel>> GetContentForAsync(TPermutation permutation);
+        public abstract Task<List<HCPermutatedContentItemViewModel>> GetContentForAsync(HCGetContentPermutationContentOptions<TPermutation> options);
     }
 }

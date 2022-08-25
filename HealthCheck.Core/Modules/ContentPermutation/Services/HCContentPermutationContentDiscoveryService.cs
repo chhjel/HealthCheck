@@ -23,12 +23,12 @@ namespace HealthCheck.Core.Modules.ContentPermutation.Services
         }
 
         /// <inheritdoc />
-        public async Task<List<HCPermutatedContentItemViewModel>> GetContentForAsync(Type type, object permutation)
+        public async Task<List<HCPermutatedContentItemViewModel>> GetContentForAsync(HCGetContentPermutationContentOptions options)
         {
             var content = new List<HCPermutatedContentItemViewModel>();
             foreach (var handler in _handlers)
             {
-                var items = await handler.GetContentForAsync(type, permutation);
+                var items = await handler.GetContentForAsync(options);
                 if (items?.Any() == true) content.AddRange(items);
             }
             return content;
