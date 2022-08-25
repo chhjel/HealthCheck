@@ -430,6 +430,7 @@ export default class ContentPermutationPageComponent extends Vue {
             right: 0;
             background-repeat: no-repeat;
             background-size: cover;
+            background-position: center;
         }
         &__title {
             padding: 15px;
