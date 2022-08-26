@@ -18,6 +18,7 @@
         </Teleport>
         
         <div class="content-root content-permutations">
+            <!-- PERMUTATIONS -->
             <div v-if="currentType">
                 <!-- todo: frontend grouping of combinations -->
                 <h2>{{ currentType.Name }}</h2>
@@ -56,6 +57,17 @@
                 </div>
             </div>
 
+            <!-- LOAD PROGRESS -->
+            <progress-linear-component 
+                v-if="isLoading"
+                indeterminate color="success"></progress-linear-component>
+
+            <!-- DATA LOAD ERROR -->
+            <alert-component :value="dataLoadStatus.failed" v-if="dataLoadStatus.failed" type="error">
+            {{ dataLoadStatus.errorMessage }}
+            </alert-component>
+
+            <!-- CONTENT -->
             <div v-if="exampleContent" class="mt-4">
                 <h3 class="mb-2">Found {{ exampleContent.Content.length }} examples</h3>
                 <div class="content-permutations__contents">
@@ -199,6 +211,7 @@ export default class ContentPermutationPageComponent extends Vue {
         this.service.GetPermutatedContent(payload, this.dataLoadStatus, {
             onSuccess: (data) => this.onContentLoadedFor(typeId, choiceId, data)
         });
+        this.exampleContent = null;
     }
 
     onContentLoadedFor(typeId: string, choiceId: number, data: HCGetPermutatedContentViewModel): void {
