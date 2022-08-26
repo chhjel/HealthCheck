@@ -113,7 +113,7 @@ namespace HealthCheck.Core.Modules.ContentPermutation
                 Description = type.Description,
                 Name = type.Name,
                 Permutations = permutations,
-                PropertyDetails = type.PropertyDetails
+                PropertyConfigs = type.PropertyConfigs
             };
         }
 

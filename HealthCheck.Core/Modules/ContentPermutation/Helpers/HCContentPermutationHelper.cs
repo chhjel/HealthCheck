@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Extensions;
+﻿using HealthCheck.Core.Attributes;
+using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.ContentPermutation.Attributes;
 using HealthCheck.Core.Modules.ContentPermutation.Models;
 using HealthCheck.Core.Util;
@@ -47,18 +48,12 @@ namespace HealthCheck.Core.Modules.ContentPermutation.Helpers
 
         public static HCContentPermutationType CreatePermutationType(Type type, HCContentPermutationTypeAttribute attr)
         {
-            var propertyDetails = type.GetProperties()
-                .Select(x => new
-                {
-                    Property = x,
-                    Attribute = HCContentPermutationPropertyAttribute.GetFirst(x)
-                })
-                .Where(x => x.Attribute != null)
-                .ToDictionary(x => x.Property.Name, x => new HCContentPermutationPropertyDetails
-                {
-                    DisplayName = x.Attribute.DisplayName,
-                    Description = x.Attribute.Description
-                });
+            var propertyConfigs = HCCustomPropertyAttribute.CreateInputConfigs(type, (c, p, a) =>
+            {
+                c.Nullable = true;
+                c.NullName = "<not filtered>";
+                c.DefaultValue = null;
+            });
 
             var perms = HCPermutationUtils.CreatePermutationsOf(type)
                 .Select((x, i) => new HCContentPermutationChoice
@@ -74,7 +69,7 @@ namespace HealthCheck.Core.Modules.ContentPermutation.Helpers
                 Description = attr.Description,
                 Type = type,
                 Permutations = perms,
-                PropertyDetails = propertyDetails
+                PropertyConfigs = propertyConfigs
             };
         }
     }

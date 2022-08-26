@@ -1,4 +1,4 @@
-﻿using HealthCheck.Core.Modules.ContentPermutation.Attributes;
+﻿using HealthCheck.Core.Util.Models;
 using System;
 using System.Collections.Generic;
 
@@ -33,8 +33,8 @@ namespace HealthCheck.Core.Modules.ContentPermutation.Models
         public List<HCContentPermutationChoice> Permutations { get; set; }
 
         /// <summary>
-        /// Property details for any decorated with <see cref="HCContentPermutationPropertyAttribute"/>.
+        /// Property details.
         /// </summary>
-        public Dictionary<string, HCContentPermutationPropertyDetails> PropertyDetails { get; set; }
+        public List<HCBackendInputConfig> PropertyConfigs { get; set; }
     }
 }
