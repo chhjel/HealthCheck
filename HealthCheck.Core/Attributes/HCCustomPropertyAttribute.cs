@@ -78,7 +78,6 @@ namespace HealthCheck.Core.Attributes
                 catch (Exception) { /* ignored */ }
             }
 
-
             var attr = GetFirst(property);
             var type = property.PropertyType;
             var isNullable = type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);

@@ -2,7 +2,7 @@
 
 namespace HealthCheck.Dev.Common.ContentPermutation
 {
-    [HCContentPermutationType]
+    [HCContentPermutationType(MaxAllowedContentCount = 12, DefaultContentCount = 8)]
 	public class ProductPermutations
 	{
 		public ProductType Type { get; set; }

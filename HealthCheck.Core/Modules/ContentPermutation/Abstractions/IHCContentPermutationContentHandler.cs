@@ -14,6 +14,6 @@ namespace HealthCheck.Core.Modules.ContentPermutation.Abstractions
         /// <summary>
         /// Get content to display for a type decorated with <see cref="HCContentPermutationTypeAttribute"/>.
         /// </summary>
-        Task<List<HCPermutatedContentItemViewModel>> GetContentForAsync(HCGetContentPermutationContentOptions options);
+        Task<HCPermutatedContentResultViewModel> GetContentForAsync(HCContentPermutationType type, HCGetContentPermutationContentOptions options);
     }
 }

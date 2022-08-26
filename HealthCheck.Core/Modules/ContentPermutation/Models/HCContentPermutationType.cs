@@ -1,4 +1,4 @@
-﻿using HealthCheck.Core.Modules.ContentPermutation.Attributes;
+﻿using HealthCheck.Core.Util.Models;
 using System;
 using System.Collections.Generic;
 
@@ -28,13 +28,23 @@ namespace HealthCheck.Core.Modules.ContentPermutation.Models
         public string Description { get; set; }
 
         /// <summary>
+        /// Requested <see cref="HCGetContentPermutationContentOptions.MaxCount"/> will be limited by this number.
+        /// </summary>
+        public int MaxAllowedContentCount { get; set; }
+
+        /// <summary>
+        /// Default value for <see cref="HCGetContentPermutationContentOptions.MaxCount"/> will be limited by this number.
+        /// </summary>
+        public int DefaultContentCount { get; set; }
+
+        /// <summary>
         /// List of possible permutation instances with ids.
         /// </summary>
         public List<HCContentPermutationChoice> Permutations { get; set; }
 
         /// <summary>
-        /// Property details for any decorated with <see cref="HCContentPermutationPropertyAttribute"/>.
+        /// Property details.
         /// </summary>
-        public Dictionary<string, HCContentPermutationPropertyDetails> PropertyDetails { get; set; }
+        public List<HCBackendInputConfig> PropertyConfigs { get; set; }
     }
 }

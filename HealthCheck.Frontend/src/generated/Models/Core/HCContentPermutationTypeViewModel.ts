@@ -3,13 +3,15 @@
 //     the code is regenerated.
 
 import { HCContentPermutationChoiceViewModel } from './HCContentPermutationChoiceViewModel';
-import { HCContentPermutationPropertyDetails } from './HCContentPermutationPropertyDetails';
+import { HCBackendInputConfig } from './HCBackendInputConfig';
 
 export interface HCContentPermutationTypeViewModel
 {
 	Id: string;
 	Name: string;
 	Description: string;
+	MaxAllowedContentCount: number;
+	DefaultContentCount: number;
 	Permutations: HCContentPermutationChoiceViewModel[];
-	PropertyDetails: { [key:string]: HCContentPermutationPropertyDetails };
+	PropertyConfigs: HCBackendInputConfig[];
 }

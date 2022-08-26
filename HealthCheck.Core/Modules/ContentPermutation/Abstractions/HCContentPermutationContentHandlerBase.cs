@@ -4,12 +4,14 @@ using HealthCheck.Core.Modules.ContentPermutation.Models;
 using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace HealthCheck.Core.Modules.ContentPermutation.Abstractions
 {
     /// <summary>
     /// Handles discovering content to display for filtered types.
+    /// <para>Supports caching if <see cref="CacheDuration"/> is set.</para>
     /// </summary>
     public abstract class HCContentPermutationContentHandlerBase<TPermutation> : IHCContentPermutationContentHandler
         where TPermutation : class, new()
@@ -25,15 +27,37 @@ namespace HealthCheck.Core.Modules.ContentPermutation.Abstractions
         /// <summary>
         /// Get content to display for a type decorated with <see cref="HCContentPermutationTypeAttribute"/>.
         /// </summary>
-        public async Task<List<HCPermutatedContentItemViewModel>> GetContentForAsync(HCGetContentPermutationContentOptions options)
+        public async Task<HCPermutatedContentResultViewModel> GetContentForAsync(HCContentPermutationType type, HCGetContentPermutationContentOptions options)
         {
             string cacheKey = null;
             if (IsCacheEnabled)
             {
-                cacheKey = HCGlobalConfig.Serializer.Serialize(options.PermutationObj, pretty: false);
+                var cacheKeySuffix = HCGlobalConfig.Serializer.Serialize(options.PermutationObj, pretty: false);
+                cacheKey = $"{options.MaxCount}|{cacheKeySuffix}";
                 if (_cache.TryGetValue<List<HCPermutatedContentItemViewModel>>(cacheKey, out var cachedValue))
                 {
-                    return cachedValue;
+                    return new HCPermutatedContentResultViewModel
+                    {
+                        Content = cachedValue,
+                        WasCached = true
+                    };
+                }
+
+                // Check caches w/ other counts
+                if (type.MaxAllowedContentCount <= 1000)
+                {
+                    for (int i = type.MaxAllowedContentCount; i > 0; i--)
+                    {
+                        var relatedCacheKey = $"{i}|{cacheKeySuffix}";
+                        if (_cache.TryGetValue<List<HCPermutatedContentItemViewModel>>(relatedCacheKey, out var relatedCachedValue))
+                        {
+                            return new HCPermutatedContentResultViewModel
+                            {
+                                Content = relatedCachedValue.Take(options.MaxCount).ToList(),
+                                WasCached = true
+                            };
+                        }
+                    }
                 }
             }
 
@@ -52,8 +76,13 @@ namespace HealthCheck.Core.Modules.ContentPermutation.Abstractions
                 {
                     _cache.Set(cacheKey, content, CacheDuration.Value);
                 }
-                return content;
+                return new HCPermutatedContentResultViewModel
+                {
+                    Content = content,
+                    WasCached = false
+                };
             }
+
             return null;
         }
 

@@ -11,6 +11,8 @@
                 :placeholder="placeholder" :disabled="isDisabled"
                 @input="onInput"
                 @blur="onBlur"
+                :min="min"
+                :max="max"
                 ref="inputElement"
                 class="text-field-component__input input" />
 
@@ -119,6 +121,12 @@ export default class TextFieldComponent extends Vue {
 
     @Prop({ required: false, default: 3 })
     loadingHeight!: number;
+
+    @Prop({ required: false, default: null })
+    min!: number | null;
+
+    @Prop({ required: false, default: null })
+    max!: number | null;
 
     @Ref() readonly inputElement!: HTMLInputElement;
 

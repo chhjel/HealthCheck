@@ -3,7 +3,7 @@
 //     the code is regenerated.
 
 import { HCContentPermutationChoice } from './HCContentPermutationChoice';
-import { HCContentPermutationPropertyDetails } from './HCContentPermutationPropertyDetails';
+import { HCBackendInputConfig } from './HCBackendInputConfig';
 
 export interface HCContentPermutationType
 {
@@ -11,6 +11,8 @@ export interface HCContentPermutationType
 	Id: string;
 	Name: string;
 	Description: string;
+	MaxAllowedContentCount: number;
+	DefaultContentCount: number;
 	Permutations: HCContentPermutationChoice[];
-	PropertyDetails: { [key:string]: HCContentPermutationPropertyDetails };
+	PropertyConfigs: HCBackendInputConfig[];
 }

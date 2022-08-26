@@ -7,7 +7,7 @@
                 :items="menuItems"
                 :sortByKey="`Name`"
                 :hrefKey="`Href`"
-                :loading="dataLoadStatus.inProgress"
+                :loading="typesLoadStatus.inProgress"
                 :disabled="isLoading"
                 :groupIfSingleGroup="false"
                 :showFilter="false"
@@ -18,6 +18,7 @@
         </Teleport>
         
         <div class="content-root content-permutations">
+            <!-- PERMUTATIONS -->
             <div v-if="currentType">
                 <!-- todo: frontend grouping of combinations -->
                 <h2>{{ currentType.Name }}</h2>
@@ -26,16 +27,21 @@
                 <div class="content-permutations__filter mb-2">
                     <div class="mb-2"><b>Filter</b></div>
                     <div class="content-permutations__filter-inputs">
-                        <div v-for="(f, fIndex) in filters"
-                            :key="`${id}-${currentType.Id}-filter-${fIndex}`"
-                            class="mb-2">
-                            <text-field-component
-                                v-model:value="filter[f.id]"
-                                :label="f.name"
-                                :description="f.description"
-                                clearable
-                                :disabled="isLoading" />
-                        </div>
+                        <backend-input-component
+                            v-for="(filterInput, fIndex) in filterInputs"
+                            :key="`${id}-${currentType.Id}-filterinput-${fIndex}`"
+                            v-model:value="filter[filterInput.Id]"
+                            class="content-permutations__filter-input"
+                            :config="filterInput"
+                            :readonly="isLoading"
+                            />
+                        <text-field-component
+                            v-model:value="contentCountToRequest"
+                            label="Number of examples to search for"
+                            type="number"
+                            :min="1"
+                            :max="maxAllowedContentCount"
+                            class="content-permutations__filter-input" />
                     </div>
                 </div>
 
@@ -56,6 +62,17 @@
                 </div>
             </div>
 
+            <!-- LOAD PROGRESS -->
+            <progress-linear-component 
+                v-if="isLoading"
+                indeterminate color="success"></progress-linear-component>
+
+            <!-- DATA LOAD ERROR -->
+            <alert-component :value="dataLoadStatus.failed" v-if="dataLoadStatus.failed" type="error">
+            {{ dataLoadStatus.errorMessage }}
+            </alert-component>
+
+            <!-- CONTENT -->
             <div v-if="exampleContent" class="mt-4">
                 <h3 class="mb-2">Found {{ exampleContent.Content.length }} examples</h3>
                 <div class="content-permutations__contents">
@@ -117,10 +134,14 @@ import { HCContentPermutationTypeViewModel } from "@generated/Models/Core/HCCont
 import { HCContentPermutationChoiceViewModel } from "@generated/Models/Core/HCContentPermutationChoiceViewModel";
 import StringUtils from "@util/StringUtils";
 import { HCPermutatedContentItemViewModel } from "@generated/Models/Core/HCPermutatedContentItemViewModel";
+import { HCBackendInputConfig } from "@generated/Models/Core/HCBackendInputConfig";
+import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
+import { nextTick } from "@vue/runtime-core";
 
 @Options({
     components: {
-        FilterableListComponent
+        FilterableListComponent,
+        BackendInputComponent
     }
 })
 export default class ContentPermutationPageComponent extends Vue {
@@ -134,6 +155,7 @@ export default class ContentPermutationPageComponent extends Vue {
 
     // Service
     service: ContentPermutationService = new ContentPermutationService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
+    typesLoadStatus: FetchStatus = new FetchStatus();
     dataLoadStatus: FetchStatus = new FetchStatus();
 
     id: string = IdUtils.generateId();
@@ -146,6 +168,9 @@ export default class ContentPermutationPageComponent extends Vue {
     currentPermutation: HCContentPermutationChoiceViewModel | null = null;
     exampleContent: HCGetPermutatedContentViewModel | null = null;
     filter: object = {};
+
+    filterInputs: Array<HCBackendInputConfig> = [];
+    contentCountToRequest: number = 1;
 
     //////////////////
     //  LIFECYCLE  //
@@ -192,13 +217,14 @@ export default class ContentPermutationPageComponent extends Vue {
 
     loadContentFor(typeId: string, choiceId: number): void {
         const payload: HCGetPermutatedContentRequest = {
-            MaxCount: 5,
+            MaxCount: this.contentCountToRequest,
             PermutationTypeId: typeId,
             PermutationChoiceId: choiceId
         };
         this.service.GetPermutatedContent(payload, this.dataLoadStatus, {
             onSuccess: (data) => this.onContentLoadedFor(typeId, choiceId, data)
         });
+        this.exampleContent = null;
     }
 
     onContentLoadedFor(typeId: string, choiceId: number, data: HCGetPermutatedContentViewModel): void {
@@ -213,15 +239,31 @@ export default class ContentPermutationPageComponent extends Vue {
     setActiveType(type: HCContentPermutationTypeViewModel, updateUrl: boolean = true): void {
         this.currentType = type;
         this.currentPermutation = null;
-        this.filter = {};
+        this.resetFilter();
         this.exampleContent = null;
         (this.filterableList as FilterableListComponent).setSelectedItem(type);
+
+        const firstPermutation = type.Permutations[0];
+        this.filterInputs = [];
+        if (firstPermutation) {
+            const allowedFilterInputKeys = Object.keys(firstPermutation.Choice);
+            this.filterInputs = this.currentType.PropertyConfigs
+                .filter(x => allowedFilterInputKeys.includes(x.Id));
+        }
+        this.contentCountToRequest = type.DefaultContentCount;
 
         const idHash = this.hash(type.Id);
         if (updateUrl && StringUtils.stringOrFirstOfArray(this.$route.params.typeId) != StringUtils.stringOrFirstOfArray(idHash))
         {
             this.$router.push(`/contentPermutation/${idHash}`);
         }
+    }
+
+    resetFilter(): void {
+        this.filter = {};
+        this.currentType.PropertyConfigs.forEach(x => {
+            this.filter[x.Id] = null;
+        });
     }
 
     getChoices(choiceObj: any): Array<any> {
@@ -234,11 +276,11 @@ export default class ContentPermutationPageComponent extends Vue {
     }
 
     getPropertyName(name: string) : string {
-        return this.currentType?.PropertyDetails[name]?.DisplayName || name;
+        return this.currentType?.PropertyConfigs?.find(x => x.Id == name)?.Name || name;
     }
 
     getPropertyDescription(name: string) : string {
-        return this.currentType?.PropertyDetails[name]?.Description || '';
+        return this.currentType?.PropertyConfigs?.find(x => x.Id == name)?.Description || '';
     }
 
     permutationClasses(permutation: HCContentPermutationChoiceViewModel): any {
@@ -297,15 +339,30 @@ export default class ContentPermutationPageComponent extends Vue {
         for (let i=0;i<filterProps.length;i++)
         {
             const key = filterProps[i];
-            let choiceValue = item.Choice[key];
-            const filterValue = this.filter[key]?.toLowerCase();
-            if (!filterValue) continue;
+            let filterValue = this.filter[key];
+            if (filterValue === null || filterValue === '') continue;
+
+            if (typeof filterValue !== 'string')
+            {
+                filterValue = JSON.stringify(filterValue);
+            }
+            filterValue = filterValue?.toLowerCase();
             
+            let choiceValue = item.Choice[key];
             if (typeof choiceValue !== 'string')
             {
                 choiceValue = JSON.stringify(choiceValue);
             }
-            if (choiceValue?.toLowerCase()?.includes(filterValue) !== true) return false;
+            choiceValue = choiceValue?.toLowerCase();
+
+            // Handle enum until this is refactored
+            const def = this.filterInputs.find(x => x.Id == key);
+            const type = def?.Type;
+            if (type == "Enum" && !def.PossibleValues.some(v => v.toLowerCase() == filterValue)) {
+                continue;
+            }
+
+            if (choiceValue?.includes(filterValue) !== true) return false;
         }
         return true;
     }
@@ -318,7 +375,7 @@ export default class ContentPermutationPageComponent extends Vue {
     }
 
     get isLoading(): boolean {
-        return this.dataLoadStatus.inProgress;
+        return this.dataLoadStatus.inProgress || this.typesLoadStatus.inProgress;
     }
 
     get menuItems(): Array<FilterableListItem>
@@ -336,21 +393,23 @@ export default class ContentPermutationPageComponent extends Vue {
         });
     }
 
-    get filters(): Array<any> {
-        if (!this.currentType || !this.currentType.Permutations || this.currentType.Permutations.length == 0) return [];
-        const choiceObj = this.currentType.Permutations[0].Choice;
-        const props = Object.keys(choiceObj);
-        return props.map(x => ({
-            id: x,
-            name: this.getPropertyName(x),
-            description: this.getPropertyDescription(x)
-        }));
-    }
-
     get filteredPermutations(): Array<HCContentPermutationChoiceViewModel> {
         if (!this.currentType || !this.currentType.Permutations || this.currentType.Permutations.length == 0) return [];
         return this.currentType.Permutations
             .filter(x => this.matchesFilter(x));
+    }
+
+    get maxAllowedContentCount(): number {
+        return this.currentType?.MaxAllowedContentCount || 0;
+    }
+
+    @Watch("contentCountToRequest")
+    onContentCountToRequestChanged(): void {
+        nextTick(() => {
+            if (!this.contentCountToRequest) this.contentCountToRequest = 1;
+            else if (this.contentCountToRequest < 1) this.contentCountToRequest = 1;
+            else if (this.contentCountToRequest > this.maxAllowedContentCount) this.contentCountToRequest = this.maxAllowedContentCount;
+        });
     }
 }
 </script>
@@ -363,7 +422,14 @@ export default class ContentPermutationPageComponent extends Vue {
             border-left: 2px solid var(--color--accent-base);
             padding-left: 10px;
             margin-bottom: 10px;
-        }   
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+        &-input {
+            margin-right: 40px;
+            margin-bottom: 20px;
+        }
     }
     
     &__choices {
@@ -409,6 +475,11 @@ export default class ContentPermutationPageComponent extends Vue {
         margin-bottom: 20px;
         border: 1px solid var(--color--accent-base);
         box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.02), 0 3px 2px 0 rgba(0, 0, 0, 0.02), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        transition: all 0.4s;
+
+        &:hover {
+            box-shadow: 0 0 12px 2px rgb(0 0 0 / 21%) !important;
+        }
 
         &__mainPart {
             position: relative;
@@ -430,6 +501,7 @@ export default class ContentPermutationPageComponent extends Vue {
             right: 0;
             background-repeat: no-repeat;
             background-size: cover;
+            background-position: center;
         }
         &__title {
             padding: 15px;

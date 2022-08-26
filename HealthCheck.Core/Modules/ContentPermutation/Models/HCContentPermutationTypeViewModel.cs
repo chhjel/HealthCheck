@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using HealthCheck.Core.Util.Models;
+using System.Collections.Generic;
 
 namespace HealthCheck.Core.Modules.ContentPermutation.Models
 {
@@ -15,9 +16,17 @@ namespace HealthCheck.Core.Modules.ContentPermutation.Models
         public string Description { get; set; }
 
         /// <summary></summary>
-        public List<HCContentPermutationChoiceViewModel> Permutations { get; set; }
+        public int MaxAllowedContentCount { get; set; }
 
         /// <summary></summary>
-        public Dictionary<string, HCContentPermutationPropertyDetails> PropertyDetails { get; set; }
+        public int DefaultContentCount { get; set; }
+
+        /// <summary></summary>
+        public List<HCContentPermutationChoiceViewModel> Permutations { get; set; }
+
+        /// <summary>
+        /// Property details.
+        /// </summary>
+        public List<HCBackendInputConfig> PropertyConfigs { get; set; }
     }
 }

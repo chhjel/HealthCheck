@@ -1,6 +1,6 @@
-﻿using HealthCheck.Core.Modules.ContentPermutation.Abstractions;
+﻿using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Modules.ContentPermutation.Abstractions;
 using HealthCheck.Core.Modules.ContentPermutation.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,15 +23,25 @@ namespace HealthCheck.Core.Modules.ContentPermutation.Services
         }
 
         /// <inheritdoc />
-        public async Task<List<HCPermutatedContentItemViewModel>> GetContentForAsync(HCGetContentPermutationContentOptions options)
+        public async Task<HCPermutatedContentResultViewModel> GetContentForAsync(HCContentPermutationType type, HCGetContentPermutationContentOptions options)
         {
             var content = new List<HCPermutatedContentItemViewModel>();
+            var originalMaxCount = options.MaxCount;
+            var wasCached = false;
             foreach (var handler in _handlers)
             {
-                var items = await handler.GetContentForAsync(options);
-                if (items?.Any() == true) content.AddRange(items);
+                // Per handler max count
+                options.MaxCount = originalMaxCount.Clamp(1, type.MaxAllowedContentCount);
+
+                var contentResult = await handler.GetContentForAsync(type, options);
+                if (contentResult?.Content?.Any() == true) content.AddRange(contentResult.Content);
+                if (contentResult?.WasCached == true) wasCached = true;
             }
-            return content;
+            return new HCPermutatedContentResultViewModel
+            {
+                Content = content,
+                WasCached = wasCached
+            };
         }
     }
 }
