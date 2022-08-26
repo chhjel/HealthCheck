@@ -7,7 +7,7 @@
                 :items="menuItems"
                 :sortByKey="`Name`"
                 :hrefKey="`Href`"
-                :loading="dataLoadStatus.inProgress"
+                :loading="typesLoadStatus.inProgress"
                 :disabled="isLoading"
                 :groupIfSingleGroup="false"
                 :showFilter="false"
@@ -35,6 +35,13 @@
                             :config="filterInput"
                             :readonly="isLoading"
                             />
+                        <text-field-component
+                            v-model:value="contentCountToRequest"
+                            label="Number of examples to search for"
+                            type="number"
+                            :min="1"
+                            :max="maxAllowedContentCount"
+                            class="content-permutations__filter-input" />
                     </div>
                 </div>
 
@@ -129,6 +136,7 @@ import StringUtils from "@util/StringUtils";
 import { HCPermutatedContentItemViewModel } from "@generated/Models/Core/HCPermutatedContentItemViewModel";
 import { HCBackendInputConfig } from "@generated/Models/Core/HCBackendInputConfig";
 import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
+import { nextTick } from "@vue/runtime-core";
 
 @Options({
     components: {
@@ -147,6 +155,7 @@ export default class ContentPermutationPageComponent extends Vue {
 
     // Service
     service: ContentPermutationService = new ContentPermutationService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
+    typesLoadStatus: FetchStatus = new FetchStatus();
     dataLoadStatus: FetchStatus = new FetchStatus();
 
     id: string = IdUtils.generateId();
@@ -161,6 +170,7 @@ export default class ContentPermutationPageComponent extends Vue {
     filter: object = {};
 
     filterInputs: Array<HCBackendInputConfig> = [];
+    contentCountToRequest: number = 1;
 
     //////////////////
     //  LIFECYCLE  //
@@ -207,7 +217,7 @@ export default class ContentPermutationPageComponent extends Vue {
 
     loadContentFor(typeId: string, choiceId: number): void {
         const payload: HCGetPermutatedContentRequest = {
-            MaxCount: 5,
+            MaxCount: this.contentCountToRequest,
             PermutationTypeId: typeId,
             PermutationChoiceId: choiceId
         };
@@ -240,6 +250,7 @@ export default class ContentPermutationPageComponent extends Vue {
             this.filterInputs = this.currentType.PropertyConfigs
                 .filter(x => allowedFilterInputKeys.includes(x.Id));
         }
+        this.contentCountToRequest = type.DefaultContentCount;
 
         const idHash = this.hash(type.Id);
         if (updateUrl && StringUtils.stringOrFirstOfArray(this.$route.params.typeId) != StringUtils.stringOrFirstOfArray(idHash))
@@ -364,7 +375,7 @@ export default class ContentPermutationPageComponent extends Vue {
     }
 
     get isLoading(): boolean {
-        return this.dataLoadStatus.inProgress;
+        return this.dataLoadStatus.inProgress || this.typesLoadStatus.inProgress;
     }
 
     get menuItems(): Array<FilterableListItem>
@@ -386,6 +397,19 @@ export default class ContentPermutationPageComponent extends Vue {
         if (!this.currentType || !this.currentType.Permutations || this.currentType.Permutations.length == 0) return [];
         return this.currentType.Permutations
             .filter(x => this.matchesFilter(x));
+    }
+
+    get maxAllowedContentCount(): number {
+        return this.currentType?.MaxAllowedContentCount || 0;
+    }
+
+    @Watch("contentCountToRequest")
+    onContentCountToRequestChanged(): void {
+        nextTick(() => {
+            if (!this.contentCountToRequest) this.contentCountToRequest = 1;
+            else if (this.contentCountToRequest < 1) this.contentCountToRequest = 1;
+            else if (this.contentCountToRequest > this.maxAllowedContentCount) this.contentCountToRequest = this.maxAllowedContentCount;
+        });
     }
 }
 </script>

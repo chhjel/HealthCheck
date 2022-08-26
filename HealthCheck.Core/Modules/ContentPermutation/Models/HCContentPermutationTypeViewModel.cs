@@ -16,6 +16,12 @@ namespace HealthCheck.Core.Modules.ContentPermutation.Models
         public string Description { get; set; }
 
         /// <summary></summary>
+        public int MaxAllowedContentCount { get; set; }
+
+        /// <summary></summary>
+        public int DefaultContentCount { get; set; }
+
+        /// <summary></summary>
         public List<HCContentPermutationChoiceViewModel> Permutations { get; set; }
 
         /// <summary>

@@ -11,6 +11,8 @@ export interface HCContentPermutationType
 	Id: string;
 	Name: string;
 	Description: string;
+	MaxAllowedContentCount: number;
+	DefaultContentCount: number;
 	Permutations: HCContentPermutationChoice[];
 	PropertyConfigs: HCBackendInputConfig[];
 }

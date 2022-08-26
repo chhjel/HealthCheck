@@ -67,6 +67,8 @@ namespace HealthCheck.Core.Modules.ContentPermutation.Helpers
                 Id = type.FullName,
                 Name = attr.Name ?? type.Name.SpacifySentence(),
                 Description = attr.Description,
+                MaxAllowedContentCount = attr.MaxAllowedContentCount,
+                DefaultContentCount = attr.DefaultContentCount,
                 Type = type,
                 Permutations = perms,
                 PropertyConfigs = propertyConfigs

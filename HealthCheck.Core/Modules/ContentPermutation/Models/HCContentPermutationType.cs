@@ -28,6 +28,16 @@ namespace HealthCheck.Core.Modules.ContentPermutation.Models
         public string Description { get; set; }
 
         /// <summary>
+        /// Requested <see cref="HCGetContentPermutationContentOptions.MaxCount"/> will be limited by this number.
+        /// </summary>
+        public int MaxAllowedContentCount { get; set; }
+
+        /// <summary>
+        /// Default value for <see cref="HCGetContentPermutationContentOptions.MaxCount"/> will be limited by this number.
+        /// </summary>
+        public int DefaultContentCount { get; set; }
+
+        /// <summary>
         /// List of possible permutation instances with ids.
         /// </summary>
         public List<HCContentPermutationChoice> Permutations { get; set; }

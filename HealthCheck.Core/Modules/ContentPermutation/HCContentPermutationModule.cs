@@ -92,7 +92,8 @@ namespace HealthCheck.Core.Modules.ContentPermutation
                 MaxCount = model.MaxCount
             };
 
-            var content = await Options.Service.GetContentForAsync(options);
+            var contentResult = await Options.Service.GetContentForAsync(type, options);
+            var content = contentResult.Content;
             var countKey = $"{type.Id}_{permutation.Id}";
             _lastPermutationCounts[countKey] = content.Count;
 
@@ -110,8 +111,10 @@ namespace HealthCheck.Core.Modules.ContentPermutation
             return new HCContentPermutationTypeViewModel
             {
                 Id = type.Id,
-                Description = type.Description,
                 Name = type.Name,
+                Description = type.Description,
+                MaxAllowedContentCount = type.MaxAllowedContentCount,
+                DefaultContentCount = type.DefaultContentCount,
                 Permutations = permutations,
                 PropertyConfigs = type.PropertyConfigs
             };
