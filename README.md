@@ -17,6 +17,7 @@ Available modules:
 * Data repeater module that can store and retry sending/recieving data with modifications.
 * Data flow module that can show filtered custom data. For e.g. previewing the latest imported/exported data.
 * Data exporter module that can filter and export data.
+* Content permutations module to help find permutations of site content.
 * Event notifications module for notifying through custom implementations when custom events occur.
 * Settings module for custom settings related to healthcheck.
 * IDE where C# scripts can be stored and executed in the context of the web application.
@@ -391,6 +392,7 @@ The `TestResult` class has a few static factory methods for quick creation of a 
 |AddJsonData|Will be formatted as Json|
 |AddXmlData|Will be formatted as XML|
 |AddCodeData|Text shown in a monaco-editor|
+|AddDiff|Show a diff of two strings or objects to be serialized in a monaco diff-editor.|
 |AddTextData|Just plain text|
 |AddData|Adds string data and optionally define the type yourself.|
 |AddSerializedData|Two variants of this method exists. Use the extension method variant unless you want to provide your own serializer implementation. The method simply serializes the given object to json and includes it.|
@@ -1154,6 +1156,78 @@ public class MyDataExportStreamB : HCDataExportStreamBase<MyModel, MyDataExportS
         // Optionally configure inputs using the HCCustomProperty attribute.
         [HCCustomProperty]
         public DateTime AnotherValue { get; set; }
+    }
+}
+```
+
+</p>
+</details>
+
+---------
+
+## Module: Content Permutations
+
+The Content Permutation module helps find different content to e.g. test. Create a class, and a set of instances will be generated with permuted values, allowing you to quickly find example contents in different states using implemented handlers.
+
+### Setup
+
+```csharp
+// Register your handlers and service
+services.AddSingleton<IHCContentPermutationContentHandler, MyExampleAPermutationHandler>();
+services.AddSingleton<IHCContentPermutationContentHandler, MyExampleBPermutationHandler>();
+services.AddSingleton<IHCContentPermutationContentDiscoveryService, HCContentPermutationContentDiscoveryService>();
+```
+
+```csharp
+// Use module in hc controller
+UseModule(new HCContentPermutationModule(new HCContentPermutationModuleOptions
+{
+    AssembliesContainingPermutationTypes = new[] { /* your assembly here */ },
+    Service = permutationContentDiscoveryService
+}));
+```
+
+<details><summary>Example implementation</summary>
+<p>
+
+```csharp
+// Define your model to generate permutations from.
+// Be carefull not to use too many properties or you will be stuck for a while :-)
+// Currently only bool and enum types are supported.
+[HCContentPermutationType(Name = "Example", Description = "Example description here.")]
+public class ExampleAPermutations
+{
+    public ExampleStatusEnum Status { get; set; }
+
+    // Optionally decorate properties with HCCustomProperty to override name and add descriptions.
+    [HCCustomProperty(Name = "Is exported", Description = "Some description here.")]
+    public bool IsExported { get; set; }
+}
+
+// Then create a handler to fetch content by inheriting from HCContentPermutationContentHandlerBase<YourModelClass>
+public class MyExampleAPermutationHandler : HCContentPermutationContentHandlerBase<ExampleAPermutations>
+{
+    public override Task<List<HCPermutatedContentItemViewModel>> GetContentForAsync(HCGetContentPermutationContentOptions<ExampleAPermutations> options)
+    {
+        // options.Permutations is an instance of the selected permutation in the UI.
+        var permutation = options.Permutation;
+
+        // Get your content enumerable/query..
+        var content = yourContentSource.GetEnumerable();
+
+        // ..filter it based on the input permutation
+        content = content
+            .Where(x => x.Status == permutation.Status
+                     && x.IsExported == permutation.IsExported)
+
+        // ..and limit count by options.MaxCount
+        var matchingContent = content.Take(options.MaxCount);
+
+        var models = matchingContent
+            // Convert to viewmodels, optionally include urls, image url etc.
+            .Select(x => new HCPermutatedContentItemViewModel(x.Details, x.PublicUrl))
+            .ToList();
+        return Task.FromResult(models);
     }
 }
 ```

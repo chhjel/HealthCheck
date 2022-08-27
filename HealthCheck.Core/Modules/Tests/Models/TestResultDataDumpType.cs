@@ -53,6 +53,11 @@
         /// <summary>
         /// Id of a file to download.
         /// </summary>
-        FileDownload
+        FileDownload,
+
+        /// <summary>
+        /// Diff, will be shown in a monaco diff-editor.
+        /// </summary>
+        Diff
     }
 }

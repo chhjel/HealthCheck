@@ -73,6 +73,7 @@ import TestResultUrlsDataComponent from '@components/modules/TestSuite/result_da
 import TestResultTimelineDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultTimelineDataComponent.vue';
 import TestResultTimingsDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultTimingsDataComponent.vue';
 import TestResultFileDownloadDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultFileDownloadDataComponent.vue';
+import TestResultDiffDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultDiffDataComponent.vue';
 import DownloadUtil from '@util/DownloadUtil';
 import { TestResultDataDumpType } from "@generated/Enums/Core/TestResultDataDumpType";
 
@@ -89,7 +90,8 @@ import { TestResultDataDumpType } from "@generated/Enums/Core/TestResultDataDump
       TestResultCodeDataComponent,
       TestResultTimelineDataComponent,
       TestResultTimingsDataComponent,
-      TestResultFileDownloadDataComponent
+      TestResultFileDownloadDataComponent,
+      TestResultDiffDataComponent
     }
 })
 export default class TestResultDataComponent extends Vue {
@@ -120,7 +122,8 @@ export default class TestResultDataComponent extends Vue {
     isDialogDarkFor(type: TestResultDataDumpType) {
       if (type == TestResultDataDumpType.Code
         || type == TestResultDataDumpType.Xml
-        || type == TestResultDataDumpType.Json) {
+        || type == TestResultDataDumpType.Json
+        || type == TestResultDataDumpType.Diff) {
           return true;
         }
       return false;

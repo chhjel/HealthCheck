@@ -118,6 +118,16 @@ namespace HealthCheck.Dev.Common.Tests
             var objectToSerialize = TestResult.CreateWarning($"Some random json object");
 
             return TestResult.CreateSuccess($"Data has been served - {largeNumber}")
+                .AddDiff(
+                    original: "{\n\t\"value\": true\n}",
+                    modified: "{\n\t\"value\": false\n\t\"Another\": \"nope\"\n}",
+                    title: "Test A vs Test B"
+                )
+                .AddDiff(
+                    original: new { Value = true },
+                    modified: new { Value = false, Another = "nope" },
+                    title: "Test serialized A vs Test serialized B"
+                )
                 .AddTimelineData(new[]
                 {
                     new TimelineStep("Cart created", "A cart was created")
