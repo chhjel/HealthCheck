@@ -2,32 +2,48 @@
 <template>
     <div>
         <div class="content-root comparison-module">
+            <!-- CONTENT TYPE SELECTION -->
             <div class="type-selection-section">
-                <div v-if="hasSelectedContentType">
-                    <h2>1. {{ selectedContentType.name }}-comparison</h2>
-                    <code>{{ selectedContentType }}</code>
-                    <div @click="setContentType(null)">[Clear]</div>
+                <div v-if="hasSelectedContentType"
+                    class="selected-contentType">
+                    <a class="selected-contentType__cancelLink hoverable-light mb-4"
+                       @click.stop.prevent="setContentType(null)"
+                       href="#">&lt;&lt; select another type</a>
+                    <h1 class="selected-contentType__title">{{ selectedContentType.name }}-comparison</h1>
+                    <div class="selected-contentType__description"
+                        v-if="selectedContentType.description">{{ selectedContentType.description }}</div>
                 </div>
                 <div v-if="!hasSelectedContentType">
-                    <h2>What do you want to compare?</h2>
-                    <div v-for="(contentType, cIndex) in contentTypeSelection"
-                        :key="`${id}-${contentType.id}-contentType-${cIndex}`"
-                        :class="contentTypeClasses(contentType)"
-                        @click="setContentType(contentType)">
-                        {{ contentType.name }} - {{ contentType.description }}
+                    <h1>What do you want to compare?</h1>
+                    <div class="type-selection-blocks">
+                        <div v-for="(contentType, cIndex) in contentTypeSelection"
+                            :key="`${id}-${contentType.id}-contentType-${cIndex}`"
+                            class="type-selection-block clickable hoverable-lift-light"
+                            :class="contentTypeClasses(contentType)"
+                            @click="setContentType(contentType)"
+                            @click.middle.stop.prevent="onContentTypeMiddleClicked(contentType)">
+                            <div class="type-selection-block__title">
+                                {{ contentType.name }}
+                            </div>
+                            <div class="type-selection-block__description" v-if="contentType.description">
+                                {{ contentType.description }}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
+            <!-- INSTANCE SELECTION -->
             <div class="instance-selection-section fadein mt-4"
                 v-if="hasSelectedContentType">
-                <h2>2. Select data to compare</h2>
+                <h2>Select data to compare</h2>
 
                 <div class="mt-2">
                     <div @click="selectDummyData">Todo: huge buttons, click for dialog w/ search</div>
                 </div>
             </div>
 
+            <!-- COMPARISON ACTIONS -->
             <div class="difftype-selection-section fadein mt-4"
                 v-if="hasSelectedInstances">
                 <h2>3. Select what comparisons to include</h2>
@@ -42,6 +58,7 @@
                 </div>
             </div>
 
+            <!-- OUTPUT EXECUTION -->
             <div class="output-execution-section fadein mt-4"
                 v-if="showOutputExecution">
                 <btn-component large>Compare</btn-component>
@@ -57,6 +74,7 @@
             {{ dataLoadStatus.errorMessage }}
             </alert-component>
 
+            <!-- OUTPUT -->
             <div class="output-section fadein mt-4"
                 v-if="showOutput">
                 <h2>Result</h2>
@@ -145,13 +163,10 @@ export default class ComparisonPageComponent extends Vue {
     ////////////////
     async mounted()
     {
-        // StoreUtil.store.commit('showMenuButton', true);
-        this.loadComparisonTypes();
+        this.loadContentTypes();
         
         await this.$router.isReady();
         this.routeListener = this.$router.afterEach((t, f, err) => this.onRouteChanged(t, f));
-
-        this.setContentType(this.contentTypeSelection[0]);
     }
 
     beforeDestroy(): void {
@@ -171,49 +186,41 @@ export default class ComparisonPageComponent extends Vue {
         ];
     }
 
-    loadComparisonTypes(): void {
+    loadContentTypes(): void {
         // this.service.GetPermutationTypes(this.dataLoadStatus, {
-        //     onSuccess: (data) => this.onComparisonTypesRetrieved(data)
+        //     onSuccess: (data) => this.onContentTypesRetrieved(data)
         // });
+        this.onContentTypesRetrieved(null);
     }
 
-    // onComparisonTypesRetrieved(data: HCGetPermutationTypesViewModel): void {
-    //     this.permutationTypes = data;
+    onContentTypesRetrieved(data: any): void {
+        // this.permutationTypes = data;
         
-    //     const idFromHash = StringUtils.stringOrFirstOfArray(this.$route.params.typeId) || null;
-    //     if (this.permutationTypes)
-    //     {
-    //         const matchingType = this.permutationTypes.Types.filter(x => this.hash(x.Id) == idFromHash)[0];
-    //         if (matchingType) {
-    //             this.setActiveType(matchingType, false);
-    //         } else if (this.permutationTypes.Types.length > 0) {
-    //             this.setActiveType(this.permutationTypes.Types[0]);   
-    //         }
-    //     }
-    // }
+        const idFromHash = StringUtils.stringOrFirstOfArray(this.$route.params.typeId) || null;
+        if (this.contentTypeSelection)
+        {
+            const matchingType = this.contentTypeSelection.filter(x => this.hash(x.id) == idFromHash)[0];
+            if (matchingType) {
+                this.setContentType(matchingType, false);
+            }
+        }
+    }
 
-    // setActiveType(type: HCContentPermutationTypeViewModel, updateUrl: boolean = true): void {
-    //     this.currentType = type;
-    //     this.currentPermutation = null;
-    //     this.resetFilter();
-    //     this.exampleContent = null;
-    //     (this.filterableList as FilterableListComponent).setSelectedItem(type);
+    setContentType(type: ContentType | null, updateUrl: boolean = true): void {
+        this.selectedContentType = type;
+        this.selectedDiffTypes = Array.from(this.diffTypeSelection);
+        this.selectedInstances = [];
 
-    //     const firstPermutation = type.Permutations[0];
-    //     this.filterInputs = [];
-    //     if (firstPermutation) {
-    //         const allowedFilterInputKeys = Object.keys(firstPermutation.Choice);
-    //         this.filterInputs = this.currentType.PropertyConfigs
-    //             .filter(x => allowedFilterInputKeys.includes(x.Id));
-    //     }
-    //     this.contentCountToRequest = type.DefaultContentCount;
-
-    //     const idHash = this.hash(type.Id);
-    //     if (updateUrl && StringUtils.stringOrFirstOfArray(this.$route.params.typeId) != StringUtils.stringOrFirstOfArray(idHash))
-    //     {
-    //         this.$router.push(`/contentPermutation/${idHash}`);
-    //     }
-    // }
+        if (type == null) {
+            this.$router.push(`/comparison`);
+        } else {
+            const idHash = this.hash(type.id);
+            if (updateUrl && StringUtils.stringOrFirstOfArray(this.$route.params.typeId) != StringUtils.stringOrFirstOfArray(idHash))
+            {
+                this.$router.push(`/comparison/${idHash}`);
+            }
+        }
+    }
 
     hash(input: string) { return HashUtils.md5(input); }
 
@@ -242,41 +249,31 @@ export default class ComparisonPageComponent extends Vue {
             this.selectedDiffTypes.push(diff);
         }
     }
-
-    setContentType(type: ContentType | null): void {
-        this.selectedContentType = type;
-        this.selectedDiffTypes = Array.from(this.diffTypeSelection);
-        this.selectedInstances = [];
-    }
     
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
-    onMenuItemClicked(item: FilterableListItem): void {
-        // this.setActiveType(item.data);
-    }
-
-    onMenuItemMiddleClicked(item: FilterableListItem): void {
-        if (item && item.data && item.data.Id)
+    onContentTypeMiddleClicked(type: ContentType): void {
+        if (type && type.id)
         {
-            const idHash = this.hash(item.data.Id);
+            const idHash = this.hash(type.id);
             const route = `#/comparison/${idHash}`;
             UrlUtils.openRouteInNewTab(route);
         }
     }
     
     onRouteChanged(to: RouteLocationNormalized, from: RouteLocationNormalized): void {
-    //     if (!this.permutationTypes || !to.path.toLowerCase().startsWith('/comparison/')) return;
+        if (!this.contentTypeSelection || !to.path.toLowerCase().startsWith('/comparison/')) return;
 
-    //     const oldTypeIdFromHash = StringUtils.stringOrFirstOfArray(from.params.typeId) || null;
-    //     const newTypeIdFromHash = StringUtils.stringOrFirstOfArray(to.params.typeId) || null;
-    //     const typeChanged = oldTypeIdFromHash != newTypeIdFromHash;
+        const oldTypeIdFromHash = StringUtils.stringOrFirstOfArray(from.params.typeId) || null;
+        const newTypeIdFromHash = StringUtils.stringOrFirstOfArray(to.params.typeId) || null;
+        const typeChanged = oldTypeIdFromHash != newTypeIdFromHash;
 
-    //     if (typeChanged)
-    //     {
-    //         const matchingStream = this.permutationTypes.Types.filter(x => this.hash(x.Id) == newTypeIdFromHash)[0] || null;
-    //         this.setActiveType(matchingStream, false);
-    //     }
+        if (typeChanged)
+        {
+            const matchingType = this.contentTypeSelection.filter(x => this.hash(x.id) == newTypeIdFromHash)[0] || null;
+            this.setContentType(matchingType, false);
+        }
     }
 
     ////////////////
@@ -331,6 +328,48 @@ export default class ComparisonPageComponent extends Vue {
 <style scoped lang="scss">
 .comparison-module {
     text-align: center;
+
+    .type-selection-blocks {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .type-selection-block {
+        padding: 20px;
+        margin: 20px;
+        text-align: left;
+        border: 4px solid var(--color--accent-base);
+
+        &__title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        &__description {
+            margin-top: 10px;
+            font-size: 15px;
+            color: #6a6a6a;
+        }
+    }
+
+    .selected-contentType {
+        &__title {
+            margin-bottom: 10px;
+        }
+        &__description {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: var(--color--accent-darken8);
+        }
+        &__cancelLink {
+            background-color: var(--color--accent-base);
+            border: 1px solid var(--color--accent-darken2);
+            padding: 10px;
+            display: inline-block;
+            color: var(--color--accent-darken10);
+            font-size: 14px;
+        }
+    }
 
     .codeeditor {
         box-shadow: 0 2px 4px 1px rgba(0, 0, 0, 0.15), 0 3px 2px 0 rgba(0,0,0,.02), 0 1px 2px 0 rgba(0,0,0,.06);
