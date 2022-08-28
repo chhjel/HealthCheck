@@ -263,7 +263,7 @@ export default class ComparisonPageComponent extends Vue {
     }
     
     onRouteChanged(to: RouteLocationNormalized, from: RouteLocationNormalized): void {
-        if (!this.contentTypeSelection || !to.path.toLowerCase().startsWith('/comparison/')) return;
+        if (!this.contentTypeSelection || !to.path.toLowerCase().startsWith('/comparison')) return;
 
         const oldTypeIdFromHash = StringUtils.stringOrFirstOfArray(from.params.typeId) || null;
         const newTypeIdFromHash = StringUtils.stringOrFirstOfArray(to.params.typeId) || null;
