@@ -6,10 +6,12 @@
             <div class="type-selection-section">
                 <div v-if="hasSelectedContentType"
                     class="selected-contentType">
-                    <a class="selected-contentType__cancelLink hoverable-light mb-4"
-                       @click.stop.prevent="setContentType(null)"
-                       href="#">&lt;&lt; select another type</a>
-                    <h1 class="selected-contentType__title">{{ selectedContentType.name }}-comparison</h1>
+                    <a class="selected-contentType__cancelLink hoverable-light"
+                        @click.stop.prevent="setContentType(null)"
+                        href="#">&lt;&lt; back</a>
+                    <div class="selected-contentType__header">
+                        <h1 class="selected-contentType__title">{{ selectedContentType.name }}-comparison</h1>
+                    </div>
                     <div class="selected-contentType__description"
                         v-if="selectedContentType.description">{{ selectedContentType.description }}</div>
                 </div>
@@ -34,36 +36,54 @@
             </div>
 
             <!-- INSTANCE SELECTION -->
-            <div class="instance-selection-section fadein mt-4"
+            <div class="instance-selection-section fadein"
                 v-if="hasSelectedContentType">
+                <div class="section-divider"></div>
                 <h2>Select data to compare</h2>
 
-                <div class="mt-2">
-                    <div @click="selectDummyData">Todo: huge buttons, click for dialog w/ search</div>
+                <div class="mt-2 instance-selection-blocks">
+                    <instance-selection-component
+                        class="instance-selection-block"
+                        :name="selectedInstances[0]?.name" 
+                        :description="selectedInstances[0]?.description"
+                        @click="selectInstanceFor(0)" />
+                    <instance-selection-component
+                        class="instance-selection-block"
+                        :name="selectedInstances[1]?.name" 
+                        :description="selectedInstances[1]?.description"
+                        @click="selectInstanceFor(1)" />
                 </div>
             </div>
 
             <!-- COMPARISON ACTIONS -->
-            <div class="difftype-selection-section fadein mt-4"
+            <div class="difftype-selection-section fadein"
                 v-if="hasSelectedInstances">
-                <h2>3. Select what comparisons to include</h2>
-                <div>
-                    <div v-for="(diff, dIndex) in diffTypeSelection"
+                <div class="section-divider"></div>
+                <h2>Select what comparisons to perform</h2>
+                <div class="diff-selection-blocks">
+                    <diff-selection-component
+                        v-for="(diff, dIndex) in diffTypeSelection"
                         :key="`${id}-${diff.id}-diff-${dIndex}`"
-                        :class="diffTypeClasses(diff)"
-                        @click="toggleDiff(diff)">
-                        {{ diff.name }} - {{ diff.description }}
-                    </div>
-                    <code>{{ selectedDiffTypes }}</code>
+                        class="diff-selection-block"
+                        :name="diff.name" 
+                        :description="diff.description"
+                        :enabled="isDiffEnabled(diff)"
+                        @click="toggleDiff(diff)" />
                 </div>
             </div>
 
             <!-- OUTPUT EXECUTION -->
-            <div class="output-execution-section fadein mt-4"
+            <div class="output-execution-section fadein"
                 v-if="showOutputExecution">
-                <btn-component large>Compare</btn-component>
+                <div class="section-divider"></div>
+                <btn-component class="output-execution-button"
+                    color="primary"
+                    :disabled="isLoading"
+                    @click="compare">Compare</btn-component>
             </div>
 
+            <div ref="outputTopRef"></div>
+            
             <!-- LOAD PROGRESS -->
             <progress-linear-component 
                 v-if="isLoading"
@@ -75,18 +95,16 @@
             </alert-component>
 
             <!-- OUTPUT -->
-            <div class="output-section fadein mt-4"
+            <div class="output-section fadein"
                 v-if="showOutput">
+                <div class="section-divider"></div>
                 <h2>Result</h2>
-                <diff-component
-                    class="codeeditor codeeditor__input"
-                    :allowFullscreen="true"
-                    originalName="Test Left"
-                    :originalContent="originalContent"
-                    modifiedName="Test Right"
-                    :modifiedContent="modifiedContent"
-                    :readOnly="true"
-                    />
+                <output-component 
+                    v-for="(output, oIndex) in outputData"
+                    :key="`${id}-output-${oIndex}`"
+                    :title="output.title"
+                    :dataType="output.dataType"
+                    :resultData="output.data" />
             </div>
         </div>
     </div>
@@ -110,7 +128,9 @@ import IdUtils from "@util/IdUtils";
 import StringUtils from "@util/StringUtils";
 import { HCBackendInputConfig } from "@generated/Models/Core/HCBackendInputConfig";
 import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
-import DiffComponent from "@components/Common/DiffComponent.vue";
+import InstanceSelectionComponent from "./InstanceSelectionComponent.vue";
+import DiffSelectionComponent from "./DiffSelectionComponent.vue";
+import OutputComponent from "./Outputs/OutputComponent.vue";
 
 interface ContentType {
     id: string;
@@ -127,11 +147,18 @@ interface InstanceSelection {
     name: string;
     description: string;
 }
+interface OutputData {
+    title: string;
+    dataType: string;
+    data: any;
+}
 @Options({
     components: {
         FilterableListComponent,
-        DiffComponent,
-        BackendInputComponent
+        BackendInputComponent,
+        InstanceSelectionComponent,
+        DiffSelectionComponent,
+        OutputComponent
     }
 })
 export default class ComparisonPageComponent extends Vue {
@@ -154,9 +181,7 @@ export default class ComparisonPageComponent extends Vue {
     selectedContentType: ContentType | null = null;
     selectedDiffTypes: Array<DiffType> = [];
     selectedInstances: Array<InstanceSelection> = [];
-
-    originalContent: string = "{\n\t\"a\": true\n}";
-    modifiedContent: string = "{\n\t\"a\": false,\n\t\"b\": \"nope\"\n}";
+    outputData: Array<OutputData> = [];
 
     //////////////////
     //  LIFECYCLE  //
@@ -179,13 +204,6 @@ export default class ComparisonPageComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
-    selectDummyData(): void {
-        this.selectedInstances = [
-            { id: "22", name: 'Item 22', description: 'Some description here.' },
-            { id: "88", name: 'Item 88', description: 'Some description here.' },
-        ];
-    }
-
     loadContentTypes(): void {
         // this.service.GetPermutationTypes(this.dataLoadStatus, {
         //     onSuccess: (data) => this.onContentTypesRetrieved(data)
@@ -210,6 +228,7 @@ export default class ComparisonPageComponent extends Vue {
         this.selectedContentType = type;
         this.selectedDiffTypes = Array.from(this.diffTypeSelection);
         this.selectedInstances = [];
+        this.outputData = [];
 
         if (type == null) {
             this.$router.push(`/comparison`);
@@ -224,12 +243,8 @@ export default class ComparisonPageComponent extends Vue {
 
     hash(input: string) { return HashUtils.md5(input); }
 
-    diffTypeClasses(diff: DiffType): any {
-        let classes = {};
-        if (this.selectedDiffTypes.some(x => x.id == diff.id)) {
-            classes['active'] = true;
-        }
-        return classes;
+    isDiffEnabled(diff: DiffType): any {
+        return this.selectedDiffTypes.some(x => x.id == diff.id);
     }
 
     contentTypeClasses(type: ContentType): any {
@@ -248,6 +263,52 @@ export default class ComparisonPageComponent extends Vue {
         else {
             this.selectedDiffTypes.push(diff);
         }
+    }
+
+    selectInstanceFor(index: number): void {
+        this.selectedInstances[index] = { id: `${index}`, name: `Item #${index}`, description: `Some description here.` };
+    }
+
+    compare(): void {
+        this.outputData = [
+            {
+                title: 'Diff A',
+                dataType: 'diff',
+                data: {
+                    originalName: "Test Left",
+                    originalContent: "{\n\t\"a\": true\n}",
+                    modifiedName: "Test Right",
+                    modifiedContent: "{\n\t\"a\": false,\n\t\"b\": \"nope\"\n}"
+                }
+            },
+            {
+                title: 'Diff B',
+                dataType: 'diff',
+                data: {
+                    originalName: "AAAA",
+                    originalContent: "AAABAA",
+                    modifiedName: "BBBB",
+                    modifiedContent: "AAACAB"
+                }
+            }
+        ].map(x => {
+            x.data = <any>JSON.stringify(x.data);
+            return x;
+        });
+        this.scrollToResults();
+    }
+
+    scrollToResults(): void {
+        setTimeout(() => {
+            const targetElement = this.$refs.outputTopRef as HTMLElement;
+            if (targetElement != null) {
+                window.scrollTo({
+                    top: (window.pageYOffset || document.documentElement.scrollTop) 
+                        + targetElement.getBoundingClientRect().top - 50,
+                    behavior: 'smooth'
+                });
+            }
+        }, 10);
     }
     
     ///////////////////////
@@ -306,7 +367,7 @@ export default class ComparisonPageComponent extends Vue {
     }
 
     get showOutput(): boolean {
-        return this.hasSelectedInstances;
+        return this.outputData.length > 0;
     }
 
     get contentTypeSelection(): Array<ContentType> {
@@ -353,8 +414,15 @@ export default class ComparisonPageComponent extends Vue {
     }
 
     .selected-contentType {
-        &__title {
+        position: relative;
+        &__header {
+            display: flex;
             margin-bottom: 10px;
+            justify-content: center;
+            margin-left: 75px;
+            margin-right: 75px;
+        }
+        &__title {
         }
         &__description {
             font-size: 14px;
@@ -362,6 +430,10 @@ export default class ComparisonPageComponent extends Vue {
             color: var(--color--accent-darken8);
         }
         &__cancelLink {
+            position: absolute;
+            top: 0;
+            left: 0;
+
             background-color: var(--color--accent-base);
             border: 1px solid var(--color--accent-darken2);
             padding: 10px;
@@ -371,18 +443,42 @@ export default class ComparisonPageComponent extends Vue {
         }
     }
 
-    .codeeditor {
-        box-shadow: 0 2px 4px 1px rgba(0, 0, 0, 0.15), 0 3px 2px 0 rgba(0,0,0,.02), 0 1px 2px 0 rgba(0,0,0,.06);
+    .instance-selection-blocks {
+        display: flex;
+        max-width: 600px;
+        margin: auto;
+        justify-content: space-evenly;
+        align-items: flex-start;
 
-        &__input {
-            position: relative;
-            //           max   toolbar  output  other
-            height: calc(100vh - 47px - 30vh - 109px);
+        .instance-selection-block {
+            flex: 1;
         }
+    }
 
-        &__output {
-            height: 30vh;
+    .diff-selection-blocks {
+        display: flex;
+        max-width: 600px;
+        margin: auto;
+        align-items: center;
+        flex-direction: column;
+
+        .diff-selection-block {
+            flex: 1;
         }
+    }
+
+    .output-execution-button {
+        width: 170px;
+        height: 40px;
+        font-size: 21px !important;
+    }
+
+    .section-divider {
+        margin: auto;
+        margin-top: 12px;
+        margin-bottom: 12px;
+        border-top: 2px solid var(--color--accent-base);
+        max-width: 25%;
     }
 
     .fadein {
