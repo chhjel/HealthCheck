@@ -2,7 +2,9 @@
     <TeleportFix to="body">
     <div class="dialog-component" :class="rootClasses" :style="rootStyle" v-show="localValue">
         <div class="dialog-component_modal_wrapper" @click.self.prevent="onClickOutside" ref="modalWrapper">
-            <div class="dialog-component_modal" :style="dialogStyle">
+            <div class="dialog-component_modal" :style="dialogStyle"
+                @mousedown="onMouseDownInModal"
+                @mouseup="onMouseUpInModal">
                 <div class="dialog-component_modal_header" :class="headerColor">
                     <slot name="header"></slot>
                     <div class="spacer01"></div>
@@ -207,11 +209,6 @@ export default class DialogComponent extends Vue {
         this.close();
     }
 
-    onClickOutside(): void {
-        if (!this.persistent) this.close();
-        else this.shake();
-    }
-
     onClickClose(): void {
         this.close();
     }
@@ -220,6 +217,24 @@ export default class DialogComponent extends Vue {
         DialogComponent.activeDialogCount = DialogComponent.activeDialogCount + (shown ? 1 : -1);
         document.body.style.overflow = DialogComponent.activeDialogCount == 0 ? null : 'hidden';
         this.clearShake();
+    }
+
+    onClickOutside(): void {
+        if (this.mouseIsDownWithinModal) {
+            this.mouseIsDownWithinModal = false;
+            return;
+        }
+        else if (!this.persistent) this.close();
+        else this.shake();
+    }
+    
+    mouseIsDownWithinModal: boolean = false;
+    onMouseDownInModal(): void {
+        this.mouseIsDownWithinModal = true;
+    }
+
+    onMouseUpInModal(): void {
+        this.mouseIsDownWithinModal = false;
     }
 	
     /////////////////
