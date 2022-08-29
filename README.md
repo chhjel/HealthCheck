@@ -18,6 +18,7 @@ Available modules:
 * Data flow module that can show filtered custom data. For e.g. previewing the latest imported/exported data.
 * Data exporter module that can filter and export data.
 * Content permutations module to help find permutations of site content.
+* Comparison module where content can be compared in a bit more simplified interface.
 * Event notifications module for notifying through custom implementations when custom events occur.
 * Settings module for custom settings related to healthcheck.
 * IDE where C# scripts can be stored and executed in the context of the web application.
@@ -1228,6 +1229,96 @@ public class MyExampleAPermutationHandler : HCContentPermutationContentHandlerBa
             .Select(x => new HCPermutatedContentItemViewModel(x.Details, x.PublicUrl))
             .ToList();
         return Task.FromResult(models);
+    }
+}
+```
+
+</p>
+</details>
+
+---------
+
+## Module: Comparison
+
+The Comparison module is a simplified interface where content can be searched and compared against each other for debugging purposes.
+
+The built in differ `HCComparisonDifferSerializedJson` can be used to compare serialized versions of content.
+
+### Setup
+
+```csharp
+// Register your handlers, differs and service
+// - Handlers allow comparing new types
+services.AddSingleton<IHCComparisonTypeHandler, MyExampleAComparisonTypeHandler>();
+services.AddSingleton<IHCComparisonTypeHandler, MyExampleBComparisonTypeHandler>();
+// - Differs compare instances of content in different ways
+services.AddSingleton<IHCComparisonDiffer, MyCustomDiffer>();
+services.AddSingleton<IHCComparisonDiffer, HCComparisonDifferSerializedJson>();
+// - The service handles the boring parts
+services.AddSingleton<IHCComparisonService, HCComparisonService>();
+
+```
+
+```csharp
+// Use module in hc controller
+UseModule(new HCComparisonModule(new HCComparisonModuleOptions
+{
+    Service = comparisonService
+}));
+```
+
+<details><summary>Example content handler implementation</summary>
+<p>
+
+```csharp
+public class MyExampleAComparisonTypeHandler  : HCComparisonTypeHandlerBase<MyContentType>
+{
+    public override string Description => "Some description for this type.";
+
+    // Find instances to select in the UI based in input search string
+    public override Task<List<HCComparisonInstanceSelection>> GetFilteredOptionsAsync(HCComparisonTypeFilter filter)
+    {
+        var items = MyEnumerable()
+            .Where(x => x.Id.ToString().Contains(filter.Input))
+            .Take(10)
+            .Select(x => new HCComparisonInstanceSelection
+            {
+                Id = x.Id.ToString(),
+                Name = x.Name,
+                Description = x.Description
+            })
+            .ToList();
+        return Task.FromResult(items);
+    }
+
+    // Get a single instance from its id to compare
+    public override Task<DummyThing> GetInstanceWithIdOfAsync(string id)
+        => Task.FromResult(_items.FirstOrDefault(x => x.Id.ToString() == id));
+
+    // Get a suitable name displayed in some places
+    public override string GetInstanceDisplayNameOf(DummyThing instance) => instance.Name;
+}
+```
+
+<details><summary>Example differ implementation</summary>
+<p>
+
+```csharp
+// Either extend HCComparisonDifferBase with your content type to allow the differ to be used on, or implement IHCComparisonDiffer directly for more control.
+public class MyCustomDiffer : HCComparisonDifferBase<MyContentType>
+{
+    public override string Name => "Investigate possible conflicts";
+
+    public override Task<HCComparisonDifferOutput> CompareInstancesAsync(MyContentType left, MyContentType right, string leftName, string rightName)
+    {
+        // Use the methods on HCComparisonDifferOutput to create the output to display for the diff.
+        return Task.FromResult(
+            new HCComparisonDifferOutput()
+                .AddNote("A note", "Note title")
+                .AddSideNotes("Left side note", "Right side note", "Side notes title")
+                .AddHtml($"Some custom <b>HTML</b>.", "Html title")
+                .AddSideHtml($"This ones name is <b>'{leftName}'</b>", $"And this ones name is <b>'{rightName}'</b>", "Side html title")
+        );
     }
 }
 ```

@@ -15,10 +15,21 @@ import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
 import { StoreUtil } from "@util/StoreUtil";
 import IdUtils from "@util/IdUtils";
 import DiffOutputComponent from "./DiffOutputComponent.vue";
+import NoteOutputComponent from "./NoteOutputComponent.vue";
+import SideNotesOutputComponent from "./SideNotesOutputComponent.vue";
+import HtmlOutputComponent from "./HtmlOutputComponent.vue";
+import SideHtmlOutputComponent from "./SideHtmlOutputComponent.vue";
+import { HCComparisonDiffOutputType } from "@generated/Enums/Core/HCComparisonDiffOutputType";
+import UnknownOutputComponent from "./UnknownOutputComponent.vue";
 
 @Options({
     components: {
-        DiffOutputComponent
+        DiffOutputComponent,
+        SideNotesOutputComponent,
+        NoteOutputComponent,
+        UnknownOutputComponent,
+        HtmlOutputComponent,
+        SideHtmlOutputComponent
     }
 })
 export default class DiffSelectionComponent extends Vue {
@@ -26,7 +37,7 @@ export default class DiffSelectionComponent extends Vue {
     title!: string;
 
     @Prop({ required: true })
-    dataType!: string;
+    dataType!: HCComparisonDiffOutputType;
 
     @Prop({ required: true })
     resultData!: string;
@@ -57,7 +68,12 @@ export default class DiffSelectionComponent extends Vue {
     }
 
     get componentType(): string {
-        return 'DiffOutputComponent';
+        if (this.dataType == HCComparisonDiffOutputType.Diff) return 'DiffOutputComponent';
+        else if (this.dataType == HCComparisonDiffOutputType.Note) return 'NoteOutputComponent';
+        else if (this.dataType == HCComparisonDiffOutputType.SideNotes) return 'SideNotesOutputComponent';
+        else if (this.dataType == HCComparisonDiffOutputType.Html) return 'HtmlOutputComponent';
+        else if (this.dataType == HCComparisonDiffOutputType.SideHtml) return 'SideHtmlOutputComponent';
+        else return 'UnknownOutputComponent';
     }
 }
 </script>

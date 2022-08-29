@@ -7,6 +7,7 @@ using HealthCheck.Core.Modules.AuditLog;
 using HealthCheck.Core.Modules.AuditLog.Abstractions;
 using HealthCheck.Core.Modules.AuditLog.Models;
 using HealthCheck.Core.Modules.Comparison;
+using HealthCheck.Core.Modules.Comparison.Abstractions;
 using HealthCheck.Core.Modules.ContentPermutation;
 using HealthCheck.Core.Modules.ContentPermutation.Abstractions;
 using HealthCheck.Core.Modules.Dataflow;
@@ -102,7 +103,8 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             IHCDataExportPresetStorage dataExportPresetStorage,
             IHCMessageStorage messageStore,
             IHCReleaseNotesProvider releaseNotesProvider,
-            IHCContentPermutationContentDiscoveryService permutationContentDiscoveryService
+            IHCContentPermutationContentDiscoveryService permutationContentDiscoveryService,
+            IHCComparisonService comparisonService
         )
             : base()
         {
@@ -136,6 +138,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
                 );
             UseModule(new HCComparisonModule(new HCComparisonModuleOptions
             {
+                Service = comparisonService
             }));
             UseModule(new HCContentPermutationModule(new HCContentPermutationModuleOptions
             {

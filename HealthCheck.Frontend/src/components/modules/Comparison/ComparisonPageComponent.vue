@@ -46,12 +46,12 @@
                         class="instance-selection-block"
                         :name="selectedInstances[0]?.name" 
                         :description="selectedInstances[0]?.description"
-                        @click="selectInstanceFor(0)" />
+                        @click="showInstanceSelectionDialogFor(0)" />
                     <instance-selection-component
                         class="instance-selection-block"
                         :name="selectedInstances[1]?.name" 
                         :description="selectedInstances[1]?.description"
-                        @click="selectInstanceFor(1)" />
+                        @click="showInstanceSelectionDialogFor(1)" />
                 </div>
             </div>
 
@@ -98,15 +98,62 @@
             <div class="output-section fadein"
                 v-if="showOutput">
                 <div class="section-divider"></div>
-                <h2>Result</h2>
+                <h2 class="mt-5">Result</h2>
                 <output-component 
                     v-for="(output, oIndex) in outputData"
-                    :key="`${id}-output-${oIndex}`"
+                    :key="`${id}-output-${oIndex}-${output.dataType}-${output.data}-${selectedInstances[0]?.id}`"
                     :title="output.title"
                     :dataType="output.dataType"
                     :resultData="output.data" />
             </div>
         </div>
+
+        <dialog-component v-model:value="instanceSelectionDialogVisible"
+            width="600">
+            <template #header>Find {{ selectedContentType?.name }} to compare</template>
+            <template #footer>
+                <btn-component color="secondary"
+                    :disabled="dataLoadStatus.inProgress"
+                    :loading="dataLoadStatus.inProgress"
+                    @click="instanceSelectionDialogVisible = false">Cancel</btn-component>
+            </template>
+            <div v-if="selectedContentType != null">
+                <div v-if="selectedContentType.findInstanceDescription"
+                    class="mb-3"
+                    >{{ selectedContentType.findInstanceDescription }}</div>
+
+                <text-field-component
+                    v-model:value="instanceFilter"
+                    :placeholder="selectedContentType.findInstanceSearchPlaceholder || 'Search..'"
+                    :disabled="dataLoadStatus.inProgress"
+                    appendIcon="search"
+                    class="mb-3"
+                    @keyup.enter="searchInstances"
+                    @click:append="searchInstances" />
+
+                <!-- LOAD PROGRESS -->
+                <progress-linear-component v-if="isSearchingInstances" indeterminate color="success"></progress-linear-component>
+
+                <!-- DATA LOAD ERROR -->
+                <alert-component :value="instanceSearchStatus.failed" v-if="instanceSearchStatus.failed" type="error">
+                {{ instanceSearchStatus.errorMessage }}
+                </alert-component>
+                
+                <div v-if="hasSearchedForInstances && instanceSearchResults.length == 0">
+                    - No matching {{ selectedContentType?.name }} found -
+                </div>
+                <div>
+                    <div v-for="(result, rIndex) in instanceSearchResults"
+                        :key="`${id}-instance-result-${rIndex}`"
+                        class="instance-result clickable"
+                        @click="onInstanceResultSelected(result)">
+                        <div class="instance-result__title">{{ result.Name }}</div>
+                        <div class="instance-result__description"
+                            v-if="result.Description">{{ result.Description }}</div>
+                    </div>
+                </div>
+            </div>
+        </dialog-component>
     </div>
 </template>
 
@@ -120,22 +167,26 @@ import ModuleConfig from '@models/Common/ModuleConfig';
 import ModuleOptions from '@models/Common/ModuleOptions';
 import { RouteLocationNormalized } from "vue-router";
 import { StoreUtil } from "@util/StoreUtil";
-import ComparisonService from "@services/ComparisonService";
-import { FilterableListItem } from "@components/Common/FilterableListComponent.vue.models";
+import ComparisonService, { DifferDefinitionsByHandlerId } from "@services/ComparisonService";
 import HashUtils from "@util/HashUtils";
 import UrlUtils from "@util/UrlUtils";
 import IdUtils from "@util/IdUtils";
 import StringUtils from "@util/StringUtils";
-import { HCBackendInputConfig } from "@generated/Models/Core/HCBackendInputConfig";
 import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
 import InstanceSelectionComponent from "./InstanceSelectionComponent.vue";
 import DiffSelectionComponent from "./DiffSelectionComponent.vue";
 import OutputComponent from "./Outputs/OutputComponent.vue";
+import { HCComparisonDiffOutputType } from "@generated/Enums/Core/HCComparisonDiffOutputType";
+import { HCComparisonTypeDefinition } from "@generated/Models/Core/HCComparisonTypeDefinition";
+import { HCComparisonMultiDifferOutput } from "@generated/Models/Core/HCComparisonMultiDifferOutput";
+import { HCComparisonInstanceSelection } from "@generated/Models/Core/HCComparisonInstanceSelection";
 
 interface ContentType {
     id: string;
     name: string;
     description: string;
+    findInstanceDescription: string;
+    findInstanceSearchPlaceholder: string;
 }
 interface DiffType {
     id: string;
@@ -149,8 +200,8 @@ interface InstanceSelection {
 }
 interface OutputData {
     title: string;
-    dataType: string;
-    data: any;
+    dataType: HCComparisonDiffOutputType;
+    data: string;
 }
 @Options({
     components: {
@@ -174,6 +225,7 @@ export default class ComparisonPageComponent extends Vue {
     service: ComparisonService = new ComparisonService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
     typesLoadStatus: FetchStatus = new FetchStatus();
     dataLoadStatus: FetchStatus = new FetchStatus();
+    instanceSearchStatus: FetchStatus = new FetchStatus();
 
     id: string = IdUtils.generateId();
     routeListener: Function | null = null;
@@ -182,6 +234,15 @@ export default class ComparisonPageComponent extends Vue {
     selectedDiffTypes: Array<DiffType> = [];
     selectedInstances: Array<InstanceSelection> = [];
     outputData: Array<OutputData> = [];
+    
+    instanceSelectionDialogVisible: boolean = false;
+    instanceFilter: string = '';
+    instanceIndexSelection: number = 0;
+    hasSearchedForInstances: boolean = false;
+    instanceSearchResults: Array<HCComparisonInstanceSelection> = [];
+
+    contentTypeDefinitions: Array<HCComparisonTypeDefinition> = [];
+    diffTypesByHandlerId: DifferDefinitionsByHandlerId = {};
 
     //////////////////
     //  LIFECYCLE  //
@@ -205,14 +266,16 @@ export default class ComparisonPageComponent extends Vue {
     //  METHODS  //
     //////////////
     loadContentTypes(): void {
-        // this.service.GetPermutationTypes(this.dataLoadStatus, {
-        //     onSuccess: (data) => this.onContentTypesRetrieved(data)
-        // });
-        this.onContentTypesRetrieved(null);
+        this.service.GetComparisonTypeDefinitions(this.dataLoadStatus, {
+            onSuccess: (data) => this.onContentTypesRetrieved(data)
+        });
+        this.service.GetDifferDefinitionsByHandlerId(this.dataLoadStatus, {
+            onSuccess: (data) => this.onDiffTypesRetrieved(data)
+        });
     }
 
-    onContentTypesRetrieved(data: any): void {
-        // this.permutationTypes = data;
+    onContentTypesRetrieved(data: Array<HCComparisonTypeDefinition>): void {
+        this.contentTypeDefinitions = data;
         
         const idFromHash = StringUtils.stringOrFirstOfArray(this.$route.params.typeId) || null;
         if (this.contentTypeSelection)
@@ -222,6 +285,11 @@ export default class ComparisonPageComponent extends Vue {
                 this.setContentType(matchingType, false);
             }
         }
+    }
+
+    onDiffTypesRetrieved(data: DifferDefinitionsByHandlerId): void {
+        this.diffTypesByHandlerId = data;
+        this.selectedDiffTypes = Array.from(this.diffTypeSelection);
     }
 
     setContentType(type: ContentType | null, updateUrl: boolean = true): void {
@@ -265,36 +333,64 @@ export default class ComparisonPageComponent extends Vue {
         }
     }
 
-    selectInstanceFor(index: number): void {
-        this.selectedInstances[index] = { id: `${index}`, name: `Item #${index}`, description: `Some description here.` };
+    showInstanceSelectionDialogFor(index: number): void {
+        this.instanceSelectionDialogVisible = true;
+        this.instanceIndexSelection = index;
+        this.instanceFilter = '';
+        this.instanceSearchResults = [];
+        this.hasSearchedForInstances = false;
+    }
+
+    searchInstances(): void {
+        this.service.GetFilteredOptions(this.selectedContentType.id, this.instanceFilter,
+            this.dataLoadStatus, {
+            onSuccess: (data) => this.onFilteredContentInstancesRetrieved(data)
+        });
+    }
+
+    onFilteredContentInstancesRetrieved(data: Array<HCComparisonInstanceSelection>): void {
+        this.instanceSearchResults = data;
+        this.hasSearchedForInstances = true;
+    }
+
+    onInstanceResultSelected(instance: HCComparisonInstanceSelection): void {
+        const index = this.instanceIndexSelection;
+        this.selectedInstances[index] = {
+            id: instance.Id,
+            name: instance.Name,
+            description: instance.Description
+        };
+        this.instanceSelectionDialogVisible = false;
     }
 
     compare(): void {
-        this.outputData = [
-            {
-                title: 'Diff A',
-                dataType: 'diff',
-                data: {
-                    originalName: "Test Left",
-                    originalContent: "{\n\t\"a\": true\n}",
-                    modifiedName: "Test Right",
-                    modifiedContent: "{\n\t\"a\": false,\n\t\"b\": \"nope\"\n}"
-                }
-            },
-            {
-                title: 'Diff B',
-                dataType: 'diff',
-                data: {
-                    originalName: "AAAA",
-                    originalContent: "AAABAA",
-                    modifiedName: "BBBB",
-                    modifiedContent: "AAACAB"
-                }
-            }
-        ].map(x => {
-            x.data = <any>JSON.stringify(x.data);
-            return x;
+        this.service.ExecuteDiff(
+            this.selectedContentType.id,
+            this.selectedDiffTypes.map(x => x.id),
+            this.selectedInstances[0].id,
+            this.selectedInstances[1].id,
+            this.dataLoadStatus, {
+            onSuccess: (data) => this.onExecuteDiffCompleted(data)
         });
+    }
+
+    onExecuteDiffCompleted(data: HCComparisonMultiDifferOutput): void {
+        this.outputData = [];
+        // For each result per differ
+        for (let i=0;i<data.Data.length;i++)
+        {
+            // For each result within that differ
+            const differResult = data.Data[i];
+            for (let d=0;d<differResult.Data.length;d++)
+            {
+                const diffResult = differResult.Data[d];
+                this.outputData.push({
+                    title: diffResult.Title,
+                    dataType: diffResult.DataType,
+                    data: diffResult.Data
+                });
+            }
+        }
         this.scrollToResults();
     }
 
@@ -348,6 +444,10 @@ export default class ComparisonPageComponent extends Vue {
         return this.dataLoadStatus.inProgress || this.typesLoadStatus.inProgress;
     }
 
+    get isSearchingInstances(): boolean {
+        return this.instanceSearchStatus.inProgress;
+    }
+
     get hasSelectedContentType(): boolean {
         return !!this.selectedContentType;
     }
@@ -371,17 +471,24 @@ export default class ComparisonPageComponent extends Vue {
     }
 
     get contentTypeSelection(): Array<ContentType> {
-        return [
-            { id: 'FindProduct', name: 'Product', description: 'Some desc.' },
-            { id: 'PurchaseOrder', name: 'Order', description: ''  },
-        ];
+        return this.contentTypeDefinitions.map(x => ({
+            id: x.Id,
+            name: x.Name,
+            description: x.Description,
+            findInstanceDescription: x.FindInstanceDescription,
+            findInstanceSearchPlaceholder: x.FindInstanceSearchPlaceholder
+        }));
     }
 
     get diffTypeSelection(): Array<DiffType> {
-        return [
-            { id: 'JsonDiff', name: 'Raw Json Diff', description: 'Some desc.' },
-            { id: 'ExclusionCheck', name: 'Mutual Exclusions', description: '' },
-        ];
+        const diffs = this.diffTypesByHandlerId[this.selectedContentType?.id];
+        if (diffs == null || diffs.length == 0) return [];
+        
+        return diffs.map(x => ({
+            id: x.Id,
+            name: x.Name,
+            description: x.Description
+        }));
     }
 }
 </script>
@@ -476,13 +583,32 @@ export default class ComparisonPageComponent extends Vue {
     .section-divider {
         margin: auto;
         margin-top: 12px;
-        margin-bottom: 12px;
+        margin-bottom: 24px;
         border-top: 2px solid var(--color--accent-base);
         max-width: 25%;
     }
 
     .fadein {
         animation: fade-in .3s ease-in-out;
+    }
+}
+
+.instance-result {
+    padding: 5px;
+    border: 2px solid var(--color--accent-darken1);
+    margin-bottom: 5px;
+
+    &__title {
+        font-weight: 600;
+    }
+    &__description {
+        margin-top: 10px;
+        font-size: 15px;
+        color: #6a6a6a;
+    }
+    &:hover {
+        background-color: var(--color--accent-lighten1);
+        border-color: var(--color--accent-base);
     }
 }
 

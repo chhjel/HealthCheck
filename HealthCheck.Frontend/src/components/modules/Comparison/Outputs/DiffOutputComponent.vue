@@ -4,10 +4,10 @@
         <diff-component
             class="codeeditor codeeditor__input"
             :allowFullscreen="true"
-            :originalName="resultData.originalName"
-            :originalContent="resultData.originalContent"
-            :modifiedName="resultData.modifiedName"
-            :modifiedContent="resultData.modifiedContent"
+            :originalName="resultData.OriginalName"
+            :originalContent="resultData.OriginalContent"
+            :modifiedName="resultData.ModifiedName"
+            :modifiedContent="resultData.ModifiedContent"
             :readOnly="true"
             />
     </div>
@@ -22,10 +22,10 @@ import IdUtils from "@util/IdUtils";
 import DiffComponent from "@components/Common/DiffComponent.vue";
 
 interface ResultData {
-    originalName: string;
-    originalContent: string;
-    modifiedName: string;
-    modifiedContent: string;
+    OriginalName: string;
+    OriginalContent: string;
+    ModifiedName: string;
+    ModifiedContent: string;
 }
 @Options({
     components: {

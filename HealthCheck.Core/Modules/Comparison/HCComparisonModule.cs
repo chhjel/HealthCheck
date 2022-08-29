@@ -1,6 +1,8 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
+using HealthCheck.Core.Modules.Comparison.Models;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace HealthCheck.Core.Modules.Comparison
 {
@@ -25,7 +27,7 @@ namespace HealthCheck.Core.Modules.Comparison
         public override IEnumerable<string> Validate()
         {
             var issues = new List<string>();
-            //if (Options.Service == null) issues.Add("Options.Service must be set.");
+            if (Options.Service == null) issues.Add("Options.Service must be set.");
             return issues;
         }
 
@@ -50,69 +52,45 @@ namespace HealthCheck.Core.Modules.Comparison
         }
 
         #region Invokable methods
-        ///// <summary>
-        ///// Get types.
-        ///// </summary>
-        //[HealthCheckModuleMethod]
-        //public Task<HCGetPermutationTypesViewModel> GetPermutationTypes(/*HealthCheckModuleContext context*/)
-        //{
-        //    var types = HCContentPermutationHelper.GetPermutationTypesCached(Options.AssembliesContainingPermutationTypes);
-        //    var typeModels = types.Select(x => CreateViewModel(x)).ToList();
-        //    var model = new HCGetPermutationTypesViewModel()
-        //    {
-        //        Types = typeModels
-        //    };
-        //    return Task.FromResult(model);
-        //}
+        /// <summary>
+        /// Get content types.
+        /// </summary>
+        [HealthCheckModuleMethod]
+        public Task<List<HCComparisonTypeDefinition>> GetComparisonTypeDefinitions(/*HealthCheckModuleContext context*/)
+        {
+            var types = Options.Service.GetComparisonTypeDefinitions();
+            return Task.FromResult(types);
+        }
 
-        ///// <summary>
-        ///// Find content from a given permutation.
-        ///// </summary>
-        //[HealthCheckModuleMethod]
-        //public async Task<HCGetPermutatedContentViewModel> GetPermutatedContent(/*HealthCheckModuleContext context, */ HCGetPermutatedContentRequest model)
-        //{
-        //    var type = HCContentPermutationHelper.GetPermutationTypesCached(Options.AssembliesContainingPermutationTypes)
-        //        .FirstOrDefault(x => x.Id == model.PermutationTypeId);
-        //    var permutation = type?.Permutations?.FirstOrDefault(x => x.Id == model.PermutationChoiceId);
-        //    if (permutation == null)
-        //    {
-        //        return new HCGetPermutatedContentViewModel { Content = new List<HCPermutatedContentItemViewModel>() };
-        //    }
+        /// <summary>
+        /// Get diff types.
+        /// </summary>
+        [HealthCheckModuleMethod]
+        public Task<Dictionary<string, List<HCComparisonDifferDefinition>>> GetDifferDefinitionsByHandlerId()
+        {
+            var types = Options.Service.GetDifferDefinitionsByHandlerId();
+            return Task.FromResult(types);
+        }
 
-        //    var options = new HCGetContentPermutationContentOptions
-        //    {
-        //        Type = type.Type,
-        //        PermutationObj = permutation.Choice,
-        //        MaxCount = model.MaxCount
-        //    };
+        /// <summary>
+        /// Get content types.
+        /// </summary>
+        [HealthCheckModuleMethod]
+        public async Task<List<HCComparisonInstanceSelection>> GetFilteredOptions(HCGetFilteredOptionsRequestModel model)
+        {
+            var filter = new HCComparisonTypeFilter
+            {
+                Input = model.Input
+            };
+            return await Options.Service.GetFilteredOptionsAsync(model.HandlerId, filter);
+        }
 
-        //    var contentResult = await Options.Service.GetContentForAsync(type, options);
-        //    var content = contentResult.Content;
-        //    var countKey = $"{type.Id}_{permutation.Id}";
-        //    _lastPermutationCounts[countKey] = content.Count;
-
-        //    return new HCGetPermutatedContentViewModel
-        //    {
-        //        Content = content
-        //    };
-        //}
-        #endregion
-
-        #region Helpers
-        //private HCContentPermutationTypeViewModel CreateViewModel(HCContentPermutationType type)
-        //{
-        //    var permutations = type.Permutations.Select(x => CreateViewModel(type, x)).ToList();
-        //    return new HCContentPermutationTypeViewModel
-        //    {
-        //        Id = type.Id,
-        //        Name = type.Name,
-        //        Description = type.Description,
-        //        MaxAllowedContentCount = type.MaxAllowedContentCount,
-        //        DefaultContentCount = type.DefaultContentCount,
-        //        Permutations = permutations,
-        //        PropertyConfigs = type.PropertyConfigs
-        //    };
-        //}
+        /// <summary>
+        /// Get content types.
+        /// </summary>
+        [HealthCheckModuleMethod]
+        public async Task<HCComparisonMultiDifferOutput> ExecuteDiff(HCExecuteDiffRequestModel model)
+            => await Options.Service.ExecuteDiffAsync(model.HandlerId, model.DifferIds ?? new string[0], model.LeftId, model.RightId);
         #endregion
     }
 }
