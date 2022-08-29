@@ -278,6 +278,42 @@ namespace HealthCheck.Core.Modules.Tests.Models
             => AddData(code, title, TestResultDataDumpType.Code, onlyIfNotNullOrEmpty, CreateDownloadFilename(downloadFileName, title, TestResultDataDumpType.Code));
 
         /// <summary>
+        /// Include two values to show in a monaco diff-editor.
+        /// </summary>
+        /// <param name="original">Original content to diff.</param>
+        /// <param name="modified">Modified content to diff.</param>
+        /// <param name="title">Title of the result data if any.</param>
+        /// <param name="onlyIfNotNullOrEmpty">Only include the result if the data is not null or empty.</param>
+        /// <param name="downloadFileName">Optionally specify a filename used when downloading the data.</param>
+        public TestResult AddDiff(string original, string modified, string title = null, bool onlyIfNotNullOrEmpty = true, string downloadFileName = null)
+        {
+            var bakedData = HCGlobalConfig.Serializer.Serialize(new
+            {
+                Original = original,
+                Modified = modified,
+            });
+            return AddData(bakedData, title, TestResultDataDumpType.Diff, onlyIfNotNullOrEmpty, CreateDownloadFilename(downloadFileName, title, TestResultDataDumpType.Diff));
+        }
+
+        /// <summary>
+        /// Include two values to show in a monaco diff-editor.
+        /// </summary>
+        /// <param name="original">Original content to serialize and diff.</param>
+        /// <param name="modified">Modified content to serialize and diff.</param>
+        /// <param name="title">Title of the result data if any.</param>
+        /// <param name="onlyIfNotNullOrEmpty">Only include the result if the data is not null or empty.</param>
+        /// <param name="downloadFileName">Optionally specify a filename used when downloading the data.</param>
+        public TestResult AddDiff(object original, object modified, string title = null, bool onlyIfNotNullOrEmpty = true, string downloadFileName = null)
+        {
+            var bakedData = HCGlobalConfig.Serializer.Serialize(new
+            {
+                Original = HCGlobalConfig.Serializer.Serialize(original),
+                Modified = HCGlobalConfig.Serializer.Serialize(modified),
+            });
+            return AddData(bakedData, title, TestResultDataDumpType.Diff, onlyIfNotNullOrEmpty, CreateDownloadFilename(downloadFileName, title, TestResultDataDumpType.Diff));
+        }
+
+        /// <summary>
         /// Include the given html in the result data.
         /// </summary>
         /// <param name="html">Html to render.</param>

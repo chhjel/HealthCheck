@@ -85,7 +85,7 @@
                     :key="`total-limit-${item._frontendId}`"
                     :value="item"
                     :readonly="!allowChanges"
-                    @input="(val) => onCoDChanged(internalRule.TotalRequestCountLimits, index, val)"
+                    @update:value="(val) => onCoDChanged(internalRule.TotalRequestCountLimits, index, val)"
                     @delete="(val) => onCoDDelete(internalRule.TotalRequestCountLimits, index)"
                     />
                 <btn-component class="ml-4"
@@ -114,6 +114,7 @@
             <backend-input-component
                 v-for="(def, defIndex) in selectedBlockResultPropertyDefinitions"
                 :key="`defx-${defIndex}`"
+                class="mb-2"
                 v-model:value="internalRule.CustomBlockResultProperties[def.Id]"
                 :config="def"
                 :readonly="!allowChanges"

@@ -18,6 +18,7 @@ import MetricsPageComponent from '../components/modules/Metrics/MetricsPageCompo
 import DataRepeaterPageComponent from '../components/modules/DataRepeater/DataRepeaterPageComponent.vue';
 import DataExportPageComponent from '../components/modules/DataExport/DataExportPageComponent.vue';
 import ContentPermutationPageComponent from '../components/modules/ContentPermutation/ContentPermutationPageComponent.vue';
+import ComparisonPageComponent from '../components/modules/Comparison/ComparisonPageComponent.vue';
 import CustomPageComponent from '../components/modules/Custom/CustomPageComponent.vue';
 import NoPageAvailablePageComponent from '../components/NoPageAvailablePageComponent.vue';
 import DevPageComponent from '../components/modules/Dev/DevPageComponent.vue';
@@ -47,6 +48,7 @@ export default function createHCRouter(moduleConfig: Array<ModuleConfig>): Route
     'DataRepeaterPageComponent': DataRepeaterPageComponent,
     'DataExportPageComponent': DataExportPageComponent,
     'ContentPermutationPageComponent': ContentPermutationPageComponent,
+    'ComparisonPageComponent': ComparisonPageComponent,
     'CustomPageComponent': CustomPageComponent
 };
 

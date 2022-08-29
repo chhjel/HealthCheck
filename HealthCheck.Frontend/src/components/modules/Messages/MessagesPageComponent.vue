@@ -191,11 +191,7 @@ import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
 import DateUtils from '@util/DateUtils';
-import LinqUtils from '@util/LinqUtils';
-import KeyArray from '@util/models/KeyArray';
-import KeyValuePair from '@models/Common/KeyValuePair';
 // @ts-ignore
-import IdUtils from '@util/IdUtils';
 import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
 import { FetchStatus } from '@services/abstractions/HCServiceBase';
 import MessagesService from '@services/MessagesService';
@@ -206,12 +202,12 @@ import { FilterableListItem } from '@components/Common/FilterableListComponent.v
 import FilterableListComponent from '@components/Common/FilterableListComponent.vue';
 import PagingComponent from '@components/Common/Basic/PagingComponent.vue';
 import EditorComponent from '@components/Common/EditorComponent.vue';
-
 import { ModuleFrontendOptions } from '@components/modules/EndpointControl/EndpointControlPageComponent.vue.models';
 import { StoreUtil } from "@util/StoreUtil";
 import StringUtils from "@util/StringUtils";
 import UrlUtils from "@util/UrlUtils";
-import { ModuleSpecificConfig } from "@components/HealthCheckPageComponent.vue.models";
+import { RouteLocationNormalized } from "vue-router";
+
 @Options({
     components: {
         BlockComponent,
@@ -235,6 +231,7 @@ export default class MessagesPageComponent extends Vue {
     messagesPageIndex: number = 0;
 
     service: MessagesService = new MessagesService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
+    routeListener: Function | null = null;
 
     // UI STATE
     loadStatus: FetchStatus = new FetchStatus();
@@ -250,10 +247,20 @@ export default class MessagesPageComponent extends Vue {
     //////////////////
     //  LIFECYCLE  //
     ////////////////
-    mounted(): void
+    async mounted()
     {
         StoreUtil.store.commit('showMenuButton', true);
         this.loadInboxes();
+        
+        await this.$router.isReady();
+        this.routeListener = this.$router.afterEach((t, f, err) => this.onRouteChanged(t, f));
+    }
+
+    beforeDestroy(): void {
+        if (this.routeListener)
+        {
+            this.routeListener();
+        }
     }
 
     ////////////////
@@ -513,6 +520,21 @@ export default class MessagesPageComponent extends Vue {
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
+    onRouteChanged(to: RouteLocationNormalized, from: RouteLocationNormalized): void {
+        if (!this.inboxes || this.inboxes.length == 0
+            || !to.path.toLowerCase().startsWith('/messages/')) return;
+
+        const oldIdFromHash = StringUtils.stringOrFirstOfArray(from.params.id) || null;
+        const newIdFromHash = StringUtils.stringOrFirstOfArray(to.params.id) || null;
+        const typeChanged = oldIdFromHash != newIdFromHash;
+
+        if (typeChanged)
+        {
+            const matchingItem = this.inboxes.filter(x => x.Id == newIdFromHash)[0] || null;
+            this.setSelectedInbox(matchingItem?.Id || null, false);
+        }
+    }
+
     onMenuItemClicked(item: FilterableListItem): void {
         const inboxId = item.data.id;
         this.setSelectedInbox(inboxId);

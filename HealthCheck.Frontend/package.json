@@ -42,7 +42,7 @@
     "file-loader": "^6.2.0",
     "jointjs": "3.1.1",
     "mini-css-extract-plugin": "^2.5.3",
-    "monaco-editor": "^0.32.1",
+    "monaco-editor": "^0.34.0",
     "monaco-editor-webpack-plugin": "^7.0.1",
     "npkill": "^0.8.3",
     "rimraf": "^3.0.2",

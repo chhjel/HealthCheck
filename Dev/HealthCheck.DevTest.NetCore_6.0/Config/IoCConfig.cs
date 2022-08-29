@@ -2,6 +2,8 @@ using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Modules.AccessTokens.Abstractions;
 using HealthCheck.Core.Modules.AuditLog.Abstractions;
 using HealthCheck.Core.Modules.AuditLog.Services;
+using HealthCheck.Core.Modules.Comparison.Abstractions;
+using HealthCheck.Core.Modules.Comparison.Services;
 using HealthCheck.Core.Modules.ContentPermutation.Abstractions;
 using HealthCheck.Core.Modules.ContentPermutation.Services;
 using HealthCheck.Core.Modules.Dataflow.Abstractions;
@@ -25,6 +27,7 @@ using HealthCheck.Core.Modules.Settings.Services;
 using HealthCheck.Core.Modules.SiteEvents.Abstractions;
 using HealthCheck.Core.Modules.SiteEvents.Services;
 using HealthCheck.Dev.Common;
+using HealthCheck.Dev.Common.Comparison;
 using HealthCheck.Dev.Common.Config;
 using HealthCheck.Dev.Common.ContentPermutation;
 using HealthCheck.Dev.Common.DataExport;
@@ -94,6 +97,13 @@ namespace HealthCheck.DevTest.NetCore_6._0.Config
             services.AddSingleton<IHCContentPermutationContentHandler, DevOrderPermutationHandler>();
             services.AddSingleton<IHCContentPermutationContentHandler, DevProductPermutationHandler>();
             services.AddSingleton<IHCContentPermutationContentDiscoveryService, HCContentPermutationContentDiscoveryService>();
+
+            // Comparison
+            services.AddSingleton<IHCComparisonTypeHandler, DevOrderComparisonTypeHandler>();
+            services.AddSingleton<IHCComparisonTypeHandler, DummyComparisonTypeHandler>();
+            services.AddSingleton<IHCComparisonDiffer, DevOrderDifferA>();
+            services.AddSingleton<IHCComparisonDiffer, HCComparisonDifferSerializedJson>();
+            services.AddSingleton<IHCComparisonService, HCComparisonService>();
 
             // Messages
             services.AddSingleton<IHCMessageStorage>(x => new HCFlatFileMessageStore(@"c:\temp\hc_messages"));

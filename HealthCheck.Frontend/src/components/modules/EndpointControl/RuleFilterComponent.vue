@@ -22,7 +22,7 @@
                 </select-component>
             </div>
 
-            <select-component v-if="enabled"
+            <select-component v-if="enabled && filterContentOptions != null && filterContentOptions.length > 0"
                 v-model:value="filterValue"
                 :items="filterContentOptions"
                 :readonly="readonly"
@@ -33,6 +33,13 @@
                 allowInput allowCustom
                 >
             </select-component>
+            <text-field-component
+                v-if="enabled && (filterContentOptions == null || filterContentOptions.length == 0)"
+                v-model:value="filterValue"
+                v-on:change="onDataChanged"
+                placeholder="Value to search for"
+                :disabled="readonly" />
+
             <div class="horizontal-layout" v-if="enabled">
                 <switch-component
                     v-model:value="caseSensitive" 

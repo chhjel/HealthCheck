@@ -97,7 +97,7 @@
             <!-- STREAM: CONTENTS -->
             <div v-if="selectedStream != null">
                 <!-- Results info -->
-                <div style="flex-direction: column;">
+                <div style="flex-direction: column;" class="mb-2 mt-1">
                     <i v-if="resultCount == 0 && streamsWithDataAttemptedLoadedAtLeastOnce.indexOf(selectedStream.Id) != -1">Could not find any matching items</i>
                     <i v-if="resultCount > 0">Result count: {{ resultCount }}</i>
                 </div>

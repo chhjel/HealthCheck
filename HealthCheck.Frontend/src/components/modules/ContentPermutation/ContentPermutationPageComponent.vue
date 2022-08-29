@@ -321,7 +321,8 @@ export default class ContentPermutationPageComponent extends Vue {
     hash(input: string) { return HashUtils.md5(input); }
 
     onRouteChanged(to: RouteLocationNormalized, from: RouteLocationNormalized): void {
-        if (!this.permutationTypes || !to.path.toLowerCase().startsWith('/contentPermutation/')) return;
+        if (!this.permutationTypes?.Types
+            || !to.path.toLowerCase().startsWith('/contentpermutation/')) return;
 
         const oldTypeIdFromHash = StringUtils.stringOrFirstOfArray(from.params.typeId) || null;
         const newTypeIdFromHash = StringUtils.stringOrFirstOfArray(to.params.typeId) || null;
