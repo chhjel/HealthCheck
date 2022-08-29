@@ -370,7 +370,7 @@ export default class SelectComponent extends Vue
         
         const val = this.filter.trim();
         const validationResult = this.tryValidateCustomValue(val);
-        let allowed = false;
+        let allowed = true;
         let validationMessage = '';
         if (typeof validationResult === 'string') { allowed = !validationResult; validationMessage = validationResult; }
         else if (typeof validationResult == "boolean") { allowed = validationResult; }
