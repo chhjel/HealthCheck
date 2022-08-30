@@ -19,5 +19,10 @@
         /// Optional description of the differ.
         /// </summary>
         public string Description { get; set; }
+
+        /// <summary>
+        /// True if the differ should be enabled by default.
+        /// </summary>
+        public bool EnabledByDefault { get; set; }
     }
 }

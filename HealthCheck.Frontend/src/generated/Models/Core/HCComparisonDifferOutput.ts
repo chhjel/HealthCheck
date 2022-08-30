@@ -7,4 +7,5 @@ import { HCComparisonDifferOutputData } from './HCComparisonDifferOutputData';
 export interface HCComparisonDifferOutput
 {
 	Data: HCComparisonDifferOutputData[];
+	IsEmpty: boolean;
 }

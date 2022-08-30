@@ -30,6 +30,11 @@ namespace HealthCheck.Core.Modules.Comparison.Abstractions
         bool CanHandle(IHCComparisonTypeHandler handler);
 
         /// <summary>
+        /// Return true if the differ should be enabled by default for the given handler.
+        /// </summary>
+        bool DefaultEnabledFor(IHCComparisonTypeHandler handler);
+
+        /// <summary>
         /// Compare the given instances and create some output.
         /// </summary>
         Task<HCComparisonDifferOutput> CompareInstancesAsync(object left, object right, string leftName, string rightName);

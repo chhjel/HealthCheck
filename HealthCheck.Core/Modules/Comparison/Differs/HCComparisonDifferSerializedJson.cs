@@ -30,6 +30,9 @@ namespace HealthCheck.Dev.Common.Comparison
         public virtual bool CanHandle(IHCComparisonTypeHandler handler) => true;
 
         /// <inheritdoc />
+        public virtual bool DefaultEnabledFor(IHCComparisonTypeHandler handler) => true;
+
+        /// <inheritdoc />
         public virtual Task<HCComparisonDifferOutput> CompareInstancesAsync(object left, object right, string leftName, string rightName)
         {
             var leftJson = HCGlobalConfig.Serializer.Serialize(left, true);

@@ -92,6 +92,7 @@ export default class InstanceSelectionComponent extends Vue {
         font-size: 14px;
         color: var(--color--primary-darken1);
         font-weight: 600;
+        white-space: pre;
     }
 
     &.has-selection {

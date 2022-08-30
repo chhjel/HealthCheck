@@ -192,6 +192,7 @@ interface DiffType {
     id: string;
     name: string;
     description: string;
+    defaultEnabled: boolean;
 }
 interface InstanceSelection {
     id: string;
@@ -289,12 +290,12 @@ export default class ComparisonPageComponent extends Vue {
 
     onDiffTypesRetrieved(data: DifferDefinitionsByHandlerId): void {
         this.diffTypesByHandlerId = data;
-        this.selectedDiffTypes = Array.from(this.diffTypeSelection);
+        this.selectedDiffTypes = Array.from(this.diffTypeSelection.filter(x => x.defaultEnabled));
     }
 
     setContentType(type: ContentType | null, updateUrl: boolean = true): void {
         this.selectedContentType = type;
-        this.selectedDiffTypes = Array.from(this.diffTypeSelection);
+        this.selectedDiffTypes = Array.from(this.diffTypeSelection.filter(x => x.defaultEnabled));
         this.selectedInstances = [];
         this.outputData = [];
 
@@ -487,7 +488,8 @@ export default class ComparisonPageComponent extends Vue {
         return diffs.map(x => ({
             id: x.Id,
             name: x.Name,
-            description: x.Description
+            description: x.Description,
+            defaultEnabled: x.EnabledByDefault
         }));
     }
 }
@@ -556,6 +558,7 @@ export default class ComparisonPageComponent extends Vue {
         margin: auto;
         justify-content: space-evenly;
         align-items: flex-start;
+        flex-wrap: wrap;
 
         .instance-selection-block {
             flex: 1;
@@ -578,6 +581,10 @@ export default class ComparisonPageComponent extends Vue {
         width: 170px;
         height: 40px;
         font-size: 21px !important;
+    }
+
+    .output-section {
+        margin-bottom: 30vh;
     }
 
     .section-divider {

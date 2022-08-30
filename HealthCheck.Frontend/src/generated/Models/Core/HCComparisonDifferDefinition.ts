@@ -7,4 +7,5 @@ export interface HCComparisonDifferDefinition
 	Id: string;
 	Name: string;
 	Description: string;
+	EnabledByDefault: boolean;
 }

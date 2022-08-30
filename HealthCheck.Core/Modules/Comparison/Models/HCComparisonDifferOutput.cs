@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Config;
 using HealthCheck.Core.Modules.Comparison.Abstractions;
+using HealthCheck.Core.Modules.Tests.Utils.HtmlPresets;
 using System.Collections.Generic;
 
 namespace HealthCheck.Core.Modules.Comparison.Models
@@ -13,6 +14,17 @@ namespace HealthCheck.Core.Modules.Comparison.Models
         /// Diff output to display.
         /// </summary>
         internal List<HCComparisonDifferOutputData> Data { get; set; } = new();
+
+        /// <summary>
+        /// True if no data has been added.
+        /// </summary>
+        public bool IsEmpty => Data.Count == 0;
+
+        /// <summary>
+        /// Add custom html.
+        /// </summary>
+        public HCComparisonDifferOutput AddHtml(HtmlPresetBuilder htmlBuilder, string title)
+            => AddHtml(htmlBuilder?.ToHtml() ?? string.Empty, title);
 
         /// <summary>
         /// Add custom html.
@@ -30,6 +42,12 @@ namespace HealthCheck.Core.Modules.Comparison.Models
             });
             return this;
         }
+
+        /// <summary>
+        /// Add a custom html for each side.
+        /// </summary>
+        public HCComparisonDifferOutput AddSideHtml(HtmlPresetBuilder leftSideHtml, HtmlPresetBuilder rightSideHtml, string title)
+            => AddSideHtml(leftSideHtml?.ToHtml() ?? string.Empty, rightSideHtml?.ToHtml() ?? string.Empty, title);
 
         /// <summary>
         /// Add a custom html for each side.
