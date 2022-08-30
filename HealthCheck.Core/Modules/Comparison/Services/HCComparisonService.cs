@@ -1,8 +1,13 @@
-﻿using HealthCheck.Core.Modules.Comparison.Abstractions;
+﻿using HealthCheck.Core.Config;
+using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Modules.Comparison.Abstractions;
 using HealthCheck.Core.Modules.Comparison.Models;
+using HealthCheck.Core.Util;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace HealthCheck.Core.Modules.Comparison.Services
 {
@@ -49,7 +54,8 @@ namespace HealthCheck.Core.Modules.Comparison.Services
                     {
                         Id = d.GetType().Name,
                         Name = d.Name,
-                        Description = d.Description
+                        Description = d.Description,
+                        EnabledByDefault = d.DefaultEnabledFor(x)
                     }).ToList()
             );
         }
@@ -80,12 +86,33 @@ namespace HealthCheck.Core.Modules.Comparison.Services
             var result = new HCComparisonMultiDifferOutput();
             foreach (var differ in differs)
             {
-                var diffResult = await differ.CompareInstancesAsync(left, right, leftName, rightName);
-                result.Data.Add(new HCComparisonMultiDifferSingleOutput
+                try
                 {
-                    DifferId = differ.GetType().Name,
-                    Data = diffResult.Data
-                });
+                    var diffResult = await differ.CompareInstancesAsync(left, right, leftName, rightName);
+                    result.Data.Add(new HCComparisonMultiDifferSingleOutput
+                    {
+                        DifferId = differ.GetType().Name,
+                        Data = diffResult.Data
+                    });
+                } catch(Exception ex)
+                {
+                    result.Data.Add(new HCComparisonMultiDifferSingleOutput
+                    {
+                        DifferId = differ.GetType().Name,
+                        Data = new List<HCComparisonDifferOutputData>
+                        {
+                            new HCComparisonDifferOutputData
+                            {
+                                DataType = HCComparisonDiffOutputType.Html,
+                                Title = "Exception during attempted diff",
+                                Data = HCGlobalConfig.Serializer.Serialize(new {
+                                    Html = $"Failed to compare data using the diff implementation '{HttpUtility.HtmlEncode(differ.GetType().GetFriendlyTypeName())}' with the error:<br />" +
+                                           $"<code>{HttpUtility.HtmlEncode(HCExceptionUtils.GetFullExceptionDetails(ex))}</code>"
+                                })
+                            }
+                        }
+                    });
+                }
             }
             return result;
         }

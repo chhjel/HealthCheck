@@ -102,6 +102,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Config
             services.AddSingleton<IHCComparisonTypeHandler, DevOrderComparisonTypeHandler>();
             services.AddSingleton<IHCComparisonTypeHandler, DummyComparisonTypeHandler>();
             services.AddSingleton<IHCComparisonDiffer, DevOrderDifferA>();
+            services.AddSingleton<IHCComparisonDiffer, DisabledByDefaultDiffer>();
             services.AddSingleton<IHCComparisonDiffer, HCComparisonDifferSerializedJson>();
             services.AddSingleton<IHCComparisonService, HCComparisonService>();
 

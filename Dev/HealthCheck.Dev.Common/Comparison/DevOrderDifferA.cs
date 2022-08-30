@@ -10,6 +10,7 @@ namespace HealthCheck.Dev.Common.Comparison
 
         public override Task<HCComparisonDifferOutput> CompareInstancesAsync(DevOrderComparisonTypeHandler.CmpOrder left, DevOrderComparisonTypeHandler.CmpOrder right, string leftName, string rightName)
         {
+            if (left.Id == 2) int.Parse("abc");
             return Task.FromResult(
                 new HCComparisonDifferOutput()
                     .AddNote($"This is a note.", "Note test")

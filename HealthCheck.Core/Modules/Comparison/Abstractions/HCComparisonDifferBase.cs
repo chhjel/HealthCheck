@@ -22,6 +22,9 @@ namespace HealthCheck.Core.Modules.Comparison.Abstractions
         public virtual bool CanHandle(IHCComparisonTypeHandler handler) => handler?.ContentType == typeof(TContent);
 
         /// <inheritdoc />
+        public virtual bool DefaultEnabledFor(IHCComparisonTypeHandler handler) => true;
+
+        /// <inheritdoc />
         public virtual Task<HCComparisonDifferOutput> CompareInstancesAsync(object left, object right, string leftName, string rightName)
             => CompareInstancesAsync(left as TContent, right as TContent, leftName, rightName);
 
