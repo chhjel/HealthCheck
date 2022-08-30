@@ -518,6 +518,7 @@ export default class ContentPermutationPageComponent extends Vue {
             padding: 5px;
             background-color: #e7e7e7;
             border-top: 1px solid var(--color--accent-base);
+            height: 100%;
         }
         &__url {
             padding: 2px;
