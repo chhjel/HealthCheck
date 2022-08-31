@@ -18,6 +18,8 @@ using HealthCheck.Core.Modules.Documentation;
 using HealthCheck.Core.Modules.Documentation.Services;
 using HealthCheck.Core.Modules.EventNotifications;
 using HealthCheck.Core.Modules.EventNotifications.Abstractions;
+using HealthCheck.Core.Modules.GoTo;
+using HealthCheck.Core.Modules.GoTo.Abstractions;
 using HealthCheck.Core.Modules.LogViewer;
 using HealthCheck.Core.Modules.Messages;
 using HealthCheck.Core.Modules.Messages.Abstractions;
@@ -104,7 +106,8 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             IHCMessageStorage messageStore,
             IHCReleaseNotesProvider releaseNotesProvider,
             IHCContentPermutationContentDiscoveryService permutationContentDiscoveryService,
-            IHCComparisonService comparisonService
+            IHCComparisonService comparisonService,
+            IHCGoToService goToService
         )
             : base()
         {
@@ -136,6 +139,10 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
                     .ConfigureGroup(RuntimeTestConstants.Group.AlmostBottomGroup, uiOrder: -20)
                     .ConfigureGroup(RuntimeTestConstants.Group.BottomGroup, uiOrder: -50)
                 );
+            UseModule(new HCGoToModule(new HCGoToModuleOptions
+            {
+                Service = goToService
+            }));
             UseModule(new HCComparisonModule(new HCComparisonModuleOptions
             {
                 Service = comparisonService
@@ -306,6 +313,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             config.GiveRolesAccessToModuleWithFullAccess<HCDataRepeaterModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCDataExportModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCComparisonModule>(RuntimeTestAccessRole.WebAdmins);
+            config.GiveRolesAccessToModuleWithFullAccess<HCGoToModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCContentPermutationModule>(RuntimeTestAccessRole.WebAdmins);
             //config.GiveRolesAccessToModuleWithFullAccess<HCDataExportModule>(RuntimeTestAccessRole.QuerystringTest);
             config.GiveRolesAccessToModuleWithFullAccess<HCTestsModule>(RuntimeTestAccessRole.WebAdmins);
