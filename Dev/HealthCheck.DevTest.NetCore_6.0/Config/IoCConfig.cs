@@ -14,6 +14,8 @@ using HealthCheck.Core.Modules.DataRepeater.Services;
 using HealthCheck.Core.Modules.EventNotifications.Abstractions;
 using HealthCheck.Core.Modules.EventNotifications.Notifiers;
 using HealthCheck.Core.Modules.EventNotifications.Services;
+using HealthCheck.Core.Modules.GoTo.Abstractions;
+using HealthCheck.Core.Modules.GoTo.Services;
 using HealthCheck.Core.Modules.LogViewer.Services;
 using HealthCheck.Core.Modules.Messages.Abstractions;
 using HealthCheck.Core.Modules.Metrics.Abstractions;
@@ -34,6 +36,7 @@ using HealthCheck.Dev.Common.DataExport;
 using HealthCheck.Dev.Common.Dataflow;
 using HealthCheck.Dev.Common.DataRepeater;
 using HealthCheck.Dev.Common.EventNotifier;
+using HealthCheck.Dev.Common.GoTo;
 using HealthCheck.Dev.Common.Settings;
 using HealthCheck.Dev.Common.Tests.Modules;
 using HealthCheck.Module.DataExport.Abstractions;
@@ -105,6 +108,11 @@ namespace HealthCheck.DevTest.NetCore_6._0.Config
             services.AddSingleton<IHCComparisonDiffer, DisabledByDefaultDiffer>();
             services.AddSingleton<IHCComparisonDiffer, HCComparisonDifferSerializedJson>();
             services.AddSingleton<IHCComparisonService, HCComparisonService>();
+
+            // GoTo
+            services.AddSingleton<IHCGoToResolver, PotatoGotoResolver>();
+            services.AddSingleton<IHCGoToResolver, ProductGotoResolver>();
+            services.AddSingleton<IHCGoToService, HCGoToService>();
 
             // Messages
             services.AddSingleton<IHCMessageStorage>(x => new HCFlatFileMessageStore(@"c:\temp\hc_messages"));

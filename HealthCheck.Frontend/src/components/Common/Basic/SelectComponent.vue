@@ -14,7 +14,9 @@
                     class="select-component__input-chip">
                     <span class="select-component__input-chip-value"
                         @click.stop.prevent="onChipClicked(item)">{{ item.text }}</span>
-                    <div class="select-component__input-chip-remove accent clickable hoverable" tabindex="0"
+                    <div class="select-component__input-chip-remove accent"
+                        :class="removeButtonClasses"
+                        tabindex="0"
                         @click.stop.prevent="onRemoveValueClicked(item.value)"
                         v-if="showItemRemoveButton">
                         <icon-component>clear</icon-component>
@@ -278,8 +280,15 @@ export default class SelectComponent extends Vue
         };
     }
 
+    get removeButtonClasses(): any {
+        return {
+             'disabled': !this.allowModify,
+             'clickable': this.allowModify,
+             'hoverable': this.allowModify
+        };
+    }
+
     get showItemRemoveButton(): boolean {
-        if (!this.allowModify) return false;
         return this.isNullable || this.isMultiple;
     }
 
@@ -342,6 +351,7 @@ export default class SelectComponent extends Vue
     }
 
     onRemoveValueClicked(val: string): void {
+        if (!this.allowModify) return;
         this.removeValue(val);
         this.hideDropdown();
     }

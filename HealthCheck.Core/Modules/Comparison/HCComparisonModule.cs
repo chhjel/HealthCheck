@@ -73,7 +73,7 @@ namespace HealthCheck.Core.Modules.Comparison
         }
 
         /// <summary>
-        /// Get content types.
+        /// Get instances to select.
         /// </summary>
         [HealthCheckModuleMethod]
         public async Task<List<HCComparisonInstanceSelection>> GetFilteredOptions(HCGetFilteredOptionsRequestModel model)
@@ -86,7 +86,7 @@ namespace HealthCheck.Core.Modules.Comparison
         }
 
         /// <summary>
-        /// Get content types.
+        /// Compare two instances.
         /// </summary>
         [HealthCheckModuleMethod]
         public async Task<HCComparisonMultiDifferOutput> ExecuteDiff(HCExecuteDiffRequestModel model)
