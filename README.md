@@ -19,6 +19,7 @@ Available modules:
 * Data exporter module that can filter and export data.
 * Content permutations module to help find permutations of site content.
 * Comparison module where content can be compared in a bit more simplified interface.
+* GoTo module where content can be located in a bit more simplified interface.
 * Event notifications module for notifying through custom implementations when custom events occur.
 * Settings module for custom settings related to healthcheck.
 * IDE where C# scripts can be stored and executed in the context of the web application.
@@ -1300,6 +1301,9 @@ public class MyExampleAComparisonTypeHandler  : HCComparisonTypeHandlerBase<MyCo
 }
 ```
 
+</p>
+</details>
+
 <details><summary>Example differ implementation</summary>
 <p>
 
@@ -1319,6 +1323,59 @@ public class MyCustomDiffer : HCComparisonDifferBase<MyContentType>
                 .AddHtml($"Some custom <b>HTML</b>.", "Html title")
                 .AddSideHtml($"This ones name is <b>'{leftName}'</b>", $"And this ones name is <b>'{rightName}'</b>", "Side html title")
         );
+    }
+}
+```
+
+</p>
+</details>
+
+---------
+
+## Module: GoTo
+
+A very simplified search that allows only a single result per type. Use to quickly find something by e.g. an id that is not normally searchable other places.
+
+### Setup
+
+```csharp
+// Register your resolvers
+services.AddSingleton<IHCGoToResolver, MyAGotoResolver>();
+services.AddSingleton<IHCGoToResolver, MyBGotoResolver>();
+// And the built in service
+services.AddSingleton<IHCGoToService, HCGoToService>();
+
+```
+
+```csharp
+// Use module in hc controller
+UseModule(new HCGoToModule(new HCGoToModuleOptions
+{
+    Service = goToService
+}));
+```
+
+<details><summary>Example goto resolver implementation</summary>
+<p>
+
+```csharp
+public class CustomerGotoResolver : IHCGoToResolver
+{
+    public string Name => "Customer";
+
+    public async Task<HCGoToResolvedData> TryResolveAsync(string input)
+    {
+        var match = await _myCustomerService.GetCustomerById(input);
+        if (match == null) return null;
+        return new HCGoToResolvedData
+        {
+            Name = match.Name,
+            Description = match.Description,
+            ResolvedFrom = nameof(MyCustomer.Id),
+            Urls = new List<HCGoToResolvedUrl> {
+                new HCGoToResolvedUrl("Customer Profile", $"/some-url")
+            }
+        };
     }
 }
 ```
