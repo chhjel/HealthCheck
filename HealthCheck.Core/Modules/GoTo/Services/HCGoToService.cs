@@ -65,8 +65,7 @@ namespace HealthCheck.Core.Modules.GoTo.Services
                     result.Add(new HCGoToResolvedDataWithResolverId
                     {
                         ResolverId = resolver.GetType().Name,
-                        Error = $"Failed resolving data using the resolver implementation '{resolver.GetType().GetFriendlyTypeName()}' with the error:<br />" +
-                                $"<code>{HCExceptionUtils.GetFullExceptionDetails(ex)}</code>"
+                        Error = $"Failed resolving data using the resolver implementation '{resolver.GetType().GetFriendlyTypeName()}' with the error:\n{HCExceptionUtils.GetFullExceptionDetails(ex)}"
                     });
                 }
             }

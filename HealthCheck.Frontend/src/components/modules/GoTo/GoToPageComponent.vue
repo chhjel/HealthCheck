@@ -200,9 +200,8 @@ export default class ComparisonPageComponent extends Vue {
     onResolversRetrieved(data: Array<HCGoToResolverDefinition>): void {
         this.resolverDefinitions = data;
         this.selectedResolverIds = data.map(x => x.Id);
-
-        this.query = '222';
-        this.executeGoto();
+        // this.query = '222';
+        // this.executeGoto();
     }
 
     executeGoto(): void {
@@ -369,6 +368,7 @@ export default class ComparisonPageComponent extends Vue {
             font-size: 13px;
             color: var(--color--accent-darken7);
             margin-bottom: 5px;
+            white-space: pre;
         }
         &__urls {
             padding-left: 20px;
