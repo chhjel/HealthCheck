@@ -286,6 +286,9 @@ export default class ComparisonPageComponent extends Vue {
         .query-input {
             height: 72px;
             min-width: 50%;
+            @media (min-width: 960px) {
+                padding-left: 104px;
+            }
         }
         .query-input__button {
             height: 72px;
