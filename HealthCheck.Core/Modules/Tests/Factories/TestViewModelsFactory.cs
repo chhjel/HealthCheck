@@ -209,6 +209,8 @@ namespace HealthCheck.Core.Modules.Tests.Factories
                     catch (Exception) { /* Ignored */ }
                 }
 
+                // todo: set template for ValueTuple
+
                 return new TestParameterTemplateViewModel
                 {
                     Type = HCCustomPropertyAttribute.CreateParameterTypeName(x.ParameterType),

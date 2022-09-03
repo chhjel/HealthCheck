@@ -103,6 +103,17 @@ namespace HealthCheck.Dev.Common.Tests
                 return $"Success!";
             }
 
+            public int? WithNullableReturnValue()
+            {
+                _logger?.Error("Another logged error test");
+                return 1234;
+            }
+            public (string, int, bool?) WithTupleReturnValue()
+            {
+                _logger?.Error("And another logged warning test");
+                return ("String here", 1234, null);
+            }
+
             public string WithExceptionLogged()
             {
                 try
