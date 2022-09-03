@@ -45,6 +45,7 @@ namespace HealthCheck.Dev.Common.Tests
         [RuntimeTestParameter(target: "textPattern1", "String with pattern A", "Testing some pattern validation.", TextPattern = @"^O\-\d+")]
         [RuntimeTestParameter(target: "textPattern2", "String with pattern B", "Testing some pattern validation.", TextPattern = @"/^X\-\d+/gi")]
         public TestResult TestParameterTypes(
+            (string, int, bool?) tuples,
             Guid guid, Guid? nullableGuid,
             [RuntimeTestParameter(UIHints = HCUIHint.AllowRandom)] Guid guidWithRng,
             [RuntimeTestParameter(UIHints = HCUIHint.AllowRandom)] Guid? nullableGuidWithRng,
@@ -79,7 +80,10 @@ namespace HealthCheck.Dev.Common.Tests
                 $"guid:{guid}, nullableGuid:{nullableGuid}, nullableBool:{(nullableBool?.ToString() ?? "null")}|" +
                 $"enm:{enm}|nullableEnm:{nullableEnm}|nullableEnmDefNull:{nullableEnmDefNull}|Code:{codeArea}|" +
                 $"date:{date}|nullableDate:{nullableDate}|dateOffset:{dateOffset}|" +
-                $"nullableDateOffset:{nullableDateOffset}|")
+                $"nullableDateOffset:{nullableDateOffset}|" +
+                $"tuples.Item1:{tuples.Item1}|" +
+                $"tuples.Item2:{tuples.Item2}|" +
+                $"tuples.Item3:{tuples.Item3}|")
                 .SetParametersFeedback(x => text == "all" ? "Some error here" : null)
                 .SetParameterFeedback(nameof(text), "Should not be empty pls", () => string.IsNullOrWhiteSpace(text));
         }
