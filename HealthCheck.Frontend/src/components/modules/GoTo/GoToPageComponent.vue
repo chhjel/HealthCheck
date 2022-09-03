@@ -55,12 +55,15 @@
                 <div v-for="(result, rIndex) in results"
                     :key="`${id}-${result.Name}-${rIndex}`"
                     class="result">
-                    <div class="result__header" :class="resultHeaderClasses(result)" v-if="result.Data" >
+                    <component :is="(result.Data && result.Data.Urls && result.Data.Urls.length > 0) ? 'a' : 'div'"
+                        :href="(result.Data && result.Data.Urls && result.Data.Urls.length > 0) ? result.Data.Urls[0].Url : null"
+                        class="result__header" 
+                        :class="resultHeaderClasses(result)" v-if="result.Data" >
                         <div class="result__name">{{ result.Data.Name }}</div>
                         <div class="result__image"
                             v-if="result.Data.ImageUrl"
                             :style="`background-image: url('${result.Data.ImageUrl}')`"></div>
-                    </div>
+                    </component>
                     <div v-if="result.Data" class="result__data">
                         <div class="result__description">{{ result.Data.Description }}</div>
                         <ul class="result__urls">
@@ -352,6 +355,7 @@ export default class ComparisonPageComponent extends Vue {
         &__header {
             position: relative;
             overflow: hidden;
+            display: block;
 
             &.has-image {
                 min-height: 150px;
