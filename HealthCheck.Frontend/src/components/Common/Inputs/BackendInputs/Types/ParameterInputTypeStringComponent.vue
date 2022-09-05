@@ -77,6 +77,7 @@ export default class ParameterInputTypeStringComponent extends Vue {
     }
     
     setValueToNull(): void {
+        this.localValue = '';
         this.localValue = null;
     }
 

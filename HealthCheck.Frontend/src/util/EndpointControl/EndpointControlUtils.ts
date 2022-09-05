@@ -1,11 +1,13 @@
 import { EndpointControlCountOverDuration, EndpointControlFilterMode, EndpointControlEndpointDefinition, EndpointControlCustomResultDefinitionViewModel } from './../../models/modules/EndpointControl/EndpointControlModels';
 import { EndpointControlPropertyFilter, EndpointControlRule } from "../../models/modules/EndpointControl/EndpointControlModels";
 import IdUtils from "../IdUtils";
+import { HCEndpointControlConditionDefinitionViewModel } from '@generated/Models/Module/EndpointControl/HCEndpointControlConditionDefinitionViewModel';
 
 export interface RuleDescription
 {
     filters: Array<string>;
     limits: Array<string>;
+    conditions: Array<string>;
     action: string;
 }
 
@@ -26,7 +28,9 @@ export default class EndpointControlUtils
 
     static describeRuleExt(rule: EndpointControlRule, 
             endpointDefs: Array<EndpointControlEndpointDefinition>,
-            customResultDefinitions: Array<EndpointControlCustomResultDefinitionViewModel>): RuleDescription {
+            customResultDefinitions: Array<EndpointControlCustomResultDefinitionViewModel>,
+            conditionDefinitions: Array<HCEndpointControlConditionDefinitionViewModel>
+            ): RuleDescription {
         let filters: Array<any> = [];
         let forcedFilters: Array<string> = [];
 
@@ -82,10 +86,20 @@ export default class EndpointControlUtils
             }
         }
 
+        let conditions: Array<string> = [];
+        if (rule.Conditions && rule.Conditions.length > 0) {
+            conditions = rule.Conditions.map(x => {
+                const def = conditionDefinitions.find(d => d.Id == x.ConditionId);
+                if (def == null) return `Condition [${x.ConditionId}]`;
+                return def.Name;
+            });
+        }
+
         return {
             limits: limits,
             filters: filters,
-            action: action
+            conditions: conditions,
+            action: action,
         };
     }
 

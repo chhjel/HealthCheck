@@ -16,4 +16,5 @@ export interface EndpointControlEndpointRequestData
 	Url: string;
 	WasBlocked: boolean;
 	BlockingRuleId: string;
+	HttpContext: any;
 }

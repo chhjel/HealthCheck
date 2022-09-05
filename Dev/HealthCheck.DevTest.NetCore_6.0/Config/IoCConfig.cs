@@ -35,6 +35,7 @@ using HealthCheck.Dev.Common.ContentPermutation;
 using HealthCheck.Dev.Common.DataExport;
 using HealthCheck.Dev.Common.Dataflow;
 using HealthCheck.Dev.Common.DataRepeater;
+using HealthCheck.Dev.Common.EndpointControl;
 using HealthCheck.Dev.Common.EventNotifier;
 using HealthCheck.Dev.Common.GoTo;
 using HealthCheck.Dev.Common.Settings;
@@ -79,7 +80,8 @@ namespace HealthCheck.DevTest.NetCore_6._0.Config
                     s.GetService<IEndpointControlRuleStorage>()
                     )
                     .AddCustomBlockedResult(new EndpointControlContentResult())
-                    .AddCustomBlockedResult(new EndpointControlRedirectResult());
+                    .AddCustomBlockedResult(new EndpointControlRedirectResult())
+                    .AddPossibleCondition(new SimpleConditionA());
             });
 
             // Data Repeater

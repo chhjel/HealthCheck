@@ -42,6 +42,7 @@ import * as monaco from 'monaco-editor'
 import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
 import { ICodeMark, CodeSnippet } from '@models/modules/DynamicCodeExecution/Models';
 import { StoreUtil } from "@util/StoreUtil";
+import { nextTick } from "@vue/runtime-core";
 
 
 @Options({
@@ -143,16 +144,19 @@ export default class EditorComponent extends Vue {
     ////////////////////////////////////////////////////////////
     //// EVENTHANDLERS /////////////////////////////////////////
     ////////////////////////////////////////////////////////////
+    isNull: boolean = false;
     @Watch("value")
     onValueChanged(): void
     {
+        this.isNull = (this.value == null);
+
         if (this.editor == null) return;
         
         const model = this.editor.getModel();
         if (model == null) return;
         else if (model.getValue() == this.value) return;
 
-        model.setValue(this.value);
+        model.setValue(this.value || '');
     }
 
     @Watch("readOnly")
@@ -376,7 +380,9 @@ export default class EditorComponent extends Vue {
         if (model == null) return;
 
         model.onDidChangeContent((e) => {
-            this.$emit('update:value', model.getValue());
+            let editorValue = model.getValue();
+            if (this.isNull && !editorValue) editorValue = null;
+            this.$emit('update:value', editorValue);
         })
     }
 

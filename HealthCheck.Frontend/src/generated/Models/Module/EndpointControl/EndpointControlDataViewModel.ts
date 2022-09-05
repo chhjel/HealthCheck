@@ -5,10 +5,12 @@
 import { EndpointControlRule } from './EndpointControlRule';
 import { EndpointControlEndpointDefinition } from './EndpointControlEndpointDefinition';
 import { EndpointControlCustomResultDefinitionViewModel } from './EndpointControlCustomResultDefinitionViewModel';
+import { HCEndpointControlConditionDefinitionViewModel } from './HCEndpointControlConditionDefinitionViewModel';
 
 export interface EndpointControlDataViewModel
 {
 	Rules: EndpointControlRule[];
 	EndpointDefinitions: EndpointControlEndpointDefinition[];
 	CustomResultDefinitions: EndpointControlCustomResultDefinitionViewModel[];
+	Conditions: HCEndpointControlConditionDefinitionViewModel[];
 }

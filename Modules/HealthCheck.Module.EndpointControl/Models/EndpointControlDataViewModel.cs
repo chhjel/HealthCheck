@@ -21,5 +21,10 @@ namespace HealthCheck.Module.EndpointControl.Models
         /// Any custom result definitions.
         /// </summary>
         public IEnumerable<EndpointControlCustomResultDefinitionViewModel> CustomResultDefinitions { get; set; }
+
+        /// <summary>
+        /// Any conditions.
+        /// </summary>
+        public IEnumerable<HCEndpointControlConditionDefinitionViewModel> Conditions { get; set; }
     }
 }

@@ -9,6 +9,7 @@
     <ProjectReference Include="..\..\HealthCheck.Core\HealthCheck.Core.csproj" />
     <ProjectReference Include="..\..\HealthCheck.WebUI\HealthCheck.WebUI.csproj" />
     <ProjectReference Include="..\..\Modules\HealthCheck.Module.DataExport\HealthCheck.Module.DataExport.csproj" />
+    <ProjectReference Include="..\..\Modules\HealthCheck.Module.EndpointControl\HealthCheck.Module.EndpointControl.csproj" />
     <ProjectReference Include="..\..\Utility\HealthCheck.Utility.Reflection\HealthCheck.Utility.Reflection.csproj" />
   </ItemGroup>
 

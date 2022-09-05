@@ -1,5 +1,8 @@
-﻿using System;
+﻿using HealthCheck.Core.Util;
+using HealthCheck.Module.EndpointControl.Abstractions;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace HealthCheck.Module.EndpointControl.Models
 {
@@ -64,6 +67,11 @@ namespace HealthCheck.Module.EndpointControl.Models
         public List<EndpointControlCountOverDuration> CurrentEndpointRequestCountLimits { get; set; } = new List<EndpointControlCountOverDuration>();
 
         /// <summary>
+        /// Any conditions with parameters.
+        /// </summary>
+        public List<HCEndpointControlConditionData> Conditions { get; set; } = new List<HCEndpointControlConditionData>();
+
+        /// <summary>
         /// Type of custom result when blocked if any.
         /// </summary>
         public string BlockResultTypeId { get; set; }
@@ -78,16 +86,39 @@ namespace HealthCheck.Module.EndpointControl.Models
         /// </summary>
         public bool ShouldBlockRequest(EndpointControlEndpointRequestData data,
             Func<DateTimeOffset, long> endpointRequestCountGetter,
-            Func<DateTimeOffset, long> totalRequestCountGetter)
+            Func<DateTimeOffset, long> totalRequestCountGetter,
+            Func<string, IHCEndpointControlRuleCondition> conditionFactory)
         {
+            // Filters are not met => don't block
             if (!AllFiltersMatches(data))
-            {
                 return false;
-            }
 
-            return AlwaysTrigger
-                || AnyTotalRequestCountLimitBreached(totalRequestCountGetter)
+            // Always trigger ignores any conditions and limits => block
+            if (AlwaysTrigger)
+                return true;
+
+            // Conditions are not met => don't block
+            if (!AllConditionsMatch(conditionFactory, data))
+                return false;
+
+            // Block if limits breached
+            return AnyTotalRequestCountLimitBreached(totalRequestCountGetter)
                 || AnyEndpointRequestCountLimitBreached(endpointRequestCountGetter);
+        }
+
+        private bool AllConditionsMatch(Func<string, IHCEndpointControlRuleCondition> conditionFactory, EndpointControlEndpointRequestData data)
+        {
+            if (Conditions?.Any() != true) return true;
+            foreach (var condition in Conditions)
+            {
+                var conditionDef = conditionFactory?.Invoke(condition?.ConditionId);
+                if (conditionDef != null)
+                {
+                    object parameters = conditionDef.CustomPropertiesModelType == null ? null : HCValueConversionUtils.ConvertInputModel(conditionDef.CustomPropertiesModelType, condition.Parameters);
+                    if (conditionDef.RequestMatchesCondition(data, parameters) == false) return false;
+                }
+            }
+            return true;
         }
 
         private bool AllFiltersMatches(EndpointControlEndpointRequestData data)

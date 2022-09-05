@@ -33,7 +33,9 @@
             <rule-description-component
                 :rule="internalRule"
                 :endpointDefinitions="endpointDefinitions"
-                :customResultDefinitions="customResultDefinitions" />
+                :customResultDefinitions="customResultDefinitions"
+                :conditionDefinitions="conditionDefinitions"
+                 />
         </div>
 
         <block-component class="mb-4 pt-0" title="Filters">
@@ -95,6 +97,47 @@
                     Add
                 </btn-component>
             </div>
+
+            <div v-if="!internalRule.AlwaysTrigger && conditionDefinitions != null && conditionDefinitions.length > 0">
+                <h3 class="mt-4">Custom conditions</h3>
+
+                <div v-if="internalRule.Conditions && internalRule.Conditions.length > 0"
+                    class="ruleconditions">
+                    <div v-for="(cond, cIndex) in internalRule.Conditions"
+                        :key="`condition-selected-${id}-${cond.Id}-${cIndex}`"
+                        class="rulecondition">
+                        <btn-component
+                            dark small flat
+                            color="error"
+                            class="right"
+                            @click="removeCondition(cIndex)"
+                            :disabled="!allowChanges">
+                            Remove
+                        </btn-component>
+                        <div class="rulecondition__name">{{ getConditionDefinition(cond.ConditionId).Name }}</div>
+                        <div class="rulecondition__desc">{{ getConditionDefinition(cond.ConditionId).Description }}</div>
+
+                        <div class="rulecondition__props" v-if="getConditionDefinition(cond.ConditionId) != null">
+                            <div>
+                                <backend-input-component
+                                    v-for="(parameterDef, pIndex) in getConditionDefinition(cond.ConditionId).CustomProperties"
+                                    :key="`condition-selected-prop-${id}-${cond.Id}-${cIndex}-${pIndex}-${parameterDef.Id}`"
+                                    v-model:value="cond.Parameters[parameterDef.Id]"
+                                    :config="parameterDef"
+                                    :readonly="!allowChanges"
+                                    />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <btn-component class="ml-4"
+                    :disabled="!allowChanges" 
+                    @click.stop="onAddCustomConditionClicked">
+                    <icon-component size="20px" class="mr-2">add</icon-component>
+                    Add
+                </btn-component>
+            </div>
         </block-component>
         
         <block-component class="mb-4" v-if="internalRule != null" title="Resulting action">
@@ -131,6 +174,22 @@
                 Are you sure you want to delete this rule?
             </div>
         </dialog-component>
+
+        <dialog-component v-model:value="customConditionDialogVisible" max-width="600">
+            <template #header>Select condition to add</template>
+            <template #footer>
+                <btn-component color="secondary" @click="customConditionDialogVisible = false">Cancel</btn-component>
+            </template>
+            <div class="conditiondefs">
+                <div v-for="cond in conditionDefinitions"
+                    :key="`condition-${id}-${cond.Id}`"
+                    @click="addCustomCondition(cond)"
+                    class="conditiondef clickable hoverable-light">
+                    <div class="conditiondef__name">{{ cond.Name }}</div>
+                    <div class="conditiondef__desc">{{ cond.Description }}</div>
+                </div>
+            </div>
+        </dialog-component>
     </div>
 </template>
 
@@ -153,6 +212,7 @@ import { EndpointControlCountOverDuration, EndpointControlCustomResultDefinition
 import { HCBackendInputConfig } from "@generated/Models/Core/HCBackendInputConfig";
 import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
 import { StoreUtil } from "@util/StoreUtil";
+import { HCEndpointControlConditionDefinitionViewModel } from "@generated/Models/Module/EndpointControl/HCEndpointControlConditionDefinitionViewModel";
 
 @Options({
     components: {
@@ -176,6 +236,9 @@ export default class RuleComponent extends Vue {
     @Prop({ required: true })
     customResultDefinitions!: Array<EndpointControlCustomResultDefinitionViewModel> | null;
 
+    @Prop({ required: true })
+    conditionDefinitions!: Array<HCEndpointControlConditionDefinitionViewModel> | null;
+
     @Prop({ required: false, default: null})
     endpointDefinitions!: Array<EndpointControlEndpointDefinition>;
 
@@ -187,10 +250,12 @@ export default class RuleComponent extends Vue {
     service: EndpointControlService = new EndpointControlService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.moduleId);
     notifierDialogVisible: boolean = false;
     deleteDialogVisible: boolean = false;
+    customConditionDialogVisible: boolean = false;
     isSaving: boolean = false;
     isDeleting: boolean = false;
     serverInteractionError: string | null = null;
     serverInteractionInProgress: boolean = false;
+    id: string = IdUtils.generateId();
 
     //////////////////
     //  LIFECYCLE  //
@@ -330,6 +395,13 @@ export default class RuleComponent extends Vue {
         return DateUtils.FormatDate(date, 'yyyy MMM d HH:mm:ss');
     }
 
+    conditionDefCache: { [key: string]: HCEndpointControlConditionDefinitionViewModel } = {};
+    getConditionDefinition(id: string): HCEndpointControlConditionDefinitionViewModel {
+        if (this.conditionDefCache[id] == null)
+        this.conditionDefCache[id] = this.conditionDefinitions.find(x => x.Id == id);
+        return this.conditionDefCache[id];
+    }
+
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
@@ -356,6 +428,23 @@ export default class RuleComponent extends Vue {
         };
         EndpointControlUtils.postProcessCountLimit(item);
         list.push(item);
+    }
+
+    onAddCustomConditionClicked(): void {
+        this.customConditionDialogVisible = true;
+    }
+
+    addCustomCondition(cond: HCEndpointControlConditionDefinitionViewModel): void {
+        if (this.internalRule.Conditions == null) this.internalRule.Conditions = [];
+        this.internalRule.Conditions.push({
+            ConditionId: cond.Id,
+            Parameters: {}
+        });
+        this.customConditionDialogVisible = false;
+    }
+
+    removeCondition(index: number): void {
+        this.internalRule.Conditions.splice(index, 1);
     }
 }
 </script>
@@ -391,5 +480,29 @@ export default class RuleComponent extends Vue {
     font-size: 18px;
     margin-bottom: 10px;
     margin-right: 10px;
+}
+.conditiondef {
+    margin-bottom: 10px;
+    border: 2px solid var(--color--accent-darken1);
+    padding: 7px;
+
+    &__name {
+        font-weight: 600;
+    }
+}
+.rulecondition {
+    margin-top: 16px;
+    margin-left: 12px;
+    border-left: 4px solid var(--color--accent-darken1);
+    padding-left: 12px;
+    &__name {
+        font-weight: 600;
+        font-size: 17px;
+    }
+    &__desc {
+        font-size: 14px;
+        color: var(--color--accent-darken8);
+        margin-bottom: 10px;
+    }
 }
 </style>

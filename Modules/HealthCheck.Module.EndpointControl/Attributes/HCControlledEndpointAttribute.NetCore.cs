@@ -166,6 +166,8 @@ namespace HealthCheck.Module.EndpointControl.Attributes
                 UserAgent = filterContext?.HttpContext?.Request?.Headers?[HeaderNames.UserAgent],
                 HttpMethod = filterContext?.HttpContext?.Request?.Method,
                 Url = RequestUtils.GetUrl(filterContext?.HttpContext?.Request),
+
+                HttpContext = filterContext?.HttpContext
             };
 
             data.EndpointName = Name ?? $"{data.ControllerName?.Replace("Controller", "")}.{data.ActionName} ({data.HttpMethod})";
