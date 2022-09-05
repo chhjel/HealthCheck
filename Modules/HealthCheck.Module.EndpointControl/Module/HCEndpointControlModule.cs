@@ -86,10 +86,20 @@ namespace HealthCheck.Module.EndpointControl.Module
         [HealthCheckModuleMethod]
         public EndpointControlDataViewModel GetData()
         {
-            List<EndpointControlCustomResultDefinitionViewModel> customResults = Options.EndpointControlService.GetCustomBlockedResults()
+            var customResults = Options.EndpointControlService.GetCustomBlockedResults()
                 ?.Select(x => new EndpointControlCustomResultDefinitionViewModel
                 {
                     Id = x.Id,
+                    Name = x.Name,
+                    Description = x.Description,
+                    CustomProperties = HCCustomPropertyAttribute.CreateInputConfigs(x.CustomPropertiesModelType)
+                })
+                ?.ToList();
+
+            var conditions = Options.EndpointControlService.GetConditions()
+                ?.Select(x => new HCEndpointControlConditionDefinitionViewModel
+                {
+                    Id = x.GetType().Name,
                     Name = x.Name,
                     Description = x.Description,
                     CustomProperties = HCCustomPropertyAttribute.CreateInputConfigs(x.CustomPropertiesModelType)
@@ -100,7 +110,8 @@ namespace HealthCheck.Module.EndpointControl.Module
             {
                 Rules = Options.RuleStorage.GetRules(),
                 EndpointDefinitions = Options.DefinitionStorage.GetDefinitions(),
-                CustomResultDefinitions = customResults
+                CustomResultDefinitions = customResults,
+                Conditions = conditions
             };
         }
 

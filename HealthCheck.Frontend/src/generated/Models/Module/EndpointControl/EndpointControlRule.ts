@@ -4,6 +4,7 @@
 
 import { EndpointControlPropertyFilter } from './EndpointControlPropertyFilter';
 import { EndpointControlCountOverDuration } from './EndpointControlCountOverDuration';
+import { HCEndpointControlConditionData } from './HCEndpointControlConditionData';
 
 export interface EndpointControlRule
 {
@@ -18,6 +19,7 @@ export interface EndpointControlRule
 	UrlFilter: EndpointControlPropertyFilter;
 	TotalRequestCountLimits: EndpointControlCountOverDuration[];
 	CurrentEndpointRequestCountLimits: EndpointControlCountOverDuration[];
+	Conditions: HCEndpointControlConditionData[];
 	BlockResultTypeId: string;
 	CustomBlockResultProperties: { [key:string]: string };
 }

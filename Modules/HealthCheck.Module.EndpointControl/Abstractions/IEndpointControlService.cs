@@ -23,5 +23,10 @@ namespace HealthCheck.Module.EndpointControl.Abstractions
         /// Get any defined custom blocked results.
         /// </summary>
         IEnumerable<IEndpointControlRequestResult> GetCustomBlockedResults();
+
+        /// <summary>
+        /// Get any defined conditions.
+        /// </summary>
+        IEnumerable<IHCEndpointControlRuleCondition> GetConditions();
     }
 }

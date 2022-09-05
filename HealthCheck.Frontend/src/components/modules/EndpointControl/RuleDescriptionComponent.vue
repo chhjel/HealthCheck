@@ -7,6 +7,7 @@
             <li v-for="(filter, fltIndex) in description.filters"
                 :key="`rule-${rule.Id}-filter-${fltIndex}`"
                 class="anywrap">
+                <span v-if="fltIndex > 0">And </span>
                 {{ filter }}
             </li>
         </ul>
@@ -17,7 +18,19 @@
                 <li v-if="description.limits.length == 0">- no limits defined -</li>
                 <li v-for="(limit, limIndex) in description.limits"
                     :key="`rule-${rule.Id}-limit-${limIndex}`">
+                    <span v-if="limIndex > 0">Or </span>
                     {{ limit }}
+                </li>
+            </ul>
+        </div>
+
+        <div v-if="!rule.AlwaysTrigger && description.conditions && description.conditions.length > 0">
+            <b>And all the following conditions are met</b>
+            <ul>
+                <li v-for="(conditions, condIndex) in description.conditions"
+                    :key="`rule-${rule.Id}-condition-${condIndex}`">
+                    <span v-if="condIndex > 0">And </span>
+                    {{ conditions }}
                 </li>
             </ul>
         </div>
@@ -36,6 +49,7 @@ import { Vue, Prop } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import { EndpointControlCustomResultDefinitionViewModel, EndpointControlEndpointDefinition, EndpointControlRule } from '@models/modules/EndpointControl/EndpointControlModels';
 import EndpointControlUtils, { RuleDescription } from '@util/EndpointControl/EndpointControlUtils';
+import { HCEndpointControlConditionDefinitionViewModel } from "@generated/Models/Module/EndpointControl/HCEndpointControlConditionDefinitionViewModel";
 
 @Options({
     components: {  }
@@ -49,6 +63,9 @@ export default class RuleDescriptionComponent extends Vue {
 
     @Prop({ required: false, default: null })
     customResultDefinitions!: Array<EndpointControlCustomResultDefinitionViewModel>;
+                    
+    @Prop({ required: false, default: null })
+    conditionDefinitions!: Array<HCEndpointControlConditionDefinitionViewModel> | null;
 
     //////////////////
     //  LIFECYCLE  //
@@ -59,7 +76,7 @@ export default class RuleDescriptionComponent extends Vue {
     //////////////
     get description(): RuleDescription
     {
-        return EndpointControlUtils.describeRuleExt(this.rule, this.endpointDefinitions, this.customResultDefinitions);
+        return EndpointControlUtils.describeRuleExt(this.rule, this.endpointDefinitions, this.customResultDefinitions, this.conditionDefinitions);
     }
 
     ////////////////

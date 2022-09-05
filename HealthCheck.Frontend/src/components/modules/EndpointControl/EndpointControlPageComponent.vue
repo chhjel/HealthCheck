@@ -56,7 +56,8 @@
                         <rule-description-component 
                             :rule="rule" 
                             :endpointDefinitions="EndpointDefinitions"
-                            :customResultDefinitions="CustomResultDefinitions" />
+                            :customResultDefinitions="CustomResultDefinitions"
+                            :conditionDefinitions="CustomConditionDefinitions" />
                     </div>
                     
                     <tooltip-component v-if="getRuleWarning(rule) != null" :tooltip="getRuleWarning(rule)">
@@ -76,7 +77,7 @@
 
         </div>
         
-        <dialog-component v-model:value="ruleDialogVisible" max-width="1200" persistent @close="hideCurrentRule">
+        <dialog-component v-model:value="ruleDialogVisible" max-width="1200" width="1000" persistent @close="hideCurrentRule">
             <template #header>{{ currentDialogTitle }}</template>
             <template #footer>
                 <btn-component color="primary"
@@ -95,6 +96,7 @@
                     :endpointDefinitions="EndpointDefinitions"
                     :readonly="!allowRuleChanges"
                     :customResultDefinitions="datax.CustomResultDefinitions"
+                    :conditionDefinitions="datax.Conditions"
                     v-on:ruleDeleted="onRuleDeleted"
                     v-on:ruleSaved="onRuleSaved"
                     v-on:serverInteractionInProgress="setServerInteractionInProgress"
@@ -277,6 +279,11 @@ export default class EndpointControlPageComponent extends Vue {
         return (this.datax == null) ? [] : this.datax.CustomResultDefinitions;
     }
 
+    get CustomConditionDefinitions(): Array<EndpointControlCustomResultDefinitionViewModel>
+    {
+        return (this.datax == null || this.datax.Conditions == null) ? [] : this.datax.Conditions;
+    }
+
     get rules(): Array<EndpointControlRule>
     {
         let rules = (this.datax == null) ? [] : this.datax.Rules;
@@ -418,9 +425,10 @@ export default class EndpointControlPageComponent extends Vue {
     {
         if (!rule.AlwaysTrigger
             && rule.TotalRequestCountLimits.length == 0 
-            && rule.CurrentEndpointRequestCountLimits.length == 0)
+            && rule.CurrentEndpointRequestCountLimits.length == 0
+            && (rule.Conditions == null || rule.Conditions.length == 0))
         {
-            return 'No limits have been defined, the rule won\'t have any effect.';
+            return 'No limits or conditions have been defined, the rule won\'t have any effect.';
         }
         return null;
     }
@@ -512,7 +520,8 @@ export default class EndpointControlPageComponent extends Vue {
             TotalRequestCountLimits: [],
             CurrentEndpointRequestCountLimits: [],
             BlockResultTypeId: '',
-            CustomBlockResultProperties: {}
+            CustomBlockResultProperties: {},
+            Conditions: []
         };
 
         this.showRule(rule);

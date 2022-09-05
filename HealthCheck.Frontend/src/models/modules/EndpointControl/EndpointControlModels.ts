@@ -1,4 +1,6 @@
 import { HCBackendInputConfig } from "@generated/Models/Core/HCBackendInputConfig";
+import { HCEndpointControlConditionData } from "@generated/Models/Module/EndpointControl/HCEndpointControlConditionData";
+import { HCEndpointControlConditionDefinitionViewModel } from "@generated/Models/Module/EndpointControl/HCEndpointControlConditionDefinitionViewModel";
 
 export interface GenericEndpointControlResult {
     Success: boolean;
@@ -8,6 +10,7 @@ export interface EndpointControlDataViewModel {
     Rules: Array<EndpointControlRule>;
     EndpointDefinitions: Array<EndpointControlEndpointDefinition>;
     CustomResultDefinitions: Array<EndpointControlCustomResultDefinitionViewModel>;
+	Conditions: Array<HCEndpointControlConditionDefinitionViewModel>;
 }
 
 export interface EndpointControlCustomResultDefinitionViewModel
@@ -54,6 +57,7 @@ export interface EndpointControlRule {
     CurrentEndpointRequestCountLimits: Array<EndpointControlCountOverDuration>;
     BlockResultTypeId: string;
     CustomBlockResultProperties: { [key: string]: string };
+	Conditions: HCEndpointControlConditionData[];
 }
 
 export interface EndpointControlPropertyFilter {

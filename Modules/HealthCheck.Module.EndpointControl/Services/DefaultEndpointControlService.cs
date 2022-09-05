@@ -21,6 +21,7 @@ namespace HealthCheck.Module.EndpointControl.Services
         private readonly IEndpointControlEndpointDefinitionStorage _definitionStorage;
         private readonly IEndpointControlRuleStorage _ruleStorage;
         private readonly List<IEndpointControlRequestResult> _customBlockedResults = new();
+        private readonly List<IHCEndpointControlRuleCondition> _conditions = new();
 
         /// <summary>
         /// Checks if requests to certain endpoints are allowed to execute.
@@ -36,10 +37,11 @@ namespace HealthCheck.Module.EndpointControl.Services
             _ruleStorage = ruleStorage;
         }
 
-        /// <summary>
-        /// Get any defined custom blocked results.
-        /// </summary>
+        /// <inheritdoc />
         public IEnumerable<IEndpointControlRequestResult> GetCustomBlockedResults() => _customBlockedResults;
+
+        /// <inheritdoc />
+        public IEnumerable<IHCEndpointControlRuleCondition> GetConditions() => _conditions;
 
         /// <summary>
         /// Add a custom result that can be selected in the UI and used when request are blocked.
@@ -47,6 +49,15 @@ namespace HealthCheck.Module.EndpointControl.Services
         public DefaultEndpointControlService AddCustomBlockedResult(IEndpointControlRequestResult result)
         {
             _customBlockedResults.Add(result);
+            return this;
+        }
+
+        /// <summary>
+        /// Add a condition that can be selected.
+        /// </summary>
+        public DefaultEndpointControlService AddPossibleCondition(IHCEndpointControlRuleCondition condition)
+        {
+            _conditions.Add(condition);
             return this;
         }
 
@@ -114,10 +125,26 @@ namespace HealthCheck.Module.EndpointControl.Services
             blockingRule = _ruleStorage.GetRules()
                 .FirstOrDefault(rule => rule.ShouldBlockRequest(requestData,
                     endpointRequestCountGetter: (date) => _historicalDataStorage.GetEndpointRequestCountSince(requestData.UserLocationId, requestData.EndpointId, date),
-                    totalRequestCountGetter: (date) => _historicalDataStorage.GetTotalRequestCountSince(requestData.UserLocationId, date)
+                    totalRequestCountGetter: (date) => _historicalDataStorage.GetTotalRequestCountSince(requestData.UserLocationId, date),
+                    conditionFactory: (id) => GetConditionById(id)
                 ));
 
             return blockingRule == null;
+        }
+
+
+        private static readonly Dictionary<string, IHCEndpointControlRuleCondition> _conditionCache = new();
+        private IHCEndpointControlRuleCondition GetConditionById(string id)
+        {
+            lock (_conditionCache)
+            {
+                id ??= string.Empty;
+                if (!_conditionCache.ContainsKey(id))
+                {
+                    _conditionCache[id] = _conditions?.FirstOrDefault(x => x.GetType().Name == id);
+                }
+                return _conditionCache[id];
+            }
         }
 
         internal bool IsEnabledInternal()
