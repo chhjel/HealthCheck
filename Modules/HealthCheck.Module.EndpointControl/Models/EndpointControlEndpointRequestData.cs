@@ -1,4 +1,10 @@
 ﻿using System;
+#if NETCORE
+using Microsoft.AspNetCore.Http;
+#endif
+#if NETFRAMEWORK
+using System.Web;
+#endif
 
 namespace HealthCheck.Module.EndpointControl.Models
 {
@@ -68,5 +74,20 @@ namespace HealthCheck.Module.EndpointControl.Models
         /// <para>Updated by the service.</para>
         /// </summary>
         public Guid? BlockingRuleId { get; set; }
+
+
+#if NETFULL
+        /// <summary>
+        /// Current HTTP context.
+        /// </summary>
+        public HttpContextBase HttpContext { get; internal set; }
+#endif
+
+#if NETCORE
+        /// <summary>
+        /// Current HTTP context.
+        /// </summary>
+        public HttpContext HttpContext { get; internal set; }
+#endif
     }
 }
