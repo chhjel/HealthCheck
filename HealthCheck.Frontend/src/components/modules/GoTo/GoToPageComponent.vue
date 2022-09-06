@@ -103,6 +103,8 @@ import IdUtils from "@util/IdUtils";
 import GoToService from "@services/GoToService";
 import { HCGoToResolverDefinition } from "@generated/Models/Core/HCGoToResolverDefinition";
 import { HCGoToResolvedDataWithResolverId } from "@generated/Models/Core/HCGoToResolvedDataWithResolverId";
+import UrlUtils from "@util/UrlUtils";
+import { RouteLocationNormalized } from "vue-router";
 
 @Options({
     components: {
@@ -124,6 +126,7 @@ export default class ComparisonPageComponent extends Vue {
     dataLoadStatus: FetchStatus = new FetchStatus();
 
     id: string = IdUtils.generateId();
+    routeListener: Function | null = null;
     resolverDefinitions: Array<HCGoToResolverDefinition> = [];
 
     selectedResolverIds: Array<string> = [];
@@ -140,8 +143,24 @@ export default class ComparisonPageComponent extends Vue {
     async mounted()
     {
         this.loadResolvers();
+        await this.$router.isReady();
+        this.routeListener = this.$router.afterEach((t, f, err) => this.onRouteChanged(t, f));
     }
 
+    beforeDestroy(): void {
+        if (this.routeListener)
+        {
+            this.routeListener();
+        }
+    }
+
+    beforeUnmount(): void {
+        clearInterval(this.searchLabelTimeoutRef);
+    }
+
+    ////////////////
+    //  METHODS  //
+    //////////////
     resetSearchLabel(): void {
         if (this.searchLabelTimeoutRef) clearInterval(this.searchLabelTimeoutRef);
         this.searchLabelTimeoutRef = setInterval(this.onSearchLabelTimeToChange, 800);
@@ -151,10 +170,6 @@ export default class ComparisonPageComponent extends Vue {
 
     stopSearchLabel(): void {
         if (this.searchLabelTimeoutRef) clearInterval(this.searchLabelTimeoutRef);
-    }
-
-    beforeUnmount(): void {
-        clearInterval(this.searchLabelTimeoutRef);
     }
 
     onSearchLabelTimeToChange(): void {
@@ -191,9 +206,6 @@ export default class ComparisonPageComponent extends Vue {
         }
     }
 
-    ////////////////
-    //  METHODS  //
-    //////////////
     loadResolvers(): void {
         this.service.GetResolversDefinitions(this.typesLoadStatus, {
             onSuccess: (data) => this.onResolversRetrieved(data)
@@ -203,8 +215,15 @@ export default class ComparisonPageComponent extends Vue {
     onResolversRetrieved(data: Array<HCGoToResolverDefinition>): void {
         this.resolverDefinitions = data;
         this.selectedResolverIds = data.map(x => x.Id);
-        // this.query = '222';
-        // this.executeGoto();
+
+        const query = UrlUtils.GetQueryStringParameter('query', null);
+        const auto = UrlUtils.GetQueryStringParameter('auto', null);
+        if (query) {
+            this.query = query;
+            if (auto === 'true') {
+                this.executeGoto();
+            }
+        }
     }
 
     executeGoto(): void {
@@ -233,6 +252,14 @@ export default class ComparisonPageComponent extends Vue {
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
+    @Watch('$route')
+    onRouteChanged(to: RouteLocationNormalized, from: RouteLocationNormalized): void {
+        if (from.fullPath.toLowerCase().startsWith('/goto') && !to.fullPath.toLowerCase().startsWith('/goto'))
+        {
+            UrlUtils.ClearQueryStringParameter('query');
+            UrlUtils.ClearQueryStringParameter('auto');
+        }
+    }
 
     ////////////////
     //  GETTERS  //
