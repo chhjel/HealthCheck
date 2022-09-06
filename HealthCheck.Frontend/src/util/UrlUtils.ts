@@ -50,6 +50,21 @@ export default class UrlUtils
         window.history.replaceState({}, '', `${location.pathname}?${params.toString()}${location.hash}`);
     }
 
+    static RemoveRelativeQueryStringParameter(search: string, key: string): string {
+        if (!search) return search;
+        let prefix = '';
+        if (search.startsWith('?')) prefix = '?';
+        if (search.startsWith('&')) prefix = '&';
+
+        const params = new URLSearchParams(search);
+        if (params == null || !params.has(key)) return search;
+        params.delete(key);
+
+        let result = params.toString();
+        if (!result) return result;
+        return prefix + params.toString();
+    }
+
     static RemoveQueryStringParameter(url: string, key: string): string {
         const urlObj = new URL(url);
         urlObj.searchParams.delete(key);

@@ -1,5 +1,4 @@
-import FrontEndOptionsViewModel from "../../models/Common/FrontEndOptionsViewModel";
-import KeyValuePair from "../../models/Common/KeyValuePair";
+import UrlUtils from '@util/UrlUtils';
 
 export class FetchStatus
 {
@@ -96,7 +95,11 @@ export default class HCServiceBase
         let queryStringIfEnabled = '';
         if (this.inludeQueryString)
         {
-            queryStringIfEnabled = url.includes('?') ? `&${window.location.search.replace('?', '')}` : window.location.search;
+            queryStringIfEnabled = window.location.search
+            
+            // Strip special h-parameter as it may be blocked by web application firewalls since it may contain e.g. a linq query.
+            queryStringIfEnabled = UrlUtils.RemoveRelativeQueryStringParameter(queryStringIfEnabled, 'h');
+            queryStringIfEnabled = url.includes('?') ? `&${queryStringIfEnabled.replace('?', '')}` : queryStringIfEnabled;
         }
         url = `${url}${queryStringIfEnabled}`;
 
