@@ -212,15 +212,17 @@ export default class ComparisonPageComponent extends Vue {
         });
     }
 
+    autoNavNext: boolean = false;
     onResolversRetrieved(data: Array<HCGoToResolverDefinition>): void {
         this.resolverDefinitions = data;
         this.selectedResolverIds = data.map(x => x.Id);
 
         const query = UrlUtils.GetQueryStringParameter('query', null);
-        const auto = UrlUtils.GetQueryStringParameter('auto', null);
+        const auto = UrlUtils.GetQueryStringParameter('auto', null) === 'true';
         if (query) {
             this.query = query;
-            if (auto === 'true') {
+            if (auto) {
+                this.autoNavNext = UrlUtils.GetQueryStringParameter('autoNav', null) === 'true';
                 this.executeGoto();
             }
         }
@@ -237,6 +239,13 @@ export default class ComparisonPageComponent extends Vue {
     onGotoResultRetrieved(data: Array<HCGoToResolvedDataWithResolverId>): void {
         this.results = data;
         this.hasSearchedAtLeastOnce = true;
+
+        if (this.autoNavNext) {
+            this.autoNavNext = false;
+            if (this.results.length == 1 && this.results[0].Data?.Urls[0] != null) {
+                window.location.href = this.results[0].Data.Urls[0].Url;
+            }
+        }
     }
 
     getResolverName(id: string): string {
