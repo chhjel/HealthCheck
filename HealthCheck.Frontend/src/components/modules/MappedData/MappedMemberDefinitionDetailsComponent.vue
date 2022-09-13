@@ -1,8 +1,7 @@
 <!-- src/components/modules/MappedData/MappedMemberDefinitionDetailsComponent.vue -->
 <template>
     <div class="member-def-details">
-        <div>Type: <b>{{ typeName }}</b></div>
-        <div v-if="propertyName != def.DisplayName">Model property name: <b>{{ propertyName }}</b></div>
+        <div>Property: <b>{{ typeName }} {{ propertyName }}</b></div>
         <p v-if="def.Remarks">{{ def.Remarks }}</p>
     </div>
 </template>

@@ -45,6 +45,7 @@
                         :def="mDefPair"
                         :showDetails="showDetails"
                         :allDefinitions="definitions"
+                        :parentDefs="currentPair"
                         @gotoTypeClicked="gotoTypeClicked" />
                 </div>
             </div>
@@ -70,7 +71,6 @@ import { FilterableListItem } from "@components/Common/FilterableListComponent.v
 import UrlUtils from "@util/UrlUtils";
 import MappedClassDefinitionComponent from "./MappedClassDefinitionComponent.vue";
 import MappedMemberDefinitionPairComponent from "./MappedMemberDefinitionPairComponent.vue";
-import { HCMappedClassDefinitionViewModel } from "@generated/Models/Core/HCMappedClassDefinitionViewModel";
 import { RouteLocationNormalized } from "vue-router";
 
 @Options({

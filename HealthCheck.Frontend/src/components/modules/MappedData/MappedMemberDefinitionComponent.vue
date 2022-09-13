@@ -15,6 +15,7 @@ import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
 import { StoreUtil } from "@util/StoreUtil";
 import { HCMappedMemberDefinitionViewModel } from "@generated/Models/Core/HCMappedMemberDefinitionViewModel";
 import { HCMappedClassesDefinitionViewModel } from "@generated/Models/Core/HCMappedClassesDefinitionViewModel";
+import { HCMappedClassDefinitionViewModel } from "@generated/Models/Core/HCMappedClassDefinitionViewModel";
 
 @Options({
     components: {
@@ -26,6 +27,9 @@ export default class MappedMemberDefinitionComponent extends Vue {
 
     @Prop({ required: true })
     allDefinitions: Array<HCMappedClassesDefinitionViewModel>;
+
+    @Prop({ required: true })
+    parentDef: HCMappedClassDefinitionViewModel;
 
     //////////////////
     //  LIFECYCLE  //
@@ -46,6 +50,7 @@ export default class MappedMemberDefinitionComponent extends Vue {
     }
 
     get hasLinkToDef(): boolean {
+        if (this.def.FullTypeName == this.parentDef.Id) return false;
         return this.allDefinitions.some(x => x.Left.Id == this.def.FullTypeName || x.Right.Id == this.def.FullTypeName);
     }
 

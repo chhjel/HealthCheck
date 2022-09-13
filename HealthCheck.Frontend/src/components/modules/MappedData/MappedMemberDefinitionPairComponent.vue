@@ -6,8 +6,9 @@
             <div class="left-side center-vertically">
                 <mapped-member-definition-component
                     v-for="(mDef, dIndex) in def.Left"
-                    :key="`memberdef-${id}-${def.Left.Id}-${pIndex}-${dIndex}-left`"
+                    :key="`memberdef-${id}-${def.Left.Id}-${dIndex}-left`"
                     :def="mDef"
+                    :parentDef="parentDefs.Left"
                     :allDefinitions="allDefinitions"
                     @gotoTypeClicked="gotoTypeClicked" />
             </div>
@@ -15,8 +16,9 @@
             <div class="right-side center-vertically">
                 <mapped-member-definition-component
                     v-for="(mDef, dIndex) in def.Right"
-                    :key="`memberdef-${id}-${def.Right.Id}-${pIndex}-${dIndex}-right`"
+                    :key="`memberdef-${id}-${def.Right.Id}-${dIndex}-right`"
                     :def="mDef"
+                    :parentDef="parentDefs.Right"
                     :allDefinitions="allDefinitions"
                     @gotoTypeClicked="gotoTypeClicked" />
             </div>
@@ -26,14 +28,14 @@
             <div class="left-side">
                 <mapped-member-definition-details-component
                     v-for="(mDef, dIndex) in def.Left"
-                    :key="`memberdef-${id}-${def.Left.Id}-${pIndex}-${dIndex}-left-dets`"
+                    :key="`memberdef-${id}-${def.Left.Id}-${dIndex}-left-dets`"
                     :def="mDef" />
             </div>
             <div class="middle-section bordered"></div>
             <div class="right-side">
                 <mapped-member-definition-details-component
                     v-for="(mDef, dIndex) in def.Right"
-                    :key="`memberdef-${id}-${def.Right.Id}-${pIndex}-${dIndex}-right-dets`"
+                    :key="`memberdef-${id}-${def.Right.Id}-${dIndex}-right-dets`"
                     :def="mDef" />
             </div>
         </div>
@@ -67,6 +69,9 @@ export default class MappedMemberDefinitionPairComponent extends Vue {
 
     @Prop({ required: false, default: false })
     showDetails!: boolean;
+
+    @Prop({ required: true })
+    parentDefs: HCMappedClassesDefinitionViewModel;
     
     id: string = IdUtils.generateId();
 
