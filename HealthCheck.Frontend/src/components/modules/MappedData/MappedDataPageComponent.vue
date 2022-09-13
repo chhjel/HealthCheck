@@ -164,9 +164,7 @@ export default class MappedDataPageComponent extends Vue {
         const idHash = this.hash(type.Left.Id);
         if (updateUrl && StringUtils.stringOrFirstOfArray(this.$route.params.typeId) != StringUtils.stringOrFirstOfArray(idHash))
         {
-            console.log("A1", window.location.href);
             this.$router.push(`/mappeddata/${idHash}`);
-            console.log("B1", window.location.href);
         }
     }
 

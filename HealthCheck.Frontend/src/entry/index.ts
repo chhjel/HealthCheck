@@ -52,6 +52,7 @@ const appElement = document.getElementById("app");
 if (appElement !== null)
 {
 	const router = createHCRouter(moduleConfig);
+	(<any>window).__hc_router = router;
 	
 	let props = {
 		moduleConfig: moduleConfig

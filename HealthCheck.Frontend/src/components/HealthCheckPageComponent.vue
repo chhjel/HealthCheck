@@ -58,7 +58,7 @@ import BackendInputComponent from '@components/Common/Inputs/BackendInputs/Backe
 import HealthCheckProfileDialogComponent from '@components/profile/HealthCheckProfileDialogComponent.vue';
 import AccessTokenKillswitchDialog from '@components/modules/AccessTokens/AccessTokenKillswitchDialog.vue';
 import { HCFrontEndOptions } from "@generated/Models/WebUI/HCFrontEndOptions";
-import { RouteLocationNormalized } from "vue-router";
+import { NavigationGuardNext, RouteLocationNormalized } from "vue-router";
 import UrlUtils from "@util/UrlUtils";
 import EventBus, { CallbackUnregisterShortcut } from "@util/EventBus";
 import { ModuleSpecificConfig } from "./HealthCheckPageComponent.vue.models";
@@ -103,10 +103,23 @@ export default class HealthCheckPageComponent extends Vue {
         this.bindEventBusEvents();
         this.bindRootEvents();
         this.$router.afterEach((t, f, err) => this.onRouteChanged(t, f));
+        // this.$router.beforeEach(this.beforeEachRouteChange);
+
         setInterval(() => this.hackyTimer++, 100);
 
         this.onLoadOrRouteChanged();
     }
+
+    // beforeEachRouteChange(to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext): void {
+    //     console.log("###################");
+    //     if (to?.name == undefined) {
+    //         console.warn(`Something in the routing went horribly wrong..`);
+    //     }
+    //     console.log(from);
+    //     console.log(to);
+    //     console.log("###############");
+    //     next();
+    // }
 
     beforeUnmount(): void {
         this.unbindEventBusEvents();
@@ -398,6 +411,8 @@ export default class HealthCheckPageComponent extends Vue {
     }
 
     onRouteChanged(to: RouteLocationNormalized, from: RouteLocationNormalized): void {
+        if (to?.params?.ignoreHParameter == "1") return;
+
         this.$nextTick(() => {
             this.$nextTick(() => {
                 // Update querystring from hash
