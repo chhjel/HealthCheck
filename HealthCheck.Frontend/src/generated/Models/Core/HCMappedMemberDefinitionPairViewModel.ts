@@ -6,6 +6,6 @@ import { HCMappedMemberDefinitionViewModel } from './HCMappedMemberDefinitionVie
 
 export interface HCMappedMemberDefinitionPairViewModel
 {
-	Left: HCMappedMemberDefinitionViewModel;
-	Right: HCMappedMemberDefinitionViewModel;
+	Left: HCMappedMemberDefinitionViewModel[];
+	Right: HCMappedMemberDefinitionViewModel[];
 }

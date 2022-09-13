@@ -95,8 +95,8 @@ namespace HealthCheck.Core.Modules.MappedData
         {
             return new HCMappedMemberDefinitionPairViewModel
             {
-                Left = Create(d.Left),
-                Right = Create(d.Right)
+                Left = d.Left.Select(x => Create(x)).ToArray(),
+                Right = d.Right.Select(x => Create(x)).ToArray()
             };
         }
 

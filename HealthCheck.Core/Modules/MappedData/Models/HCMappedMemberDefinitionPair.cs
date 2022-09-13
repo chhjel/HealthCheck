@@ -8,11 +8,11 @@
 		/// <summary>
 		/// The left side member being mapped.
 		/// </summary>
-		public HCMappedMemberDefinition Left { get; set; }
+		public HCMappedMemberDefinition[] Left { get; set; }
 
 		/// <summary>
 		/// The right side member being mapped.
 		/// </summary>
-		public HCMappedMemberDefinition Right { get; set; }
+		public HCMappedMemberDefinition[] Right { get; set; }
 	}
 }

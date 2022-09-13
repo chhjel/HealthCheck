@@ -45,7 +45,7 @@ namespace HealthCheck.Core.Modules.MappedData.Utils
 						if (selfMember.IsReferenced) continue;
 
 						// Self attribute references an existing other member
-						HCMappedMemberDefinition referencedOther = (selfMember.Attribute == null) ? null : otherMembers.FirstOrDefault(other => other.Member.Name == selfMember.Attribute.MappedTo);
+						HCMappedMemberDefinition referencedOther = (selfMember.Attribute == null) ? null : otherMembers.FirstOrDefault(other => selfMember.Attribute.IsMappedTo(other.Member.Name));
 						if (selfMember.Attribute != null && referencedOther != null)
 						{
 							selfMember.IsReferenced = true;
@@ -54,7 +54,7 @@ namespace HealthCheck.Core.Modules.MappedData.Utils
 						}
 
 						// Other attribute references this self member
-						var otherReferencingSelf = otherMembers.FirstOrDefault(other => other.Attribute?.MappedTo == selfMember.Member.Name);
+						var otherReferencingSelf = otherMembers.FirstOrDefault(other => other.Attribute?.IsMappedTo(selfMember.Member.Name) == true);
 						if (otherReferencingSelf != null)
 						{
 							selfMember.IsReferenced = true;
@@ -107,21 +107,24 @@ namespace HealthCheck.Core.Modules.MappedData.Utils
 
 		private static HCMappedClassesDefinition CreateMappedPair(HCMappedClassDefinition left, HCMappedClassDefinition right)
 		{
+			static string createKey(HCMappedMemberDefinition[] defs)
+				=> string.Join(", ", defs.Select(d => d.Id));
+
 			var memberPairs = new Dictionary<string, HCMappedMemberDefinitionPair>();
-			foreach (var leftMember in left.MemberDefinitions.Where(x => !string.IsNullOrWhiteSpace(x.Attribute?.MappedTo)))
+			foreach (var leftMember in left.MemberDefinitions.Where(x => x.Attribute?.IsMappedToAnything == true))
 			{
-				var rightMember = right.MemberDefinitions.FirstOrDefault(x => x.Id == leftMember.Attribute.MappedTo);
-				if (rightMember == null) continue;
-				var key = $"{leftMember.Id}|{rightMember.Id}";
-				memberPairs[key] = new HCMappedMemberDefinitionPair { Left = leftMember, Right = rightMember };
+				var rightMembers = right.MemberDefinitions.Where(x => leftMember.Attribute.IsMappedTo(x.Id)).ToArray();
+				if (rightMembers?.Any() != true) continue;
+				var key = $"{leftMember.Id}|{createKey(rightMembers)}";
+				memberPairs[key] = new HCMappedMemberDefinitionPair { Left = new[] { leftMember }, Right = rightMembers };
 			}
 
-			foreach (var rightMember in right.MemberDefinitions.Where(x => !string.IsNullOrWhiteSpace(x.Attribute?.MappedTo)))
+			foreach (var rightMember in right.MemberDefinitions.Where(x => x.Attribute?.IsMappedToAnything == true))
 			{
-				var leftMember = left.MemberDefinitions.FirstOrDefault(x => x.Id == rightMember.Attribute.MappedTo);
-				if (leftMember == null) continue;
-				var key = $"{leftMember.Id}|{rightMember.Id}";
-				memberPairs[key] = new HCMappedMemberDefinitionPair { Left = leftMember, Right = rightMember };
+				var leftMembers = left.MemberDefinitions.Where(x => rightMember.Attribute.IsMappedTo(x.Id)).ToArray();
+				if (leftMembers?.Any() != true) continue;
+				var key = $"{createKey(leftMembers)}|{rightMember.Id}";
+				memberPairs[key] = new HCMappedMemberDefinitionPair { Left = leftMembers, Right = new[] { rightMember } };
 			}
 
 			return new HCMappedClassesDefinition
@@ -133,7 +136,7 @@ namespace HealthCheck.Core.Modules.MappedData.Utils
 		}
 
 		private static HCMappedClassDefinition CreateDefinitionsFromType(Type type, Dictionary<string, HCMappedClassDefinition> defsById, HCMappedDefinitionDiscoveryOptions options,
-			bool requireAttribute = true, string forcedMapsToDefinitionId = null, Type forceMapsToType = null, HCMappedClassDefinition parent = null)
+			bool requireAttribute = true, string forcedMapsToDefinitionId = null, Type[] forceMapsToTypes = null, HCMappedClassDefinition parent = null)
 		{
 			var id = CreateMappedClassTypeId(type);
 			if (defsById.TryGetValue(id, out var existing)) return existing;
@@ -147,21 +150,22 @@ namespace HealthCheck.Core.Modules.MappedData.Utils
 					var memberType = member.Member.PropertyType;
 					if (!memberType.GetProperties().Any(x => x.GetCustomAttribute<HCMappedPropertyAttribute>() != null)) continue;
 
-					var otherMemberName = member.Attribute?.MappedTo;
-					if (string.IsNullOrWhiteSpace(otherMemberName)) continue;
-					var otherProp = def.MapsToType?.GetProperty(otherMemberName);
-					if (otherProp == null) continue;
+					var otherProps = def.MapsToType?.GetProperties()
+						.Where(x => member.Attribute?.IsMappedTo(x.Name) == true);
+					if (otherProps?.Any() != true) continue;
 
-					CreateDefinitionsFromType(memberType, defsById, options, requireAttribute: false, forceMapsToType: otherProp.PropertyType, parent: def);
-					CreateDefinitionsFromType(otherProp.PropertyType, defsById, options, requireAttribute: false, forceMapsToType: memberType, parent: def);
+					CreateDefinitionsFromType(memberType, defsById, options, requireAttribute: false, forceMapsToTypes: otherProps.Select(x => x.PropertyType).Distinct().ToArray(), parent: def);
+					foreach (var otherProp in otherProps)
+					{
+						CreateDefinitionsFromType(otherProp.PropertyType, defsById, options, requireAttribute: false, forceMapsToTypes: new[] { memberType }, parent: def);
+					}
 				}
 			}
 
 			// Create def from input type if suitable
 			var attr = type.GetCustomAttribute<HCMappedClassAttribute>();
 			if (attr == null && requireAttribute) return null;
-
-			var def = CreateClassDefinition(type, attr, options, forcedMapsToDefinitionId, forceMapsToType, parent: parent);
+			var def = CreateClassDefinition(type, attr, options, forcedMapsToDefinitionId, forceMapsToTypes?.FirstOrDefault(), parent: parent);
 			defsById[id] = def;
 			createDefsFromSuitablePropertyTypes(def);
 

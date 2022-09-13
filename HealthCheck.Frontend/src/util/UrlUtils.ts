@@ -12,6 +12,7 @@ export default class UrlUtils
         }
         return clean;
     }
+
     static openRouteInNewTab(route: string): void {
         const url = UrlUtils.getOpenRouteInNewTabUrl(route);
         window.open(url, '_blank');
@@ -30,6 +31,7 @@ export default class UrlUtils
     }
 
     static updatePerstentQueryStringKey(): void {
+        // if (window.location.hash == '#undefined') return;
         UrlUtils.SetQueryStringParameter('h', window.location.hash);
     }
 
@@ -47,6 +49,7 @@ export default class UrlUtils
     static ClearQueryStringParameter(key: string): void {
         const params = new URLSearchParams(location.search);
         params.delete(key);
+        
         window.history.replaceState({}, '', `${location.pathname}?${params.toString()}${location.hash}`);
     }
 

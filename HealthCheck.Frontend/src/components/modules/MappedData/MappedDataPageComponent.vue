@@ -29,15 +29,24 @@
 
             <!-- CONTENT -->
             <div v-if="currentPair">
-                <h2>Left</h2>
-                <mapped-class-definition-component :def="currentPair.Left" />
-                <h2>Right</h2>
-                <mapped-class-definition-component :def="currentPair.Right" />
-                <h2>Members</h2>
-                <mapped-member-definition-component 
-                    v-for="(mDef, mIndex) in currentPair.MemberPairs"
-                    :key="`member-${id}-${mDef.Left.Id}-${mIndex}`"
-                    :def="mDef" />
+                <div class="leftright-container">
+                    <mapped-class-definition-component :def="currentPair.Left" class="left-side" />
+                    <div class="middle-section"></div>
+                    <mapped-class-definition-component :def="currentPair.Right" class="right-side" />
+                </div>
+                <div class="members mt-3">
+                    <h3 style="text-align:center">Properties</h3>
+                    <div style="text-align:center">
+                        <btn-component @click="showDetails = !showDetails" class="show-details-btn" flat>Show more details</btn-component>
+                    </div>
+                    <mapped-member-definition-pair-component
+                        v-for="(mDefPair, pIndex) in currentPair.MemberPairs"
+                        :key="`member-${id}-${mDefPair.Left.Id}-${pIndex}`"
+                        :def="mDefPair"
+                        :showDetails="showDetails"
+                        :allDefinitions="definitions"
+                        @gotoTypeClicked="gotoTypeClicked" />
+                </div>
             </div>
         </div>
     </div>
@@ -60,13 +69,15 @@ import HashUtils from "@util/HashUtils";
 import { FilterableListItem } from "@components/Common/FilterableListComponent.vue.models";
 import UrlUtils from "@util/UrlUtils";
 import MappedClassDefinitionComponent from "./MappedClassDefinitionComponent.vue";
-import MappedMemberDefinitionComponent from "./MappedMemberDefinitionComponent.vue";
+import MappedMemberDefinitionPairComponent from "./MappedMemberDefinitionPairComponent.vue";
+import { HCMappedClassDefinitionViewModel } from "@generated/Models/Core/HCMappedClassDefinitionViewModel";
+import { RouteLocationNormalized } from "vue-router";
 
 @Options({
     components: {
         FilterableListComponent,
         MappedClassDefinitionComponent,
-        MappedMemberDefinitionComponent
+        MappedMemberDefinitionPairComponent
     }
 })
 export default class MappedDataPageComponent extends Vue {
@@ -81,8 +92,10 @@ export default class MappedDataPageComponent extends Vue {
     // Service
     service: MappedDataService = new MappedDataService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
     dataLoadStatus: FetchStatus = new FetchStatus();
+    showDetails: boolean = false;
 
     id: string = IdUtils.generateId();
+    routeListener: Function | null = null;
     definitions: Array<HCMappedClassesDefinitionViewModel> = [];
     currentPair: HCMappedClassesDefinitionViewModel | null = null;
 
@@ -94,6 +107,14 @@ export default class MappedDataPageComponent extends Vue {
         StoreUtil.store.commit('showMenuButton', true);
 
         this.loadData();
+        this.routeListener = this.$router.afterEach((t, f, err) => this.onRouteChanged(t, f));
+    }
+
+    beforeDestroy(): void {
+        if (this.routeListener)
+        {
+            this.routeListener();
+        }
     }
 
     ////////////////
@@ -121,6 +142,20 @@ export default class MappedDataPageComponent extends Vue {
     }
     
     hash(input: string) { return HashUtils.md5(input); }
+    
+    onRouteChanged(to: RouteLocationNormalized, from: RouteLocationNormalized): void {
+        if (!this.definitions || !to.path.toLowerCase().startsWith('/mappeddata/')) return;
+
+        const oldTypeIdFromHash = StringUtils.stringOrFirstOfArray(from.params.typeId) || null;
+        const newTypeIdFromHash = StringUtils.stringOrFirstOfArray(to.params.typeId) || null;
+        const typeChanged = oldTypeIdFromHash != newTypeIdFromHash;
+
+        if (typeChanged)
+        {
+            const matchingStream = this.definitions.filter(x => this.hash(x.Left.Id) == newTypeIdFromHash)[0] || null;
+            this.setActiveType(matchingStream, false);
+        }
+    }
 
     setActiveType(type: HCMappedClassesDefinitionViewModel, updateUrl: boolean = true): void {
         this.currentPair = type;
@@ -129,7 +164,9 @@ export default class MappedDataPageComponent extends Vue {
         const idHash = this.hash(type.Left.Id);
         if (updateUrl && StringUtils.stringOrFirstOfArray(this.$route.params.typeId) != StringUtils.stringOrFirstOfArray(idHash))
         {
+            console.log("A1", window.location.href);
             this.$router.push(`/mappeddata/${idHash}`);
+            console.log("B1", window.location.href);
         }
     }
 
@@ -147,8 +184,11 @@ export default class MappedDataPageComponent extends Vue {
     get menuItems(): Array<FilterableListItem>
     {
         return this.definitions.map(x => {
+            let name = x.Left?.DisplayName == x.Right?.DisplayName
+                ? x.Left?.DisplayName
+                : `${x.Left?.DisplayName} ↔️ ${x.Right?.DisplayName}`;
             return {
-                title: `${x.Left?.DisplayName} ↔️ ${x.Right?.DisplayName}`,
+                title: name,
                 subtitle: '',
                 data: x
             };
@@ -170,11 +210,61 @@ export default class MappedDataPageComponent extends Vue {
             UrlUtils.openRouteInNewTab(route);
         }
     }
+    
+    gotoTypeClicked(def: HCMappedClassesDefinitionViewModel, middle: boolean): void {
+        if (middle) {
+            const idHash = this.hash(def.Left.Id);
+            const route = `#/mappeddata/${idHash}`;
+            UrlUtils.openRouteInNewTab(route);
+        } else {
+            this.setActiveType(def);
+        }
+    }
 }
 </script>
 
 <style scoped lang="scss">
 .mapped-data {
+    .show-details-btn {
+        font-size: 12px;
+    }
+}
+</style>
 
+<style lang="scss">
+.mapped-data {
+    .leftright-container {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: center;
+        .left-side {
+            padding-right: 10px;
+            flex: 1;
+            text-align: right;
+        }
+        .right-side {
+            padding-left: 10px;
+            flex: 1;
+        }
+        .middle-section {
+            width: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            &.bordered {
+                width: 0;
+                border-right: 2px solid var(--color--accent-darken1);
+                box-sizing: border-box;
+                margin-left: 9px;
+                margin-right: 9px;
+            }
+        }
+        .center-vertically {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+    }
 }
 </style>

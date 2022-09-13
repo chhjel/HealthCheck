@@ -79,7 +79,7 @@ namespace HealthCheck.Dev.Common.DataMapper
 	[HCMappedClass(typeof(Thing_Right))]
 	public class Thing_Left
 	{
-		[HCMappedProperty(nameof(Thing_Right.SomethingRight))]
+        [HCMappedProperty(nameof(Thing_Right.SomethingRightA), nameof(Thing_Right.SomethingRightB), nameof(Thing_Right.SomethingRightC))]
 		public string SomethingLeft { get; set; }
 
 		[HCMappedProperty(nameof(Thing_Right.CurrRight))]
@@ -91,7 +91,9 @@ namespace HealthCheck.Dev.Common.DataMapper
 
 	public class Thing_Right
 	{
-		public string SomethingRight { get; set; }
+		public string SomethingRightA { get; set; }
+		public string SomethingRightB { get; set; }
+		public string SomethingRightC { get; set; }
 		public TechCurrency_Right CurrRight { get; set; }
 		public Recursive_Right RecursiveRight { get; set; }
 	}

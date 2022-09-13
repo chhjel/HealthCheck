@@ -4,9 +4,9 @@
     public class HCMappedMemberDefinitionPairViewModel
 	{
 		/// <summary></summary>
-		public HCMappedMemberDefinitionViewModel Left { get; set; }
+		public HCMappedMemberDefinitionViewModel[] Left { get; set; }
 
 		/// <summary></summary>
-		public HCMappedMemberDefinitionViewModel Right { get; set; }
+		public HCMappedMemberDefinitionViewModel[] Right { get; set; }
 	}
 }

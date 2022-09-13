@@ -226,8 +226,7 @@ export default class HashUtils
     }
 
     var temp = WordToHex(a) + WordToHex(b) + WordToHex(c) + WordToHex(d);
-
-    return temp.toLowerCase();
+    return temp?.toLowerCase() || '';
   };
   
 }

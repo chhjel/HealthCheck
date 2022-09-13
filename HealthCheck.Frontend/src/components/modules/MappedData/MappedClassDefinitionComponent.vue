@@ -1,11 +1,10 @@
 <!-- src/components/modules/MappedData/MappedClassDefinitionComponent.vue -->
 <template>
-    <div>
-        <code>DisplayName: {{ def.DisplayName }}</code><br />
-        <code>ClassTypeName: {{ def.ClassTypeName }}</code><br />
-        <code>MapsToDefinitionId: {{ def.MapsToDefinitionId }}</code><br />
-        <code>DataSourceName: {{ def.DataSourceName }}</code><br />
-        <code>Remarks: {{ def.Remarks }}</code>
+    <div class="class-def">
+        <h2>{{ def.DisplayName }}</h2>
+        <div>ClassType: <b>{{ def.ClassTypeName }}</b></div>
+        <div v-if="def.DataSourceName">Data location: <b>{{ def.DataSourceName }}</b></div>
+        <div v-if="def.Remarks" class="mt-2"><p>{{ def.Remarks }}</p></div>
     </div>
 </template>
 
@@ -49,5 +48,4 @@ export default class MappedClassDefinitionComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-
 </style>

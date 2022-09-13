@@ -6,6 +6,6 @@ import { HCMappedMemberDefinition } from './HCMappedMemberDefinition';
 
 export interface HCMappedMemberDefinitionPair
 {
-	Left: HCMappedMemberDefinition;
-	Right: HCMappedMemberDefinition;
+	Left: HCMappedMemberDefinition[];
+	Right: HCMappedMemberDefinition[];
 }
