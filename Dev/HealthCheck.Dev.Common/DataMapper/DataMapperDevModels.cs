@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 namespace HealthCheck.Dev.Common.DataMapper
 {
 	[HCMappedClass(@"
-// Some remark here
+// Name combines first and last name
 Name <=> [ExternalData.SomeInfoName1, ExternalData.SomeInfoName2]
 
 HomeAddress {
@@ -38,6 +38,8 @@ WorkAddress {
 	[HCMappedClass(@"
 Name <=> ExternalData.SomethingElse
 HomeAddress <=> NonExistent.Nope
+LeftNotExisting <=> ExternalData.Addresses.Work.City
+BothNotExisting <=> Nope
 WorkAddress {
 	Geo {
 		// This one should fail

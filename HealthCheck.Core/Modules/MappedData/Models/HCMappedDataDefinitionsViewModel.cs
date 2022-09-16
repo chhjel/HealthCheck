@@ -9,6 +9,6 @@ namespace HealthCheck.Core.Modules.MappedData.Models
 		public List<HCMappedClassDefinitionViewModel> ClassDefinitions { get; set; } = new();
 
 		/// <summary></summary>
-		public List<HCMappedReferencedTypeDefinitionViewModel> ReferencedDefinitions = new();
+		public List<HCMappedReferencedTypeDefinitionViewModel> ReferencedDefinitions { get; set; } = new();
 	}
 }

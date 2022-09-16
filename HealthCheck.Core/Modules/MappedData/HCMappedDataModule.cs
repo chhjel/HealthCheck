@@ -109,6 +109,8 @@ namespace HealthCheck.Core.Modules.MappedData
                 Id = d.Id,
                 DisplayName = d.DisplayName,
                 FullPropertyPath = d.FullPropertyPath,
+                PropertyTypeName = d.Member?.PropertyType?.Name,
+                FullPropertyTypeName = d.Member?.PropertyType == null ? null : $"{d.Member?.PropertyType?.Namespace}.{d.Member?.PropertyType?.Name}",
                 PropertyName = d.PropertyName,
                 Remarks = d.Remarks,
                 Children = children,
@@ -138,7 +140,9 @@ namespace HealthCheck.Core.Modules.MappedData
                 Success = d.Success,
                 Error = d.Error,
                 DeclaringTypeName = d.DeclaringType?.Name,
-                PropertyName = d.PropertyName
+                PropertyName = d.PropertyName,
+                PropertyTypeName = d.PropertyType?.Name,
+                FullPropertyTypeName = d?.PropertyType == null ? null : $"{d?.PropertyType?.Namespace}.{d?.PropertyType?.Name}",
             };
         }
         #endregion

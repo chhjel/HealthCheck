@@ -17,6 +17,8 @@ namespace HealthCheck.Core.Modules.MappedData.Models
 		/// <summary></summary>
 		public Type DeclaringType { get; set; }
 		/// <summary></summary>
+		public Type PropertyType { get; internal set; }
+		/// <summary></summary>
 		public PropertyInfo PropertyInfo { get; set; }
-	}
+    }
 }

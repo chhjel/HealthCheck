@@ -8,6 +8,8 @@ export interface HCMappedMemberDefinitionViewModel
 {
 	Id: string;
 	PropertyName: string;
+	PropertyTypeName: string;
+	FullPropertyTypeName: string;
 	FullPropertyPath: string;
 	DisplayName: string;
 	Remarks: string;

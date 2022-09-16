@@ -13,5 +13,9 @@
 		public string DisplayName { get; set; }
 		/// <summary></summary>
 		public string DeclaringTypeName { get; set; }
-	}
+		/// <summary></summary>
+		public string PropertyTypeName { get; set; }
+		/// <summary></summary>
+		public string FullPropertyTypeName { get; set; }
+    }
 }

@@ -9,4 +9,6 @@ export interface HCMappedMemberReferencePathItemDefinitionViewModel
 	PropertyName: string;
 	DisplayName: string;
 	DeclaringTypeName: string;
+	PropertyTypeName: string;
+	FullPropertyTypeName: string;
 }

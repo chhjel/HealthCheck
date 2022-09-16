@@ -3,8 +3,10 @@
 //     the code is regenerated.
 
 import { HCMappedClassDefinitionViewModel } from './HCMappedClassDefinitionViewModel';
+import { HCMappedReferencedTypeDefinitionViewModel } from './HCMappedReferencedTypeDefinitionViewModel';
 
 export interface HCMappedDataDefinitionsViewModel
 {
 	ClassDefinitions: HCMappedClassDefinitionViewModel[];
+	ReferencedDefinitions: HCMappedReferencedTypeDefinitionViewModel[];
 }

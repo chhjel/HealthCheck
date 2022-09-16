@@ -12,6 +12,12 @@ namespace HealthCheck.Core.Modules.MappedData.Models
 		public string PropertyName { get; set; }
 
 		/// <summary></summary>
+		public string PropertyTypeName { get; set; }
+
+		/// <summary></summary>
+		public string FullPropertyTypeName { get; set; }
+
+		/// <summary></summary>
 		public string FullPropertyPath { get; set; }
 
 		/// <summary></summary>

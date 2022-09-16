@@ -153,6 +153,7 @@ namespace HealthCheck.Core.Modules.MappedData.Utils
 					Error = x.Error,
 					DisplayName = (x.PropertyInfo == null) ? x.Name : TryAutoDiscoverPropertyDisplayName(x.PropertyInfo, options),
 					PropertyName = x.PropertyInfo?.Name,
+					PropertyType = x.PropertyInfo?.PropertyType,
 					PropertyInfo = x.PropertyInfo,
 					DeclaringType = x.DeclaringType
 				}).ToList();

@@ -9,5 +9,6 @@ export interface HCMappedMemberReferencePathItemDefinition
 	PropertyName: string;
 	DisplayName: string;
 	DeclaringType: any;
+	PropertyType: any;
 	PropertyInfo: any;
 }

@@ -28,26 +28,47 @@
             </alert-component>
 
             <!-- CONTENT -->
-            <div v-if="currentPair">
-                <div class="leftright-container">
-                    <mapped-class-definition-component :def="currentPair.Left" class="left-side" />
-                    <div class="middle-section"></div>
-                    <mapped-class-definition-component :def="currentPair.Right" class="right-side" />
-                </div>
-                <div class="members mt-3">
-                    <h3 style="text-align:center">Properties</h3>
-                    <div style="text-align:center">
-                        <btn-component @click="showDetails = !showDetails" class="show-details-btn" flat>Show more details</btn-component>
+            <div v-if="currentDef">
+                <div class="filters mb-4">
+                    <h3>Included data</h3>
+                    <div class="filters__inputs">
+                        <checkbox-component
+                            label="Property names"
+                            v-model:value="displayOptions.showPropertyNames"
+                            @change="onFilterChanged"
+                            :disabled="isLoading"
+                            class="mr-3" />
+                        <checkbox-component
+                            label="Property comments"
+                            v-model:value="displayOptions.showPropertyRemarks"
+                            @change="onFilterChanged"
+                            :disabled="isLoading"
+                            class="mr-3" />
+                        <checkbox-component
+                            label="Mapped types"
+                            v-model:value="displayOptions.showMappedToTypes"
+                            @change="onFilterChanged"
+                            :disabled="isLoading"
+                            class="mr-3" />
+                        <checkbox-component
+                            label="Mapped declaring types"
+                            v-model:value="displayOptions.showMappedToDeclaringTypes"
+                            @change="onFilterChanged"
+                            :disabled="isLoading"
+                            class="mr-3" />
+                        <checkbox-component
+                            label="Mapped property names"
+                            v-model:value="displayOptions.showMappedToPropertyNames"
+                            @change="onFilterChanged"
+                            :disabled="isLoading"
+                            class="mr-3" />
                     </div>
-                    <mapped-member-definition-pair-component
-                        v-for="(mDefPair, pIndex) in currentPair.MemberPairs"
-                        :key="`member-${id}-${mDefPair.Left.Id}-${pIndex}`"
-                        :def="mDefPair"
-                        :showDetails="showDetails"
-                        :allDefinitions="definitions"
-                        :parentDefs="currentPair"
-                        @gotoTypeClicked="gotoTypeClicked" />
                 </div>
+
+                <mapped-class-definition-component
+                    :def="currentDef"
+                    :allDefinitions="definitions"
+                    :displayOptions="displayOptions" />
             </div>
         </div>
     </div>
@@ -64,20 +85,20 @@ import ModuleOptions from '@models/Common/ModuleOptions';
 import { StoreUtil } from "@util/StoreUtil";
 import MappedDataService from "@services/MappedDataService";
 import IdUtils from "@util/IdUtils";
-import { HCMappedClassesDefinitionViewModel } from "@generated/Models/Core/HCMappedClassesDefinitionViewModel";
 import StringUtils from "@util/StringUtils";
 import HashUtils from "@util/HashUtils";
 import { FilterableListItem } from "@components/Common/FilterableListComponent.vue.models";
 import UrlUtils from "@util/UrlUtils";
 import MappedClassDefinitionComponent from "./MappedClassDefinitionComponent.vue";
-import MappedMemberDefinitionPairComponent from "./MappedMemberDefinitionPairComponent.vue";
 import { RouteLocationNormalized } from "vue-router";
+import { HCMappedDataDefinitionsViewModel } from "@generated/Models/Core/HCMappedDataDefinitionsViewModel";
+import { HCMappedClassDefinitionViewModel } from "@generated/Models/Core/HCMappedClassDefinitionViewModel";
+import MappedDataDisplayOptions from "@models/modules/MappedData/MappedDataDisplayOptions";
 
 @Options({
     components: {
         FilterableListComponent,
-        MappedClassDefinitionComponent,
-        MappedMemberDefinitionPairComponent
+        MappedClassDefinitionComponent
     }
 })
 export default class MappedDataPageComponent extends Vue {
@@ -92,12 +113,21 @@ export default class MappedDataPageComponent extends Vue {
     // Service
     service: MappedDataService = new MappedDataService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
     dataLoadStatus: FetchStatus = new FetchStatus();
-    showDetails: boolean = false;
 
     id: string = IdUtils.generateId();
     routeListener: Function | null = null;
-    definitions: Array<HCMappedClassesDefinitionViewModel> = [];
-    currentPair: HCMappedClassesDefinitionViewModel | null = null;
+    definitions: HCMappedDataDefinitionsViewModel = {
+        ClassDefinitions: [],
+        ReferencedDefinitions: []
+    };
+    currentDef: HCMappedClassDefinitionViewModel | null = null;
+    displayOptions: MappedDataDisplayOptions = {
+        showPropertyNames: false,
+        showPropertyRemarks: true,
+        showMappedToTypes: false,
+        showMappedToDeclaringTypes: false,
+        showMappedToPropertyNames: false
+    };
 
     //////////////////
     //  LIFECYCLE  //
@@ -105,6 +135,9 @@ export default class MappedDataPageComponent extends Vue {
     async mounted()
     {
         StoreUtil.store.commit('showMenuButton', true);
+        
+        const localStorageOptsJson = localStorage.getItem('__hc_mapping_displayOpts');
+        if (localStorageOptsJson) try { this.displayOptions = JSON.parse(localStorageOptsJson) } catch {};
 
         this.loadData();
         this.routeListener = this.$router.afterEach((t, f, err) => this.onRouteChanged(t, f));
@@ -126,17 +159,17 @@ export default class MappedDataPageComponent extends Vue {
         });
     }
 
-    onDefinitionsRetrieved(data: Array<HCMappedClassesDefinitionViewModel>): void {
+    onDefinitionsRetrieved(data: HCMappedDataDefinitionsViewModel): void {
         this.definitions = data;
         
         const idFromHash = StringUtils.stringOrFirstOfArray(this.$route.params.typeId) || null;
         if (this.definitions)
         {
-            const matchingType = this.definitions.filter(x => this.hash(x.Left.Id) == idFromHash)[0];
+            const matchingType = this.definitions.ClassDefinitions.filter(x => this.hash(x.Id) == idFromHash)[0];
             if (matchingType) {
                 this.setActiveType(matchingType, false);
-            } else if (this.definitions.length > 0) {
-                this.setActiveType(this.definitions[0]);   
+            } else if (this.definitions.ClassDefinitions.length > 0) {
+                this.setActiveType(this.definitions.ClassDefinitions[0]);   
             }
         }
     }
@@ -152,16 +185,16 @@ export default class MappedDataPageComponent extends Vue {
 
         if (typeChanged)
         {
-            const matchingStream = this.definitions.filter(x => this.hash(x.Left.Id) == newTypeIdFromHash)[0] || null;
+            const matchingStream = this.definitions.ClassDefinitions.filter(x => this.hash(x.Id) == newTypeIdFromHash)[0] || null;
             this.setActiveType(matchingStream, false);
         }
     }
 
-    setActiveType(type: HCMappedClassesDefinitionViewModel, updateUrl: boolean = true): void {
-        this.currentPair = type;
+    setActiveType(type: HCMappedClassDefinitionViewModel, updateUrl: boolean = true): void {
+        this.currentDef = type;
         (this.filterableList as FilterableListComponent).setSelectedItem(type);
 
-        const idHash = this.hash(type.Left.Id);
+        const idHash = this.hash(type.Id);
         if (updateUrl && StringUtils.stringOrFirstOfArray(this.$route.params.typeId) != StringUtils.stringOrFirstOfArray(idHash))
         {
             this.$router.push(`/mappeddata/${idHash}`);
@@ -181,12 +214,9 @@ export default class MappedDataPageComponent extends Vue {
     
     get menuItems(): Array<FilterableListItem>
     {
-        return this.definitions.map(x => {
-            let name = x.Left?.DisplayName == x.Right?.DisplayName
-                ? x.Left?.DisplayName
-                : `${x.Left?.DisplayName} ↔️ ${x.Right?.DisplayName}`;
+        return this.definitions.ClassDefinitions.map(x => {
             return {
-                title: name,
+                title: x.DisplayName,
                 subtitle: '',
                 data: x
             };
@@ -209,60 +239,30 @@ export default class MappedDataPageComponent extends Vue {
         }
     }
     
-    gotoTypeClicked(def: HCMappedClassesDefinitionViewModel, middle: boolean): void {
+    gotoTypeClicked(def: HCMappedClassDefinitionViewModel, middle: boolean): void {
         if (middle) {
-            const idHash = this.hash(def.Left.Id);
+            const idHash = this.hash(def.Id);
             const route = `#/mappeddata/${idHash}`;
             UrlUtils.openRouteInNewTab(route);
         } else {
             this.setActiveType(def);
         }
     }
+
+    onFilterChanged(): void {
+        localStorage.setItem('__hc_mapping_displayOpts', JSON.stringify(this.displayOptions));
+    }
 }
 </script>
 
 <style scoped lang="scss">
-.mapped-data {
-    .show-details-btn {
-        font-size: 12px;
-    }
-}
-</style>
-
-<style lang="scss">
-.mapped-data {
-    .leftright-container {
+.filters {
+    background-color: var(--color--accent-base);
+    border: 1px solid var(--color--accent-darken1);
+    padding: 10px;
+    &__inputs {
         display: flex;
-        flex-wrap: nowrap;
-        justify-content: center;
-        .left-side {
-            padding-right: 10px;
-            flex: 1;
-            text-align: right;
-        }
-        .right-side {
-            padding-left: 10px;
-            flex: 1;
-        }
-        .middle-section {
-            width: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            &.bordered {
-                width: 0;
-                border-right: 2px solid var(--color--accent-darken1);
-                box-sizing: border-box;
-                margin-left: 9px;
-                margin-right: 9px;
-            }
-        }
-        .center-vertically {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
+        flex-wrap: wrap;
     }
 }
 </style>
