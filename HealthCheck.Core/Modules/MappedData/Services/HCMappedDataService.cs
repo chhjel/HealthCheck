@@ -12,14 +12,14 @@ namespace HealthCheck.Core.Modules.MappedData.Services
     /// </summary>
     public class HCMappedDataService : IHCMappedDataService
     {
-        private static readonly Dictionary<string, List<HCMappedClassesDefinition>> _definitionCache = new();
+        private static readonly Dictionary<string, HCMappedDataDefinitions> _definitionCache = new();
 
         /// <summary>
         /// Get all definitions in the given assemblies. Caches based on given assemblies.
         /// </summary>
-        public List<HCMappedClassesDefinition> GetDefinitions(IEnumerable<Assembly> assemblies, HCMappedDefinitionDiscoveryOptions options)
+        public HCMappedDataDefinitions GetDefinitions(IEnumerable<Assembly> assemblies, HCMappedDefinitionDiscoveryOptions options)
         {
-            if (assemblies?.Any() != true) return new List<HCMappedClassesDefinition>();
+            if (assemblies?.Any() != true) return new();
             
             var cacheKey = string.Join("|", assemblies.Select(x => x.FullName));
             lock (_definitionCache)
@@ -28,8 +28,11 @@ namespace HealthCheck.Core.Modules.MappedData.Services
                 {
                     options ??= new HCMappedDefinitionDiscoveryOptions();
                     var defs = HCMappedDataDefinitionBuilder.CreateDefinitions(assemblies, options);
-                    var pairs = HCMappedDataDefinitionBuilder.CreateDefinitionPairs(defs.Values);
-                    _definitionCache[cacheKey] = pairs;
+#if DEBUG
+                    return defs;
+#else
+                    _definitionCache[cacheKey] = defs;
+#endif
                 }
                 return _definitionCache[cacheKey];
             }

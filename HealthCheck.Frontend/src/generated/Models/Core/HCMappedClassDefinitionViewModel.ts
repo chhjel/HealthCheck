@@ -9,9 +9,7 @@ export interface HCMappedClassDefinitionViewModel
 	Id: string;
 	TypeName: string;
 	DisplayName: string;
-	MapsToDefinitionId: string;
 	ClassTypeName: string;
-	DataSourceName: string;
 	GroupName: string;
 	Remarks: string;
 	MemberDefinitions: HCMappedMemberDefinitionViewModel[];

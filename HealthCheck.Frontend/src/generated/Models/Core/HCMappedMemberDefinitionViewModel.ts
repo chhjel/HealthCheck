@@ -2,11 +2,15 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
+import { HCMappedMemberReferenceDefinitionViewModel } from './HCMappedMemberReferenceDefinitionViewModel';
+
 export interface HCMappedMemberDefinitionViewModel
 {
 	Id: string;
-	DisplayName: string;
 	PropertyName: string;
-	FullTypeName: string;
+	FullPropertyPath: string;
+	DisplayName: string;
 	Remarks: string;
+	Children: HCMappedMemberDefinitionViewModel[];
+	MappedTo: HCMappedMemberReferenceDefinitionViewModel[];
 }

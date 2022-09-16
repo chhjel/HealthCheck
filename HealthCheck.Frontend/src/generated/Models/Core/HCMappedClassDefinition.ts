@@ -9,10 +9,7 @@ export interface HCMappedClassDefinition
 	Id: string;
 	TypeName: string;
 	DisplayName: string;
-	MapsToDefinitionId: string;
 	GroupName: string;
-	MapsToType: any;
-	MapsToDefinition: HCMappedClassDefinition;
 	ClassType: any;
 	Attribute: any;
 	MemberDefinitions: HCMappedMemberDefinition[];

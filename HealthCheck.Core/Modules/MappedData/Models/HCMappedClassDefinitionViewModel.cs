@@ -15,13 +15,7 @@ namespace HealthCheck.Core.Modules.MappedData.Models
 		public string DisplayName { get; set; }
 
 		/// <summary></summary>
-		public string MapsToDefinitionId { get; set; }
-
-		/// <summary></summary>
 		public string ClassTypeName { get; set; }
-
-		/// <summary></summary>
-		public string DataSourceName { get; set; }
 
 		/// <summary></summary>
 		public string GroupName { get; set; }

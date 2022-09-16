@@ -1,4 +1,4 @@
-﻿using HealthCheck.Core.Modules.MappedData.Attributes;
+﻿using System.Collections.Generic;
 using System.Reflection;
 
 namespace HealthCheck.Core.Modules.MappedData.Models
@@ -19,14 +19,14 @@ namespace HealthCheck.Core.Modules.MappedData.Models
 		public string PropertyName { get; set; }
 
 		/// <summary>
+		/// Full dotted path of the property.
+		/// </summary>
+		public string FullPropertyPath { get; set; }
+
+		/// <summary>
 		/// Display name of this definition.
 		/// </summary>
 		public string DisplayName { get; set; }
-
-		/// <summary>
-		/// Other member name this one is mapped to.
-		/// </summary>
-		public string MappedTo { get; set; }
 
 		/// <summary>
 		/// The property info behind this member.
@@ -34,15 +34,26 @@ namespace HealthCheck.Core.Modules.MappedData.Models
 		public PropertyInfo Member { get; set; }
 
 		/// <summary>
-		/// Full type name of this members type.
+		/// Any comments for this member.
 		/// </summary>
-		public string FullTypeName => Member == null ? null : $"{Member?.PropertyType?.Namespace}.{Member?.PropertyType?.Name}";
+		public string Remarks { get; set; }
 
 		/// <summary>
-		/// Attribute decorated on this members type.
+		/// Parent if any.
 		/// </summary>
-		public HCMappedPropertyAttribute Attribute { get; set; }
+		public HCMappedMemberDefinition Parent { get; set; }
 
-		internal bool IsReferenced { get; set; }
+		/// <summary>
+		/// Child properties.
+		/// </summary>
+		public List<HCMappedMemberDefinition> Children { get; set; }
+
+		/// <summary>
+		/// What this member is mapped to.
+		/// </summary>
+		public List<HCMappedMemberReferenceDefinition> MappedTo { get; set; }
+
+		/// <summary></summary>
+		public override string ToString() => $"{Id}";
 	}
 }

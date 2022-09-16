@@ -3,98 +3,95 @@ using Newtonsoft.Json;
 
 namespace HealthCheck.Dev.Common.DataMapper
 {
-    [HCMappedClass(typeof(Tech_Right), GroupName = "Tech Import", DataSourceName = "TechCRM", Order = -1, OverrideName = "Tech Left", Remarks = "Some remarks here for the type.")]
-	public class Tech_Left
-	{
-		[HCMappedProperty(nameof(Tech_Right.Weight), Remarks = "This one is weird.")]
-		//[System.Text.Json.Serialization.JsonPropertyNameAttribute("ASD")]
-		[JsonProperty("info2")]
-		public string Information2 { get; set; }
+	[HCMappedClass(@"
+// Some remark here
+Name <=> [ExternalData.SomeInfoName1, ExternalData.SomeInfoName2]
 
-		[HCMappedProperty(nameof(Tech_Right.Height))]
+HomeAddress {
+	FromRootLevelTest <=> ExternalData.RootValue
+	StreetName <=> ExternalData.Addresses.StreetName
+	StreetNo <=> ExternalData.Addresses.StreetNo // 0 - 12
+	ZipCode <=> ExternalData.Addresses.ZipCode
+	City <=> ExternalData.Addresses.City
+	Geo {
+		// Fetched from api X
+		Lon
+		// Fetched from api X
+		Lat
+	}
+}
+
+WorkAddress {
+	FromRootLevelTest <=> ExternalData.RootValue
+	StreetName <=> ExternalData.Addresses.Work.StreetName
+	StreetNo <=> ExternalData.Addresses.Work.StreetNo
+	ZipCode <=> ExternalData.Addresses.Work.ZipCode
+	City <=> ExternalData.Addresses.Work.City
+	Geo {
+		// Fetched from api Y
+		Lon
+		// Fetched from api Y
+		Lat
+	}
+}
+", GroupName = "Test Group X", OverrideName = "Test #1", Remarks = "Some remarks here.")]
+	[HCMappedClass(@"
+Name <=> ExternalData.SomethingElse
+HomeAddress <=> NonExistent.Nope
+WorkAddress {
+	Geo {
+		// This one should fail
+		Lat <=> ExternalData.Addresses.NotExisting
+	}
+}
+", OverrideName = "With errors")]
+	[HCMappedClass(@"Name <=> ExternalData.SomethingElse")]
+	public class LeftRoot
+	{
 		[JsonProperty("info8")]
-		public string Information8 { get; set; }
+		public string Name { get; set; }
 
-		public int NotRelevantApi { get; set; }
+		public AddressData HomeAddress { get; set; }
+		public AddressData WorkAddress { get; set; }
+	}
+	public class AddressData
+	{
+		public string FromRootLevelTest { get; set; }
 
-		[HCMappedProperty(nameof(Tech_Right.PriceLocal))]
-		public TechPrice_Left Price { get; set; }
+		public string StreetName { get; set; }
+		public string StreetNo { get; set; }
+		public string ZipCode { get; set; }
+		public string City { get; set; }
+		public GeoData Geo { get; set; }
 	}
-	public class TechPrice_Left
+	public class GeoData
 	{
-		[HCMappedProperty(nameof(TechPrice_Right.AmountNo))]
-		public int Amount { get; set; }
-		public int NotRelevantPriceA { get; set; }
-		[HCMappedProperty(nameof(TechPrice_Right.CurrencyLocal))]
-		public TechCurrency_Left Currency { get; set; }
+		public decimal Lon { get; set; }
+		public decimal Lat { get; set; }
 	}
-	public class TechCurrency_Left
+	// -------------------
+	[HCMappedReferencedType]
+	public class ExternalData
 	{
-		[HCMappedProperty(nameof(TechCurrency_Right.CurrencyRight))]
-		public string CurrencyLeft { get; set; }
+		public string RootValue { get; set; }
+		public string SomeInfoName1 { get; set; }
+		public string SomeInfoName2 { get; set; }
+		public ExternalAddressData Addresses { get; set; }
 	}
-
-	public class Tech_Right
+	public class ExternalAddressData
 	{
-		public decimal Weight { get; set; }
-		[HCMappedProperty(nameof(Tech_Left.Information8), OverrideName = "HAAAIGHT")]
-		public decimal Height { get; set; }
-		public bool NotRelevantLocal { get; set; }
-
-		public TechPrice_Right PriceLocal { get; set; }
+		public string StreetName { get; set; }
+		public string StreetNo { get; set; }
+		public string ZipCode { get; set; }
+		public string City { get; set; }
+		public ExternalAddressDetailsData Work { get; set; }
 	}
-	public class TechPrice_Right
+	public class ExternalAddressDetailsData
 	{
-		public decimal AmountNo { get; set; }
-		public int NotRelevantPriceB { get; set; }
-		public TechCurrency_Right CurrencyLocal { get; set; }
+		public string StreetName { get; set; }
+		public string StreetNo { get; set; }
+		public string ZipCode { get; set; }
+		public string City { get; set; }
 	}
-	public class TechCurrency_Right
-	{
-		public string CurrencyRight { get; set; }
-	}
-	public class Recursive_Left
-	{
-		[HCMappedProperty(nameof(Recursive_Right.RecId))]
-		public string RecId { get; set; }
-		[HCMappedProperty(nameof(Recursive_Right.SubRecursive))]
-		public Recursive_Left SubRecursive { get; set; }
-	}
-	public class Recursive_Right
-	{
-		public string RecId { get; set; }
-		public Recursive_Right SubRecursive { get; set; }
-	}
-
-	[HCMappedClass(typeof(string))]
-	public class UnusedModel
-	{
-		[HCMappedProperty(nameof(Tech_Right.Weight), Remarks = "This one is weird.")]
-		[JsonProperty("info2")]
-		public string Information2 { get; set; }
-
-		public int NotRelevantApi { get; set; }
-	}
-
-	[HCMappedClass(typeof(Thing_Right))]
-	public class Thing_Left
-	{
-        [HCMappedProperty(nameof(Thing_Right.SomethingRightA), nameof(Thing_Right.SomethingRightB), nameof(Thing_Right.SomethingRightC))]
-		public string SomethingLeft { get; set; }
-
-		[HCMappedProperty(nameof(Thing_Right.CurrRight))]
-		public TechCurrency_Left CurrLeft { get; set; }
-
-		[HCMappedProperty(nameof(Thing_Right.RecursiveRight))]
-		public Recursive_Left RecursiveLeft { get; set; }
-	}
-
-	public class Thing_Right
-	{
-		public string SomethingRightA { get; set; }
-		public string SomethingRightB { get; set; }
-		public string SomethingRightC { get; set; }
-		public TechCurrency_Right CurrRight { get; set; }
-		public Recursive_Right RecursiveRight { get; set; }
-	}
+	// ########################################################
 }

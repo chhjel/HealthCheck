@@ -54,23 +54,34 @@ namespace HealthCheck.Core.Modules.MappedData
         #region Invokable methods
         /// <summary></summary>
         [HealthCheckModuleMethod]
-        public List<HCMappedClassesDefinitionViewModel> GetDefinitions(/*HealthCheckModuleContext context*/)
+        public HCMappedDataDefinitionsViewModel GetDefinitions(/*HealthCheckModuleContext context*/)
         {
-            var pairs = Options.Service.GetDefinitions(Options.IncludedAssemblies, Options.DiscoveryOptions);
-            return pairs.Select(x => Create(x)).ToList();
+            var defs = Options.Service.GetDefinitions(Options.IncludedAssemblies, Options.DiscoveryOptions);
+            return Create(defs);
         }
         #endregion
 
         #region Helpers
-        private static HCMappedClassesDefinitionViewModel Create(HCMappedClassesDefinition d)
+        private static HCMappedDataDefinitionsViewModel Create(HCMappedDataDefinitions d)
         {
-            var members = d.MemberPairs.Select(x => Create(x)).ToList();
-            return new HCMappedClassesDefinitionViewModel
+            var classDefs = d.ClassDefinitions.Select(x => Create(x)).ToList();
+            var refDefs = d.ReferencedDefinitions.Select(x => Create(x)).ToList();
+            return new HCMappedDataDefinitionsViewModel
             {
-                GroupName = d.GroupName,
-                Left = Create(d.Left),
-                Right = Create(d.Right),
-                MemberPairs = members
+                ClassDefinitions = classDefs,
+                ReferencedDefinitions = refDefs
+            };
+        }
+
+        private static HCMappedReferencedTypeDefinitionViewModel Create(HCMappedReferencedTypeDefinition d)
+        {
+            return new HCMappedReferencedTypeDefinitionViewModel
+            {
+                Id = d.Id,
+                ReferenceId = d.ReferenceId,
+                DisplayName = d.DisplayName,
+                TypeName = d.Type?.Name,
+                Remarks = d.Attribute?.Remarks
             };
         }
 
@@ -80,35 +91,54 @@ namespace HealthCheck.Core.Modules.MappedData
             return new HCMappedClassDefinitionViewModel
             {
                 Id = d.Id,
-                ClassTypeName = d.ClassType.Name,
+                ClassTypeName = d.ClassType?.Name,
                 DisplayName = d.DisplayName,
                 TypeName = d.TypeName,
-                MapsToDefinitionId = d.MapsToDefinitionId,
                 MemberDefinitions = memberDefs,
                 Remarks = d.Attribute?.Remarks,
-                DataSourceName = d.Attribute?.DataSourceName,
                 GroupName = d.Attribute?.GroupName
-            };
-        }
-
-        private static HCMappedMemberDefinitionPairViewModel Create(HCMappedMemberDefinitionPair d)
-        {
-            return new HCMappedMemberDefinitionPairViewModel
-            {
-                Left = d.Left.Select(x => Create(x)).ToArray(),
-                Right = d.Right.Select(x => Create(x)).ToArray()
             };
         }
 
         private static HCMappedMemberDefinitionViewModel Create(HCMappedMemberDefinition d)
         {
+            var children = d.Children.Select(x => Create(x)).ToList();
+            var mappedTo = d.MappedTo.Select(x => Create(x)).ToList();
             return new HCMappedMemberDefinitionViewModel
             {
                 Id = d.Id,
                 DisplayName = d.DisplayName,
-                FullTypeName = d.FullTypeName,
+                FullPropertyPath = d.FullPropertyPath,
                 PropertyName = d.PropertyName,
-                Remarks = d.Attribute?.Remarks
+                Remarks = d.Remarks,
+                Children = children,
+                MappedTo = mappedTo
+            };
+        }
+
+        private static HCMappedMemberReferenceDefinitionViewModel Create(HCMappedMemberReferenceDefinition d)
+        {
+            var items = d.Items.Select(x => Create(x)).ToList();
+            return new HCMappedMemberReferenceDefinitionViewModel
+            {
+                Success = d.Success,
+                Error = d.Error,
+                Items = items,
+                Path = d.Path,
+                RootReferenceId = d.RootReferenceId,
+                RootTypeName = d.RootType?.Name
+            };
+        }
+
+        private static HCMappedMemberReferencePathItemDefinitionViewModel Create(HCMappedMemberReferencePathItemDefinition d)
+        {
+            return new HCMappedMemberReferencePathItemDefinitionViewModel
+            {
+                DisplayName = d.DisplayName,
+                Success = d.Success,
+                Error = d.Error,
+                DeclaringTypeName = d.DeclaringType?.Name,
+                PropertyName = d.PropertyName
             };
         }
         #endregion

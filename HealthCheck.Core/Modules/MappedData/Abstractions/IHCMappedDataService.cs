@@ -12,6 +12,6 @@ namespace HealthCheck.Core.Modules.MappedData.Abstractions
         /// <summary>
         /// Get all definitions in the given assemblies. Caches based on given assemblies.
         /// </summary>
-        List<HCMappedClassesDefinition> GetDefinitions(IEnumerable<Assembly> assemblies, HCMappedDefinitionDiscoveryOptions options);
+        HCMappedDataDefinitions GetDefinitions(IEnumerable<Assembly> assemblies, HCMappedDefinitionDiscoveryOptions options);
     }
 }

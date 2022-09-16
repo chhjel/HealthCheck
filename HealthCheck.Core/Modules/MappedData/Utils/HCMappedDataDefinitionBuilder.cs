@@ -13,200 +13,97 @@ namespace HealthCheck.Core.Modules.MappedData.Utils
     public static class HCMappedDataDefinitionBuilder
 	{
 		/// <summary>
-		/// Scans assemblies and creates definitions from classes decorated with <see cref="HCMappedClassAttribute"/>.
-		/// <para>Key = class type, Value = definition.</para>
+		/// Attempt to discover the used name from e.g. json attributes.
 		/// </summary>
-		public static Dictionary<Type, HCMappedClassDefinition> CreateDefinitions(IEnumerable<Assembly> assemblies, HCMappedDefinitionDiscoveryOptions options)
+		public static string TryAutoDiscoverPropertyDisplayName(PropertyInfo prop, HCMappedDefinitionDiscoveryOptions options)
 		{
-			// First discover all relevant classes
-			var defsById = new Dictionary<string, HCMappedClassDefinition>();
-			var types = assemblies.SelectMany(x => x.GetTypes());
-			foreach (var type in types)
+			string autoDiscoveredName = null;
+			if (options?.AllowAttributeDisplayNameResolve?.Invoke(prop) != false)
 			{
-				CreateDefinitionsFromType(type, defsById, options);
-			}
-
-			// Then create links
-			foreach (var def in defsById)
-			{
-				var otherId = def.Value.MapsToDefinitionId;
-				if (!string.IsNullOrWhiteSpace(otherId) && defsById.TryGetValue(otherId, out var other))
+				var attributes = prop.GetCustomAttributes(true);
+				foreach (var attr in attributes)
 				{
-					other.MapsToDefinitionId = def.Value.Id;
-					other.MapsToDefinition = def.Value;
-					other.MapsToType = def.Value.ClassType;
-
-					// Mark referenced members
-					var selfMembers = def.Value.MemberDefinitions;
-					var otherMembers = other.MemberDefinitions;
-					foreach (var selfMember in selfMembers)
-					{
-						// Already tagged
-						if (selfMember.IsReferenced) continue;
-
-						// Self attribute references an existing other member
-						HCMappedMemberDefinition referencedOther = (selfMember.Attribute == null) ? null : otherMembers.FirstOrDefault(other => selfMember.Attribute.IsMappedTo(other.Member.Name));
-						if (selfMember.Attribute != null && referencedOther != null)
-						{
-							selfMember.IsReferenced = true;
-							selfMember.MappedTo = referencedOther.PropertyName;
-							continue;
-						}
-
-						// Other attribute references this self member
-						var otherReferencingSelf = otherMembers.FirstOrDefault(other => other.Attribute?.IsMappedTo(selfMember.Member.Name) == true);
-						if (otherReferencingSelf != null)
-						{
-							selfMember.IsReferenced = true;
-							selfMember.MappedTo = otherReferencingSelf.PropertyName;
-							continue;
-						}
-					}
+					var propertyNameProp = attr?.GetType()?.GetProperty("PropertyName") ?? attr?.GetType()?.GetProperty("Name");
+					autoDiscoveredName = propertyNameProp?.GetValue(attr) as string;
+					if (!string.IsNullOrWhiteSpace(autoDiscoveredName)) break;
 				}
 			}
-
-			// Cleanup unmapped defs
-			defsById = defsById
-				.Where(x => x.Value.MapsToDefinition != null && x.Value.MemberDefinitions.Count > 0)
-				.ToDictionary(x => x.Key, x => x.Value);
-
-			// Finally cleanup unused members
-			foreach (var def in defsById)
-			{
-				def.Value.MemberDefinitions = def.Value.MemberDefinitions.Where(x => x.IsReferenced).ToList();
-			}
-
-			return defsById.Values
-				.OrderBy(x => x.Id)
-				.ToDictionary(x => x.ClassType, x => x);
+			return autoDiscoveredName ?? prop.Name;
 		}
 
 		/// <summary>
-		/// Formats definitions into left/right pairs.
+		/// Scans assemblies and creates definitions from classes decorated with <see cref="HCMappedClassAttribute"/>.
+		/// <para>Key = class type, Value = definition.</para>
 		/// </summary>
-		public static List<HCMappedClassesDefinition> CreateDefinitionPairs(IEnumerable<HCMappedClassDefinition> defs)
+		public static HCMappedDataDefinitions CreateDefinitions(IEnumerable<Assembly> assemblies, HCMappedDefinitionDiscoveryOptions options)
 		{
-			var defPairs = new Dictionary<string, HCMappedClassesDefinition>();
-			foreach (var def in defs)
+			var allTypes = assemblies.SelectMany(x => x.GetTypes()).ToArray();
+
+			var refTypes = allTypes
+				.Select(x => (type: x, attr: x.GetCustomAttribute<HCMappedReferencedTypeAttribute>()))
+				.Where(x => x.attr != null);
+			var refDefs = new List<HCMappedReferencedTypeDefinition>();
+			foreach (var (type, attr) in refTypes)
 			{
-				var orderedDefs = new[] { def, def.MapsToDefinition };
-				if (orderedDefs.Any(x => x.Attribute?.Order != null)) orderedDefs = orderedDefs.OrderBy(x => x.Attribute?.Order ?? 0).ToArray();
-				else orderedDefs = orderedDefs.OrderBy(x => x.TypeName).ToArray();
-
-				var left = orderedDefs[0];
-				var right = orderedDefs[1];
-				var key = $"{left.Id}|{right.Id}";
-				if (defPairs.ContainsKey(key)) continue;
-				defPairs[key] = CreateMappedPair(left, right);
-			}
-			return defPairs
-				.Values
-				.Where(x => x.MemberPairs.Count > 0)
-				.ToList();
-		}
-
-		private static HCMappedClassesDefinition CreateMappedPair(HCMappedClassDefinition left, HCMappedClassDefinition right)
-		{
-			static string createKey(HCMappedMemberDefinition[] defs)
-				=> string.Join(", ", defs.Select(d => d.Id));
-
-			var memberPairs = new Dictionary<string, HCMappedMemberDefinitionPair>();
-			foreach (var leftMember in left.MemberDefinitions.Where(x => x.Attribute?.IsMappedToAnything == true))
-			{
-				var rightMembers = right.MemberDefinitions.Where(x => leftMember.Attribute.IsMappedTo(x.Id)).ToArray();
-				if (rightMembers?.Any() != true) continue;
-				var key = $"{leftMember.Id}|{createKey(rightMembers)}";
-				memberPairs[key] = new HCMappedMemberDefinitionPair { Left = new[] { leftMember }, Right = rightMembers };
+				var def = CreateRefTypeDefinition(type, attr);
+				refDefs.Add(def);
 			}
 
-			foreach (var rightMember in right.MemberDefinitions.Where(x => x.Attribute?.IsMappedToAnything == true))
+			var rootTypes = allTypes
+				.Select(x => (type: x, attr: x.GetCustomAttributes<HCMappedClassAttribute>().ToArray()))
+				.Where(x => x.attr != null);
+			var classDefs = new List<HCMappedClassDefinition>();
+			foreach (var rootType in rootTypes)
 			{
-				var leftMembers = left.MemberDefinitions.Where(x => rightMember.Attribute.IsMappedTo(x.Id)).ToArray();
-				if (leftMembers?.Any() != true) continue;
-				var key = $"{createKey(leftMembers)}|{rightMember.Id}";
-				memberPairs[key] = new HCMappedMemberDefinitionPair { Left = leftMembers, Right = new[] { rightMember } };
+				var index = 0;
+				foreach (var attr in rootType.attr)
+				{
+					var def = CreateClassDefinition(rootType.type, attr, options, refDefs, index: index);
+					classDefs.Add(def);
+					index++;
+				}
 			}
 
-			return new HCMappedClassesDefinition
+			return new HCMappedDataDefinitions
 			{
-				Left = left,
-				Right = right,
-				MemberPairs = memberPairs.Values.ToList()
+				ClassDefinitions = classDefs.OrderBy(x => x.Id).ToList(),
+				ReferencedDefinitions = refDefs.OrderBy(x => x.Id).ToList()
 			};
 		}
 
-		private static HCMappedClassDefinition CreateDefinitionsFromType(Type type, Dictionary<string, HCMappedClassDefinition> defsById, HCMappedDefinitionDiscoveryOptions options,
-			bool requireAttribute = true, string forcedMapsToDefinitionId = null, Type[] forceMapsToTypes = null, HCMappedClassDefinition parent = null)
+		private static HCMappedReferencedTypeDefinition CreateRefTypeDefinition(Type type, HCMappedReferencedTypeAttribute attribute)
 		{
-			var id = CreateMappedClassTypeId(type);
-			if (defsById.TryGetValue(id, out var existing)) return existing;
-
-			// Check all properties on the def for any of type containing a property with mappings.
-			void createDefsFromSuitablePropertyTypes(HCMappedClassDefinition def)
+			return new HCMappedReferencedTypeDefinition
 			{
-				if (def.MapsToType == null) return;
-				foreach (var member in def.MemberDefinitions)
-				{
-					var memberType = member.Member.PropertyType;
-					if (!memberType.GetProperties().Any(x => x.GetCustomAttribute<HCMappedPropertyAttribute>() != null)) continue;
-
-					var otherProps = def.MapsToType?.GetProperties()
-						.Where(x => member.Attribute?.IsMappedTo(x.Name) == true);
-					if (otherProps?.Any() != true) continue;
-
-					CreateDefinitionsFromType(memberType, defsById, options, requireAttribute: false, forceMapsToTypes: otherProps.Select(x => x.PropertyType).Distinct().ToArray(), parent: def);
-					foreach (var otherProp in otherProps)
-					{
-						CreateDefinitionsFromType(otherProp.PropertyType, defsById, options, requireAttribute: false, forceMapsToTypes: new[] { memberType }, parent: def);
-					}
-				}
-			}
-
-			// Create def from input type if suitable
-			var attr = type.GetCustomAttribute<HCMappedClassAttribute>();
-			if (attr == null && requireAttribute) return null;
-			var def = CreateClassDefinition(type, attr, options, forcedMapsToDefinitionId, forceMapsToTypes?.FirstOrDefault(), parent: parent);
-			defsById[id] = def;
-			createDefsFromSuitablePropertyTypes(def);
-
-			// If def is referencing another type, include it.
-			var mappedAgainstType = def.Attribute?.MappedToType;
-			if (mappedAgainstType != null)
-			{
-				var mappedAgainstId = CreateMappedClassTypeId(mappedAgainstType);
-				if (!defsById.ContainsKey(mappedAgainstId))
-				{
-					var mappedAgainstDef = CreateClassDefinition(mappedAgainstType, null, options, def.Id, parent: parent);
-					defsById[mappedAgainstId] = mappedAgainstDef;
-					createDefsFromSuitablePropertyTypes(mappedAgainstDef);
-				}
-			}
-
-			return def;
+				Id = CreateMappedClassTypeId(type, null),
+				DisplayName = attribute?.OverrideName ?? type.Name,
+				Attribute = attribute,
+				ReferenceId = attribute?.ReferenceId ?? type.Name,
+				Type = type
+			};
 		}
 
 		private static HCMappedClassDefinition CreateClassDefinition(Type type, HCMappedClassAttribute attribute, HCMappedDefinitionDiscoveryOptions options,
-			string forcedMapsToDefinitionId = null, Type forceMapsToType = null, HCMappedClassDefinition parent = null)
+			List<HCMappedReferencedTypeDefinition> refDefs,
+			HCMappedClassDefinition parent = null, int index = 0)
 		{
 			attribute ??= type.GetCustomAttribute<HCMappedClassAttribute>();
 
-			var memberDefinitions = new List<HCMappedMemberDefinition>();
-			foreach (var member in type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
-			{
-				var memberDef = CreateMemberDefinition(member, options);
-				if (memberDef != null) memberDefinitions.Add(memberDef);
-			}
+			var mapping = HCMappedDataMappingParser.ParseMapping(type, attribute.Mapping, refDefs);
 
-			if (forceMapsToType != null && forcedMapsToDefinitionId == null)
+			var memberDefinitions = new List<HCMappedMemberDefinition>();
+			foreach (var member in type.GetProperties())
 			{
-				forcedMapsToDefinitionId = CreateMappedClassTypeId(forceMapsToType);
+				var memberMapping = mapping.Objects.FirstOrDefault(x => x.PropertyInfo == member);
+				if (memberMapping == null) continue;
+
+				var memberDef = CreateMemberDefinition(memberMapping, options, null);
+				if (memberDef != null) memberDefinitions.Add(memberDef);
 			}
 
 			return new HCMappedClassDefinition
 			{
-				Id = CreateMappedClassTypeId(type),
-				MapsToDefinitionId = CreateMappedClassTypeId(attribute?.MappedToType) ?? forcedMapsToDefinitionId,
-				MapsToType = attribute?.MappedToType ?? forceMapsToType,
+				Id = CreateMappedClassTypeId(type, parent, index),
 				ClassType = type,
 				GroupName = attribute?.GroupName ?? parent?.GroupName,
 				Attribute = attribute,
@@ -216,32 +113,62 @@ namespace HealthCheck.Core.Modules.MappedData.Utils
 			};
 		}
 
-		private static string CreateMappedClassTypeId(Type type) => type == null ? null : $"{type?.Namespace}.{type?.Name}";
-
-		private static HCMappedMemberDefinition CreateMemberDefinition(PropertyInfo prop, HCMappedDefinitionDiscoveryOptions options)
+		private static string CreateMappedClassTypeId(Type type, HCMappedClassDefinition parent, int index = 0)
 		{
-			var attributes = prop.GetCustomAttributes(true);
-			var attribute = attributes.OfType<HCMappedPropertyAttribute>().FirstOrDefault();
+			var suffix = (index == 0) ? string.Empty : $"_{index}";
+			if (type == null) return null;
+			else if (parent == null) return $"{type?.Namespace}.{type?.Name}{suffix}";
+			else return $"{parent.Id}.{type?.Name}{suffix}";
+		}
 
-			string autoDiscoveredName = null;
-			if (options?.AllowAttributeDisplayNameResolve?.Invoke(prop) != false)
-			{
-				foreach (var attr in attributes)
-				{
-					var propertyNameProp = attr?.GetType()?.GetProperty("PropertyName") ?? attr?.GetType()?.GetProperty("Name");
-					autoDiscoveredName = propertyNameProp?.GetValue(attr) as string;
-					if (!string.IsNullOrWhiteSpace(autoDiscoveredName)) break;
-				}
-			}
+		private static HCMappedMemberDefinition CreateMemberDefinition(HCMappedDataMappingParser.ParsedMappingObject member, HCMappedDefinitionDiscoveryOptions options, HCMappedMemberDefinition parent)
+		{
+			var prop = member.PropertyInfo;
+			var displayName = options?.MemberDisplayNameOverride?.Invoke(prop) ?? TryAutoDiscoverPropertyDisplayName(prop, options);
 
-			return new HCMappedMemberDefinition
+			var def = new HCMappedMemberDefinition
 			{
 				Id = prop.Name,
 				Member = prop,
-				Attribute = attribute,
 				PropertyName = prop.Name,
-				DisplayName = options?.MemberDisplayNameOverride?.Invoke(prop) ?? attribute?.OverrideName ?? autoDiscoveredName ?? prop.Name
+				FullPropertyPath = $"{parent?.FullPropertyPath}.{prop.Name}".TrimStart('.'),
+				DisplayName = displayName,
+				Parent = parent,
+				Remarks = member.Comment
 			};
+
+			var children = new List<HCMappedMemberDefinition>();
+			foreach (var childMember in member.Children)
+			{
+				children.Add(CreateMemberDefinition(childMember, options, def));
+			}
+			def.Children = children;
+
+			var mappedTo = new List<HCMappedMemberReferenceDefinition>();
+			foreach (var item in member.MappedTo)
+			{
+				var pathItems = item.Chain.Items.Select(x => new HCMappedMemberReferencePathItemDefinition
+				{
+					Success = x.Success,
+					Error = x.Error,
+					DisplayName = (x.PropertyInfo == null) ? x.Name : TryAutoDiscoverPropertyDisplayName(x.PropertyInfo, options),
+					PropertyName = x.PropertyInfo?.Name,
+					PropertyInfo = x.PropertyInfo,
+					DeclaringType = x.DeclaringType
+				}).ToList();
+				mappedTo.Add(new HCMappedMemberReferenceDefinition
+				{
+					Items = pathItems,
+					Path = item.Chain.Path,
+					Success = item.Chain.Success,
+					Error = item.Chain.Error,
+					RootType = item.Chain.RootType,
+					RootReferenceId = item.DottedPath.Split('.')[0].Trim()
+				});
+			}
+			def.MappedTo = mappedTo;
+
+			return def;
 		}
 	}
 }
