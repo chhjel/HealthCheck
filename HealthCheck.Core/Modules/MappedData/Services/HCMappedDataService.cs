@@ -12,6 +12,11 @@ namespace HealthCheck.Core.Modules.MappedData.Services
     /// </summary>
     public class HCMappedDataService : IHCMappedDataService
     {
+        /// <summary>
+        /// For use during debuging or hotreloading.
+        /// </summary>
+        public static bool DisableCache { get; set; }
+
         private static readonly Dictionary<string, HCMappedDataDefinitions> _definitionCache = new();
 
         /// <summary>
@@ -28,11 +33,8 @@ namespace HealthCheck.Core.Modules.MappedData.Services
                 {
                     options ??= new HCMappedDefinitionDiscoveryOptions();
                     var defs = HCMappedDataDefinitionBuilder.CreateDefinitions(assemblies, options);
-#if DEBUG
-                    return defs;
-#else
+                    if (DisableCache) return defs;
                     _definitionCache[cacheKey] = defs;
-#endif
                 }
                 return _definitionCache[cacheKey];
             }

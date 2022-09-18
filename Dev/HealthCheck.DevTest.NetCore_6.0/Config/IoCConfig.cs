@@ -135,6 +135,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Config
             services.AddSingleton<IHCMetricsStorage, HCMemoryMetricsStorage>();
 
             // MappedData
+            HCMappedDataService.DisableCache = true;
             services.AddSingleton<IHCMappedDataService, HCMappedDataService>();
 
             services.AddSingleton<IHCReleaseNotesProvider>(new HCJsonFileReleaseNotesProvider(GetFilePath(@"App_Data\ReleaseNotes.json", env))

@@ -78,7 +78,7 @@ namespace HealthCheck.Core.Modules.MappedData.Utils
 						var subPath = string.Join(".", parts.Skip(1));
 						if (refDef != null)
 						{
-							chain = HCMappedDataMappingParser.ResolveDottedPath(refDef?.Type, subPath);
+							chain = ResolveDottedPath(refDef?.Type, subPath);
 						}
 						else
 						{
@@ -106,7 +106,7 @@ namespace HealthCheck.Core.Modules.MappedData.Utils
 						PropertyInfo = property,
 						Type = property?.PropertyType,
 						IsValid = property != null,
-						Error = property == null ? "Property not found." : null
+						Error = property == null ? $"Property '{name}' not found." : null
 					};
 					nextComment = null;
 

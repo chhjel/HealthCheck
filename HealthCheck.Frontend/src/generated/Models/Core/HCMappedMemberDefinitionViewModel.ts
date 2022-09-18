@@ -13,6 +13,8 @@ export interface HCMappedMemberDefinitionViewModel
 	FullPropertyPath: string;
 	DisplayName: string;
 	Remarks: string;
+	IsValid: boolean;
+	Error: string;
 	Children: HCMappedMemberDefinitionViewModel[];
 	MappedTo: HCMappedMemberReferenceDefinitionViewModel[];
 }

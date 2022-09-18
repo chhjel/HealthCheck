@@ -1,7 +1,7 @@
 <!-- src/components/modules/MappedData/MappedMemberDefinitionComponent.vue -->
 <template>
     <div class="member-def" :class="rootClasses">
-        <div v-if="def.Remarks && displayOptions.showPropertyRemarks">{{ def.Remarks }}</div>
+        <div v-if="def.Remarks && displayOptions.showPropertyRemarks" class="member-comment">// <span v-html="def.Remarks"></span></div>
 
         <div class="member-def__split">
             <!-- LEFT -->
@@ -10,13 +10,14 @@
                     <code class="display-name"
                         @click="onDisplayNameClicked(false)"
                         @click.middle.stop.prevent="onDisplayNameClicked(true)"
-                        >{{ displayOptions.showPropertyNames ? def.PropertyName : def.DisplayName }}</code>
+                        :title="`${def.FullPropertyTypeName}`"
+                        >{{ displayOptions.showPropertyNames == 'actual' ? def.PropertyName : def.DisplayName }}</code>
                     <div class="line-to-right" v-if="hasMappings">
                         <span class="line-to-right__start"></span>
                         <span class="line-to-right__end"></span>
                     </div>
                 </div>
-                <!-- FullPropertyTypeName, FullPropertyPath, PropertyTypeName -->
+                <div v-if="def.Error"><code>Error: {{ def.Error }}</code></div>
             </div>
             
             <!-- RIGHT -->
@@ -27,6 +28,7 @@
                     :mapping="mapping"
                     :allDefinitions="allDefinitions"
                     :displayOptions="displayOptions"
+                    @gotoData="gotoData"
                     class="member-mapping mb-1"
                     />
             </div>
@@ -40,6 +42,7 @@
                 :parentDef="def"
                 :allDefinitions="allDefinitions"
                 :displayOptions="displayOptions"
+                @gotoData="gotoData"
                 style="margin-left: 10px; padding-left: 10px; border-left: 2px solid lightgray;"
                 />
         </div>
@@ -57,6 +60,7 @@ import IdUtils from "@util/IdUtils";
 import { HCMappedDataDefinitionsViewModel } from "@generated/Models/Core/HCMappedDataDefinitionsViewModel";
 import MappedMemberMappingComponent from "./MappedMemberMappingComponent.vue";
 import MappedDataDisplayOptions from "@models/modules/MappedData/MappedDataDisplayOptions";
+import MappedDataLinkData from "@models/modules/MappedData/MappedDataLinkData";
 
 @Options({
     components: {
@@ -98,9 +102,10 @@ export default class MappedMemberDefinitionComponent extends Vue {
     }
 
     get hasLinkToDef(): boolean {
-        if (this.def.FullPropertyTypeName == this.parentDef.Id) return false;
-        return this.allDefinitions.ClassDefinitions.some(x => x.Id == this.def.FullPropertyTypeName)
-                || this.allDefinitions.ReferencedDefinitions.some(x => x.TypeName == this.def.FullPropertyTypeName);
+        return false;
+        // if (this.def.FullPropertyTypeName == this.parentDef.Id) return false;
+        // return this.allDefinitions.ClassDefinitions.some(x => x.Id == this.def.FullPropertyTypeName)
+        //         || this.allDefinitions.ReferencedDefinitions.some(x => x.TypeName == this.def.FullPropertyTypeName);
     }
 
     get rootClasses(): any {
@@ -125,11 +130,17 @@ export default class MappedMemberDefinitionComponent extends Vue {
         const match = this.allDefinitions.ClassDefinitions.find(x => x.Id == this.def.FullPropertyTypeName);
                 // || this.allDefinitions.ReferencedDefinitions.some(x => x.TypeName == this.def.FullPropertyTypeName);
         if (match == null) return;
-        this.emitGotoType(match, middle);
+
+        const payload: MappedDataLinkData = {
+            id: match.Id,
+            type: "ClassDefinition",
+            newWindow: middle
+        };
+        this.gotoData(payload);
     }
 
-    emitGotoType(def: HCMappedClassDefinitionViewModel, middle: boolean): void {
-        this.$emit('gotoTypeClicked', def, middle);
+    gotoData(data: MappedDataLinkData): void {
+        this.$emit('gotoData', data);
     }
 }
 </script>
@@ -170,6 +181,7 @@ export default class MappedMemberDefinitionComponent extends Vue {
             border-top: 2px solid var(--color--accent-darken1);
             margin-left: 10px;
             margin-right: 10px;
+            margin-top: 8px;
             display: flex;
             justify-content: space-between;
             &__start, &__end {
@@ -185,6 +197,11 @@ export default class MappedMemberDefinitionComponent extends Vue {
                 transform: rotate(-135deg);
             }
         }
+    }
+
+    .member-comment {
+        color: var(--color--accent-darken9);
+        font-size: 14px;
     }
     
     .member-mapping {

@@ -1332,6 +1332,65 @@ public class MyCustomDiffer : HCComparisonDifferBase<MyContentType>
 
 ---------
 
+## Module: Mapped Data
+
+Simple module to display mapping of data.
+
+### Setup
+
+```csharp
+// Register service
+services.AddSingleton<IHCMappedDataService, HCMappedDataService>();
+
+```
+
+```csharp
+// Use module in hc controller
+UseModule(new HCMappedDataModule(new HCMappedDataModuleOptions
+{
+    Service = mappeddataService,
+    IncludedAssemblies = new[] { typeof(YourModel).Assembly }
+}));
+```
+
+<details><summary>Example mapping</summary>
+<p>
+
+* Use <=> to indicate a mapping of values.
+* Wrap mapped values in [] to indicate that they are mapped from multiple other values.
+* Lines starting with // will be included as comments.
+* To map complex properties, do like in the address example below.
+* Override names etc using available attribute properties.
+
+```csharp
+[HCMappedClass(@"
+ExternalId <=> MyRemoteModel.Id
+// Name is joined from first and last name.
+FullName <=> [MyRemoteModel.FirstName, MyRemoteModel.LastName]
+Address {
+    StreetName <=> MyRemoteModel.HomeAddress.Street,
+    StreetNo <=> MyRemoteModel.HomeAddress.StreetNo,
+    City <=> MyRemoteModel.HomeAddress.City,
+    Zip <=> MyRemoteModel.HomeAddress.ZipCode
+}
+")]
+public class MyLocalModel
+{
+    public string ExternalId { get; set; }
+    public string FullName { get; set; }
+
+    public MyAddressModel Address { get; set; }
+}
+
+[HCMappedReferencedType]
+public class MyRemoteModel { ... }
+```
+
+</p>
+</details>
+
+---------
+
 ## Module: GoTo
 
 A very simplified search that allows only a single result per type. Use to quickly find something by e.g. an id that is not normally searchable other places.

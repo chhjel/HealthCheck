@@ -27,6 +27,12 @@ namespace HealthCheck.Core.Modules.MappedData.Models
 		public string Remarks { get; set; }
 
 		/// <summary></summary>
+		public bool IsValid { get; set; }
+
+		/// <summary></summary>
+		public string Error { get; set; }
+
+		/// <summary></summary>
 		public List<HCMappedMemberDefinitionViewModel> Children { get; set; }
 
 		/// <summary></summary>

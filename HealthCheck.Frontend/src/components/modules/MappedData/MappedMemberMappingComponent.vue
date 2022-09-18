@@ -5,14 +5,20 @@
 
         <div v-if="hasItems" class="mapped-to-items">
             <div class="mapped-to-item-root" :class="rootRefClasses">
-                <code class="mapped-to-item__name">{{ mapping.RootReferenceId }}</code>
+                <code class="mapped-to-item__name"
+                    @click="onMappedNameClicked(mapping.RootReferenceId, false)"
+                    @click.middle.stop.prevent="onMappedNameClicked(mapping.RootReferenceId, true)"
+                    :title="`${mapping.RootTypeName}`"
+                    >{{ rootReferenceNameInMapping }}</code>
             </div>
 
             <div v-for="(chainItem, chainItemIndex) in mapping.Items"
                  :key="`def-mapping-item-${id}-${chainItemIndex}`"
                  :class="getItemClasses(chainItem)"
                  class="mapped-to-item">
-                <code class="mapped-to-item__name">{{ getChainItemName(chainItem) }}</code>
+                <code class="mapped-to-item__name"
+                    :title="`${(chainItem.FullPropertyTypeName || 'Property not found')}`"
+                    >{{ getChainItemName(chainItem) }}</code>
             </div>
         </div>
 
@@ -24,11 +30,6 @@
                 <div v-if="chainItem.Error"><code>Error: {{ chainItem.Error }}</code></div>
             </div>
         </div>
-        <!--
-        <code>Path: {{ mapping.Path }}</code><br />
-        <code>RootTypeName: {{ mapping.RootTypeName }}</code><br />
-        <code>RootReferenceId: {{ mapping.RootReferenceId }}</code><br />
-        -->
     </div>
 </template>
 
@@ -42,6 +43,7 @@ import { HCMappedDataDefinitionsViewModel } from "@generated/Models/Core/HCMappe
 import { HCMappedMemberReferenceDefinitionViewModel } from "@generated/Models/Core/HCMappedMemberReferenceDefinitionViewModel";
 import { HCMappedMemberReferencePathItemDefinitionViewModel } from "@generated/Models/Core/HCMappedMemberReferencePathItemDefinitionViewModel";
 import MappedDataDisplayOptions from "@models/modules/MappedData/MappedDataDisplayOptions";
+import MappedDataLinkData from "@models/modules/MappedData/MappedDataLinkData";
 
 @Options({
     components: {
@@ -70,7 +72,7 @@ export default class MappedMemberMappingComponent extends Vue {
     //  METHODS  //
     //////////////
     getChainItemName(item: HCMappedMemberReferencePathItemDefinitionViewModel): string {
-        return this.displayOptions.showMappedToPropertyNames
+        return (this.displayOptions.showMappedToPropertyNames == 'actual')
             ? item.PropertyName || '[not found]'
             : item.DisplayName;
     }
@@ -108,23 +110,38 @@ export default class MappedMemberMappingComponent extends Vue {
         let classes: any = {};
         classes['valid'] = valid;
         classes['invalid'] = !valid;
+        classes['hasLinkToDef'] = this.hasRootRefComment;
         return classes;
+    }
+
+    get rootReferenceNameInMapping(): string {
+        const def = this.allDefinitions.ReferencedDefinitions.find(x => x.ReferenceId == this.mapping.RootReferenceId);
+        return def?.NameInMapping || this.mapping.RootReferenceId;
+    }
+
+    get hasRootRefComment(): boolean {
+        const def = this.allDefinitions.ReferencedDefinitions.find(x => x.ReferenceId == this.mapping.RootReferenceId);
+        return def?.Remarks != null && def.Remarks.trim().length > 0;
     }
 
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
-    // onDisplayNameClicked(middle: boolean): void {
-    //     if (!this.hasLinkToDef) return;
-    //     const match = this.allDefinitions.ClassDefinitions.find(x => x.Id == this.def.FullPropertyTypeName);
-    //             // || this.allDefinitions.ReferencedDefinitions.some(x => x.TypeName == this.def.FullPropertyTypeName);
-    //     if (match == null) return;
-    //     this.emitGotoType(match, middle);
-    // }
+    onMappedNameClicked(name: string, middle: boolean): void {
+        const match = this.allDefinitions.ReferencedDefinitions.find(x => x.ReferenceId == name);
+        if (match == null) return;
 
-    // emitGotoType(def: HCMappedClassDefinitionViewModel, middle: boolean): void {
-    //     this.$emit('gotoTypeClicked', def, middle);
-    // }
+        const payload: MappedDataLinkData = {
+            id: match.Id,
+            type: "ReferencedDefinition",
+            newWindow: middle
+        };
+        this.gotoData(payload);
+    }
+
+    gotoData(data: MappedDataLinkData): void {
+        this.$emit('gotoData', data);
+    }
 }
 </script>
 
@@ -148,5 +165,8 @@ export default class MappedMemberMappingComponent extends Vue {
             color: var(--color--success-darken4)
         }
     }
+}
+.hasLinkToDef {
+    cursor: pointer;
 }
 </style>

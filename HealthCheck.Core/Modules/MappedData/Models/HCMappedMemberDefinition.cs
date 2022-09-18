@@ -39,6 +39,16 @@ namespace HealthCheck.Core.Modules.MappedData.Models
 		public string Remarks { get; set; }
 
 		/// <summary>
+		/// True if the property was found.
+		/// </summary>
+		public bool IsValid { get; set; }
+
+		/// <summary>
+		/// Any error if not valid.
+		/// </summary>
+		public string Error { get; set; }
+
+		/// <summary>
 		/// Parent if any.
 		/// </summary>
 		public HCMappedMemberDefinition Parent { get; set; }

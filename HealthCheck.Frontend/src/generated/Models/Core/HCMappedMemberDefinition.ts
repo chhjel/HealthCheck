@@ -12,6 +12,8 @@ export interface HCMappedMemberDefinition
 	DisplayName: string;
 	Member: any;
 	Remarks: string;
+	IsValid: boolean;
+	Error: string;
 	Parent: HCMappedMemberDefinition;
 	Children: HCMappedMemberDefinition[];
 	MappedTo: HCMappedMemberReferenceDefinition[];

@@ -1,9 +1,8 @@
 <!-- src/components/modules/MappedData/MappedClassDefinitionComponent.vue -->
 <template>
     <div class="class-def">
-        <h2>{{ def.DisplayName }}</h2>
-        <div>ClassType: <b>{{ def.ClassTypeName }}</b></div>
-        <div v-if="def.Remarks" class="mt-2"><p>{{ def.Remarks }}</p></div>
+        <h2 :title="`Class type: '${def.ClassTypeName}'`">{{ def.DisplayName }}</h2>
+        <div v-if="def.Remarks" class="mt-2 class-def-remarks"><p><span v-html="def.Remarks"></span></p></div>
 
         <div>
             <mapped-member-definition-component
@@ -13,6 +12,7 @@
                 :parentDef="def"
                 :allDefinitions="allDefinitions"
                 :displayOptions="displayOptions"
+                @gotoData="gotoData"
                 />
         </div>
     </div>
@@ -27,6 +27,7 @@ import { HCMappedClassDefinitionViewModel } from "@generated/Models/Core/HCMappe
 import { HCMappedDataDefinitionsViewModel } from "@generated/Models/Core/HCMappedDataDefinitionsViewModel";
 import MappedMemberDefinitionComponent from "./MappedMemberDefinitionComponent.vue";
 import MappedDataDisplayOptions from "@models/modules/MappedData/MappedDataDisplayOptions";
+import MappedDataLinkData from "@models/modules/MappedData/MappedDataLinkData";
 
 @Options({
     components: {
@@ -64,8 +65,14 @@ export default class MappedClassDefinitionComponent extends Vue {
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
+    gotoData(data: MappedDataLinkData): void {
+        this.$emit('gotoData', data);
+    }
 }
 </script>
 
 <style scoped lang="scss">
+.class-def-remarks {
+    white-space: pre;
+}
 </style>

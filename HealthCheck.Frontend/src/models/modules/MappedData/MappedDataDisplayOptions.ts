@@ -1,7 +1,8 @@
+type PropertyNameType = 'actual' | 'serialized';
 export default interface MappedDataDisplayOptions {
-    showPropertyNames: boolean;
+    showPropertyNames: PropertyNameType;
     showPropertyRemarks: boolean;
-    showMappedToPropertyNames: boolean;
+    showMappedToPropertyNames: PropertyNameType;
     showMappedToTypes: boolean;
     showMappedToDeclaringTypes: boolean;
 }

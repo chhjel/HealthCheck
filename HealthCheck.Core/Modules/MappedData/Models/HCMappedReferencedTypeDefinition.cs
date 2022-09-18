@@ -24,6 +24,11 @@ namespace HealthCheck.Core.Modules.MappedData.Models
 		public string DisplayName { get; set; }
 
 		/// <summary>
+		/// Optionally override display name of this property used in the mapping display.
+		/// </summary>
+		public string NameInMapping { get; set; }
+
+		/// <summary>
 		/// Type of the decorated class.
 		/// </summary>
 		public Type Type { get; set; }
@@ -32,5 +37,5 @@ namespace HealthCheck.Core.Modules.MappedData.Models
 		/// Attribute decorated on the class type.
 		/// </summary>
 		public HCMappedReferencedTypeAttribute Attribute { get; set; }
-	}
+    }
 }

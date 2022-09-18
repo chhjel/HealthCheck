@@ -27,40 +27,32 @@
             {{ dataLoadStatus.errorMessage }}
             </alert-component>
 
+            <!-- Todo: show example values if any -->
+
             <!-- CONTENT -->
             <div v-if="currentDef">
-                <div class="filters mb-4">
-                    <h3>Included data</h3>
+                <div class="filters mb-4" v-if="currentDefHasAnyFilterableThings">
+                    <!-- <h3>Included data</h3> -->
                     <div class="filters__inputs">
-                        <checkbox-component
-                            label="Property names"
+                        <select-component
+                            label="Properties"
+                            v-if="currentDefHasAnyNamedProperties"
                             v-model:value="displayOptions.showPropertyNames"
                             @change="onFilterChanged"
-                            :disabled="isLoading"
-                            class="mr-3" />
-                        <checkbox-component
-                            label="Property comments"
-                            v-model:value="displayOptions.showPropertyRemarks"
-                            @change="onFilterChanged"
-                            :disabled="isLoading"
-                            class="mr-3" />
-                        <checkbox-component
-                            label="Mapped types"
-                            v-model:value="displayOptions.showMappedToTypes"
-                            @change="onFilterChanged"
-                            :disabled="isLoading"
-                            class="mr-3" />
-                        <checkbox-component
-                            label="Mapped declaring types"
-                            v-model:value="displayOptions.showMappedToDeclaringTypes"
-                            @change="onFilterChanged"
-                            :disabled="isLoading"
-                            class="mr-3" />
-                        <checkbox-component
-                            label="Mapped property names"
+                            :items="propertyNameOptions"
+                            class="mr-3"></select-component>
+                        <select-component
+                            label="Mapped properties"
+                            v-if="currentDefHasAnyNamedMappings"
                             v-model:value="displayOptions.showMappedToPropertyNames"
                             @change="onFilterChanged"
-                            :disabled="isLoading"
+                            :items="propertyNameOptions"
+                            class="mr-3"></select-component>
+                        <checkbox-component
+                            label="Show comments"
+                            v-if="currentDefHasAnyComments"
+                            v-model:value="displayOptions.showPropertyRemarks"
+                            @change="onFilterChanged"
                             class="mr-3" />
                     </div>
                 </div>
@@ -68,9 +60,29 @@
                 <mapped-class-definition-component
                     :def="currentDef"
                     :allDefinitions="definitions"
-                    :displayOptions="displayOptions" />
+                    :displayOptions="displayOptions"
+                    @gotoData="gotoData" />
             </div>
         </div>
+
+        <!-- DIALOGS -->
+        <dialog-component v-model:value="refTypeDialogVisible"
+            max-width="620"
+            :persistent="isLoading">
+            <template #header>{{ refDefInDialog?.DisplayName }}</template>
+            <template #footer>
+                <btn-component color="secondary"
+                    :disabled="isLoading"
+                    :loading="isLoading"
+                    @click="refTypeDialogVisible = false">Cancel</btn-component>
+            </template>
+            <div>
+                <!-- NO PRESETS YET -->
+                <div v-if="refDefInDialog">
+                    <p>{{ refDefInDialog.Remarks }}</p>
+                </div>
+            </div>
+        </dialog-component>
     </div>
 </template>
 
@@ -94,6 +106,10 @@ import { RouteLocationNormalized } from "vue-router";
 import { HCMappedDataDefinitionsViewModel } from "@generated/Models/Core/HCMappedDataDefinitionsViewModel";
 import { HCMappedClassDefinitionViewModel } from "@generated/Models/Core/HCMappedClassDefinitionViewModel";
 import MappedDataDisplayOptions from "@models/modules/MappedData/MappedDataDisplayOptions";
+import MappedDataLinkData from "@models/modules/MappedData/MappedDataLinkData";
+import { HCMappedReferencedTypeDefinitionViewModel } from "@generated/Models/Core/HCMappedReferencedTypeDefinitionViewModel";
+import { HCMappedMemberDefinitionViewModel } from "@generated/Models/Core/HCMappedMemberDefinitionViewModel";
+import { HCMappedMemberReferenceDefinitionViewModel } from "@generated/Models/Core/HCMappedMemberReferenceDefinitionViewModel";
 
 @Options({
     components: {
@@ -122,12 +138,18 @@ export default class MappedDataPageComponent extends Vue {
     };
     currentDef: HCMappedClassDefinitionViewModel | null = null;
     displayOptions: MappedDataDisplayOptions = {
-        showPropertyNames: false,
+        showPropertyNames: "serialized",
         showPropertyRemarks: true,
         showMappedToTypes: false,
         showMappedToDeclaringTypes: false,
-        showMappedToPropertyNames: false
+        showMappedToPropertyNames: "serialized"
     };
+    refTypeDialogVisible: boolean = false;
+    refDefInDialog: HCMappedReferencedTypeDefinitionViewModel | null = null;
+    propertyNameOptions: Array<any> = [
+        { value: 'actual', text: 'Property names' },
+        { value: 'serialized', text: 'Serialized names' }
+    ];
 
     //////////////////
     //  LIFECYCLE  //
@@ -201,6 +223,24 @@ export default class MappedDataPageComponent extends Vue {
         }
     }
 
+    showRefDefDialog(def: HCMappedReferencedTypeDefinitionViewModel): void {
+        this.refDefInDialog = def;
+        this.refTypeDialogVisible = true;
+    }
+
+    memberPropNameAndDisplayNamesMatches(m: HCMappedMemberDefinitionViewModel): boolean {
+        return m.PropertyName == m.DisplayName
+            && m.Children.every(c => this.memberPropNameAndDisplayNamesMatches(c));
+    }
+
+    memberMappingPropNameAndDisplayNamesMatches(m: HCMappedMemberDefinitionViewModel): boolean {
+        return m.MappedTo.every(t => this.memberMappingMatches(t));
+    }
+    memberMappingMatches(m: HCMappedMemberReferenceDefinitionViewModel): boolean {
+        return m.RootTypeName == m.RootReferenceId
+            && m.Items.every(i => i.PropertyName == i.DisplayName)
+    }
+
     ////////////////
     //  GETTERS  //
     //////////////
@@ -223,6 +263,27 @@ export default class MappedDataPageComponent extends Vue {
         });
     }
 
+    get currentDefHasAnyFilterableThings(): boolean {
+        return this.currentDefHasAnyComments
+        || this.currentDefHasAnyNamedProperties
+        || this.currentDefHasAnyNamedMappings;
+    }
+
+    get currentDefHasAnyComments(): boolean {
+        if (!this.currentDef) return false;
+        return this.currentDef.MemberDefinitions.some(x => x.Remarks != null && x.Remarks.trim().length > 0);
+    }
+
+    get currentDefHasAnyNamedProperties(): boolean {
+        if (!this.currentDef) return false;
+        return this.currentDef.MemberDefinitions.some(x => !this.memberPropNameAndDisplayNamesMatches(x));
+    }
+
+    get currentDefHasAnyNamedMappings(): boolean {
+        if (!this.currentDef) return false;
+        return this.currentDef.MemberDefinitions.some(x => !this.memberMappingPropNameAndDisplayNamesMatches(x));
+    }
+
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
@@ -236,6 +297,17 @@ export default class MappedDataPageComponent extends Vue {
             const idHash = this.hash(item.data.Id);
             const route = `#/mappeddata/${idHash}`;
             UrlUtils.openRouteInNewTab(route);
+        }
+    }
+
+    gotoData(data: MappedDataLinkData): void {
+        if (data.type == "ClassDefinition") {
+            const def = this.definitions.ClassDefinitions.find(x => x.Id == data.id);
+            if (def) this.gotoTypeClicked(def, data.newWindow);
+        }
+        else if (data.type == "ReferencedDefinition") {
+            const def = this.definitions.ReferencedDefinitions.find(x => x.Id == data.id);
+            if (def.Remarks) this.showRefDefDialog(def);
         }
     }
     

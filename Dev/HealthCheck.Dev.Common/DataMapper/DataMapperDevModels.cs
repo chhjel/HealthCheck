@@ -3,9 +3,41 @@ using Newtonsoft.Json;
 
 namespace HealthCheck.Dev.Common.DataMapper
 {
+	[HCMappedClass("", GroupName = "Test Group X", OverrideName = "Test #1", Remarks = "Some remarks here, maybe with <a href=\"#\">link</a>.", MappingFromMethodName = "Mapping.GetMapping", HtmlEncodeMappingComments = false)]
 	[HCMappedClass(@"
+Name <=> ExternalData.SomethingElse
+HomeAddress <=> NonExistent.Nope
+LeftNotExisting <=> ExternalData.Addresses.Work.City
+BothNotExisting <=> Nope
+// This one does not use <b>html</b>.
+WorkAddress {
+	Geo {
+		// This one should fail
+		Lat <=> ExternalData.Addresses.NotExisting
+	}
+}
+", OverrideName = "With errors")]
+	[HCMappedClass(@"Value <=> ExternalData2.SuperValue")]
+	public class LeftRoot
+	{
+		[JsonProperty("info8")]
+		public string Name { get; set; }
+
+		[JsonProperty("ageValue")]
+		public int Age { get; set; }
+
+		public decimal Value { get; set; }
+
+		public AddressData HomeAddress { get; set; }
+		public AddressData WorkAddress { get; set; }
+
+		public class Mapping
+		{
+			public string GetMapping()
+				=> @"
 // Name combines first and last name
-Name <=> [ExternalData.SomeInfoName1, ExternalData.SomeInfoName2]
+Name <=> [ExternalData.SomeInfoName1, AnotherMappedToType.MiddleName, ExternalData.SomeInfoName2]
+Age <=> AnotherMappedToType.Age
 
 HomeAddress {
 	FromRootLevelTest <=> ExternalData.RootValue
@@ -14,13 +46,14 @@ HomeAddress {
 	ZipCode <=> ExternalData.Addresses.ZipCode
 	City <=> ExternalData.Addresses.City
 	Geo {
-		// Fetched from api X
+		// Fetched from api X1
 		Lon
-		// Fetched from api X
+		// Fetched from api X2
 		Lat
 	}
 }
 
+// This <b>one</b> has some <a href=""/test"">html</a>. //
 WorkAddress {
 	FromRootLevelTest <=> ExternalData.RootValue
 	StreetName <=> ExternalData.Addresses.Work.StreetName
@@ -28,33 +61,14 @@ WorkAddress {
 	ZipCode <=> ExternalData.Addresses.Work.ZipCode
 	City <=> ExternalData.Addresses.Work.City
 	Geo {
-		// Fetched from api Y
+		// Fetched from api Y3
 		Lon
-		// Fetched from api Y
+		// Fetched from api Y4
 		Lat
 	}
 }
-", GroupName = "Test Group X", OverrideName = "Test #1", Remarks = "Some remarks here.")]
-	[HCMappedClass(@"
-Name <=> ExternalData.SomethingElse
-HomeAddress <=> NonExistent.Nope
-LeftNotExisting <=> ExternalData.Addresses.Work.City
-BothNotExisting <=> Nope
-WorkAddress {
-	Geo {
-		// This one should fail
-		Lat <=> ExternalData.Addresses.NotExisting
-	}
-}
-", OverrideName = "With errors")]
-	[HCMappedClass(@"Name <=> ExternalData.SomethingElse")]
-	public class LeftRoot
-	{
-		[JsonProperty("info8")]
-		public string Name { get; set; }
-
-		public AddressData HomeAddress { get; set; }
-		public AddressData WorkAddress { get; set; }
+";
+		}
 	}
 	public class AddressData
 	{
@@ -72,7 +86,7 @@ WorkAddress {
 		public decimal Lat { get; set; }
 	}
 	// -------------------
-	[HCMappedReferencedType]
+	[HCMappedReferencedType(DisplayName = "ExtData Display Name", NameInMapping = "Ext", Remarks = "This one is a test with some comments here.")]
 	public class ExternalData
 	{
 		public string RootValue { get; set; }
@@ -94,6 +108,19 @@ WorkAddress {
 		public string StreetNo { get; set; }
 		public string ZipCode { get; set; }
 		public string City { get; set; }
+	}
+	// -------------------
+	[HCMappedReferencedType]
+	public class AnotherMappedToType
+	{
+		public string MiddleName { get; set; }
+		public int Age { get; set; }
+	}
+	// -------------------
+	[HCMappedReferencedType]
+	public class ExternalData2
+	{
+		public string SuperValue { get; set; }
 	}
 	// ########################################################
 }

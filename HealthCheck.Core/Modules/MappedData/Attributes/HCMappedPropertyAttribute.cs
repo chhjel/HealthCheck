@@ -16,7 +16,12 @@ namespace HealthCheck.Core.Modules.MappedData.Attributes
 		/// <summary>
 		/// Optionally override display name of this property.
 		/// </summary>
-		public string OverrideName { get; set; }
+		public string DisplayName { get; set; }
+
+		/// <summary>
+		/// Optionally override display name of this property used in the mapping display.
+		/// </summary>
+		public string NameInMapping { get; set; }
 
 		/// <summary>
 		/// Optional notes to display in the UI.

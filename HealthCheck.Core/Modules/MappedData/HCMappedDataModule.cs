@@ -3,6 +3,7 @@ using HealthCheck.Core.Modules.MappedData.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web;
 
 namespace HealthCheck.Core.Modules.MappedData
 {
@@ -80,6 +81,7 @@ namespace HealthCheck.Core.Modules.MappedData
                 Id = d.Id,
                 ReferenceId = d.ReferenceId,
                 DisplayName = d.DisplayName,
+                NameInMapping = d.NameInMapping,
                 TypeName = d.Type?.Name,
                 Remarks = d.Attribute?.Remarks
             };
@@ -88,6 +90,10 @@ namespace HealthCheck.Core.Modules.MappedData
         private static HCMappedClassDefinitionViewModel Create(HCMappedClassDefinition d)
         {
             var memberDefs = d.MemberDefinitions.Select(x => Create(x)).ToList();
+            if (d.Attribute?.HtmlEncodeMappingComments == true)
+            {
+                memberDefs.ForEach(x => x.Remarks = HttpUtility.HtmlEncode(x.Remarks ?? string.Empty));
+            }
             return new HCMappedClassDefinitionViewModel
             {
                 Id = d.Id,
@@ -95,7 +101,7 @@ namespace HealthCheck.Core.Modules.MappedData
                 DisplayName = d.DisplayName,
                 TypeName = d.TypeName,
                 MemberDefinitions = memberDefs,
-                Remarks = d.Attribute?.Remarks,
+                Remarks = d.Attribute?.Remarks ?? string.Empty,
                 GroupName = d.Attribute?.GroupName
             };
         }
@@ -113,6 +119,8 @@ namespace HealthCheck.Core.Modules.MappedData
                 FullPropertyTypeName = d.Member?.PropertyType == null ? null : $"{d.Member?.PropertyType?.Namespace}.{d.Member?.PropertyType?.Name}",
                 PropertyName = d.PropertyName,
                 Remarks = d.Remarks,
+                IsValid = d.IsValid,
+                Error = d.Error,
                 Children = children,
                 MappedTo = mappedTo
             };

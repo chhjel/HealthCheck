@@ -7,6 +7,7 @@ export interface HCMappedReferencedTypeDefinition
 	Id: string;
 	ReferenceId: string;
 	DisplayName: string;
+	NameInMapping: string;
 	Type: any;
 	Attribute: any;
 }

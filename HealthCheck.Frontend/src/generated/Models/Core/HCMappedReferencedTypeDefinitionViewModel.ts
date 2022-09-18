@@ -7,6 +7,7 @@ export interface HCMappedReferencedTypeDefinitionViewModel
 	Id: string;
 	ReferenceId: string;
 	DisplayName: string;
+	NameInMapping: string;
 	TypeName: string;
 	Remarks: string;
 }

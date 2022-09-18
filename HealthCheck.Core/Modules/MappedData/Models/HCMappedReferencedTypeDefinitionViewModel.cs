@@ -19,6 +19,11 @@
 		public string DisplayName { get; set; }
 
 		/// <summary>
+		/// Optionally override display name of this property used in the mapping display.
+		/// </summary>
+		public string NameInMapping { get; set; }
+
+		/// <summary>
 		/// Type of the decorated class.
 		/// </summary>
 		public string TypeName { get; set; }
