@@ -5,4 +5,5 @@ export default interface MappedDataDisplayOptions {
     showMappedToPropertyNames: PropertyNameType;
     showMappedToTypes: boolean;
     showMappedToDeclaringTypes: boolean;
+    showExampleValues: boolean;
 }

@@ -13,4 +13,5 @@ export interface HCMappedClassDefinition
 	ClassType: any;
 	Attribute: any;
 	MemberDefinitions: HCMappedMemberDefinition[];
+	AllMemberDefinitions: HCMappedMemberDefinition[];
 }

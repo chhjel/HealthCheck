@@ -36,6 +36,7 @@ using HealthCheck.Dev.Common.Config;
 using HealthCheck.Dev.Common.ContentPermutation;
 using HealthCheck.Dev.Common.DataExport;
 using HealthCheck.Dev.Common.Dataflow;
+using HealthCheck.Dev.Common.DataMapper;
 using HealthCheck.Dev.Common.DataRepeater;
 using HealthCheck.Dev.Common.EndpointControl;
 using HealthCheck.Dev.Common.EventNotifier;
@@ -136,6 +137,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Config
 
             // MappedData
             HCMappedDataService.DisableCache = true;
+            HCMappedDataModule.ExampleData = new LeftRoot();
             services.AddSingleton<IHCMappedDataService, HCMappedDataService>();
 
             services.AddSingleton<IHCReleaseNotesProvider>(new HCJsonFileReleaseNotesProvider(GetFilePath(@"App_Data\ReleaseNotes.json", env))

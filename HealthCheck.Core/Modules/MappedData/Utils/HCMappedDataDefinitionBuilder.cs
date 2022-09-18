@@ -95,21 +95,30 @@ namespace HealthCheck.Core.Modules.MappedData.Utils
             string mappingSrc = ExtractMappingSrc(type, attribute);
             var mapping = HCMappedDataMappingParser.ParseMapping(type, mappingSrc, refDefs);
 
-            var memberDefinitions = new List<HCMappedMemberDefinition>();
-            foreach (var member in type.GetProperties())
+			var memberDefinitions = new List<HCMappedMemberDefinition>();
+			var allMemberDefinitions = new List<HCMappedMemberDefinition>();
+			foreach (var member in type.GetProperties())
             {
                 var memberMapping = mapping.Objects.FirstOrDefault(x => x.PropertyInfo == member);
                 if (memberMapping == null) continue;
 
-                var memberDef = CreateMemberDefinition(memberMapping, options, null);
-                if (memberDef != null) memberDefinitions.Add(memberDef);
+                var memberDef = CreateMemberDefinition(memberMapping, options, null, (d) => allMemberDefinitions.Add(d));
+				if (memberDef != null)
+				{
+					memberDefinitions.Add(memberDef);
+					allMemberDefinitions.Add(memberDef);
+				}
             }
 
             var mappingsWithoutProperties = mapping.Objects.Where(x => !x.IsValid && !memberDefinitions.Any(m => m.PropertyName == x.Name));
             foreach (var mappingMember in mappingsWithoutProperties)
             {
-                var memberDef = CreateMemberDefinition(mappingMember, options, null);
-                if (memberDef != null) memberDefinitions.Add(memberDef);
+                var memberDef = CreateMemberDefinition(mappingMember, options, null, (d) => allMemberDefinitions.Add(d));
+				if (memberDef != null)
+				{
+					memberDefinitions.Add(memberDef);
+					allMemberDefinitions.Add(memberDef);
+				}
             }
 
             return new HCMappedClassDefinition
@@ -119,6 +128,7 @@ namespace HealthCheck.Core.Modules.MappedData.Utils
                 GroupName = attribute?.GroupName ?? parent?.GroupName,
                 Attribute = attribute,
                 MemberDefinitions = memberDefinitions,
+				AllMemberDefinitions = allMemberDefinitions,
                 TypeName = type.Name,
                 DisplayName = attribute?.OverrideName ?? type.Name
             };
@@ -161,7 +171,8 @@ namespace HealthCheck.Core.Modules.MappedData.Utils
 			else return $"{parent.Id}.{type?.Name}{suffix}";
 		}
 
-		private static HCMappedMemberDefinition CreateMemberDefinition(HCMappedDataMappingParser.ParsedMappingObject member, HCMappedDefinitionDiscoveryOptions options, HCMappedMemberDefinition parent)
+		private static HCMappedMemberDefinition CreateMemberDefinition(HCMappedDataMappingParser.ParsedMappingObject member, HCMappedDefinitionDiscoveryOptions options, HCMappedMemberDefinition parent,
+			Action<HCMappedMemberDefinition> onChildCreated)
 		{
 			var prop = member.PropertyInfo;
 			var displayName = options?.MemberDisplayNameOverride?.Invoke(prop) ?? TryAutoDiscoverPropertyDisplayName(prop, options) ?? member.Name;
@@ -182,7 +193,9 @@ namespace HealthCheck.Core.Modules.MappedData.Utils
 			var children = new List<HCMappedMemberDefinition>();
 			foreach (var childMember in member.Children)
 			{
-				children.Add(CreateMemberDefinition(childMember, options, def));
+				var child = CreateMemberDefinition(childMember, options, def, onChildCreated);
+				children.Add(child);
+				onChildCreated(child);
 			}
 			def.Children = children;
 

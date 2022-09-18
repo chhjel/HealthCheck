@@ -12,6 +12,7 @@
                         @click.middle.stop.prevent="onDisplayNameClicked(true)"
                         :title="`${def.FullPropertyTypeName}`"
                         >{{ displayOptions.showPropertyNames == 'actual' ? def.PropertyName : def.DisplayName }}</code>
+                    <span class="example-value" v-if="showExampleValues" :title="exampleValue"> = {{ exampleValue }}</span>
                     <div class="line-to-right" v-if="hasMappings">
                         <span class="line-to-right__start"></span>
                         <span class="line-to-right__end"></span>
@@ -42,6 +43,7 @@
                 :parentDef="def"
                 :allDefinitions="allDefinitions"
                 :displayOptions="displayOptions"
+                :exampleData="exampleData"
                 @gotoData="gotoData"
                 style="margin-left: 10px; padding-left: 10px; border-left: 2px solid lightgray;"
                 />
@@ -61,6 +63,7 @@ import { HCMappedDataDefinitionsViewModel } from "@generated/Models/Core/HCMappe
 import MappedMemberMappingComponent from "./MappedMemberMappingComponent.vue";
 import MappedDataDisplayOptions from "@models/modules/MappedData/MappedDataDisplayOptions";
 import MappedDataLinkData from "@models/modules/MappedData/MappedDataLinkData";
+import { HCMappedExampleValueViewModel } from "@generated/Models/Core/HCMappedExampleValueViewModel";
 
 @Options({
     components: {
@@ -80,6 +83,9 @@ export default class MappedMemberDefinitionComponent extends Vue {
 
     @Prop({ required: true })
     displayOptions: MappedDataDisplayOptions;
+
+    @Prop({ required: true })
+    exampleData: HCMappedExampleValueViewModel;
     
     id: string = IdUtils.generateId();
 
@@ -93,6 +99,10 @@ export default class MappedMemberDefinitionComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
+    getExampleValueFor(path: string, obj: any | null): string {
+        if (!obj) return null;
+        return obj[path] || null;
+    }
 
     ////////////////
     //  GETTERS  //
@@ -120,6 +130,20 @@ export default class MappedMemberDefinitionComponent extends Vue {
 
     get hasMappings(): boolean {
         return this.def.MappedTo != null && this.def.MappedTo.length > 0;
+    }
+
+    get showExampleValues(): boolean {
+        return this.displayOptions.showExampleValues
+            && this.exampleData != null && this.exampleData.Values != null
+            && Object.keys(this.exampleData.Values).includes(this.def.FullPropertyPath);
+    }
+
+    // todo example values for mappings as well
+    get exampleValue(): string {
+        const obj = this.exampleData?.Values;
+        const value = this.getExampleValueFor(this.def.FullPropertyPath, obj);
+        if (value === null) return 'null';
+        else return value;
     }
 
     ///////////////////////
@@ -153,6 +177,16 @@ export default class MappedMemberDefinitionComponent extends Vue {
     .display-name {
         font-size: 16px;
         color: var(--color--primary-base);
+    }
+    .example-value {
+        color: var(--color--accent-darken5);
+        font-size: 13px;
+        margin-left: 5px;
+        max-width: 221px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        display: block;
     }
 
     &.hasLinkToDef {

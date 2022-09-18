@@ -44,6 +44,11 @@ namespace HealthCheck.Core.Modules.MappedData.Models
 		/// </summary>
 		public List<HCMappedMemberDefinition> MemberDefinitions { get; set; }
 
+		/// <summary>
+		/// Member definitions from all properties, including children of children etc.
+		/// </summary>
+		public List<HCMappedMemberDefinition> AllMemberDefinitions { get; set; }
+
 		/// <summary></summary>
 		public override string ToString() => $"[{Id}]";
 	}

@@ -54,12 +54,19 @@
                             v-model:value="displayOptions.showPropertyRemarks"
                             @change="onFilterChanged"
                             class="mr-3" />
+                        <checkbox-component
+                            label="Example values"
+                            v-if="currentDefHasExampleValues"
+                            v-model:value="displayOptions.showExampleValues"
+                            @change="onFilterChanged"
+                            class="mr-3" />
                     </div>
                 </div>
 
                 <mapped-class-definition-component
                     :def="currentDef"
                     :allDefinitions="definitions"
+                    :exampleData="exampleDataForCurrentDef"
                     :displayOptions="displayOptions"
                     @gotoData="gotoData" />
             </div>
@@ -110,6 +117,7 @@ import MappedDataLinkData from "@models/modules/MappedData/MappedDataLinkData";
 import { HCMappedReferencedTypeDefinitionViewModel } from "@generated/Models/Core/HCMappedReferencedTypeDefinitionViewModel";
 import { HCMappedMemberDefinitionViewModel } from "@generated/Models/Core/HCMappedMemberDefinitionViewModel";
 import { HCMappedMemberReferenceDefinitionViewModel } from "@generated/Models/Core/HCMappedMemberReferenceDefinitionViewModel";
+import { HCMappedExampleValueViewModel } from "@generated/Models/Core/HCMappedExampleValueViewModel";
 
 @Options({
     components: {
@@ -136,13 +144,15 @@ export default class MappedDataPageComponent extends Vue {
         ClassDefinitions: [],
         ReferencedDefinitions: []
     };
+    exampleData: Array<HCMappedExampleValueViewModel> = [];
     currentDef: HCMappedClassDefinitionViewModel | null = null;
     displayOptions: MappedDataDisplayOptions = {
         showPropertyNames: "serialized",
         showPropertyRemarks: true,
         showMappedToTypes: false,
         showMappedToDeclaringTypes: false,
-        showMappedToPropertyNames: "serialized"
+        showMappedToPropertyNames: "serialized",
+        showExampleValues: true
     };
     refTypeDialogVisible: boolean = false;
     refDefInDialog: HCMappedReferencedTypeDefinitionViewModel | null = null;
@@ -194,6 +204,14 @@ export default class MappedDataPageComponent extends Vue {
                 this.setActiveType(this.definitions.ClassDefinitions[0]);   
             }
         }
+
+        this.service.GetExampleValues(this.dataLoadStatus, {
+            onSuccess: (data) => this.onExamplesRetrieved(data)
+        });
+    }
+
+    onExamplesRetrieved(data: Array<HCMappedExampleValueViewModel>): void {
+        this.exampleData = data;
     }
     
     hash(input: string) { return HashUtils.md5(input); }
@@ -282,6 +300,14 @@ export default class MappedDataPageComponent extends Vue {
     get currentDefHasAnyNamedMappings(): boolean {
         if (!this.currentDef) return false;
         return this.currentDef.MemberDefinitions.some(x => !this.memberMappingPropNameAndDisplayNamesMatches(x));
+    }
+
+    get exampleDataForCurrentDef(): HCMappedExampleValueViewModel {
+        return this.exampleData.find(x => x.DataTypeName == this.currentDef?.ClassTypeName);
+    }
+
+    get currentDefHasExampleValues(): boolean {
+        return this.exampleDataForCurrentDef != null;
     }
 
     ///////////////////////

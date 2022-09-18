@@ -21,15 +21,15 @@ WorkAddress {
 	public class LeftRoot
 	{
 		[JsonProperty("info8")]
-		public string Name { get; set; }
+		public string Name { get; set; } = "rootX";
 
 		[JsonProperty("ageValue")]
-		public int Age { get; set; }
+		public int Age { get; set; } = 88;
 
-		public decimal Value { get; set; }
+		public decimal Value { get; set; } = 0.520m;
 
-		public AddressData HomeAddress { get; set; }
-		public AddressData WorkAddress { get; set; }
+		public AddressData HomeAddress { get; set; } = null;
+		public AddressData WorkAddress { get; set; } = new AddressData { City = "Oslo", StreetName = "ThatStreet", StreetNo = "88", ZipCode = "0278", Geo = new GeoData { Lat = 123, Lon = 332 } };
 
 		public class Mapping
 		{

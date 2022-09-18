@@ -12,6 +12,7 @@
                 :parentDef="def"
                 :allDefinitions="allDefinitions"
                 :displayOptions="displayOptions"
+                :exampleData="exampleData"
                 @gotoData="gotoData"
                 />
         </div>
@@ -28,6 +29,7 @@ import { HCMappedDataDefinitionsViewModel } from "@generated/Models/Core/HCMappe
 import MappedMemberDefinitionComponent from "./MappedMemberDefinitionComponent.vue";
 import MappedDataDisplayOptions from "@models/modules/MappedData/MappedDataDisplayOptions";
 import MappedDataLinkData from "@models/modules/MappedData/MappedDataLinkData";
+import { HCMappedExampleValueViewModel } from "@generated/Models/Core/HCMappedExampleValueViewModel";
 
 @Options({
     components: {
@@ -43,6 +45,9 @@ export default class MappedClassDefinitionComponent extends Vue {
 
     @Prop({ required: true })
     displayOptions: MappedDataDisplayOptions;
+
+    @Prop({ required: true })
+    exampleData: HCMappedExampleValueViewModel;
 
     //////////////////
     //  LIFECYCLE  //
