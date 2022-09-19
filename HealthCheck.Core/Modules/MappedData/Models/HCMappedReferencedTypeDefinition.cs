@@ -19,6 +19,11 @@ namespace HealthCheck.Core.Modules.MappedData.Models
 		public string ReferenceId { get; set; }
 
 		/// <summary>
+		/// Name of the class type.
+		/// </summary>
+		public string TypeName { get; set; }
+
+		/// <summary>
 		/// Display name of this definition.
 		/// </summary>
 		public string DisplayName { get; set; }

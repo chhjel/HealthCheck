@@ -1,5 +1,8 @@
 using HealthCheck.Core.Abstractions.Modules;
+using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.MappedData.Models;
+using HealthCheck.Core.Modules.MappedData.Utils;
+using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,6 +62,40 @@ namespace HealthCheck.Core.Modules.MappedData
         {
             var defs = Options.Service.GetDefinitions(Options.IncludedAssemblies, Options.DiscoveryOptions);
             return Create(defs);
+        }
+
+        /// <summary></summary>
+        [HealthCheckModuleMethod]
+        public List<HCMappedExampleValueViewModel> GetExampleValues(/*HealthCheckModuleContext context*/)
+        {
+            var defs = Options.Service.GetDefinitions(Options.IncludedAssemblies, Options.DiscoveryOptions);
+            var exampleData = HCMappedDataUtils.GetExampleData();
+            var examples = defs.ClassDefinitions.Select(x =>
+            {
+                var example = exampleData.FirstOrDefault(e => e.ClassType == x.ClassType);
+                if (example == null) return null;
+
+                if (example.Values == null && example.Instance != null)
+                {
+                    example.Values = x.AllMemberDefinitions
+                        .Where(x => !x.Children.Any())
+                        .Select(x =>
+                        {
+                            var val = HCReflectionUtils.GetValue(example.Instance, x.FullPropertyPath)?.ToString();
+                            if (HCMappedDataUtils.ExampleDataValueFilter != null)
+                            {
+                                val = HCMappedDataUtils.ExampleDataValueFilter(val);
+                            }
+                            return (value: val, prop: x.FullPropertyPath);
+                        })
+                        .ToDictionaryIgnoreDuplicates(x => x.prop, x => x.value);
+
+                    example.Instance = null;
+                }
+
+                return example;
+            }).Where(x => x != null).ToList();
+            return examples;
         }
         #endregion
 

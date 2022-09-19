@@ -1389,6 +1389,10 @@ public class MyRemoteModel { ... }
 </p>
 </details>
 
+### Utils
+
+* Optionally use `HCMappedDataUtils.SetExampleFor(myInstance);` to display example values in the UI. Only supported for classes decorated with `HCMappedClass`.
+
 ---------
 
 ## Module: GoTo

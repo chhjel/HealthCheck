@@ -4,6 +4,9 @@
 
 export interface HCMappedExampleValueViewModel
 {
+	StoredAt: Date;
 	DataTypeName: string;
 	Values: { [key:string]: string };
+	Instance: any;
+	ClassType: any;
 }

@@ -148,11 +148,11 @@ export default class MappedDataPageComponent extends Vue {
     currentDef: HCMappedClassDefinitionViewModel | null = null;
     displayOptions: MappedDataDisplayOptions = {
         showPropertyNames: "serialized",
+        showMappedToPropertyNames: "serialized",
         showPropertyRemarks: true,
+        showExampleValues: true,
         showMappedToTypes: false,
         showMappedToDeclaringTypes: false,
-        showMappedToPropertyNames: "serialized",
-        showExampleValues: true
     };
     refTypeDialogVisible: boolean = false;
     refDefInDialog: HCMappedReferencedTypeDefinitionViewModel | null = null;
@@ -361,6 +361,7 @@ export default class MappedDataPageComponent extends Vue {
     &__inputs {
         display: flex;
         flex-wrap: wrap;
+        align-items: flex-end;
     }
 }
 </style>

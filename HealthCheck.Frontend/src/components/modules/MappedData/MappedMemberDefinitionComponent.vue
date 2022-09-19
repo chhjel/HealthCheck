@@ -12,7 +12,8 @@
                         @click.middle.stop.prevent="onDisplayNameClicked(true)"
                         :title="`${def.FullPropertyTypeName}`"
                         >{{ displayOptions.showPropertyNames == 'actual' ? def.PropertyName : def.DisplayName }}</code>
-                    <span class="example-value" v-if="showExampleValues" :title="exampleValue"> = {{ exampleValue }}</span>
+                    <span class="example-value" v-if="showExampleValues"
+                        :title="exampleValueTooltip"> = {{ exampleValue }}</span>
                     <div class="line-to-right" v-if="hasMappings">
                         <span class="line-to-right__start"></span>
                         <span class="line-to-right__end"></span>
@@ -64,6 +65,7 @@ import MappedMemberMappingComponent from "./MappedMemberMappingComponent.vue";
 import MappedDataDisplayOptions from "@models/modules/MappedData/MappedDataDisplayOptions";
 import MappedDataLinkData from "@models/modules/MappedData/MappedDataLinkData";
 import { HCMappedExampleValueViewModel } from "@generated/Models/Core/HCMappedExampleValueViewModel";
+import DateUtils from "@util/DateUtils";
 
 @Options({
     components: {
@@ -144,6 +146,13 @@ export default class MappedMemberDefinitionComponent extends Vue {
         const value = this.getExampleValueFor(this.def.FullPropertyPath, obj);
         if (value === null) return 'null';
         else return value;
+    }
+    
+    get exampleValueTooltip(): string {
+        const datePart = this.exampleData?.StoredAt != null
+            ? `[${DateUtils.FormatDate(this.exampleData?.StoredAt, 'd. MMM HH:mm:ss')}] `
+            : '';
+        return `${datePart}${this.exampleValue}`;
     }
 
     ///////////////////////

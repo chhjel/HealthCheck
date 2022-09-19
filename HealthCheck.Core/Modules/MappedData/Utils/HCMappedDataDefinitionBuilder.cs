@@ -78,6 +78,7 @@ namespace HealthCheck.Core.Modules.MappedData.Utils
 			return new HCMappedReferencedTypeDefinition
 			{
 				Id = CreateMappedClassTypeId(type, null),
+				TypeName = type.Name,
 				DisplayName = attribute?.DisplayName ?? type.Name,
 				NameInMapping = attribute?.NameInMapping ?? type.Name,
 				Attribute = attribute,

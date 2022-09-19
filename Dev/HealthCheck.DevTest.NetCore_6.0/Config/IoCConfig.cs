@@ -19,6 +19,7 @@ using HealthCheck.Core.Modules.GoTo.Services;
 using HealthCheck.Core.Modules.LogViewer.Services;
 using HealthCheck.Core.Modules.MappedData.Abstractions;
 using HealthCheck.Core.Modules.MappedData.Services;
+using HealthCheck.Core.Modules.MappedData.Utils;
 using HealthCheck.Core.Modules.Messages.Abstractions;
 using HealthCheck.Core.Modules.Metrics.Abstractions;
 using HealthCheck.Core.Modules.Metrics.Context;
@@ -137,7 +138,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Config
 
             // MappedData
             HCMappedDataService.DisableCache = true;
-            HCMappedDataModule.ExampleData = new LeftRoot();
+            HCMappedDataUtils.SetExampleFor(new LeftRoot());
             services.AddSingleton<IHCMappedDataService, HCMappedDataService>();
 
             services.AddSingleton<IHCReleaseNotesProvider>(new HCJsonFileReleaseNotesProvider(GetFilePath(@"App_Data\ReleaseNotes.json", env))
