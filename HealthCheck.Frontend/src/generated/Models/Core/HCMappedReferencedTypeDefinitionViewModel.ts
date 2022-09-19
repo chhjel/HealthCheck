@@ -2,8 +2,12 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-export interface HCContentPermutationPropertyDetails
+export interface HCMappedReferencedTypeDefinitionViewModel
 {
+	Id: string;
+	ReferenceId: string;
 	DisplayName: string;
-	Description: string;
+	NameInMapping: string;
+	TypeName: string;
+	Remarks: string;
 }

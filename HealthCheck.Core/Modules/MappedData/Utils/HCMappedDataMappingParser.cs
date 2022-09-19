@@ -1,0 +1,255 @@
+﻿using HealthCheck.Core.Modules.MappedData.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
+
+namespace HealthCheck.Core.Modules.MappedData.Utils
+{
+    internal static class HCMappedDataMappingParser
+	{
+		private static readonly Regex _propLineRegex = new(@"(?<name>\w+)\s*(?<arrow><=>)?\s*(?<mappedTo>\[?[\w,\.\s]+\]?)?\s*(?<brace>\{)?");
+
+		public static ParsedMapping ParseMapping(Type type, string mapping, List<HCMappedReferencedTypeDefinition> refDefs)
+		{
+			var parsed = new ParsedMapping()
+			{
+				Type = type
+			};
+			var lines = mapping.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)
+				.Select(x => x.Trim());
+
+			string nextComment = null;
+			ParsedMappingObject currentObject = null;
+			var currentType = type;
+			void setCurrentObject(ParsedMappingObject newObj)
+			{
+				currentObject = newObj;
+				currentType = newObj == null ? type : newObj?.Type;
+			}
+
+			foreach (var lineRaw in lines)
+			{
+				var line = lineRaw;
+
+				// Comment
+				if (line.StartsWith("//"))
+				{
+					nextComment = line.TrimStart('/').Trim();
+					continue;
+				}
+				// End of object
+				else if (line == "}")
+				{
+					nextComment = null;
+					setCurrentObject(currentObject?.Parent);
+					continue;
+				}
+
+				if (line.Contains("//"))
+				{
+					var parts = line.Split(new string[] { "//" }, 2, StringSplitOptions.RemoveEmptyEntries);
+					line = parts[0].Trim();
+					nextComment = parts[1].Trim();
+				}
+
+				var match = _propLineRegex.Match(line);
+				if (match.Success)
+				{
+					var name = match.Groups["name"]?.Value;
+					var arrow = match.Groups["arrow"]?.Value;
+					var mappedToValues = match.Groups["mappedTo"]?.Value
+						?.Split(',')
+						?.Select(x => x.Replace("]", string.Empty).Replace("[", string.Empty).Trim())
+						?.Where(x => !string.IsNullOrWhiteSpace(x))
+						?.ToList() ?? new List<string>();
+					var hasBrace = match.Groups["brace"]?.Success == true;
+					var property = currentType?.GetProperty(name);
+
+					var mappedToRefs = new List<ParsedMappedToReference>();
+					foreach (var mappedPath in mappedToValues)
+					{
+						var parts = mappedPath.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+						var mappedToRefId = parts[0].Trim();
+						var refDef = refDefs.FirstOrDefault(x => x.ReferenceId == mappedToRefId);
+						TypeChain chain = null;
+						var subPath = string.Join(".", parts.Skip(1));
+						if (refDef != null)
+						{
+							chain = ResolveDottedPath(refDef?.Type, subPath);
+						}
+						else
+						{
+							chain = new TypeChain
+							{
+								Success = false,
+								Error = $"Type not found from reference id '{mappedToRefId}'.",
+								Path = subPath
+							};
+						}
+						mappedToRefs.Add(new ParsedMappedToReference
+						{
+							Chain = chain,
+							DottedPath = mappedPath,
+							Name = parts.Last().Trim()
+						});
+					}
+
+					var obj = new ParsedMappingObject
+					{
+						Name = name,
+						Comment = nextComment,
+						MappedTo = mappedToRefs,
+						Parent = currentObject,
+						PropertyInfo = property,
+						Type = property?.PropertyType,
+						IsValid = property != null,
+						Error = property == null ? $"Property '{name}' not found." : null
+					};
+					nextComment = null;
+
+					if (currentObject != null)
+					{
+						currentObject.Children.Add(obj);
+					}
+					else
+					{
+						parsed.Objects.Add(obj);
+					}
+
+					if (hasBrace) setCurrentObject(obj);
+				}
+			}
+
+			return parsed;
+		}
+
+		private static TypeChain ResolveDottedPath(Type rootType, string path)
+		{
+			var chain = new TypeChain()
+			{
+				Path = path,
+				RootType = rootType
+			};
+			var parts = path.Trim().Split('.');
+			Type currentType = rootType;
+			foreach (var pathSegment in parts)
+			{
+				var prop = currentType?.GetProperty(pathSegment);
+				string error = null;
+				if (currentType != null && prop == null)
+				{
+					error = $"Could not find property named '{pathSegment}' on type '{currentType?.Name}'";
+				}
+
+				currentType = prop?.PropertyType;
+				chain.Items.Add(new TypeChainItem
+				{
+					Name = pathSegment,
+					PropertyInfo = prop,
+					Error = error
+				});
+			}
+
+			chain.Success = chain.GetErrors().Count() == 0;
+			return chain;
+		}
+
+		public class TypeChain
+		{
+			public bool Success { get; set; }
+			public string Error { get; set; }
+			public string Path { get; set; }
+			public Type RootType { get; set; }
+			public IEnumerable<string> GetErrors() => Items.Select(x => x.Error).Union(new[] { Error }).Where(x => !string.IsNullOrWhiteSpace(x));
+			public List<TypeChainItem> Items { get; set; } = new List<TypeChainItem>();
+		}
+
+		public class TypeChainItem
+		{
+			public bool Success => Error == null;
+			public string Error { get; set; }
+
+			public string Name { get; set; }
+			public Type DeclaringType => PropertyInfo?.DeclaringType;
+			public PropertyInfo PropertyInfo { get; set; }
+		}
+
+		public class ParsedMapping
+		{
+			public Type Type { get; set; }
+			public List<ParsedMappingObject> Objects { get; set; } = new List<ParsedMappingObject>();
+
+			public override string ToString()
+			{
+				var builder = new StringBuilder();
+				foreach (var obj in Objects)
+				{
+					builder.AppendLine(obj.ToString());
+				}
+				return builder.ToString();
+			}
+		}
+
+		public class ParsedMappedToReference
+		{
+			public string Name { get; set; }
+			public string DottedPath { get; set; }
+			public TypeChain Chain { get; set; }
+
+			public string CreateSummary()
+			{
+				var errors = string.Join(", ", Chain.GetErrors());
+				if (!string.IsNullOrWhiteSpace(errors)) errors = $" ({errors})";
+				return $"{Name} ({DottedPath}){errors}";
+			}
+		}
+
+		public class ParsedMappingObject
+		{
+			public string Name { get; set; }
+			public Type Type { get; set; }
+			public ParsedMappingObject Parent { get; set; }
+			public string Comment { get; set; }
+			public bool IsComplex => Children.Any();
+			public PropertyInfo PropertyInfo { get; set; }
+			public List<ParsedMappedToReference> MappedTo { get; set; } = new List<ParsedMappedToReference>();
+			public List<ParsedMappingObject> Children { get; set; } = new List<ParsedMappingObject>();
+
+			public bool IsValid { get; set; }
+			public string Error { get; set; }
+
+			public override string ToString() => CreateSummary(0);
+
+			private string CreateSummary(int level)
+			{
+				var prefix = new string(' ', level * 2);
+				var value = prefix;
+				if (!string.IsNullOrWhiteSpace(Comment)) value += $"// {Comment}\n{prefix}";
+
+				value += $"{Name} [{(IsValid ? "Valid" : Error)}]";
+
+				if (MappedTo.Any())
+				{
+					value += $" <=> [{string.Join(", ", MappedTo.Select(x => x.CreateSummary()))}]";
+				}
+				if (IsComplex)
+				{
+					value += " {";
+
+					foreach (var child in Children)
+					{
+						value += $"\n{child.CreateSummary(level + 1)}";
+					}
+
+					value += $"\n{prefix}}}";
+				}
+
+				return value;
+			}
+		}
+	}
+
+}

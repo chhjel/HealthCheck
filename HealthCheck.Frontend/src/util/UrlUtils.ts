@@ -1,3 +1,5 @@
+import { Router } from "vue-router";
+
 export default class UrlUtils
 {
     static getCurrentUrlWithoutParamsAndHash(suffix: string | null = null): string {
@@ -12,6 +14,7 @@ export default class UrlUtils
         }
         return clean;
     }
+
     static openRouteInNewTab(route: string): void {
         const url = UrlUtils.getOpenRouteInNewTabUrl(route);
         window.open(url, '_blank');
@@ -30,6 +33,7 @@ export default class UrlUtils
     }
 
     static updatePerstentQueryStringKey(): void {
+        if (this.GetQueryStringParameter('h') == window.location.hash) return;
         UrlUtils.SetQueryStringParameter('h', window.location.hash);
     }
 
@@ -40,6 +44,8 @@ export default class UrlUtils
         if (reload === true) {
             window.location.href = newUrl;
         } else {
+            const router: Router = (<any>window).__hc_router;
+            router.replace({ params: { ignoreHParameter: "1" } });
             window.history.replaceState({}, '', newUrl);
         }
     }
@@ -47,6 +53,7 @@ export default class UrlUtils
     static ClearQueryStringParameter(key: string): void {
         const params = new URLSearchParams(location.search);
         params.delete(key);
+        
         window.history.replaceState({}, '', `${location.pathname}?${params.toString()}${location.hash}`);
     }
 

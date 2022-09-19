@@ -17,6 +17,9 @@ using HealthCheck.Core.Modules.EventNotifications.Services;
 using HealthCheck.Core.Modules.GoTo.Abstractions;
 using HealthCheck.Core.Modules.GoTo.Services;
 using HealthCheck.Core.Modules.LogViewer.Services;
+using HealthCheck.Core.Modules.MappedData.Abstractions;
+using HealthCheck.Core.Modules.MappedData.Services;
+using HealthCheck.Core.Modules.MappedData.Utils;
 using HealthCheck.Core.Modules.Messages.Abstractions;
 using HealthCheck.Core.Modules.Metrics.Abstractions;
 using HealthCheck.Core.Modules.Metrics.Context;
@@ -34,6 +37,7 @@ using HealthCheck.Dev.Common.Config;
 using HealthCheck.Dev.Common.ContentPermutation;
 using HealthCheck.Dev.Common.DataExport;
 using HealthCheck.Dev.Common.Dataflow;
+using HealthCheck.Dev.Common.DataMapper;
 using HealthCheck.Dev.Common.DataRepeater;
 using HealthCheck.Dev.Common.EndpointControl;
 using HealthCheck.Dev.Common.EventNotifier;
@@ -132,6 +136,10 @@ namespace HealthCheck.DevTest.NetCore_6._0.Config
             services.AddSingleton<IAccessManagerTokenStorage>(x => new FlatFileAccessManagerTokenStorage(@"C:\temp\AccessTokens.json"));
             services.AddSingleton<IHCMetricsStorage, HCMemoryMetricsStorage>();
 
+            // MappedData
+            HCMappedDataService.DisableCache = true;
+            HCMappedDataUtils.SetExampleFor(new LeftRoot());
+            services.AddSingleton<IHCMappedDataService, HCMappedDataService>();
 
             services.AddSingleton<IHCReleaseNotesProvider>(new HCJsonFileReleaseNotesProvider(GetFilePath(@"App_Data\ReleaseNotes.json", env))
             {

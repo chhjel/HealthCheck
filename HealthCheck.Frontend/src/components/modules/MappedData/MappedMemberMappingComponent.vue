@@ -1,0 +1,172 @@
+<!-- src/components/modules/MappedData/MappedMemberMappingComponent.vue -->
+<template>
+    <div :class="rootClasses">
+        <div v-if="mapping.Error"><code>Error: {{ mapping.Error }}</code><br /></div>
+
+        <div v-if="hasItems" class="mapped-to-items">
+            <div class="mapped-to-item-root" :class="rootRefClasses">
+                <code class="mapped-to-item__name"
+                    @click="onMappedNameClicked(mapping.RootReferenceId, false)"
+                    @click.middle.stop.prevent="onMappedNameClicked(mapping.RootReferenceId, true)"
+                    :title="`${mapping.RootTypeName}`"
+                    >{{ rootReferenceNameInMapping }}</code>
+            </div>
+
+            <div v-for="(chainItem, chainItemIndex) in mapping.Items"
+                 :key="`def-mapping-item-${id}-${chainItemIndex}`"
+                 :class="getItemClasses(chainItem)"
+                 class="mapped-to-item">
+                <code class="mapped-to-item__name"
+                    :title="`${(chainItem.FullPropertyTypeName || 'Property not found')}`"
+                    >{{ getChainItemName(chainItem) }}</code>
+            </div>
+        </div>
+
+        <div v-if="hasItems" class="mapped-to-items-details">
+            <div v-for="(chainItem, chainItemIndex) in mapping.Items"
+                 :key="`def-mapping-item-${id}-${chainItemIndex}-err`">
+                <div v-if="chainItem.PropertyTypeName && displayOptions.showMappedToTypes">Property: {{ chainItem.PropertyTypeName }} {{ chainItem.PropertyName }}</div>
+                <div v-if="chainItem.DeclaringTypeName && displayOptions.showMappedToDeclaringTypes">Declaring type: {{ chainItem.DeclaringTypeName }}</div>
+                <div v-if="chainItem.Error"><code>Error: {{ chainItem.Error }}</code></div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script lang="ts">
+import { Vue, Prop, Watch, Ref } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import { StoreUtil } from "@util/StoreUtil";
+import IdUtils from "@util/IdUtils";
+import { HCMappedDataDefinitionsViewModel } from "@generated/Models/Core/HCMappedDataDefinitionsViewModel";
+import { HCMappedMemberReferenceDefinitionViewModel } from "@generated/Models/Core/HCMappedMemberReferenceDefinitionViewModel";
+import { HCMappedMemberReferencePathItemDefinitionViewModel } from "@generated/Models/Core/HCMappedMemberReferencePathItemDefinitionViewModel";
+import MappedDataDisplayOptions from "@models/modules/MappedData/MappedDataDisplayOptions";
+import MappedDataLinkData from "@models/modules/MappedData/MappedDataLinkData";
+
+@Options({
+    components: {
+    }
+})
+export default class MappedMemberMappingComponent extends Vue {
+    @Prop({ required: true })
+    mapping!: HCMappedMemberReferenceDefinitionViewModel;
+
+    @Prop({ required: true })
+    allDefinitions: HCMappedDataDefinitionsViewModel;
+
+    @Prop({ required: true })
+    displayOptions: MappedDataDisplayOptions;
+    
+    id: string = IdUtils.generateId();
+
+    //////////////////
+    //  LIFECYCLE  //
+    ////////////////
+    async mounted()
+    {
+    }
+
+    ////////////////
+    //  METHODS  //
+    //////////////
+    getChainItemName(item: HCMappedMemberReferencePathItemDefinitionViewModel): string {
+        return (this.displayOptions.showMappedToPropertyNames == 'actual')
+            ? item.PropertyName || '[not found]'
+            : item.DisplayName;
+    }
+    getItemClasses(item: HCMappedMemberReferencePathItemDefinitionViewModel): any {
+        let classes: any = {};
+        classes['valid'] = item.Success;
+        classes['invalid'] = !item.Success;
+        return classes;
+    }
+
+    ////////////////
+    //  GETTERS  //
+    //////////////
+    get globalOptions(): FrontEndOptionsViewModel {
+        return StoreUtil.store.state.globalOptions;
+    }
+
+    get hasItems(): boolean {
+        return this.mapping.Items != null && this.mapping.Items.length > 0;
+    }
+
+    get isValid(): boolean {
+        return this.mapping.Success && this.mapping.Items.every(x => x.Success);
+    }
+
+    get rootClasses(): any {
+        let classes: any = {};
+        classes['valid'] = this.isValid;
+        classes['invalid'] = !this.isValid;
+        return classes;
+    }
+
+    get rootRefClasses(): any {
+        const valid = !this.mapping.Error;
+        let classes: any = {};
+        classes['valid'] = valid;
+        classes['invalid'] = !valid;
+        classes['hasLinkToDef'] = this.hasRootRefComment;
+        return classes;
+    }
+
+    get rootReferenceNameInMapping(): string {
+        const def = this.allDefinitions.ReferencedDefinitions.find(x => x.ReferenceId == this.mapping.RootReferenceId);
+        return def?.NameInMapping || this.mapping.RootReferenceId;
+    }
+
+    get hasRootRefComment(): boolean {
+        const def = this.allDefinitions.ReferencedDefinitions.find(x => x.ReferenceId == this.mapping.RootReferenceId);
+        return def?.Remarks != null && def.Remarks.trim().length > 0;
+    }
+
+    ///////////////////////
+    //  EVENT HANDLERS  //
+    /////////////////////
+    onMappedNameClicked(name: string, middle: boolean): void {
+        const match = this.allDefinitions.ReferencedDefinitions.find(x => x.ReferenceId == name);
+        if (match == null) return;
+
+        const payload: MappedDataLinkData = {
+            id: match.Id,
+            type: "ReferencedDefinition",
+            newWindow: middle
+        };
+        this.gotoData(payload);
+    }
+
+    gotoData(data: MappedDataLinkData): void {
+        this.$emit('gotoData', data);
+    }
+}
+</script>
+
+<style scoped lang="scss">
+.mapped-to-items {
+    display: flex;
+    flex-wrap: wrap;
+}
+.mapped-to-item, .mapped-to-item-root {
+    &:not(:last-child) {
+        &::after {
+            content: '.';
+        }
+    }
+    &__name {
+        font-size: 16px;
+    }
+
+    &.valid {
+        .mapped-to-item__name {
+            color: var(--color--success-darken4)
+        }
+    }
+}
+.hasLinkToDef {
+    cursor: pointer;
+}
+</style>

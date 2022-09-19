@@ -101,7 +101,6 @@ const TeleportFix = teleport_ as {
 })
 export default class SelectComponent extends Vue
 {
-    asd = [{id: 'unique_1', text: 'abc'}, {id: 'unique_2', text: 'xyz'}];
     dropdownItemType = shallowRef(SelectDropdownItemComponent);
 
     @Prop({ required: false })
@@ -207,8 +206,15 @@ export default class SelectComponent extends Vue
         return this.optionItems.filter(x => this.selectedValues.includes(x.value));
     }
 
+    nullId: string = '__<<null>>';
     get filteredOptionItems(): Array<Item> {
-        return this.optionItems.filter(x => x.text?.toLowerCase()?.includes(this.filter?.toLowerCase()));
+        return this.optionItems
+            .filter(x => x.text?.toString()?.toLowerCase()?.includes(this.filter?.toLowerCase()))
+            .map(x => {
+                const copy = {...x};
+                copy.value = (copy?.value === null) ? this.nullId : copy?.value;
+                return copy;
+            });
     }
 
     get extraItemProps(): object {
@@ -372,7 +378,10 @@ export default class SelectComponent extends Vue
         this.$emit('blur', emittedValue);
     }
 
-    valueIsSelected(val: string): boolean { return this.selectedValues.includes(val); }
+    valueIsSelected(val: string): boolean {
+        val = val == this.nullId ? null : val;
+        return this.selectedValues.includes(val);
+    }
 
     tryAddCustomValue(): void {
         if (!this.isAllowCustom) return;
@@ -471,6 +480,8 @@ export default class SelectComponent extends Vue
     }
 
     onDropdownItemClicked(item: Item): void {
+        item = {...item};
+        item.value = item.value == this.nullId ? null : item.value;
         if (!this.allowModify) return;
         else if (this.setFilterFromShortcutIfSuitable(item)) return;
 
