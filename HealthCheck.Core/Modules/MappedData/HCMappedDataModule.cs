@@ -184,10 +184,10 @@ namespace HealthCheck.Core.Modules.MappedData
                 DisplayName = d.DisplayName,
                 Success = d.Success,
                 Error = d.Error,
-                DeclaringTypeName = d.DeclaringType?.Name,
+                DeclaringTypeName = d.DeclaringType?.GetFriendlyTypeName(),
                 PropertyName = d.PropertyName,
-                PropertyTypeName = d.PropertyType?.Name,
-                FullPropertyTypeName = d?.PropertyType == null ? null : $"{d?.PropertyType?.Namespace}.{d?.PropertyType?.Name}",
+                PropertyTypeName =  d.PropertyType?.GetFriendlyTypeName(),
+                FullPropertyTypeName = d?.PropertyType == null ? null : $"{d?.PropertyType?.Namespace}.{d?.PropertyType?.GetFriendlyTypeName()}",
             };
         }
         #endregion

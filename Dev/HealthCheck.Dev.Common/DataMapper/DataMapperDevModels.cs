@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Modules.MappedData.Attributes;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace HealthCheck.Dev.Common.DataMapper
 {
@@ -26,6 +27,8 @@ WorkAddress {
 		[JsonProperty("ageValue")]
 		public int Age { get; set; } = 88;
 
+		public string FromArray { get; set; }
+
 		public decimal Value { get; set; } = 0.520m;
 
 		public AddressData HomeAddress { get; set; } = null;
@@ -36,8 +39,9 @@ WorkAddress {
 			public string GetMapping()
 				=> @"
 // Name combines first and last name
-Name <=> [ExternalData.SomeInfoName1, AnotherMappedToType.MiddleName, ExternalData.SomeInfoName2]
+Name <=> [ExternalData.SomeInfoName1, AnotherMappedToType.MiddleName, ExternalData.SomeInfoName2, ExternalData.Addresses.Others[0]]
 Age <=> AnotherMappedToType.Age
+FromArray <=> ExternalData.Addresses.Others[0].StreetName
 
 HomeAddress {
 	FromRootLevelTest <=> ExternalData.RootValue
@@ -101,6 +105,7 @@ WorkAddress {
 		public string ZipCode { get; set; }
 		public string City { get; set; }
 		public ExternalAddressDetailsData Work { get; set; }
+		public List<ExternalAddressDetailsData> Others { get; set; }
 	}
 	public class ExternalAddressDetailsData
 	{

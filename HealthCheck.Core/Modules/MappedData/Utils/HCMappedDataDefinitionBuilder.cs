@@ -203,15 +203,25 @@ namespace HealthCheck.Core.Modules.MappedData.Utils
 			var mappedTo = new List<HCMappedMemberReferenceDefinition>();
 			foreach (var item in member.MappedTo)
 			{
-				var pathItems = item.Chain.Items.Select(x => new HCMappedMemberReferencePathItemDefinition
+				var pathItems = item.Chain.Items.Select(x =>
 				{
-					Success = x.Success,
-					Error = x.Error,
-					DisplayName = (x.PropertyInfo == null) ? x.Name : TryAutoDiscoverPropertyDisplayName(x.PropertyInfo, options),
-					PropertyName = x.PropertyInfo?.Name,
-					PropertyType = x.PropertyInfo?.PropertyType,
-					PropertyInfo = x.PropertyInfo,
-					DeclaringType = x.DeclaringType
+					var indexer = string.Empty;
+					if (x.Name?.EndsWith("]") == true){
+						indexer = x.Name.Substring(x.Name.LastIndexOf("["));
+                    }
+					var mappedToDisplayName = (x.PropertyInfo == null)
+						? x.Name
+						: (TryAutoDiscoverPropertyDisplayName(x.PropertyInfo, options) + indexer);
+					return new HCMappedMemberReferencePathItemDefinition
+					{
+						Success = x.Success,
+						Error = x.Error,
+						DisplayName = mappedToDisplayName,
+						PropertyName = x.PropertyInfo?.Name,
+						PropertyType = x.PropertyInfo?.PropertyType,
+						PropertyInfo = x.PropertyInfo,
+						DeclaringType = x.DeclaringType
+					};
 				}).ToList();
 				mappedTo.Add(new HCMappedMemberReferenceDefinition
 				{

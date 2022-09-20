@@ -1373,6 +1373,7 @@ Address {
     City <=> MyRemoteModel.HomeAddress.City,
     Zip <=> MyRemoteModel.HomeAddress.ZipCode
 }
+Something <=> MyRemoteModel.SomeIndexableThing[1].Etc
 ")]
 public class MyLocalModel
 {
