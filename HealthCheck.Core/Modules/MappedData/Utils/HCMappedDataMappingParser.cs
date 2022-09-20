@@ -11,7 +11,7 @@ namespace HealthCheck.Core.Modules.MappedData.Utils
 {
     internal static class HCMappedDataMappingParser
 	{
-		private static readonly Regex _propLineRegex = new(@"(?<name>\w+)\s*(?<arrow><=>)?\s*(?<mappedTo>\[?[\w,\.\s\[\]""]+\]?)?\s*(?<brace>\{)?");
+		private static readonly Regex _propLineRegex = new(@"(?<name>\w+)\s*(?<arrow><=>)?\s*(?<mappedTo>\[?.+\]?)?");
 
 		public static ParsedMapping ParseMapping(Type type, string mapping, List<HCMappedReferencedTypeDefinition> refDefs)
 		{
@@ -71,7 +71,12 @@ namespace HealthCheck.Core.Modules.MappedData.Utils
 						?.Select(x => x.Trim())
 						?.Where(x => !string.IsNullOrWhiteSpace(x))
 						?.ToList() ?? new List<string>();
-					var hasBrace = match.Groups["brace"]?.Success == true;
+					var hasBrace = mappedToValues.Count > 0 && mappedToValues.Last().Trim().EndsWith("{");
+					if (hasBrace)
+                    {
+						mappedToValues[mappedToValues.Count - 1] = mappedToValues[mappedToValues.Count - 1].Trim().TrimEnd('{').Trim();
+						mappedToValues = mappedToValues.Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+					}
 					var property = currentType?.GetProperty(name);
 
 					var mappedToRefs = new List<ParsedMappedToReference>();

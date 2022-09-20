@@ -49,7 +49,7 @@ FromArray <=> ExternalData.Addresses.Others[0].StreetName
 FromArrayWithoutIndex <=> ExternalData.Addresses.Others[last].ZipCode
 FromArrayItself <=> ExternalData.Addresses.Others.Count
 HardCoded <=> ""1234""
-HardCodedMulti <=> [""Abcd"", ExternalData.SomeInfoName2]
+HardCodedMulti <=> [""Abcd-123"", ""[2]"", ExternalData.SomeInfoName2]
 
 HomeAddress {
 	FromRootLevelTest <=> ExternalData.RootValue
