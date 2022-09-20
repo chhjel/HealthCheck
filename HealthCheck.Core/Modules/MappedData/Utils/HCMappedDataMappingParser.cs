@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Modules.MappedData.Models;
+using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace HealthCheck.Core.Modules.MappedData.Utils
 {
     internal static class HCMappedDataMappingParser
 	{
-		private static readonly Regex _propLineRegex = new(@"(?<name>\w+)\s*(?<arrow><=>)?\s*(?<mappedTo>\[?[\w,\.\s]+\]?)?\s*(?<brace>\{)?");
+		private static readonly Regex _propLineRegex = new(@"(?<name>\w+)\s*(?<arrow><=>)?\s*(?<mappedTo>\[?[\w,\.\s\[\]]+\]?)?\s*(?<brace>\{)?");
 
 		public static ParsedMapping ParseMapping(Type type, string mapping, List<HCMappedReferencedTypeDefinition> refDefs)
 		{
@@ -60,9 +61,14 @@ namespace HealthCheck.Core.Modules.MappedData.Utils
 				{
 					var name = match.Groups["name"]?.Value;
 					var arrow = match.Groups["arrow"]?.Value;
-					var mappedToValues = match.Groups["mappedTo"]?.Value
+					var mappedToRaw = match.Groups["mappedTo"]?.Value;
+					if (mappedToRaw?.StartsWith("[") == true && mappedToRaw?.EndsWith("]") == true)
+                    {
+						mappedToRaw = mappedToRaw.Substring(1, mappedToRaw.Length - 2);
+                    }
+					var mappedToValues = mappedToRaw
 						?.Split(',')
-						?.Select(x => x.Replace("]", string.Empty).Replace("[", string.Empty).Trim())
+						?.Select(x => x.Trim())
 						?.Where(x => !string.IsNullOrWhiteSpace(x))
 						?.ToList() ?? new List<string>();
 					var hasBrace = match.Groups["brace"]?.Success == true;
@@ -137,14 +143,18 @@ namespace HealthCheck.Core.Modules.MappedData.Utils
 			Type currentType = rootType;
 			foreach (var pathSegment in parts)
 			{
-				var prop = currentType?.GetProperty(pathSegment);
+				var propData = HCReflectionUtils.GetProperty(currentType, pathSegment);
+				var prop = propData.Item1;
+				var underlyingType = propData.Item2;
+				//var prop = currentType?.GetProperty(pathSegment);
 				string error = null;
 				if (currentType != null && prop == null)
 				{
 					error = $"Could not find property named '{pathSegment}' on type '{currentType?.Name}'";
 				}
 
-				currentType = prop?.PropertyType;
+				//currentType = prop?.PropertyType;
+				currentType = underlyingType ?? prop?.PropertyType;
 				chain.Items.Add(new TypeChainItem
 				{
 					Name = pathSegment,

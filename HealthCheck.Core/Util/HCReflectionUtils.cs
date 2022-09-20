@@ -280,6 +280,45 @@ namespace HealthCheck.Core.Util
 		}
 
 		/// <summary>
+		/// Get a property by its path including its underlying type/property type. Supports indexers.
+		/// </summary>
+		public static (PropertyInfo, Type) GetProperty(Type type, string membName)
+		{
+			if (type == null) return (null, null);
+
+			var cleanName = membName;
+			if (cleanName.Contains("["))
+			{
+				cleanName = cleanName.Substring(0, cleanName.IndexOf("["));
+			}
+
+			// First look for matching property
+			var prop = GetLowestProperty(type, cleanName);
+			if (prop == null) return (null, null);
+			else if (prop.CanRead && !prop.PropertyType.SupportsGetCollectionValueIndexed())
+			{
+				return (prop, prop.PropertyType);
+			}
+
+			var propType = prop.PropertyType;
+
+			// Check if member is indexed
+			int? targetIndex = null;
+			if (membName.Contains("["))
+			{
+				var strIndex = membName.Substring(membName.IndexOf("[") + 1);
+				strIndex = strIndex.Substring(0, strIndex.IndexOf("]"));
+				targetIndex = int.Parse(strIndex);
+			}
+			if (targetIndex != null && propType?.SupportsGetCollectionValueIndexed() == true)
+			{
+				return (prop, propType.GetUnderlyingCollectionType());
+			}
+
+			return (prop, prop.PropertyType);
+		}
+
+		/// <summary>
 		/// Get a property by its dotted and optionally indexed path.
 		/// <para>Returns null if not found.</para>
 		/// </summary>
