@@ -4,7 +4,7 @@
         <div v-if="mapping.Error"><code>Error: {{ mapping.Error }}</code><br /></div>
 
         <div v-if="hasItems" class="mapped-to-items">
-            <div class="mapped-to-item-root" :class="rootRefClasses">
+            <div class="mapped-to-item-root" :class="rootRefClasses" v-if="rootReferenceNameInMapping">
                 <code class="mapped-to-item__name"
                     @click="onMappedNameClicked(mapping.RootReferenceId, false)"
                     @click.middle.stop.prevent="onMappedNameClicked(mapping.RootReferenceId, true)"
@@ -17,7 +17,7 @@
                  :class="getItemClasses(chainItem)"
                  class="mapped-to-item">
                 <code class="mapped-to-item__name"
-                    :title="`${(chainItem.FullPropertyTypeName || 'Property not found')}`"
+                    :title="getChainItemTooltip(chainItem)"
                     >{{ getChainItemName(chainItem) }}</code>
             </div>
         </div>
@@ -71,15 +71,23 @@ export default class MappedMemberMappingComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
+    getChainItemTooltip(item: HCMappedMemberReferencePathItemDefinitionViewModel): string {
+        if (item.IsHardCoded) return 'Hardcoded value';
+        return item.FullPropertyTypeName || 'Property not found';
+    }
+
     getChainItemName(item: HCMappedMemberReferencePathItemDefinitionViewModel): string {
+        if (item.IsHardCoded) return `'${item.HardCodedValue}'`;
         return (this.displayOptions.showMappedToPropertyNames == 'actual')
             ? item.PropertyName || '[not found]'
             : item.DisplayName;
     }
+
     getItemClasses(item: HCMappedMemberReferencePathItemDefinitionViewModel): any {
         let classes: any = {};
         classes['valid'] = item.Success;
         classes['invalid'] = !item.Success;
+        classes['hardcoded'] = item.IsHardCoded;
         return classes;
     }
 
@@ -163,6 +171,11 @@ export default class MappedMemberMappingComponent extends Vue {
     &.valid {
         .mapped-to-item__name {
             color: var(--color--success-darken4)
+        }
+    }
+    &.hardcoded {
+        .mapped-to-item__name {
+            color: var(--color--primary-base)
         }
     }
 }

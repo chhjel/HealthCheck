@@ -28,6 +28,10 @@ WorkAddress {
 		public int Age { get; set; } = 88;
 
 		public string FromArray { get; set; }
+		public int FromArrayWithoutIndex { get; set; }
+		public int FromArrayItself { get; set; }
+		public int HardCoded { get; set; }
+		public int HardCodedMulti { get; set; }
 
 		public decimal Value { get; set; } = 0.520m;
 
@@ -42,6 +46,10 @@ WorkAddress {
 Name <=> [ExternalData.SomeInfoName1, AnotherMappedToType.MiddleName, ExternalData.SomeInfoName2, ExternalData.Addresses.Others[0]]
 Age <=> AnotherMappedToType.Age
 FromArray <=> ExternalData.Addresses.Others[0].StreetName
+FromArrayWithoutIndex <=> ExternalData.Addresses.Others[last].ZipCode
+FromArrayItself <=> ExternalData.Addresses.Others.Count
+HardCoded <=> ""1234""
+HardCodedMulti <=> [""Abcd"", ExternalData.SomeInfoName2]
 
 HomeAddress {
 	FromRootLevelTest <=> ExternalData.RootValue

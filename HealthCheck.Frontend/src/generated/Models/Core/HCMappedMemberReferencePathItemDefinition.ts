@@ -6,6 +6,8 @@ export interface HCMappedMemberReferencePathItemDefinition
 {
 	Success: boolean;
 	Error: string;
+	IsHardCoded: boolean;
+	HardCodedValue: string;
 	PropertyName: string;
 	DisplayName: string;
 	DeclaringType: any;

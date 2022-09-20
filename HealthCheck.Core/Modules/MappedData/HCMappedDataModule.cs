@@ -181,9 +181,10 @@ namespace HealthCheck.Core.Modules.MappedData
         {
             return new HCMappedMemberReferencePathItemDefinitionViewModel
             {
-                DisplayName = d.DisplayName,
                 Success = d.Success,
                 Error = d.Error,
+                DisplayName = d.DisplayName,
+                HardCodedValue = d.HardCodedValue,
                 DeclaringTypeName = d.DeclaringType?.GetFriendlyTypeName(),
                 PropertyName = d.PropertyName,
                 PropertyTypeName =  d.PropertyType?.GetFriendlyTypeName(),

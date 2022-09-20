@@ -20,6 +20,7 @@ Available modules:
 * Content permutations module to help find permutations of site content.
 * Comparison module where content can be compared in a bit more simplified interface.
 * GoTo module where content can be located in a bit more simplified interface.
+* Mapped Data module to show how models are mapped.
 * Event notifications module for notifying through custom implementations when custom events occur.
 * Settings module for custom settings related to healthcheck.
 * IDE where C# scripts can be stored and executed in the context of the web application.
@@ -1358,6 +1359,7 @@ UseModule(new HCMappedDataModule(new HCMappedDataModuleOptions
 
 * Use <=> to indicate a mapping of values.
 * Wrap mapped values in [] to indicate that they are mapped from multiple other values.
+* Mapped values within quotes (") indicates hardcoded values.
 * Lines starting with // will be included as comments.
 * To map complex properties, do like in the address example below.
 * Override names etc using available attribute properties.
@@ -1366,7 +1368,7 @@ UseModule(new HCMappedDataModule(new HCMappedDataModuleOptions
 [HCMappedClass(@"
 ExternalId <=> MyRemoteModel.Id
 // Name is joined from first and last name.
-FullName <=> [MyRemoteModel.FirstName, MyRemoteModel.LastName]
+FullName <=> [MyRemoteModel.FirstName, ""Middle"", MyRemoteModel.LastName]
 Address {
     StreetName <=> MyRemoteModel.HomeAddress.Street,
     StreetNo <=> MyRemoteModel.HomeAddress.StreetNo,
@@ -1374,6 +1376,7 @@ Address {
     Zip <=> MyRemoteModel.HomeAddress.ZipCode
 }
 Something <=> MyRemoteModel.SomeIndexableThing[1].Etc
+Another <=> MyRemoteModel.IndexerCanContainAnything[last].Etc
 ")]
 public class MyLocalModel
 {

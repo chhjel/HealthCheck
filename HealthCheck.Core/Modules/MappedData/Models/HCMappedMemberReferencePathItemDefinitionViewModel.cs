@@ -17,5 +17,9 @@
 		public string PropertyTypeName { get; set; }
 		/// <summary></summary>
 		public string FullPropertyTypeName { get; set; }
-    }
+		/// <summary></summary>
+		public bool IsHardCoded => HardCodedValue != null;
+		/// <summary></summary>
+		public string HardCodedValue { get; set; }
+	}
 }

@@ -203,34 +203,46 @@ namespace HealthCheck.Core.Modules.MappedData.Utils
 			var mappedTo = new List<HCMappedMemberReferenceDefinition>();
 			foreach (var item in member.MappedTo)
 			{
-				var pathItems = item.Chain.Items.Select(x =>
+				List<HCMappedMemberReferencePathItemDefinition> items = null;
+				if (item.IsHardCoded)
 				{
-					var indexer = string.Empty;
-					if (x.Name?.EndsWith("]") == true){
-						indexer = x.Name.Substring(x.Name.LastIndexOf("["));
-                    }
-					var mappedToDisplayName = (x.PropertyInfo == null)
-						? x.Name
-						: (TryAutoDiscoverPropertyDisplayName(x.PropertyInfo, options) + indexer);
-					return new HCMappedMemberReferencePathItemDefinition
-					{
-						Success = x.Success,
-						Error = x.Error,
-						DisplayName = mappedToDisplayName,
-						PropertyName = x.PropertyInfo?.Name,
-						PropertyType = x.PropertyInfo?.PropertyType,
-						PropertyInfo = x.PropertyInfo,
-						DeclaringType = x.DeclaringType
+					items = new List<HCMappedMemberReferencePathItemDefinition> {
+						new HCMappedMemberReferencePathItemDefinition { HardCodedValue = item.HardCodedValue.TrimStart('"').TrimEnd('"') }
 					};
-				}).ToList();
+                }
+				else
+                {
+					items = item.Chain.Items.Select(x =>
+					{
+						var indexer = string.Empty;
+						if (x.Name?.EndsWith("]") == true)
+						{
+							indexer = x.Name.Substring(x.Name.LastIndexOf("["));
+						}
+						var mappedToDisplayName = (x.PropertyInfo == null)
+							? x.Name
+							: (TryAutoDiscoverPropertyDisplayName(x.PropertyInfo, options) + indexer);
+						return new HCMappedMemberReferencePathItemDefinition
+						{
+							Success = x.Success,
+							Error = x.Error,
+							DisplayName = mappedToDisplayName,
+							PropertyName = x.PropertyInfo?.Name,
+							PropertyType = x.PropertyInfo?.PropertyType,
+							PropertyInfo = x.PropertyInfo,
+							DeclaringType = x.DeclaringType
+						};
+					}).ToList();
+				}
+
 				mappedTo.Add(new HCMappedMemberReferenceDefinition
 				{
-					Items = pathItems,
-					Path = item.Chain.Path,
-					Success = item.Chain.Success,
-					Error = item.Chain.Error,
-					RootType = item.Chain.RootType,
-					RootReferenceId = item.DottedPath.Split('.')[0].Trim()
+					Items = items,
+					Path = item.Chain?.Path,
+					Success = item.IsHardCoded || item.Chain?.Success == true,
+					Error = item.Chain?.Error,
+					RootType = item.Chain?.RootType,
+					RootReferenceId = item.DottedPath?.Split('.')[0].Trim()
 				});
 			}
 			def.MappedTo = mappedTo;

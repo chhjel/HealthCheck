@@ -11,4 +11,6 @@ export interface HCMappedMemberReferencePathItemDefinitionViewModel
 	DeclaringTypeName: string;
 	PropertyTypeName: string;
 	FullPropertyTypeName: string;
+	IsHardCoded: boolean;
+	HardCodedValue: string;
 }

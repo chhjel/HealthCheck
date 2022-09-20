@@ -11,7 +11,7 @@ namespace HealthCheck.Core.Modules.MappedData.Utils
 {
     internal static class HCMappedDataMappingParser
 	{
-		private static readonly Regex _propLineRegex = new(@"(?<name>\w+)\s*(?<arrow><=>)?\s*(?<mappedTo>\[?[\w,\.\s\[\]]+\]?)?\s*(?<brace>\{)?");
+		private static readonly Regex _propLineRegex = new(@"(?<name>\w+)\s*(?<arrow><=>)?\s*(?<mappedTo>\[?[\w,\.\s\[\]""]+\]?)?\s*(?<brace>\{)?");
 
 		public static ParsedMapping ParseMapping(Type type, string mapping, List<HCMappedReferencedTypeDefinition> refDefs)
 		{
@@ -77,6 +77,15 @@ namespace HealthCheck.Core.Modules.MappedData.Utils
 					var mappedToRefs = new List<ParsedMappedToReference>();
 					foreach (var mappedPath in mappedToValues)
 					{
+						if (mappedPath.StartsWith("\""))
+						{
+							mappedToRefs.Add(new ParsedMappedToReference
+							{
+								HardCodedValue = mappedPath
+							});
+							continue;
+						}
+
 						var parts = mappedPath.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
 						var mappedToRefId = parts[0].Trim();
 						var refDef = refDefs.FirstOrDefault(x => x.ReferenceId == mappedToRefId);
@@ -114,19 +123,24 @@ namespace HealthCheck.Core.Modules.MappedData.Utils
 						IsValid = property != null,
 						Error = property == null ? $"Property '{name}' not found." : null
 					};
-					nextComment = null;
-
-					if (currentObject != null)
-					{
-						currentObject.Children.Add(obj);
-					}
-					else
-					{
-						parsed.Objects.Add(obj);
-					}
-
-					if (hasBrace) setCurrentObject(obj);
+					createObject(obj, hasBrace);
 				}
+			}
+
+			void createObject(ParsedMappingObject obj, bool? hasBrace = null)
+			{
+				nextComment = null;
+
+				if (currentObject != null)
+				{
+					currentObject.Children.Add(obj);
+				}
+				else
+				{
+					parsed.Objects.Add(obj);
+				}
+
+				if (hasBrace == true) setCurrentObject(obj);
 			}
 
 			return parsed;
@@ -208,9 +222,15 @@ namespace HealthCheck.Core.Modules.MappedData.Utils
 			public string Name { get; set; }
 			public string DottedPath { get; set; }
 			public TypeChain Chain { get; set; }
+			public string HardCodedValue { get; set; }
+			public bool IsHardCoded => HardCodedValue != null;
 
 			public string CreateSummary()
 			{
+				if (IsHardCoded)
+				{
+					return $"{Name} = {HardCodedValue}";
+				}
 				var errors = string.Join(", ", Chain.GetErrors());
 				if (!string.IsNullOrWhiteSpace(errors)) errors = $" ({errors})";
 				return $"{Name} ({DottedPath}){errors}";

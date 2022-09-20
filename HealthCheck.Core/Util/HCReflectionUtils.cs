@@ -303,14 +303,15 @@ namespace HealthCheck.Core.Util
 			var propType = prop.PropertyType;
 
 			// Check if member is indexed
-			int? targetIndex = null;
-			if (membName.Contains("["))
-			{
-				var strIndex = membName.Substring(membName.IndexOf("[") + 1);
-				strIndex = strIndex.Substring(0, strIndex.IndexOf("]"));
-				targetIndex = int.Parse(strIndex);
-			}
-			if (targetIndex != null && propType?.SupportsGetCollectionValueIndexed() == true)
+			var hasIndexer = membName.Contains("[") && membName.Contains("]");
+			//int? targetIndex = null;
+			//if (membName.Contains("["))
+			//{
+			//	var strIndex = membName.Substring(membName.IndexOf("[") + 1);
+			//	strIndex = strIndex.Substring(0, strIndex.IndexOf("]"));
+			//	targetIndex = int.Parse(strIndex);
+			//}
+			if (hasIndexer && /*targetIndex != null &&*/ propType?.SupportsGetCollectionValueIndexed() == true)
 			{
 				return (prop, propType.GetUnderlyingCollectionType());
 			}
