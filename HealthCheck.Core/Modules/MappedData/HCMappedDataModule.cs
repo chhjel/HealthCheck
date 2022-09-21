@@ -111,7 +111,7 @@ namespace HealthCheck.Core.Modules.MappedData
         #region Helpers
         private static object TransformExampleValue(Type type, object obj)
         {
-            if (typeof(IEnumerable).IsAssignableFrom(type))
+            if (type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(type))
             {
                 var suffix = string.Empty;
                 var items = (obj as IEnumerable).OfType<object>().Take(100).ToArray();
