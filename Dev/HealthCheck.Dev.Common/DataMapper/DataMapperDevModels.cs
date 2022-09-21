@@ -29,9 +29,9 @@ WorkAddress {
 
 		public string FromArray { get; set; }
 		public int FromArrayWithoutIndex { get; set; }
-		public int FromArrayItself { get; set; }
-		public int HardCoded { get; set; }
-		public int HardCodedMulti { get; set; }
+		public HashSet<bool> FromArrayItself { get; set; } = new HashSet<bool> { true, false, true, false, false, false };
+		public List<int> HardCoded { get; set; } = new List<int> { 8, 16, 32, 64, 128 };
+		public string[] HardCodedMulti { get; set; } = new string[] { "A", "B", "c", "D", "e", "wut" };
 
 		public decimal Value { get; set; } = 0.520m;
 

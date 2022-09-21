@@ -15,7 +15,7 @@ namespace HealthCheck.Core.Modules.MappedData.Models
 		/// <summary></summary>
 		public Dictionary<string, string> Values { get; set; }
 
-		internal object Instance { get; set; }
+        internal object Instance { get; set; }
 		internal Type ClassType { get; set; }
 	}
 }

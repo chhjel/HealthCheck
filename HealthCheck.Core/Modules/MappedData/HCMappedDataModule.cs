@@ -4,6 +4,7 @@ using HealthCheck.Core.Modules.MappedData.Models;
 using HealthCheck.Core.Modules.MappedData.Utils;
 using HealthCheck.Core.Util;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -81,12 +82,20 @@ namespace HealthCheck.Core.Modules.MappedData
                         .Where(x => !x.Children.Any())
                         .Select(x =>
                         {
-                            var val = HCReflectionUtils.GetValue(example.Instance, x.FullPropertyPath)?.ToString();
-                            if (HCMappedDataUtils.ExampleDataValueFilter != null)
+                            var val = HCReflectionUtils.GetValue(example.Instance, x.FullPropertyPath);
+                            if (HCMappedDataUtils.ExampleDataValueTransformer != null)
                             {
-                                val = HCMappedDataUtils.ExampleDataValueFilter(val);
+                                val = HCMappedDataUtils.ExampleDataValueTransformer(val);
                             }
-                            return (value: val, prop: x.FullPropertyPath);
+
+                            var type = val?.GetType();
+                            try
+                            {
+                                if (type != null) val = TransformExampleValue(type, val);
+                            }
+                            catch (Exception) {}
+
+                            return (value: val?.ToString(), prop: x.FullPropertyPath);
                         })
                         .ToDictionaryIgnoreDuplicates(x => x.prop, x => x.value);
 
@@ -100,6 +109,22 @@ namespace HealthCheck.Core.Modules.MappedData
         #endregion
 
         #region Helpers
+        private static object TransformExampleValue(Type type, object obj)
+        {
+            if (typeof(IEnumerable).IsAssignableFrom(type))
+            {
+                var suffix = string.Empty;
+                var items = (obj as IEnumerable).OfType<object>().Take(100).ToArray();
+                if (items.Length == 100)
+                {
+                    suffix = ", ...";
+                }
+                return $"[{string.Join(", ", items.Select(x => x.ToString()))}{suffix}]";
+            }
+
+            return obj;
+        }
+
         private static HCMappedDataDefinitionsViewModel Create(HCMappedDataDefinitions d)
         {
             var classDefs = d.ClassDefinitions.Select(x => Create(x)).ToList();

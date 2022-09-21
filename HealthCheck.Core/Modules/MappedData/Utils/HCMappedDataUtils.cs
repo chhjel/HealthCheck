@@ -11,9 +11,9 @@ namespace HealthCheck.Core.Modules.MappedData.Utils
     public static class HCMappedDataUtils
 	{
 		/// <summary>
-		/// Optionally preprocess values used in example data.
+		/// Optionally transform values used in example data. Use to e.g. handle complex objects.
 		/// </summary>
-		public static Func<string, string> ExampleDataValueFilter { get; set; }
+		public static Func<object, string> ExampleDataValueTransformer { get; set; }
 
 		private static readonly Dictionary<Type, HCMappedExampleValueViewModel> _exampleData = new();
 
