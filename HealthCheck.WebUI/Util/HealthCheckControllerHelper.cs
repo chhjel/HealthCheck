@@ -301,7 +301,7 @@ namespace HealthCheck.WebUI.Util
                 return new InvokeModuleMethodResult()
                 {
                     HasAccess = true,
-                    Result = $"Exception: {ex.Message}"
+                    Result = $"Exception: {ex}"
                 };
             }
             finally
