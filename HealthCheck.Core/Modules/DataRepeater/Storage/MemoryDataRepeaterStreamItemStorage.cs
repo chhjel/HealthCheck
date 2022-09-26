@@ -292,5 +292,37 @@ namespace HealthCheck.Core.Modules.DataRepeater.Storage
                 return Task.FromResult(_items.Select(x => x.Value));
             }
         }
+
+        /// <inheritdoc />
+        public Task PerformBatchUpdateAsync(HCDataRepeaterBatchedStorageItemActions actions)
+        {
+            lock (_items)
+            {
+                if (actions.Adds?.Any() == true)
+                {
+                    foreach (var action in actions.Adds)
+                    {
+                        AddItemAsync(action.Item, action.Hint);
+                    }
+                }
+
+                if (actions.Updates?.Any() == true)
+                {
+                    foreach (var action in actions.Updates)
+                    {
+                        UpdateItemAsync(action.Item);
+                    }
+                }
+
+                if (actions.Deletes?.Any() == true)
+                {
+                    foreach (var action in actions.Deletes)
+                    {
+                        DeleteItemAsync(action.Item.Id);
+                    }
+                }
+            }
+            return Task.CompletedTask;
+        }
     }
 }

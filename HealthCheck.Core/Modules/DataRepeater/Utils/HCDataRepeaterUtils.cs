@@ -49,6 +49,32 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
         }
 
         /// <summary>
+        /// Adds a batch of new items to the first registered stream of the given type.
+        /// <para>If an existing item with the same item id is found, <see cref="IHCDataRepeaterStream.HandleAddedDuplicateItemAsync"/> will be called.</para>
+        /// <para>Ignores any exception.</para>
+        /// </summary>
+        public static void AddStreamItems<TStream>(IEnumerable<IHCDataRepeaterStreamItem> items, object hint = null, bool analyze = true)
+            => Task.Run(() => AddStreamItemsAsync<TStream>(items, hint, analyze));
+
+        /// <summary>
+        /// Adds a batch of new items to the first registered stream of the given type.
+        /// <para>If an existing item with the same item id is found, <see cref="IHCDataRepeaterStream.HandleAddedDuplicateItemAsync"/> will be called.</para>
+        /// <para>Ignores any exception.</para>
+        /// </summary>
+        public static async Task AddStreamItemsAsync<TStream>(IEnumerable<IHCDataRepeaterStreamItem> items, object hint = null, bool analyze = true, bool handleDuplicates = true)
+        {
+            try
+            {
+                if (HCGlobalConfig.GetDefaultInstanceResolver()?.Invoke(typeof(IHCDataRepeaterService)) is not IHCDataRepeaterService service) return;
+                await service.AddStreamItemsAsync<TStream>(items, hint, analyze, handleDuplicates);
+            }
+            catch (Exception ex)
+            {
+                HCGlobalConfig.OnExceptionEvent?.Invoke(typeof(HCDataRepeaterUtils), nameof(AddStreamItemsAsync), ex);
+            }
+        }
+
+        /// <summary>
         /// Gets the first registered stream of the given type.
         /// <para>If not found returns null.</para>
         /// <para>Ignores any exception.</para>
@@ -148,6 +174,40 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
             catch (Exception ex)
             {
                 HCGlobalConfig.OnExceptionEvent?.Invoke(typeof(HCDataRepeaterUtils), nameof(ModifyItemAsync), ex);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Modifies existing items from the given stream with the given ids.
+        /// <para>Ignores any exception.</para>
+        /// </summary>
+        public static async Task<List<IHCDataRepeaterStreamItem>> ModifyItemsAsync<TStream>(IEnumerable<string> itemIds, Action<IHCDataRepeaterStreamItem> modification)
+        {
+            try
+            {
+                var stream = GetStream<TStream>();
+                if (stream == null) return null;
+
+                var itemIdsHashSet = new HashSet<string>(itemIds);
+                var items = (await stream.Storage.GetAllItemsAsync().ConfigureAwait(false))
+                    ?.Where(x => itemIdsHashSet.Contains(x.ItemId))
+                    ?.ToList();
+                if (items.Count > 0)
+                {
+                    var batch = new HCDataRepeaterBatchedStorageItemActions();
+                    foreach (var item in items)
+                    {
+                        modification?.Invoke(item);
+                        batch.Updates.Add(new HCDataRepeaterBatchedStorageItemAction(item, null));
+                    }
+                    await stream.Storage.PerformBatchUpdateAsync(batch);
+                }
+                return items;
+            }
+            catch (Exception ex)
+            {
+                HCGlobalConfig.OnExceptionEvent?.Invoke(typeof(HCDataRepeaterUtils), nameof(ModifyItemsAsync), ex);
                 return null;
             }
         }

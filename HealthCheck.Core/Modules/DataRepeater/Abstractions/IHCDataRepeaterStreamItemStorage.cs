@@ -109,5 +109,10 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         /// <para>Only used for custom batch actions if any.</para>
         /// </summary>
         Task<IEnumerable<IHCDataRepeaterStreamItem>> GetAllItemsAsync();
+
+        /// <summary>
+        /// Perform a list of adds, deletes and updates.
+        /// </summary>
+        Task PerformBatchUpdateAsync(HCDataRepeaterBatchedStorageItemActions actions);
     }
 }

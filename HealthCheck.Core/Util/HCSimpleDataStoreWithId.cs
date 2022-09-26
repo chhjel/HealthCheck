@@ -120,26 +120,28 @@ namespace HealthCheck.Core.Util
         /// </summary>
         public void InsertOrUpdateItems(IEnumerable<TItem> items)
         {
-            var existingIds = GetEnumerable().Select(x => GetItemId(x)).ToArray();
-            var itemsToInsert = items.Where(x => !existingIds.Any(i => IdsMatch(i, GetItemId(x)))).ToArray();
-            var itemsToUpdate = items.Where(x => !itemsToInsert.Contains(x)).ToArray();
+            var existingIds = new HashSet<TId>(GetEnumerable().Select(x => GetItemId(x)));
+            var itemsDict = items.ToDictionary(x => GetItemId(x), x => x);
+            var itemsToInsert = itemsDict.Where(x => !existingIds.Contains(x.Key)).ToArray();
+            var itemsToUpdate = itemsDict.Where(x => existingIds.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
 
             foreach (var item in itemsToInsert)
             {
-                InsertItem(item);
+                InsertItem(item.Value);
             }
 
             string[] mustContainAny = null;
-            if (typeof(TId) == typeof(string)
+            if (itemsToUpdate.Count < 1000
+                && (typeof(TId) == typeof(string)
                 || typeof(TId) == typeof(Guid)
-                || typeof(TId) == typeof(int))
+                || typeof(TId) == typeof(int)))
             {
-                mustContainAny = itemsToUpdate.Select(x => GetItemId(x).ToString()).ToArray();
+                mustContainAny = itemsToUpdate.Select(x => x.Key.ToString()).ToArray();
             }
 
             UpdateWhereInternal(
-                x => itemsToUpdate.Any(i => ItemHasId(x, GetItemId(i))),
-                (old) => itemsToUpdate.FirstOrDefault(x => ItemHasId(old, GetItemId(x))),
+                x => itemsToUpdate.ContainsKey(GetItemId(x)),
+                (old) => itemsToUpdate.TryGetValue(GetItemId(old), out var match) ? match : default,
                 mustContainAny
             );
         }

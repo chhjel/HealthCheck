@@ -160,12 +160,28 @@ namespace HealthCheck.Core.Util.Storage
         /// Clears bufferqueue and stored data.
         /// <para>Saves at once.</para>
         /// </summary>
-        protected void RemoveAllItems()
+        protected void RemoveAllItems(Func<TItem, bool> filter = null)
         {
-            BufferQueue.Clear();
+            if (filter != null)
+            {
+                BufferQueue.RemoveWhere(x => filter(x.Item));
+            }
+            else
+            {
+                BufferQueue.Clear();
+            }
 
             var data = GetBlobData();
-            data.Items.Clear();
+            if (filter != null)
+            {
+                data.Items = data.Items
+                    .Where(x => !filter(x.Value))
+                    .ToDictionary(x => x.Key, x => x.Value);
+            }
+            else
+            {
+                data.Items.Clear();
+            }
             SaveBlobData(data);
         }
 

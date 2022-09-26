@@ -14,7 +14,7 @@ namespace HealthCheck.WebUI.Services
     /// Storage for stream items.
     /// </summary>
     public class HCFlatFileDataRepeaterStreamItemStorage<TItem> : IHCDataRepeaterStreamItemStorage
-        where TItem : IHCDataRepeaterStreamItem
+        where TItem : class, IHCDataRepeaterStreamItem
     {
         /// <summary>
         /// If disabled the service will ignore any attempts to add new data.
@@ -275,6 +275,30 @@ namespace HealthCheck.WebUI.Services
                 item.ExpirationTime = time;
                 await UpdateItemAsync(item).ConfigureAwait(false);
             }
+        }
+
+        /// <inheritdoc />
+        public Task PerformBatchUpdateAsync(HCDataRepeaterBatchedStorageItemActions actions)
+        {
+            if (actions.Adds?.Any() == true)
+            {
+                foreach (var action in actions.Adds)
+                {
+                    Store.InsertItem(action.Item as TItem);
+                }
+            }
+
+            if (actions.Updates?.Any() == true)
+            {
+                Store.InsertOrUpdateItems(actions.Updates.Select(x => x.Item).OfType<TItem>());
+            }
+
+            if (actions.Deletes?.Any() == true)
+            {
+                var deleteIds = new HashSet<string>(actions.Deletes.Select(x => x.Item.ItemId));
+                Store.DeleteWhere(x => deleteIds.Contains(x.ItemId));
+            }
+            return Task.CompletedTask;
         }
         #endregion
 

@@ -96,6 +96,73 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
         }
 
         /// <inheritdoc />
+        public virtual async Task AddStreamItemsAsync<TStream>(IEnumerable<IHCDataRepeaterStreamItem> items, object hint = null, bool analyze = true, bool handleDuplicates = true)
+        {
+            if (!IsEnabledInternal()) return;
+            if (items?.Any() != true) return;
+
+            var stream = GetStreams()?.FirstOrDefault(x => x.GetType() == typeof(TStream));
+            if (stream == null) return;
+
+            var existingItems = (await stream.Storage.GetAllItemsAsync())
+                .ToDictionaryIgnoreDuplicates(x => x.ItemId ?? string.Empty, x => x);
+
+            var itemsActions = new HCDataRepeaterBatchedStorageItemActions();
+            foreach (var item in items)
+            {
+                item.Log ??= new();
+
+                // Analyze if enabled
+                if (analyze)
+                {
+                    var analyticResult = await stream.AnalyzeItemAsync(item, isManualAnalysis: false);
+                    if (analyticResult != null)
+                    {
+                        if (analyticResult.DontStore)
+                        {
+                            return;
+                        }
+                        HCDataRepeaterUtils.ApplyChangesToItem(item, analyticResult);
+                    }
+                }
+
+                var existingItem = (handleDuplicates && existingItems.TryGetValue(item.ItemId, out var exItem)) ? exItem : null;
+
+                // Nothing to merge, add and return
+                if (existingItem == null)
+                {
+                    itemsActions.Adds.Add(new HCDataRepeaterBatchedStorageItemAction(item, hint));
+                    continue;
+                }
+
+                // Handle merging
+                var mergeResult = await stream.HandleAddedDuplicateItemAsync(existingItem, item);
+
+                // Handle old item
+                if (mergeResult.OldItemAction == HCDataRepeaterItemMergeConflictResult.OldItemActionType.Delete)
+                {
+                    itemsActions.Deletes.Add(new HCDataRepeaterBatchedStorageItemAction(existingItem, null));
+                }
+                else if (mergeResult.OldItemAction == HCDataRepeaterItemMergeConflictResult.OldItemActionType.Update)
+                {
+                    itemsActions.Updates.Add(new HCDataRepeaterBatchedStorageItemAction(existingItem, null));
+                }
+
+                // Handle new item
+                if (mergeResult.NewItemAction == HCDataRepeaterItemMergeConflictResult.NewItemActionType.Insert)
+                {
+                    itemsActions.Adds.Add(new HCDataRepeaterBatchedStorageItemAction(item, hint));
+                }
+                else if (mergeResult.NewItemAction == HCDataRepeaterItemMergeConflictResult.NewItemActionType.Ignore)
+                {
+                    /* Ignored */
+                }
+            }
+
+            await stream.Storage.PerformBatchUpdateAsync(itemsActions);
+        }
+
+        /// <inheritdoc />
         public virtual async Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(string streamId, IHCDataRepeaterStreamItem item)
         {
             var stream = GetStreams()?.FirstOrDefault(x => x.GetType().FullName == streamId);

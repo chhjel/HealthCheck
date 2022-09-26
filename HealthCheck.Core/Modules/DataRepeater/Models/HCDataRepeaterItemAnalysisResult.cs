@@ -1,7 +1,4 @@
-﻿using HealthCheck.Core.Util;
-using System;
-
-namespace HealthCheck.Core.Modules.DataRepeater.Models
+﻿namespace HealthCheck.Core.Modules.DataRepeater.Models
 {
     /// <summary></summary>
     public class HCDataRepeaterItemAnalysisResult : HCDataItemChangeBase

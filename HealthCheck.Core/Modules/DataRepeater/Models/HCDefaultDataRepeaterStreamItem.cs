@@ -137,14 +137,16 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         /// <param name="error">Any error message to include to ease debugging.</param>
         /// <param name="exception">A full summary of the excception is appended to error if given.</param>
         /// <param name="includeHCRequestErrors">If true, any errors in the current <see cref="HCRequestData"/> will be included in error.</param>
+        /// <param name="serialize">Required to be able to retry or view data, but can be disabled to increase performance.</param>
         public static TSelf CreateFrom(TData data, string itemId, string summary = null,
             IEnumerable<string> tags = null, bool allowRetry = true,
             DateTimeOffset? expirationTime = null,
             string error = null, Exception exception = null,
-            bool includeHCRequestErrors = false)
+            bool includeHCRequestErrors = false,
+            bool serialize = true)
         {
             string serializedData = null;
-            if (data != null)
+            if (serialize && data != null)
             {
                 serializedData = typeof(TData) == typeof(string)
                     ? data as string

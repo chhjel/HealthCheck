@@ -8,6 +8,7 @@ using HealthCheck.Dev.Common.DataRepeater;
 using HealthCheck.WebUI.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace HealthCheck.Dev.Common.Tests.Modules
@@ -88,7 +89,7 @@ namespace HealthCheck.Dev.Common.Tests.Modules
             var order = new DummyOrder
             {
                 OrderNumber = orderNumber,
-                Amount = 123m
+                Amount = amount
             };
 
             var item = TestOrderStreamItem.CreateFrom(order, order.OrderNumber, $"{order.Amount}$ from \"Jimmy Smithy X\"")
@@ -97,6 +98,32 @@ namespace HealthCheck.Dev.Common.Tests.Modules
             HCDataRepeaterUtils.AddStreamItem<TestOrderDataRepeaterStream>(item);
 
             return TestResult.CreateSuccess("Item was attempted added.");
+        }
+
+        [RuntimeTest]
+        public async Task<TestResult> AddItemsThroughUtil(int count = 50000, string orderNumberPrefix = "X520", decimal amount = 8888m, bool serialize = false)
+        {
+            HCTestContext.StartTiming("Bake data");
+            var items = Enumerable.Range(0, count)
+                .Select(x => new DummyOrder
+                {
+                    OrderNumber = $"{orderNumberPrefix}{x}",
+                    Amount = amount
+                })
+                .Select(order =>
+                {
+                    return TestOrderStreamItem.CreateFrom(order, order.OrderNumber, $"{order.Amount}$ from \"Jimmy Smithy X\"", serialize: serialize)
+                        .AddTags("WasBatched")
+                        .SetExpirationTime(DateTimeOffset.Now.AddDays(7));
+                })
+                .ToArray();
+            HCTestContext.EndTiming();
+
+            HCTestContext.StartTiming("AddStreamItems");
+            await HCDataRepeaterUtils.AddStreamItemsAsync<TestOrderDataRepeaterStream>(items);
+            HCTestContext.EndTiming();
+
+            return TestResult.CreateSuccess($"{count} items was attempted added.");
         }
 
         [RuntimeTest]
@@ -137,6 +164,18 @@ namespace HealthCheck.Dev.Common.Tests.Modules
                 ? TestResult.CreateSuccess("Item found!").AddSerializedData(item)
                 : TestResult.CreateWarning("Item not found.");
         }
+
+        [RuntimeTest]
+        public async Task<TestResult> ModifyItemsThroughUtility(List<string> itemIds, bool allowRetry = false, HCDataRepeaterStreamItemStatus status = HCDataRepeaterStreamItemStatus.Success)
+        {
+            var items = await HCDataRepeaterUtils.ModifyItemsAsync<TestOrderDataRepeaterStream>(itemIds, x =>
+            {
+                x.AllowRetry = allowRetry;
+                x.ForcedStatus = status;
+            });
+            return TestResult.CreateSuccess("Success?").AddSerializedData(items);
+        }
+        
 
         [RuntimeTest]
         public TestResult Scenario1Error(string orderNumber = "X888888888", string error = "Some error here")
