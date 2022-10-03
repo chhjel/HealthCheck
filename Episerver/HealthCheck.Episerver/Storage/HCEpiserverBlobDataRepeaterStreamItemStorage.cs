@@ -294,13 +294,13 @@ namespace HealthCheck.Episerver.Storage
             => Task.FromResult(GetItems().Cast<IHCDataRepeaterStreamItem>());
 
         /// <inheritdoc />
-        public Task PerformBatchUpdateAsync(HCDataRepeaterBatchedStorageItemActions actions)
+        public async Task PerformBatchUpdateAsync(HCDataRepeaterBatchedStorageItemActions actions)
         {
             if (actions.Adds?.Any() == true)
             {
                 foreach (var action in actions.Adds)
                 {
-                    AddItemAsync(action.Item, action.Hint);
+                    await AddItemAsync(action.Item, action.Hint);
                 }
             }
 
@@ -309,7 +309,7 @@ namespace HealthCheck.Episerver.Storage
             {
                 foreach (var action in actions.Updates)
                 {
-                    UpdateItemAsync(action.Item);
+                    await UpdateItemAsync(action.Item);
                 }
             }
 
@@ -318,8 +318,6 @@ namespace HealthCheck.Episerver.Storage
                 var deleteIds = new HashSet<string>(actions.Deletes.Select(x => x.Item.ItemId));
                 RemoveAllItems(x => deleteIds.Contains(x.ItemId));
             }
-
-            return Task.CompletedTask;
         }
         #endregion
 

@@ -186,6 +186,8 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
         {
             try
             {
+                if (itemIds?.Any() != true) return new List<IHCDataRepeaterStreamItem>();
+
                 var stream = GetStream<TStream>();
                 if (stream == null) return null;
 

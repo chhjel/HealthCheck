@@ -1450,6 +1450,18 @@ public class CustomerGotoResolver : IHCGoToResolver
 </p>
 </details>
 
+### Querystrings
+
+Some special querystrings are supported on the goto page.
+
+|Querystrings||
+|-|-|
+|query=MyQuery|Prefill the input with the given value.|
+|auto=true|Automatically search on page load.|
+|autoNav=true|Automatically navigate to the first result if theres only one.|
+
+Combine them all to e.g. make a browser search to quickly goto any content directly.
+
 ---------
 
 ## Module: Dataflow
