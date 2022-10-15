@@ -73,7 +73,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.DevTest.NetCore
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.WebUI.Assets", "HealthCheck.WebUI.Assets\HealthCheck.WebUI.Assets.csproj", "{25B55F67-7413-4E01-879C-E7FCA75C9B30}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthCheck.Module.EndpointControl.Tests", "Tests\HealthCheck.Module.EndpointControl.Tests\HealthCheck.Module.EndpointControl.Tests.csproj", "{1A1FE586-26F9-4202-81DB-D154707E536F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.Module.EndpointControl.Tests", "Tests\HealthCheck.Module.EndpointControl.Tests\HealthCheck.Module.EndpointControl.Tests.csproj", "{1A1FE586-26F9-4202-81DB-D154707E536F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthCheck.Web.Core", "HealthCheck.Web.Core\HealthCheck.Web.Core.csproj", "{69F9C4A1-4F5F-462B-ADCE-0DAFB3B7DE42}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -180,6 +182,10 @@ Global
 		{1A1FE586-26F9-4202-81DB-D154707E536F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1A1FE586-26F9-4202-81DB-D154707E536F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1A1FE586-26F9-4202-81DB-D154707E536F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69F9C4A1-4F5F-462B-ADCE-0DAFB3B7DE42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69F9C4A1-4F5F-462B-ADCE-0DAFB3B7DE42}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69F9C4A1-4F5F-462B-ADCE-0DAFB3B7DE42}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69F9C4A1-4F5F-462B-ADCE-0DAFB3B7DE42}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

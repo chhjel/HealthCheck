@@ -7,6 +7,7 @@ using HealthCheck.Core.Models;
 using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Util;
 using HealthCheck.Core.Util.Modules;
+using HealthCheck.Web.Core.Utils;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.Util;
 using System;
@@ -424,7 +425,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// Resolve client ip from the current request.
         /// </summary>
         protected virtual string GetRequestIP(RequestContext requestContext)
-            => RequestUtils.GetIPAddress(requestContext?.HttpContext?.Request);
+            => HCRequestUtils.GetIPAddress(requestContext?.HttpContext?.Request);
 #endregion
 
 #region Overrides

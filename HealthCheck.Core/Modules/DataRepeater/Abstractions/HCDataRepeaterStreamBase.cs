@@ -13,6 +13,11 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
     /// </summary>
     public abstract class HCDataRepeaterStreamBase : IHCDataRepeaterStream
     {
+        /// <summary>
+        /// Config for the default logic in <see cref="HandleAddedDuplicateItemAsync"/>.
+        /// </summary>
+        protected DefaultDuplicationLogicHandlingConfig DefaultDuplicationLogicConfig { get; set; } = new();
+
         #region IHCDataRepeaterStream Implementation
         /// <inheritdoc />
         public IHCDataRepeaterStreamItemStorage Storage { get; }
@@ -78,6 +83,12 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         /// </summary>
         public virtual Task<HCDataRepeaterItemMergeConflictResult> HandleAddedDuplicateItemAsync(IHCDataRepeaterStreamItem existingItem, IHCDataRepeaterStreamItem newItem)
         {
+            var config = DefaultDuplicationLogicConfig ?? new();
+            if (config.RemoveExistingTags == true)
+            {
+                existingItem.Tags.Clear();
+            }
+
             foreach (var tag in newItem.Tags)
             {
                 existingItem.Tags.Add(tag);
@@ -108,7 +119,10 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
                 existingItem.LastErrorAt = DateTimeOffset.Now;
             }
 
-            existingItem.AddLogMessage("Merged with new details.");
+            if (!string.IsNullOrWhiteSpace(config.LogMessage))
+            {
+                existingItem.AddLogMessage(config.LogMessage);
+            }
 
             var result = new HCDataRepeaterItemMergeConflictResult
             {
@@ -116,6 +130,24 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
                 OldItemAction = HCDataRepeaterItemMergeConflictResult.OldItemActionType.Update
             };
             return Task.FromResult(result);
+        }
+
+        /// <summary>
+        /// Config for the default logic in <see cref="HandleAddedDuplicateItemAsync"/>.
+        /// </summary>
+        public class DefaultDuplicationLogicHandlingConfig
+        {
+            /// <summary>
+            /// If set to true, any existing tags will be removed before adding any new ones.
+            /// </summary>
+            public bool RemoveExistingTags { get; set; }
+
+            /// <summary>
+            /// Log message to append.
+            /// <para>Defaults to: "Merged with new details."</para>
+            /// <para>Set to empty or null to not log any message.</para>
+            /// </summary>
+            public string LogMessage { get; set; } = "Merged with new details.";
         }
         #endregion
 

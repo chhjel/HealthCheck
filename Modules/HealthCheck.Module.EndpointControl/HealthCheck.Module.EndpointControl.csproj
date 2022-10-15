@@ -68,6 +68,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\HealthCheck.Core\HealthCheck.Core.csproj" />
+    <ProjectReference Include="..\..\HealthCheck.Web.Core\HealthCheck.Web.Core.csproj" />
   </ItemGroup>
 
 </Project>

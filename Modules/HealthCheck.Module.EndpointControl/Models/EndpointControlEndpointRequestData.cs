@@ -30,7 +30,7 @@ namespace HealthCheck.Module.EndpointControl.Models
 
         /// <summary>
         /// Ip address or something similar to identify the location.
-        /// <para>Defaults to first of <c>HTTP_X_FORWARDED_FOR</c>, <c>REMOTE_ADDR</c> and <c>UserHostAddress</c></para>
+        /// <para>Defaults to first of <c>HTTP_X_FORWARDED_FOR</c>, <c>X-Forwarded-For</c>, <c>REMOTE_ADDR</c> and <c>UserHostAddress</c></para>
         /// </summary>
         public string UserLocationId { get; set; }
 
