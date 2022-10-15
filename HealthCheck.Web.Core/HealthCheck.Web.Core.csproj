@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netcoreapp3.1;net461;net472;net6.0</TargetFrameworks>
@@ -8,11 +8,12 @@
     <Company>ChristianH</Company>
     <Version>1.0.1</Version>
     <Copyright>ChristianH</Copyright>
-    <Description>Abstract HealthCheck controllers and web logic for .NET Framework and .NET Core.</Description>
+    <Description>Common logic with dependencies on AspNet.</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <LangVersion>latest</LangVersion>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\HealthCheck.WebUI.xml</DocumentationFile>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\HealthCheck.Web.Core.xml</DocumentationFile>
     <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-HealthCheck</PackageProjectUrl>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -20,19 +21,9 @@
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
   </PropertyGroup>
 
-  <!-- ALLOW UNIT TEST OF INTERNALS ########## -->
   <PropertyGroup>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
   </PropertyGroup>
-
-  <ItemGroup>
-    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-      <_Parameter1>HealthCheck.WebUI.Tests</_Parameter1>
-    </AssemblyAttribute>
-    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-      <_Parameter1>HealthCheck.FrontendModelGenerator</_Parameter1>
-    </AssemblyAttribute>
-  </ItemGroup>
   <!-- ####################################### -->
 
   <!-- .NET STANDARD ######################### -->
@@ -40,10 +31,6 @@
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
     <DefineConstants>NETSTANDARD;NETSTANDARD2_0</DefineConstants>
   </PropertyGroup>
-  <!-- References -->
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
-  </ItemGroup>
   <!-- ####################################### -->
 
   <!-- .NET CORE ############################# -->
@@ -54,7 +41,6 @@
   <!-- References -->
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' or '$(TargetFramework)' == 'net6.0'">
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.1" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <!-- ####################################### -->
@@ -70,14 +56,12 @@
   <!-- References -->
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' or '$(TargetFramework)' == 'net472' ">
     <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
     <Reference Include="System.Web" />
   </ItemGroup>
   <!-- ####################################### -->
 
   <ItemGroup>
     <ProjectReference Include="..\HealthCheck.Core\HealthCheck.Core.csproj" />
-    <ProjectReference Include="..\HealthCheck.Web.Core\HealthCheck.Web.Core.csproj" />
   </ItemGroup>
 
 </Project>

@@ -5,10 +5,10 @@ using System.Net.Sockets;
 
 namespace HealthCheck.Core.Util
 {
-    /// <summary>
-    /// IP address related utils.
-    /// </summary>
-    public static class HCIPAddressUtils
+	/// <summary>
+	/// IP address related utils.
+	/// </summary>
+	public static class HCIPAddressUtils
 	{
 		/// <summary>
 		/// Parse the given ip address and strips away any port number.
@@ -21,15 +21,20 @@ namespace HealthCheck.Core.Util
 		/// Parse the given ip address.
 		/// <para>Supports IPv4 and IPv6 with or without port numbers.</para>
 		/// </summary>
-		public static HCIPData ParseIP(string ip)
+		public static HCIPData ParseIP(string ip, bool acceptLocalhostString = false)
 		{
 			var data = new HCIPData()
 			{
 				AddressFamily = AddressFamily.Unknown
 			};
 			if (ip == null) return data;
+			else if (ip?.ToLower() == "localhost" && acceptLocalhostString)
+			{
+				data.IP = ip;
+				return data;
+			}
 
-			if (IPAddress.TryParse(ip, out IPAddress address))
+            if (IPAddress.TryParse(ip, out IPAddress address))
 			{
 				data.AddressFamily = address.AddressFamily;
 			}

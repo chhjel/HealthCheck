@@ -1,6 +1,7 @@
 ﻿#if NETFULL
 using HealthCheck.Core.Config;
 using HealthCheck.Core.Extensions;
+using HealthCheck.Web.Core.Utils;
 using System;
 using System.Net.Http;
 using System.Web;
@@ -77,7 +78,8 @@ namespace HealthCheck.Module.RequestLog.Util
 
                             try
                             {
-                                string ipAddress = ctx.Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
+                                string ipAddress = ctx.Request.ServerVariables["HTTP_X_FORWARDED_FOR"]
+                                    ?? ctx?.request?.ServerVariables?["X-Forwarded-For"];
                                 if (!string.IsNullOrEmpty(ipAddress))
                                 {
                                     string[] addresses = ipAddress.Split(',');
@@ -137,51 +139,7 @@ namespace HealthCheck.Module.RequestLog.Util
         /// <summary>
         /// For MVC.
         /// </summary>
-        public static string GetIPAddress(HttpRequestBase request)
-        {
-            try
-            {
-                if (request == null)
-                {
-                    return null;
-                }
-
-                try
-                {
-                    var customIP = HCGlobalConfig.CurrentIPAddressResolver?.Invoke()?.StripPortNumber();
-                    if (!string.IsNullOrWhiteSpace(customIP))
-                    {
-                        return customIP;
-                    }
-                } catch(Exception)
-                {
-                    // Ignored
-                }
-
-                if (request?.IsLocal == true)
-                {
-                    return "localhost";
-                }
-
-                string ipAddress = request.ServerVariables?["HTTP_X_FORWARDED_FOR"];
-
-                if (!string.IsNullOrEmpty(ipAddress))
-                {
-                    string[] addresses = ipAddress.Split(',');
-                    if (addresses.Length != 0)
-                    {
-                        return addresses[0]?.StripPortNumber();
-                    }
-                }
-
-                ipAddress = request.ServerVariables?["REMOTE_ADDR"] ?? request?.UserHostAddress;
-                return ipAddress?.StripPortNumber();
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
+        public static string GetIPAddress(HttpRequestBase request) => HCRequestUtils.GetIPAddress(request);
 #endif
     }
 }
