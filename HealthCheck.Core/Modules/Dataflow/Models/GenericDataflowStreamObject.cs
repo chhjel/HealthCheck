@@ -89,17 +89,14 @@ namespace HealthCheck.Core.Modules.Dataflow.Models
 
         private static IEnumerable<string> GatherMemberNames(IEnumerable<string> memberNames, IEnumerable<string> excludedMemberNames, Type type)
         {
-            if (memberNames == null)
-            {
-                memberNames =
-                    type.GetProperties(MemberBindingFlags)
-                        .Where(x => !x.IsSpecialName)
-                        .Select(x => x.Name)
-                    .Union(type.GetFields(MemberBindingFlags)
-                        .Where(x => !x.IsSpecialName && x.GetCustomAttribute<CompilerGeneratedAttribute>() == null)
-                        .Select(x => x.Name))
-                    .ToList();
-            }
+            memberNames ??=
+                type.GetProperties(MemberBindingFlags)
+                    .Where(x => !x.IsSpecialName)
+                    .Select(x => x.Name)
+                .Union(type.GetFields(MemberBindingFlags)
+                    .Where(x => !x.IsSpecialName && x.GetCustomAttribute<CompilerGeneratedAttribute>() == null)
+                    .Select(x => x.Name))
+                .ToList();
 
             excludedMemberNames ??= Enumerable.Empty<string>();
             memberNames = memberNames.Where(x => !excludedMemberNames.Contains(x)).ToList();

@@ -78,10 +78,7 @@ namespace HealthCheck.Core.Modules.AccessTokens
                 var key = "x-token";
                 string rawToken = currentRequestInformation.Headers.ContainsKey(key) ? currentRequestInformation.Headers[key] : null;
 
-                if (rawToken == null)
-                {
-                    rawToken = HttpUtility.ParseQueryString(new Uri(currentRequestInformation.Url).Query).Get(key);
-                }
+                rawToken ??= HttpUtility.ParseQueryString(new Uri(currentRequestInformation.Url).Query).Get(key);
 
                 if (rawToken != null && KeyParseRegex.IsMatch(rawToken))
                 {

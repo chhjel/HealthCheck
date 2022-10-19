@@ -64,16 +64,13 @@ namespace HealthCheck.WebUI.Util
             TestRunnerService.CurrentRequestIsTest = () => HealthCheckTestContextHelper.CurrentRequestIsTest;
             TestRunnerService.SetCurrentRequestIsTest = () => HealthCheckTestContextHelper.CurrentRequestIsTest = true;
 
-            if (HCAssetGlobalConfig.EndpointBase == null)
-            {
-                HCAssetGlobalConfig.EndpointBase = frontendOptionsGetter?.Invoke()?.EndpointBase;
-            }
+            HCAssetGlobalConfig.EndpointBase ??= frontendOptionsGetter?.Invoke()?.EndpointBase;
         }
 
         internal bool HasAccessToAnyContent(Maybe<TAccessRole> currentRequestAccessRoles)
             => GetModulesRequestHasAccessTo(currentRequestAccessRoles).Count > 0;
 
-        internal static bool ShouldEnableRequestBuffering(string url) => false;
+        internal static bool ShouldEnableRequestBuffering() => false;
 
         #region Modules
         private List<HealthCheckLoadedModule> LoadedModules { get; set; } = new List<HealthCheckLoadedModule>();

@@ -15,7 +15,7 @@ namespace HealthCheck.Dev.Common.DataRepeater
         
         public override object AllowedAccessRoles => RuntimeTestAccessRole.SystemAdmins;
 
-        public override List<string> Categories => new List<string> { "Secret actions" };
+        public override List<string> Categories => new() { "Secret actions" };
 
         protected override Task<HCDataRepeaterStreamItemActionResult> PerformActionAsync(IHCDataRepeaterStream stream, IHCDataRepeaterStreamItem item, Parameters parameters)
         {

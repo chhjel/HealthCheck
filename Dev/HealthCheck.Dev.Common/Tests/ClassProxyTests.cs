@@ -95,7 +95,7 @@ namespace HealthCheck.Dev.Common.Tests
 
             public void WithVoidReturnValue() {}
 
-            public SomeParameterType WithComplexReturnValue() => new SomeParameterType(42, "Test");
+            public SomeParameterType WithComplexReturnValue() => new(42, "Test");
 
             public string WithReturnValue()
             {

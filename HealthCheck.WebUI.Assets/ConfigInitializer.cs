@@ -71,7 +71,7 @@ namespace HealthCheck.WebUI.Assets
                 // montserrat.woff2
                 addAssetsFromResource("assets_ext.zip");
 
-                void addAssetsFromResource(string assetName)
+                static void addAssetsFromResource(string assetName)
                 {
                     using var stream = GetEmbeddedResourceStream(assetName);
                     using var zipArchive = new ZipArchive(stream);

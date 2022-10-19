@@ -10,6 +10,7 @@ namespace HealthCheck.Dev.Common.Dataflow
         public DateTimeOffset? InsertionTime { get; set; }
 
         public static implicit operator TestMemoryStreamItem(string message)
-            => new TestMemoryStreamItem { Message = message };
+            => new()
+            { Message = message };
     }
 }

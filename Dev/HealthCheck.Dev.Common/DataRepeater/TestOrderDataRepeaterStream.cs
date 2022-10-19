@@ -17,9 +17,9 @@ namespace HealthCheck.Dev.Common.DataRepeater
         public override string RetryActionName => "Retry capture";
         public override string RetryDescription => "Attempts to perform the capture action again.";
         public override string AnalyzeActionName => "Check for errors";
-        public override List<string> InitiallySelectedTags => new List<string> { "Failed" };
-        public override List<string> FilterableTags => new List<string> { "Failed", "Retried", "Processed" };
-        public override List<IHCDataRepeaterStreamItemAction> Actions => new List<IHCDataRepeaterStreamItemAction>
+        public override List<string> InitiallySelectedTags => new() { "Failed" };
+        public override List<string> FilterableTags => new() { "Failed", "Retried", "Processed" };
+        public override List<IHCDataRepeaterStreamItemAction> Actions => new()
         {
             new TestOrderDataRepeaterStreamItemActionModifyData(),
             new TestOrderDataRepeaterStreamItemActionToggleAllow(),
@@ -27,7 +27,7 @@ namespace HealthCheck.Dev.Common.DataRepeater
             new TestOrderDataRepeaterStreamItemActionTest(),
             new TestOrderDataRepeaterStreamItemActionToggleSuccess()
         };
-        public override List<IHCDataRepeaterStreamItemBatchAction> BatchActions => new List<IHCDataRepeaterStreamItemBatchAction>()
+        public override List<IHCDataRepeaterStreamItemBatchAction> BatchActions => new()
         {
             new TestOrderDataRepeaterStreamBatchActionRenameTag(),
             new TestOrderDataRepeaterStreamBatchActionTest1(),

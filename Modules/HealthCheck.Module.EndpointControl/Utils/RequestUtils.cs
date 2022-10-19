@@ -3,8 +3,7 @@ using System;
 using System.IO;
 using System.Net.Http;
 using System.Web;
-using HealthCheck.Core.Config;
-using HealthCheck.Core.Extensions;
+using HealthCheck.WebApi.Core.Utils;
 #endif
 
 #if NETCORE
@@ -33,107 +32,11 @@ namespace HealthCheck.Module.EndpointControl.Utils
         /// </summary>
         public static string GetIPAddress(HttpRequestBase request) => HCRequestUtils.GetIPAddress(request);
 
-        private const string _httpContext = "MS_HttpContext";
-        private const string _remoteEndpointMessage = "System.ServiceModel.Channels.RemoteEndpointMessageProperty";
-        private const string _owinContext = "MS_OwinContext";
-
         /// <summary>
         /// For WebAPI.
         /// </summary>
-        public static string GetIPAddress(HttpRequestMessage request)
-        {
-            try
-            {
-                if (request == null)
-                {
-                    return null;
-                }
+        public static string GetIPAddress(HttpRequestMessage request) => HCWebApiRequestUtils.GetIPAddress(request);
 
-                try
-                {
-                    var customIP = HCGlobalConfig.CurrentIPAddressResolver?.Invoke()?.StripPortNumber();
-                    if (!string.IsNullOrWhiteSpace(customIP))
-                    {
-                        return customIP;
-                    }
-                }
-                catch (Exception)
-                {
-                    // Ignored
-                }
-
-                // Web-hosting. Needs reference to System.Web.dll
-                try
-                {
-                    if (request.Properties.ContainsKey(_httpContext))
-                    {
-                        dynamic ctx = request.Properties[_httpContext];
-                        if (ctx != null)
-                        {
-                            if (ctx.Request.IsLocal)
-                            {
-                                return "localhost";
-                            }
-
-                            try
-                            {
-                                string ipAddress = ctx.Request.ServerVariables["HTTP_X_FORWARDED_FOR"]
-                                    ?? ctx.request?.ServerVariables?["X-Forwarded-For"];
-                                if (!string.IsNullOrEmpty(ipAddress))
-                                {
-                                    string[] addresses = ipAddress.Split(',');
-                                    if (addresses.Length != 0)
-                                    {
-                                        return addresses[0]?.StripPortNumber();
-                                    }
-                                }
-                            }
-                            catch (Exception) { /* Ignore errors here */ }
-
-                            try
-                            {
-                                return ctx.Request.ServerVariables["REMOTE_ADDR"]?.StripPortNumber();
-                            }
-                            catch (Exception) { /* Ignore errors here */ }
-
-                            return (ctx.Request.UserHostAddress as string)?.StripPortNumber();
-                        }
-                    }
-
-                    // Self-hosting. Needs reference to System.ServiceModel.dll.
-                }
-                catch (Exception) { /* Ignore errors here */ }
-
-                try
-                {
-                    if (request.Properties.ContainsKey(_remoteEndpointMessage))
-                    {
-                        dynamic remoteEndpoint = request.Properties[_remoteEndpointMessage];
-                        if (remoteEndpoint != null)
-                        {
-                            return (remoteEndpoint.Address as string)?.StripPortNumber();
-                        }
-                    }
-                }
-                catch (Exception) { /* Ignore errors here */ }
-
-                // Self-hosting using Owin. Needs reference to Microsoft.Owin.dll. 
-                if (request.Properties.ContainsKey(_owinContext))
-                {
-                    dynamic owinContext = request.Properties[_owinContext];
-                    if (owinContext != null)
-                    {
-                        return (owinContext.Request.RemoteIpAddress as string)?.StripPortNumber();
-                    }
-                }
-
-                return null;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
         public static byte[] ReadRequestBody(Stream input)
         {
             using MemoryStream ms = new();

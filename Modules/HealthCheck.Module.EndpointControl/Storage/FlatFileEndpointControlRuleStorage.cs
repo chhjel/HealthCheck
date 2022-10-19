@@ -97,10 +97,7 @@ namespace HealthCheck.Module.EndpointControl.Storage
 
         private void EnsureMemoryCache()
         {
-            if (_memoryCache == null)
-            {
-                _memoryCache = Store.GetEnumerable().ToList();
-            }
+            _memoryCache ??= Store.GetEnumerable().ToList();
         }
     }
 }

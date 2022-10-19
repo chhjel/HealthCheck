@@ -15,9 +15,9 @@ namespace HealthCheck.Dev.Common.DataExport
         public override string StreamDescription => "A test for use during dev.";
         //public override string StreamGroupName => null;
         //public override object AllowedAccessRoles => null;
-        public override List<string> Categories => new List<string> { "Test category here" };
+        public override List<string> Categories => new() { "Test category here" };
         public override int ExportBatchSize => 50000;
-        public override int? MaxMemberDiscoveryDepth => 1000;
+        public override int? MaxMemberDiscoveryDepth => 400;
         public override IHCDataExportStream.QueryMethod Method => IHCDataExportStream.QueryMethod.Enumerable;
 
         protected override Task<TypedEnumerableResult> GetEnumerableItemsAsync(HCDataExportFilterDataTyped<HeavyItem> filter)
