@@ -19,10 +19,7 @@ namespace HealthCheck.Core.Modules.ContentPermutation.Helpers
         {
             lock (_cacheLock)
             {
-                if (_cache == null)
-                {
-                    _cache = DiscoverPermutationTypes(assemblies);
-                }
+                _cache ??= DiscoverPermutationTypes(assemblies);
                 return _cache;
             }
         }

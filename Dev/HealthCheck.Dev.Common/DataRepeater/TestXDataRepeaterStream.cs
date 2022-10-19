@@ -1,7 +1,6 @@
 ﻿using HealthCheck.Core.Modules.DataRepeater.Abstractions;
 using HealthCheck.Core.Modules.DataRepeater.Models;
 using HealthCheck.Core.Modules.DataRepeater.Storage;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -16,16 +15,16 @@ namespace HealthCheck.Dev.Common.DataRepeater
         public override string RetryActionName => "Retry";
         public override string RetryDescription => null;
         public override bool ManualAnalyzeEnabled => false;
-        public override List<string> InitiallySelectedTags => new List<string> { };
-        public override List<string> FilterableTags => new List<string> { };
+        public override List<string> InitiallySelectedTags => new() { };
+        public override List<string> FilterableTags => new() { };
         public override object AllowedAccessRoles => RuntimeTestAccessRole.SystemAdmins;
-        public override List<string> Categories => new List<string> { "TestX" };
+        public override List<string> Categories => new() { "TestX" };
 
-        public override List<IHCDataRepeaterStreamItemAction> Actions => new List<IHCDataRepeaterStreamItemAction>
+        public override List<IHCDataRepeaterStreamItemAction> Actions => new()
         {
             new TestOrderDataRepeaterStreamItemActionRemoveAllTags()
         };
-        public override List<IHCDataRepeaterStreamItemBatchAction> BatchActions => new List<IHCDataRepeaterStreamItemBatchAction>();
+        public override List<IHCDataRepeaterStreamItemBatchAction> BatchActions => new();
 
         public TestXDataRepeaterStream() : base(new MemoryDataRepeaterStreamItemStorage("testX"))
         {

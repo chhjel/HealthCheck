@@ -1,17 +1,17 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netcoreapp3.1;net461;net472;net6.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net461;net472</TargetFrameworks>
     <Configurations>Debug;Release</Configurations>
     <OutputPath>bin\$(Configuration)\$(TargetFrameworkVersion)\</OutputPath>
     <Authors>ChristianH</Authors>
     <Company>ChristianH</Company>
     <Version>1.0.1</Version>
     <Copyright>ChristianH</Copyright>
-    <Description>Common logic with dependencies on AspNet.</Description>
+    <Description>Common logic with dependencies on AspNet WebApi.</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <LangVersion>latest</LangVersion>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\HealthCheck.Web.Core.xml</DocumentationFile>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\HealthCheck.WebApi.Core.xml</DocumentationFile>
     <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-HealthCheck</PackageProjectUrl>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -33,18 +33,6 @@
   </PropertyGroup>
   <!-- ####################################### -->
 
-  <!-- .NET CORE ############################# -->
-  <!-- Compiler flags -->
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' or '$(TargetFramework)' == 'net6.0'">
-    <DefineConstants>NETCORE;NETCORE2_0</DefineConstants>
-  </PropertyGroup>
-  <!-- References -->
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' or '$(TargetFramework)' == 'net6.0'">
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.0" />
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-  <!-- ####################################### -->
-
   <!-- .NET FRAMEWORK ######################## -->
   <!-- Compiler flags -->
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net461'">
@@ -55,13 +43,16 @@
   </PropertyGroup>
   <!-- References -->
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' or '$(TargetFramework)' == 'net472' ">
-    <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.0.0" />
+    <!--<PackageReference Include="Microsoft.AspNet.Mvc" Version="5.0.0" />-->
     <Reference Include="System.Web" />
+    <Reference Include="Microsoft.CSharp" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Core" Version="5.0.0" />
   </ItemGroup>
   <!-- ####################################### -->
 
   <ItemGroup>
     <ProjectReference Include="..\HealthCheck.Core\HealthCheck.Core.csproj" />
+    <ProjectReference Include="..\HealthCheck.Web.Core\HealthCheck.Web.Core.csproj" />
   </ItemGroup>
 
 </Project>

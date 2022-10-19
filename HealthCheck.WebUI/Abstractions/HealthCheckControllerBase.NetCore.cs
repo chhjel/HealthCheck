@@ -460,7 +460,7 @@ namespace HealthCheck.WebUI.Abstractions
         {
             var request = context?.HttpContext?.Request;
             var url = request?.GetDisplayUrl();
-            if (HealthCheckControllerHelper<TAccessRole>.ShouldEnableRequestBuffering(url))
+            if (HealthCheckControllerHelper<TAccessRole>.ShouldEnableRequestBuffering())
             {
                 request?.EnableBuffering();
             }

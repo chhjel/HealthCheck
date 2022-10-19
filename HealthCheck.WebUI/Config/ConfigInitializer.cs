@@ -33,14 +33,8 @@ namespace HealthCheck.WebUI.Config
             {
                 SetDefaultHCMetricsContextFactory();
             }
-            if (HCGlobalConfig.RequestContextFactory == null)
-            {
-                HCGlobalConfig.RequestContextFactory = HCRequestContextFactory.Create;
-            }
-            if (HCGlobalConfig.Serializer == null)
-            {
-                HCGlobalConfig.Serializer = new NewtonsoftJsonSerializer();
-            }
+            HCGlobalConfig.RequestContextFactory ??= HCRequestContextFactory.Create;
+            HCGlobalConfig.Serializer ??= new NewtonsoftJsonSerializer();
             if (HCGlobalConfig.GetCurrentSessionId == null)
             {
 #if NETFRAMEWORK

@@ -14,7 +14,7 @@ namespace HealthCheck.Dev.Common.Tests
     {
         [ProxyRuntimeTests]
         public static ProxyRuntimeTestConfig TestProxy()
-            => new ProxyRuntimeTestConfig(typeof(ProxyTestSubject));
+            => new(typeof(ProxyTestSubject));
 
         public class ProxyTestSubject
         {

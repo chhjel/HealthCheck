@@ -250,7 +250,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
                 StoreCopyOfExecutedScriptsAsAuditBlobs = true,
                 TargetAssembly = typeof(DevController).Assembly,
                 ScriptStorage = new FlatFileDynamicCodeScriptStorage(@"C:\temp\DCE_Scripts.json"),
-                PreProcessors = new IDynamicCodePreProcessor[0],
+                PreProcessors = Array.Empty<IDynamicCodePreProcessor>(),
                 Validators = new IDynamicCodeValidator[]
                 {
                     new FuncCodeValidator((code) =>

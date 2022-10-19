@@ -155,7 +155,7 @@ namespace HealthCheck.Module.DataExport.Services
                 .ToList();
 
             // Handle array props
-            foreach(var includedArrayProp in includedProperties.Where(x => x.Contains("[")))
+            foreach(var includedArrayProp in includedProperties.Where(x => x.Contains('[')))
             {
                 if (allowedIncludedProperties.Any(x => x.Name == includedArrayProp))
                     continue;
@@ -215,11 +215,9 @@ namespace HealthCheck.Module.DataExport.Services
                     if (customFormatter != null)
                     {
                         // Only build parameter object once
-                        if (customFormatterConfig.Parameters == null)
-                        {
-                            customFormatterConfig.Parameters = HCValueConversionUtils.ConvertInputModel(customFormatter.CustomParametersType, customFormatterConfig.CustomParameters)
+                        customFormatterConfig.Parameters 
+                                ??= HCValueConversionUtils.ConvertInputModel(customFormatter.CustomParametersType, customFormatterConfig.CustomParameters)
                                 ?? Activator.CreateInstance(customFormatter.CustomParametersType);
-                        }
 
                         value = customFormatter.FormatValue(prop.Name, propType, value, customFormatterConfig.Parameters);
                     }

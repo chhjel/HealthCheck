@@ -13,7 +13,7 @@ namespace HealthCheck.Dev.Common.DataRepeater
 
         public override string ExecuteButtonLabel => "Execute the thing";
 
-        public override List<string> Categories => new List<string>() { "Test 2" };
+        public override List<string> Categories => new() { "Test 2" };
 
         protected override Task<HCDataRepeaterStreamItemBatchActionResult> PerformBatchActionAsync(IHCDataRepeaterStreamItem item, Parameters parameters, HCDataRepeaterStreamBatchActionResult batchResult)
         {

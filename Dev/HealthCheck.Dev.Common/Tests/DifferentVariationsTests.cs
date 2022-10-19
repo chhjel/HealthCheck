@@ -232,10 +232,10 @@ namespace HealthCheck.Dev.Common.Tests
         }
 
         public static List<string> ReadOnlyListTest_Default()
-            => new List<string>() { "Item number one", "Item number two", "Item number three" };
+            => new() { "Item number one", "Item number two", "Item number three" };
 
         public static List<EnumTestType> ReadOnlyListEnumTest_Default()
-            => new List<EnumTestType>() { EnumTestType.FirstValue, EnumTestType.SecondValue, EnumTestType.FourthValue };
+            => new() { EnumTestType.FirstValue, EnumTestType.SecondValue, EnumTestType.FourthValue };
 
         [RuntimeTest(description: "Should run for about 10 seconds.")]
         public async Task<TestResult> CancellableTest(CancellationToken cancellationToken)

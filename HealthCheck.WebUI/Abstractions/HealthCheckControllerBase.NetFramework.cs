@@ -443,7 +443,7 @@ namespace HealthCheck.WebUI.Abstractions
             CurrentRequestInformation.ClientIP = GetRequestIP(requestContext);
             CurrentRequestInformation.Headers = request?.Headers?.AllKeys?.ToDictionaryIgnoreDuplicates(t => t, t => request.Headers[t])
                 ?? new Dictionary<string, string>();
-            CurrentRequestInformation.InputStream = HealthCheckControllerHelper<TAccessRole>.ShouldEnableRequestBuffering(url)
+            CurrentRequestInformation.InputStream = HealthCheckControllerHelper<TAccessRole>.ShouldEnableRequestBuffering()
                 ? request?.GetBufferedInputStream()
                 : request.InputStream;
             if (request?.Files?.AllKeys?.Any() == true)

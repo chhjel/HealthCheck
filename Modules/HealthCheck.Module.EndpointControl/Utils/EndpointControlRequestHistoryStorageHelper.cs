@@ -51,9 +51,7 @@ namespace HealthCheck.Module.EndpointControl.Utils
 
 						// Move identity to the top
 						var oldIndex = data.LatestRequestIdentities.IndexOf(request.UserLocationId);
-						var oldValue = data.LatestRequestIdentities[0];
-						data.LatestRequestIdentities[0] = data.LatestRequestIdentities[oldIndex];
-						data.LatestRequestIdentities[oldIndex] = oldValue;
+						(data.LatestRequestIdentities[oldIndex], data.LatestRequestIdentities[0]) = (data.LatestRequestIdentities[0], data.LatestRequestIdentities[oldIndex]);
 						return true;
 					}
 

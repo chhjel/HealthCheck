@@ -46,7 +46,7 @@ namespace HealthCheck.Module.EndpointControl.Tests
             helper.AddRequestToCollections(request);
         }
 
-        private EndpointControlEndpointRequestData CreateRequestData(string ip = "127.0.0.1", string userAgent = "TestAgent",
+        private static EndpointControlEndpointRequestData CreateRequestData(string ip = "127.0.0.1", string userAgent = "TestAgent",
             string method = "GET", string url = "https://test.com")
         {
             var data = new EndpointControlEndpointRequestData

@@ -41,6 +41,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\HealthCheck.Core\HealthCheck.Core.csproj" />
     <ProjectReference Include="..\..\HealthCheck.Web.Core\HealthCheck.Web.Core.csproj" />
+    <ProjectReference Include="..\..\HealthCheck.WebApi.Core\HealthCheck.WebApi.Core.csproj" />
   </ItemGroup>
 
 </Project>
