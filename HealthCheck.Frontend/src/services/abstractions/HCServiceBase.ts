@@ -1,4 +1,3 @@
-import Base64Util from '@util/Base64Util';
 import UrlUtils from '@util/UrlUtils';
 
 export class FetchStatus
@@ -58,9 +57,7 @@ export default class HCServiceBase
         json: boolean = true
     ): void
     {
-        let payloadJson = (payload == null) 
-            ? null 
-            : Base64Util.base64Encode(JSON.stringify(payload));
+        let payloadJson = (payload == null) ? null : JSON.stringify(payload);
         let wrapperPayload = {
             moduleId: moduleId,
             methodName: methodName,

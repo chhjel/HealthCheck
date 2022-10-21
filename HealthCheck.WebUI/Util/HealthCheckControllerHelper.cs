@@ -20,7 +20,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Text;
 
 #if NETFULL
 using System.IO;
@@ -287,11 +286,6 @@ namespace HealthCheck.WebUI.Util
             var context = CreateModuleContext(requestInfo, accessRoles, module.Name, module.Id, module.Module, sensitiveDataStripper);
             try
             {
-                if (!string.IsNullOrWhiteSpace(jsonPayload))
-                {
-                    jsonPayload = Encoding.UTF8.GetString(Convert.FromBase64String(jsonPayload));
-                }
-
                 var result = await method.Invoke(module.Module, context, jsonPayload, new NewtonsoftJsonSerializer());
                 return new InvokeModuleMethodResult()
                 {
