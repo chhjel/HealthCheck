@@ -73,6 +73,7 @@ namespace HealthCheck.WebUI.Abstractions
 
         /// <summary>
         /// Should return a custom enum flag object with the roles of the current user. Must match the type used in <see cref="RuntimeTestAttribute.RolesWithAccess"/>.
+        /// <para>Returns null by default to allow all.</para>
         /// </summary>
         protected abstract RequestInformation<TAccessRole> GetRequestInformation(HttpRequestBase request);
 
