@@ -219,13 +219,17 @@ namespace HealthCheck.Core.Modules.Tests.Models
                 // Ensure NotNull if CodeArea
                 if (uiHints.Contains(HCUIHint.CodeArea) && !uiHints.Contains(HCUIHint.NotNull)) uiHints.Add(HCUIHint.NotNull);
 
+                var hasDefaultValueFactory = parameterAttribute?.DefaultValueFactoryMethod != null;
+                var defaultValue = hasDefaultValueFactory ? null : GetDefaultValue(parameter, parameterAttribute);
+                Func<object> defaultValueFactory = hasDefaultValueFactory ? () => GetDefaultValue(parameter, parameterAttribute) : null;
                 Parameters[i] = new TestParameter()
                 {
                     Index = i,
                     Id = parameter.Name,
                     Name = parameterAttribute?.Name ?? parameter.Name.SpacifySentence(),
                     Description = parameterAttribute?.Description.EnsureDotAtEndIfNotNullOrEmpty(),
-                    DefaultValue = GetDefaultValue(parameter, parameterAttribute),
+                    DefaultValue = defaultValue,
+                    DefaultValueFactory = defaultValueFactory,
                     ParameterType = type,
                     UIHints = uiHints,
                     NullName = parameterAttribute?.NullName,

@@ -189,7 +189,7 @@ namespace HealthCheck.Dev.Common.Tests
         {
             return TestResult.CreateSuccess($"Value: {value}");
         }
-        public static string SimpleString_Default() => "The default value.";
+        public static string SimpleString_Default() => $"The default value. @ {DateTime.Now}";
 
         [RuntimeTest]
         [RuntimeTestParameter("value", "Value", "Some description here.", DefaultValueFactoryMethod = nameof(AdvancedString_Default))]
