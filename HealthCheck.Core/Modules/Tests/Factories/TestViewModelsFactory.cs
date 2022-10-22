@@ -116,12 +116,13 @@ namespace HealthCheck.Core.Modules.Tests.Factories
                 || testParameter.ParameterType.IsGenericParameter
                 || options?.HideInputForTypes?.Any(x => x.IsAssignableFrom(testParameter.ParameterType)) == true;
 
+            var defaultValue = testParameter.DefaultValueFactory != null ? testParameter.DefaultValueFactory() : testParameter.DefaultValue;
             var vm = new TestParameterViewModel()
             {
                 Index = testParameter.Index,
                 Name = testParameter.Name,
                 Description = testParameter.Description,
-                DefaultValue = stringConverter.ConvertToString(testParameter.DefaultValue),
+                DefaultValue = stringConverter.ConvertToString(defaultValue),
                 PossibleValues = testParameter?.PossibleValues?.Select(x => stringConverter.ConvertToString(x))?.ToList(),
                 Type = type,
                 UIHints = testParameter?.UIHints ?? new(),

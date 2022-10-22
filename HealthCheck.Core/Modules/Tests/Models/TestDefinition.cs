@@ -219,13 +219,17 @@ namespace HealthCheck.Core.Modules.Tests.Models
                 // Ensure NotNull if CodeArea
                 if (uiHints.Contains(HCUIHint.CodeArea) && !uiHints.Contains(HCUIHint.NotNull)) uiHints.Add(HCUIHint.NotNull);
 
+                var hasDefaultValueFactory = parameterAttribute?.DefaultValueFactoryMethod != null;
+                var defaultValue = hasDefaultValueFactory ? null : GetDefaultValue(parameter, parameterAttribute);
+                Func<object> defaultValueFactory = hasDefaultValueFactory ? () => GetDefaultValue(parameter, parameterAttribute) : null;
                 Parameters[i] = new TestParameter()
                 {
                     Index = i,
                     Id = parameter.Name,
                     Name = parameterAttribute?.Name ?? parameter.Name.SpacifySentence(),
                     Description = parameterAttribute?.Description.EnsureDotAtEndIfNotNullOrEmpty(),
-                    DefaultValue = GetDefaultValue(parameter, parameterAttribute),
+                    DefaultValue = defaultValue,
+                    DefaultValueFactory = defaultValueFactory,
                     ParameterType = type,
                     UIHints = uiHints,
                     NullName = parameterAttribute?.NullName,
@@ -281,6 +285,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
             return _referenceParameterFactories?.FirstOrDefault(x => x.CanFactorizeFor(type));
         }
 
+        private static readonly HCSimpleMemoryCache _defaultValueCache = new();
         private object GetDefaultValue(ParameterInfo parameter, RuntimeTestParameterAttribute parameterAttribute)
         {
             if (parameterAttribute?.DefaultValueFactoryMethod != null)
@@ -289,7 +294,21 @@ namespace HealthCheck.Core.Modules.Tests.Models
                 var factoryParameters = factoryMethod?.GetParameters()?.Length == 0
                     ? new object[0]
                     : new object[] { parameter.Name };
-                return factoryMethod?.Invoke(null, factoryParameters);
+                var value = factoryMethod?.Invoke(null, factoryParameters);
+                if (value is IHCDefaultTestParameterValue valueWithCache)
+                {
+                    var cacheKey = $"{Id}|{parameter.Position}";
+                    if (valueWithCache.CacheDuration != null && _defaultValueCache.TryGetValue<object>(cacheKey, out var cachedValue))
+                    {
+                        return cachedValue;
+                    }
+                    value = valueWithCache.DefaultValueAsObj;
+                    if (valueWithCache.CacheDuration != null)
+                    {
+                        _defaultValueCache.Set<object>(cacheKey, value, valueWithCache.CacheDuration.Value);
+                    }
+                }
+                return value;
             }
             else if (parameter.DefaultValue == null || (parameter.DefaultValue is DBNull))
             {
@@ -312,8 +331,15 @@ namespace HealthCheck.Core.Modules.Tests.Models
             return classType.GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .FirstOrDefault(x => x.Name == parameterAttribute.DefaultValueFactoryMethod 
                     && (x.GetParameters().Length == 0 || (x.GetParameters().Length == 1 && x.GetParameters()[0].ParameterType == typeof(string)))
-                    && x.ReturnType == parameterInfo.ParameterType);
+                    && (x.ReturnType == parameterInfo.ParameterType
+                        || IsDefaultTestParameterWrapperWithType(x.ReturnType, parameterInfo.ParameterType))
+                );
         }
+
+        private static bool IsDefaultTestParameterWrapperWithType(Type wrapper, Type inner)
+            => wrapper.IsGenericType
+                && wrapper.GetGenericTypeDefinition() == typeof(HCDefaultTestParameterValue<>)
+                && wrapper.GetGenericArguments()[0] == inner;
 
         /// <summary>
         /// Run the test.
@@ -517,7 +543,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
             if (invalidFactoryReferences.Any())
             {
                 var factoryRefs = invalidFactoryReferences.Select(x => $"'{x.Item1.DefaultValueFactoryMethod}'").JoinForSentence();
-                errors.Add($"Test method '{ParentClass.ClassType.Name}.{Method.Name}' references DefaultValueFactoryMethod(s) that could not be found ({factoryRefs}), make sure it's in the same class, returns the same type as the parameter and is public static.");
+                errors.Add($"Test method '{ParentClass.ClassType.Name}.{Method.Name}' references DefaultValueFactoryMethod(s) that could not be found ({factoryRefs}), make sure it's in the same class, is public static, and returns the same type as the parameter or HCDefaultTestParameterValue<T> where T is the parameter type.");
             }
         }
 

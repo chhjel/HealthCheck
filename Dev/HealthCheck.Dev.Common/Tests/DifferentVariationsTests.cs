@@ -189,7 +189,15 @@ namespace HealthCheck.Dev.Common.Tests
         {
             return TestResult.CreateSuccess($"Value: {value}");
         }
-        public static string SimpleString_Default() => "The default value.";
+        public static string SimpleString_Default() => $"The default value. @ {DateTime.Now}";
+
+        [RuntimeTest]
+        [RuntimeTestParameter("value", "Value", "Some description here.", DefaultValueFactoryMethod = nameof(SimpleStringCached_Default), UIHints = HCUIHint.CodeArea)]
+        public TestResult DefaultValueFactoryMethodWithCacheTest(string value)
+        {
+            return TestResult.CreateSuccess($"Value: {value}");
+        }
+        public static HCDefaultTestParameterValue<string> SimpleStringCached_Default() => new($"Value created @ {DateTime.Now}\n😎", TimeSpan.FromSeconds(10));
 
         [RuntimeTest]
         [RuntimeTestParameter("value", "Value", "Some description here.", DefaultValueFactoryMethod = nameof(AdvancedString_Default))]

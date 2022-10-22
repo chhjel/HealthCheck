@@ -56,7 +56,7 @@ namespace HealthCheck.Core.Util
                     ? _items[key].Value
                     : fallback;
 
-                if (value != null && value.GetType() != typeof(T))
+                if (value != null && !typeof(T).IsInstanceOfType(value))
                 {
                     return fallback;
                 }

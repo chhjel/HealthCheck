@@ -40,6 +40,11 @@ namespace HealthCheck.Core.Modules.Tests.Models
         public object DefaultValue { get; set; }
 
         /// <summary>
+        /// Default parameter value factory. If set, overrides <see cref="DefaultValue"/>.
+        /// </summary>
+        public Func<object> DefaultValueFactory { get; set; }
+
+        /// <summary>
         /// Values when a selection is possible.
         /// </summary>
         public List<object> PossibleValues { get; set; }
