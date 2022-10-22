@@ -34,7 +34,7 @@ namespace HealthCheck.Dev.Common.DataExport
                 .Skip(filter.PageIndex * filter.PageSize)
                 .Take(filter.PageSize);
 
-            return Task.FromResult(new HCDataExportStreamBase<TestExportItem>.TypedEnumerableResult
+            return Task.FromResult(new TypedEnumerableResult
             {
                 PageItems = pageItems,
                 TotalCount = matches.Count()
