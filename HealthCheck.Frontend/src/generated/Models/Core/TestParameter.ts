@@ -13,6 +13,7 @@ export interface TestParameter
 	Description: string;
 	ParameterType: any;
 	DefaultValue: any;
+	DefaultValueFactory: () => any;
 	PossibleValues: any[];
 	IsOut: boolean;
 	IsRef: boolean;

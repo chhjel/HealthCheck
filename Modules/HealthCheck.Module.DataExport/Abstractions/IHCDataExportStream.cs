@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Util;
+﻿using HealthCheck.Core.Models;
+using HealthCheck.Core.Util;
 using HealthCheck.Module.DataExport.Models;
 using System;
 using System.Collections.Generic;
@@ -103,6 +104,11 @@ namespace HealthCheck.Module.DataExport.Abstractions
         object DefaultFormatValue(string propertyName, Type propertyType, object value);
 
         /// <summary>
+        /// Get the values of any addictional columns returned during query.
+        /// </summary>
+        Dictionary<string, object> GetAdditionalColumnValues(object item, List<string> includedProperties);
+
+        /// <summary>
         /// Result from <see cref="GetEnumerableAsync"/>
         /// </summary>
         public class EnumerableResult
@@ -116,6 +122,16 @@ namespace HealthCheck.Module.DataExport.Abstractions
             /// Total match count.
             /// </summary>
             public int TotalCount { get; set; }
+
+            /// <summary>
+            /// Optional note.
+            /// </summary>
+            public string Note { get; set; }
+
+            /// <summary>
+            /// Optionally force result headers.
+            /// </summary>
+            public List<HCTypeNamePair> AdditionalColumns { get; set; }
         }
 
         /// <summary>

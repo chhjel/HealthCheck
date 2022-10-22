@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.4" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\HealthCheck.Core\HealthCheck.Core.csproj" />
     <ProjectReference Include="..\..\HealthCheck.WebUI\HealthCheck.WebUI.csproj" />
     <ProjectReference Include="..\..\Modules\HealthCheck.Module.DataExport\HealthCheck.Module.DataExport.csproj" />

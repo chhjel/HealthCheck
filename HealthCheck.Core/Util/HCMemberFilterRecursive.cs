@@ -4,10 +4,10 @@ using System.Reflection;
 
 namespace HealthCheck.Core.Util
 {
-    /// <summary>
-    /// Used to filter members recursively.
-    /// </summary>
-    public class HCMemberFilterRecursive : HCMemberFilter
+	/// <summary>
+	/// Used to filter members recursively.
+	/// </summary>
+	public class HCMemberFilterRecursive : HCMemberFilter
 	{
 		/// <summary>
 		/// Optional list of member path prefixes to ignore.

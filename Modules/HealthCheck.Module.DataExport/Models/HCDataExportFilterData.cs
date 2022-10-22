@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Module.DataExport.Abstractions;
+using System;
 
 namespace HealthCheck.Module.DataExport.Models
 {

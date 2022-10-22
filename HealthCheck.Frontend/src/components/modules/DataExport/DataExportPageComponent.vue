@@ -529,6 +529,7 @@ import { HCDataExportValueFormatterConfig } from "@generated/Models/Module/DataE
 import { HCDataExportValueFormatterViewModel } from "@generated/Models/Module/DataExport/HCDataExportValueFormatterViewModel";
 import StringUtils from "@util/StringUtils";
 import { StoreUtil } from "@util/StoreUtil";
+import { HCDataExportStreamItemDefinitionMemberViewModel } from "@generated/Models/Module/DataExport/HCDataExportStreamItemDefinitionMemberViewModel";
 
 @Options({
     components: {
@@ -565,14 +566,15 @@ export default class DataExportPageComponent extends Vue {
     queryErrorDetails: string | null = null;
     showQueryErrorDetails: boolean = false;
     includedProperties: Array<string> = [];
-    availableProperties: Array<string> = [];
+    availablePropertiesInternal: Array<string> = [];
     headers: Array<string> = [];
     headerNameOverrides: { [key:string]: string } = {};
     customParameters: { [key:string]: string } = {};
 	valueFormatterConfigs: { [key:string]: HCDataExportValueFormatterConfig } = {};
     itemDefinition: HCDataExportStreamItemDefinitionViewModel = { StreamId: '', Name: '', Members: [] };
     customColumns: { [key:string]: string } = {};
-    
+	additionalMembers: HCDataExportStreamItemDefinitionMemberViewModel[] = [];
+
     newPresetName: string = '';
     loadPresetDialogVisible: boolean = false;
     savePresetDialogVisible: boolean = false;
@@ -778,8 +780,12 @@ export default class DataExportPageComponent extends Vue {
         return obj;
     }
 
+    get availableProperties(): Array<string> {
+        return [...this.availablePropertiesInternal, ...this.additionalMembers.map(x => x.Name)]
+    }
+
     get availablePropertiesIncludesAnArray(): boolean {
-        return this.availableProperties?.some(x => x.includes('[')) == true;
+        return this.availablePropertiesInternal?.some(x => x.includes('[')) == true;
     }
 
     get availablePropertiesDescription(): string {
@@ -877,7 +883,7 @@ export default class DataExportPageComponent extends Vue {
             return;
         }
         
-        this.availableProperties = stream.ItemDefinition.Members.map(x => x.Name);
+        this.availablePropertiesInternal = stream.ItemDefinition.Members.map(x => x.Name);
         this.itemDefinition = stream.ItemDefinition;
 
         if (prevStreamid != null)
@@ -888,6 +894,7 @@ export default class DataExportPageComponent extends Vue {
         this.resetFilter();
         this.items = [];
         this.totalResultCount = 0;
+        this.additionalMembers = [];
         if (this.applyFilterFromCache(stream.Id))
         {
             this.$nextTick(() => this.updateUrlFromFilter());
@@ -1010,7 +1017,8 @@ export default class DataExportPageComponent extends Vue {
 
     getFormattersForHeader(header: string): Array<HCDataExportValueFormatterViewModel> {
         if (!this.itemDefinition || !this.selectedStream || !this.selectedStream.ValueFormatters) return [];
-        const member = this.itemDefinition.Members.filter(x => x.Name == header)[0];
+        const member = this.itemDefinition.Members.filter(x => x.Name == header)[0]
+            || this.additionalMembers.filter(x => x.Name == header)[0]
         if (!member) return [];
 
         return member.FormatterIds
@@ -1101,6 +1109,7 @@ export default class DataExportPageComponent extends Vue {
 
         this.queryError = data.ErrorMessage;
         this.queryErrorDetails = data.ErrorDetails;
+        this.additionalMembers = data.AdditionalMembers || [];
     }
 
     onFilterChanged(loadData: boolean, resetPageIndex: boolean): void {

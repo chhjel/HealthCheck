@@ -105,7 +105,7 @@ namespace HealthCheck.Module.DataExport
             foreach (var stream in streams)
             {
                 var valueFormatters = (stream.ValueFormatters ?? Array.Empty<IHCDataExportValueFormatter>());
-                var itemDef = Options.Service.GetStreamItemDefinition(stream.GetType().FullName, stream.ItemType, valueFormatters);
+                var itemDef = Options.Service.GetStreamItemDefinition(stream, stream.ItemType);
                 var showQueryInput = stream.SupportsQuery();
                 var streamModel = new HCDataExportStreamViewModel
                 {
@@ -157,11 +157,25 @@ namespace HealthCheck.Module.DataExport
 
                 var result = await Options.Service.QueryAsync(model);
                 context?.AddAuditEvent($"Queried data export", subject: stream.StreamDisplayName);
+
+                var additionalMembers = new List<HCDataExportStreamItemDefinitionMemberViewModel>();
+                if (result.AdditionalMembers?.Any() == true)
+                {
+                    additionalMembers = result.AdditionalMembers.Select(x => new HCDataExportStreamItemDefinitionMemberViewModel
+                    {
+                        Name = x.Name,
+                        TypeName = x.Type?.GetFriendlyTypeName() ?? string.Empty,
+                        FormatterIds = Options.Service.GetValueFormatterIdsFor(stream, x.Type).ToArray()
+                    }).ToList();
+                }
+
                 return new HCDataExportQueryResponseViewModel
                 {
                     Success = true,
                     TotalCount = result.TotalCount,
-                    Items = result.Items
+                    Items = result.Items,
+                    Note = result.Note,
+                    AdditionalMembers = additionalMembers
                 };
             }
             catch (Exception ex)
