@@ -1059,8 +1059,9 @@ The module allows for filtering and exporting data. The type of data source you 
 * IEnumerable&lt;T&gt;: Lets the user filter the data either using an entered linq query or custom parameter inputs depending on your stream implementation.
 
 A default implementation `HCDataExportService` is provided that picks up any registered `IHCDataExportStream` streams.
+If you dare allow raw SQL queries, you can inherit a stream from `HCSqlExportStreamBase<HCSqlExportStreamParameters>` (in the [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.DataExport.SQLExecutor?label=HealthCheck.Module.DataExport.SQLExecutor&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.DataExport.SQLExecutor) nuget package.)
 
-If the request only has access to load presets + export, a simplified version of the interface will be displayed.
+If the request only has access to load presets + export, a simplified version of the interface will be displayed where the only actions available is to select a stream, preset and export format.
 
 ### Setup
 
