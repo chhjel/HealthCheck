@@ -119,6 +119,8 @@ namespace HealthCheck.Module.DataExport
                     CustomParameterDefinitions = HCCustomPropertyAttribute.CreateInputConfigs(stream.CustomParametersType),
                     ValueFormatters = valueFormatters.Select(x => Create(x)).ToList()
                 };
+                streamModel.CustomParameterDefinitions = stream.PostprocessCustomParameterDefinitions(streamModel.CustomParameterDefinitions)
+                    ?? streamModel.CustomParameterDefinitions;
                 list.Add(streamModel);
             }
 

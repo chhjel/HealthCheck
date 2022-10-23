@@ -7,6 +7,12 @@ namespace HealthCheck.Module.DataExport.Models
     public class HCSqlExportStreamParameters
     {
         /// <summary>
+        /// What connectionstring to use.
+        /// </summary>
+        [HCCustomProperty(Name = "ConnectionString", UIHints = HCUIHint.NotNull | HCUIHint.FullWidth)]
+        public string ConnectionStringName { get; set; }
+
+        /// <summary>
         /// Query to get total result count. Supports placeholder [PREDICATE] that is replaced with <see cref="QueryPredicate"/>.
         /// </summary>
         [HCCustomProperty(UIHints = HCUIHint.CodeArea | HCUIHint.NotNull | HCUIHint.FullWidth, CodeLanguage = "sql",

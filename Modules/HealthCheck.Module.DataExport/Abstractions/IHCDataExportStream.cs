@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Models;
 using HealthCheck.Core.Util;
+using HealthCheck.Core.Util.Models;
 using HealthCheck.Module.DataExport.Models;
 using System;
 using System.Collections.Generic;
@@ -112,6 +113,11 @@ namespace HealthCheck.Module.DataExport.Abstractions
         /// Get the values of any addictional columns returned during query.
         /// </summary>
         Dictionary<string, object> GetAdditionalColumnValues(object item, List<string> includedProperties);
+
+        /// <summary>
+        /// Optional postprocessing of the data.
+        /// </summary>
+        List<HCBackendInputConfig> PostprocessCustomParameterDefinitions(List<HCBackendInputConfig> customParameterDefinitions);
 
         /// <summary>
         /// Result from <see cref="GetEnumerableAsync"/>

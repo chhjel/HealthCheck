@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Models;
 using HealthCheck.Core.Util;
+using HealthCheck.Core.Util.Models;
 using HealthCheck.Module.DataExport.Models;
 using HealthCheck.Module.DataExport.Services;
 using System;
@@ -71,6 +72,9 @@ namespace HealthCheck.Module.DataExport.Abstractions
 
         /// <inheritdoc />
         public virtual Dictionary<string, object> GetAdditionalColumnValues(object item, List<string> includedProperties) => null;
+
+        /// <inheritdoc />
+        public virtual List<HCBackendInputConfig> PostprocessCustomParameterDefinitions(List<HCBackendInputConfig> customParameterDefinitions) => customParameterDefinitions;
 
         /// <inheritdoc />
         public virtual async Task<IQueryable> GetQueryableAsync() => await GetQueryableItemsAsync();

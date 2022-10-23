@@ -1,5 +1,6 @@
 using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Models;
+using HealthCheck.Core.Util.Models;
 using HealthCheck.Module.DataExport.Models;
 using Newtonsoft.Json;
 using System.Collections.Generic;
@@ -39,9 +40,10 @@ namespace HealthCheck.Module.DataExport.Abstractions.Streams
         /// <inheritdoc />
         protected override async Task<TypedEnumerableResult> GetEnumerableItemsAsync(HCDataExportFilterDataTyped<SqlExportStreamData, TParameters> filter)
         {
+            var selectedConnectionString = ConnectionStrings.First(x => x.Label == filter.Parameters.ConnectionStringName);
             var queryModel = new HCSqlExportStreamQueryExecutorQueryModel
             {
-                ConnectionString =  @"Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=FeatureStudioDevNetFramework;Integrated Security=True;",
+                ConnectionString = selectedConnectionString.ConnectionString,
                 PageIndex = filter.PageIndex,
                 PageSize = filter.PageSize,
                 QuerySelectTotalCount = filter.Parameters.QuerySelectTotalCount,
@@ -80,6 +82,15 @@ namespace HealthCheck.Module.DataExport.Abstractions.Streams
                 values[prop] = sqlItem.Columns[index];
             }
             return values;
+        }
+
+        /// <inheritdoc />
+        public override List<HCBackendInputConfig> PostprocessCustomParameterDefinitions(List<HCBackendInputConfig> customParameterDefinitions)
+        {
+            var config = customParameterDefinitions.First(x => x.Id == nameof(HCSqlExportStreamParameters.ConnectionStringName));
+            config.Type = "Enum";
+            config.PossibleValues = ConnectionStrings.Select(x => x.Label).ToList();
+            return customParameterDefinitions;
         }
 
         /// <summary></summary>
