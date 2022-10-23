@@ -18,7 +18,7 @@
         <editor-component
             v-if="isCodeArea"
             class="editor spacer"
-            :language="'json'"
+            :language="config?.CodeLanguage || 'json'"
             v-model:value="localValue"
             :read-only="readonly"
             :allowFullscreen="true"

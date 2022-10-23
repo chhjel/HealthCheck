@@ -21,4 +21,5 @@ export default interface FrontEndOptionsViewModel {
 export interface EditorWorkerConfig {
     EditorWorkerUrl: string;
     JsonWorkerUrl: string;
+    SqlWorkerUrl: string;
 }

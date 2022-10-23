@@ -52,6 +52,11 @@ namespace HealthCheck.Core.Config
         /// </summary>
         public static string DefaultJsonWorkerUrl { get; set; } = "blob:https://unpkg.com/christianh-healthcheck@2/json.worker.js";
 
+        /// <summary>
+        /// Sets global default value for <c>HCFrontEndOptions.EditorConfig</c><c>.DefaultSqlWorkerUrl</c>.
+        /// </summary>
+        public static string DefaultSqlWorkerUrl { get; set; } = "blob:https://unpkg.com/christianh-healthcheck@2/sql.worker.js";
+
         /// <summary></summary>
         public static string DefaultMetricsSummaryJavascriptUrl { get; set; } = "https://unpkg.com/christianh-healthcheck@2/metrics.js";
 

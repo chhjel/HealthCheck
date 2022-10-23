@@ -35,6 +35,7 @@
                             v-for="(parameterDef, pIndex) in selectedStream.CustomParameterDefinitions"
                             :key="`export-parameter-item-${selectedStream.Id}-${pIndex}`"
                             class="export-parameter-item"
+                            :class="exportParameterItemClasses(parameterDef)"
                             v-model:value="customParameters[parameterDef.Id]"
                             :config="parameterDef"
                             :readonly="isLoading || !hasAccessToQueryCustom"
@@ -114,13 +115,19 @@
                         <div>
                             <h3>1. Select preset to export:</h3>
                             <div class="simple-export-buttons">
-                                <btn-component v-for="preset in presets"
-                                    :key="`item-d-${preset.Id}-preset`"
-                                    :class="{ 'selected': (selectedPresetId == preset.Id) }"
-                                    @click.prevent="applyPreset(preset)"
-                                    depressed :color="(selectedPresetId == preset.Id) ? 'primary' : '#ddd'">
-                                    {{ preset.Name }}
-                                </btn-component>
+                                <div v-for="preset in presets"
+                                    :key="`item-d-${preset.Id}-preset`">
+                                    <btn-component
+                                        @click.prevent="applyPreset(preset)"
+                                        :class="{ 'selected': (selectedPresetId == preset.Id) }"
+                                        :color="(selectedPresetId == preset.Id) ? 'primary' : 'accent'"
+                                        class="preset-button">
+                                        <div class="preset-button-content">
+                                            <icon-component size="20px" class="preset-button-icon mr-2">{{ ((selectedPresetId == preset.Id) ? 'radio_button_checked' : 'radio_button_unchecked') }}</icon-component>
+                                            <div class="preset-button-text">{{ preset.Name }}</div>
+                                        </div>
+                                    </btn-component>
+                                </div>
                             </div>
                         </div>
                         <div>
@@ -529,6 +536,9 @@ import { HCDataExportValueFormatterConfig } from "@generated/Models/Module/DataE
 import { HCDataExportValueFormatterViewModel } from "@generated/Models/Module/DataExport/HCDataExportValueFormatterViewModel";
 import StringUtils from "@util/StringUtils";
 import { StoreUtil } from "@util/StoreUtil";
+import { HCDataExportStreamItemDefinitionMemberViewModel } from "@generated/Models/Module/DataExport/HCDataExportStreamItemDefinitionMemberViewModel";
+import { HCBackendInputConfig } from "@generated/Models/Core/HCBackendInputConfig";
+import { HCUIHint } from "@generated/Enums/Core/HCUIHint";
 
 @Options({
     components: {
@@ -565,14 +575,16 @@ export default class DataExportPageComponent extends Vue {
     queryErrorDetails: string | null = null;
     showQueryErrorDetails: boolean = false;
     includedProperties: Array<string> = [];
-    availableProperties: Array<string> = [];
+    availablePropertiesInternal: Array<string> = [];
     headers: Array<string> = [];
     headerNameOverrides: { [key:string]: string } = {};
     customParameters: { [key:string]: string } = {};
 	valueFormatterConfigs: { [key:string]: HCDataExportValueFormatterConfig } = {};
     itemDefinition: HCDataExportStreamItemDefinitionViewModel = { StreamId: '', Name: '', Members: [] };
     customColumns: { [key:string]: string } = {};
-    
+	additionalMembers: HCDataExportStreamItemDefinitionMemberViewModel[] = [];
+    resultNote: string | null = null;
+
     newPresetName: string = '';
     loadPresetDialogVisible: boolean = false;
     savePresetDialogVisible: boolean = false;
@@ -592,8 +604,9 @@ export default class DataExportPageComponent extends Vue {
     limitTableCellLengths: boolean = true;
 
     // Filter/pagination
+    pageSizeDefault: number = 50;
     pageIndex: number = 0;
-    pageSize: number = 50;
+    pageSize: number = this.pageSizeDefault;
     queryInput: string = '';
     totalResultCount: number = 0;
     filterCache: any = {};
@@ -736,7 +749,8 @@ export default class DataExportPageComponent extends Vue {
         let from = (this.pageIndex * this.pageSize)+1;
         from = Math.min(from, this.totalResultCount);
         let to = (this.pageIndex * this.pageSize) + this.items.length;
-        return `Showing ${from}-${to} of ${this.totalResultCount} total matches`;
+        const noteSuffix = !!this.resultNote ? ` - ${this.resultNote}` : '';
+        return `Showing ${from}-${to} of ${this.totalResultCount} total matches${noteSuffix}`;
     }
 
     get selectedFormatter(): HCDataExportValueFormatterViewModel | null {
@@ -778,8 +792,12 @@ export default class DataExportPageComponent extends Vue {
         return obj;
     }
 
+    get availableProperties(): Array<string> {
+        return [...this.availablePropertiesInternal, ...this.additionalMembers.map(x => x.Name)]
+    }
+
     get availablePropertiesIncludesAnArray(): boolean {
-        return this.availableProperties?.some(x => x.includes('[')) == true;
+        return this.availablePropertiesInternal?.some(x => x.includes('[')) == true;
     }
 
     get availablePropertiesDescription(): string {
@@ -797,6 +815,8 @@ export default class DataExportPageComponent extends Vue {
     }
 
     validateCustomFilterInput(val: string): string | null | boolean{
+        if (this.selectedStream?.AllowAnyPropertyName == true) return true;
+
         const errMessage = `"${val}" does not seem to be a valid property.`;
         if (!val) return true;
         else if (!StringUtils.anyIndicesAreValid(val)) return errMessage;
@@ -827,7 +847,7 @@ export default class DataExportPageComponent extends Vue {
 
     resetFilter(): void {
         this.pageIndex = 0;
-        this.pageSize = 50;
+        this.pageSize = this.pageSizeDefault;
         this.queryInput = '';
         this.includedProperties = [];
         this.headers = [];
@@ -877,7 +897,7 @@ export default class DataExportPageComponent extends Vue {
             return;
         }
         
-        this.availableProperties = stream.ItemDefinition.Members.map(x => x.Name);
+        this.availablePropertiesInternal = stream.ItemDefinition.Members.map(x => x.Name);
         this.itemDefinition = stream.ItemDefinition;
 
         if (prevStreamid != null)
@@ -888,6 +908,7 @@ export default class DataExportPageComponent extends Vue {
         this.resetFilter();
         this.items = [];
         this.totalResultCount = 0;
+        this.additionalMembers = [];
         if (this.applyFilterFromCache(stream.Id))
         {
             this.$nextTick(() => this.updateUrlFromFilter());
@@ -1010,7 +1031,8 @@ export default class DataExportPageComponent extends Vue {
 
     getFormattersForHeader(header: string): Array<HCDataExportValueFormatterViewModel> {
         if (!this.itemDefinition || !this.selectedStream || !this.selectedStream.ValueFormatters) return [];
-        const member = this.itemDefinition.Members.filter(x => x.Name == header)[0];
+        const member = this.itemDefinition.Members.filter(x => x.Name == header)[0]
+            || this.additionalMembers.filter(x => x.Name == header)[0]
         if (!member) return [];
 
         return member.FormatterIds
@@ -1101,6 +1123,8 @@ export default class DataExportPageComponent extends Vue {
 
         this.queryError = data.ErrorMessage;
         this.queryErrorDetails = data.ErrorDetails;
+        this.additionalMembers = data.AdditionalMembers || [];
+        this.resultNote = data.Note || '';
     }
 
     onFilterChanged(loadData: boolean, resetPageIndex: boolean): void {
@@ -1166,6 +1190,13 @@ export default class DataExportPageComponent extends Vue {
         this.customColumns = this.filterCache[streamId].customColumns || {};
 
         return true;
+    }
+
+    exportParameterItemClasses(parameter: HCBackendInputConfig): any {
+        let classes: any = {
+            'full-width': parameter.UIHints.includes(HCUIHint.FullWidth)
+        };
+        return classes;
     }
     
     ///////////////////////
@@ -1374,6 +1405,9 @@ export default class DataExportPageComponent extends Vue {
         min-width: 48%;
         margin-bottom: 5px;
     }
+    .full-width {
+        min-width: 100%;
+    }
 }
 .item-header-override-config {
     margin-bottom: 16px;
@@ -1412,6 +1446,24 @@ export default class DataExportPageComponent extends Vue {
                 font-size: 12px;
                 white-space: break-spaces;
             }
+        }
+    }
+    &-title {
+        white-space: pre-wrap;
+    }
+}
+.preset-button {
+    height: auto;
+    .preset-button-content {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        .preset-button-icon {
+            align-self: center;
+        }
+        .preset-button-text {
+            text-align: left;
+            padding: 5px;
         }
     }
     &-title {

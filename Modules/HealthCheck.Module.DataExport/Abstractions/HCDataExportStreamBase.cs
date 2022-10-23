@@ -1,4 +1,6 @@
-﻿using HealthCheck.Core.Util;
+﻿using HealthCheck.Core.Models;
+using HealthCheck.Core.Util;
+using HealthCheck.Core.Util.Models;
 using HealthCheck.Module.DataExport.Models;
 using HealthCheck.Module.DataExport.Services;
 using System;
@@ -52,6 +54,9 @@ namespace HealthCheck.Module.DataExport.Abstractions
         /// <inheritdoc />
         public virtual bool SupportsQuery() => Method == IHCDataExportStream.QueryMethod.Queryable;
 
+        /// <inheritdoc />
+        public virtual bool AllowAnyPropertyName => false;
+
         /// <summary>
         /// Formatters that can be selected per column.
         /// <para>Defaults to creating from <see cref="HCDataExportService.DefaultValueFormatters"/></para>
@@ -64,6 +69,12 @@ namespace HealthCheck.Module.DataExport.Abstractions
         /// <para><see cref="IHCDataExportStream.QueryMethod.Enumerable"/> uses <see cref="GetEnumerableItemsAsync"/></para>
         /// </summary>
         public abstract IHCDataExportStream.QueryMethod Method { get; }
+
+        /// <inheritdoc />
+        public virtual Dictionary<string, object> GetAdditionalColumnValues(object item, List<string> includedProperties) => null;
+
+        /// <inheritdoc />
+        public virtual List<HCBackendInputConfig> PostprocessCustomParameterDefinitions(List<HCBackendInputConfig> customParameterDefinitions) => customParameterDefinitions;
 
         /// <inheritdoc />
         public virtual async Task<IQueryable> GetQueryableAsync() => await GetQueryableItemsAsync();
@@ -93,7 +104,9 @@ namespace HealthCheck.Module.DataExport.Abstractions
             return new IHCDataExportStream.EnumerableResult
             {
                 TotalCount = result.TotalCount,
-                PageItems = result.PageItems
+                PageItems = result.PageItems,
+                Note = result.Note,
+                AdditionalColumns = result.AdditionalColumns
             };
         }
 
@@ -125,6 +138,7 @@ namespace HealthCheck.Module.DataExport.Abstractions
                         .MakeGenericMethod(propertyType);
                 }
                 var method = _formatValueMethodCache[propertyType];
+                if (!method.GetGenericArguments()[0].GetType().IsInstanceOfType(value)) return value;
                 return method.Invoke(this, new object[] { propertyName, value });
             }
         }
@@ -151,6 +165,16 @@ namespace HealthCheck.Module.DataExport.Abstractions
             /// Total match count.
             /// </summary>
             public int TotalCount { get; set; }
+
+            /// <summary>
+            /// Optional note.
+            /// </summary>
+            public string Note { get; set; }
+
+            /// <summary>
+            /// Optionally force result headers.
+            /// </summary>
+            public List<HCTypeNamePair> AdditionalColumns { get; set; }
         }
 
         /// <summary>

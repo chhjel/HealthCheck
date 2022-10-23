@@ -41,6 +41,7 @@ namespace HealthCheck.Dev.Common.Tests
         [RuntimeTest]
         [RuntimeTestParameter(target: "textArea", "Text Area", "Testing a text area here", HCUIHint.TextArea | HCUIHint.FullWidth)]
         [RuntimeTestParameter(target: "codeArea", "Code Area", "Testing a code area here", HCUIHint.CodeArea)]
+        [RuntimeTestParameter(target: "sqlCodeArea", "SQL ode Area", "", HCUIHint.CodeArea, CodeLanguage = "sql")]
         [RuntimeTestParameter(target: "nullableEnm", "Nullable Enum", "Some description", nullName: "<any>")]
         [RuntimeTestParameter(target: "textPattern1", "String with pattern A", "Testing some pattern validation.", TextPattern = @"^O\-\d+")]
         [RuntimeTestParameter(target: "textPattern2", "String with pattern B", "Testing some pattern validation.", TextPattern = @"/^X\-\d+/gi")]
@@ -70,7 +71,8 @@ namespace HealthCheck.Dev.Common.Tests
             [RuntimeTestParameter(nullName: "No null pls")] EnumTestType? nullableEnmDefNull = null,
             EnumFlagsTestType enumFlags = EnumFlagsTestType.A | EnumFlagsTestType.B | EnumFlagsTestType.C,
             byte[] byteArray = null, List<byte[]> listOfByteArray = null,
-            string codeArea = "{ a: true }"
+            string codeArea = "{ \"a\": true }",
+            string sqlCodeArea = "SELECT * FROM user_users U WHERE U.Name like '%asd%'"
         )
         {
             return TestResult

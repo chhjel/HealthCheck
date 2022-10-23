@@ -129,6 +129,7 @@ namespace HealthCheck.Core.Modules.Tests.Factories
                 NullName = testParameter.NullName,
                 TextPattern = HCBackendInputConfig.EnsureJsRegexIsWrappedIfNotEmpty(testParameter?.TextPattern),
                 IsCustomReferenceType = testParameter.IsCustomReferenceType,
+                CodeLanguage = testParameter.CodeLanguage,
                 Hidden = hidden,
                 ReferenceValueFactoryConfig = CreateReferenceValueFactoryConfig(testParameter.ReferenceFactory)
             };

@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Config;
 using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Models;
 using HealthCheck.Core.Util;
 using HealthCheck.Module.DataExport.Abstractions;
 using HealthCheck.Module.DataExport.Formatters;
@@ -41,10 +42,11 @@ namespace HealthCheck.Module.DataExport.Services
         public IEnumerable<IHCDataExportStream> GetStreams() => _streams;
 
         /// <inheritdoc />
-        public HCDataExportStreamItemDefinition GetStreamItemDefinition(string streamId, Type itemType, IEnumerable<IHCDataExportValueFormatter> valueFormatters)
+        public HCDataExportStreamItemDefinition GetStreamItemDefinition(IHCDataExportStream stream, Type itemType)
         {
             lock (_streamItemTypeDefCache)
             {
+                var streamId = stream.GetType().FullName;
                 var cacheKey = $"{streamId}::{itemType.FullName}";
                 if (_streamItemTypeDefCache.ContainsKey(cacheKey))
                 {
@@ -57,7 +59,6 @@ namespace HealthCheck.Module.DataExport.Services
                     Name = itemType.Name.SpacifySentence()
                 };
 
-                var stream = GetStreamById(streamId);
                 int maxDepth = stream.MaxMemberDiscoveryDepth ?? 4;
                 var memberFilter = stream.IncludedMemberFilter ?? new HCMemberFilterRecursive();
                 memberFilter.PropertyFilter ??= new HCPropertyFilter();
@@ -69,16 +70,26 @@ namespace HealthCheck.Module.DataExport.Services
                         Name = x.Name,
                         NameWithCleanIndices = x.Name.StripIndices(includeWrappers: true),
                         Type = x.Type,
-                        FormatterIds = valueFormatters
-                            .Where(f => f.SupportedTypes?.Any(t => t.IsAssignableFromIncludingNullable(x.Type)) == true
-                                && f.NotSupportedTypes?.Contains(x.Type) != true)
-                            .Select(x => x.GetType().FullName)
+                        FormatterIds = GetValueFormatterIdsFor(stream, x.Type)
                     })
                     .ToList();
 
                 _streamItemTypeDefCache[cacheKey] = model;
                 return model;
             }
+        }
+
+
+        /// <inheritdoc />
+        public IEnumerable<string> GetValueFormatterIdsFor(IHCDataExportStream stream, Type type)
+            => GetValueFormattersFor(stream, type).Select(x => x.GetType().FullName);
+
+        private IEnumerable<IHCDataExportValueFormatter> GetValueFormattersFor(IHCDataExportStream stream, Type type)
+        {
+            if (stream?.ValueFormatters?.Any() != true) return Enumerable.Empty<IHCDataExportValueFormatter>();
+            return stream.ValueFormatters
+                .Where(f => f.SupportedTypes?.Any(t => t.IsAssignableFromIncludingNullable(type)) == true
+                    && f.NotSupportedTypes?.Contains(type) != true);
         }
 
         /// <inheritdoc />
@@ -92,6 +103,8 @@ namespace HealthCheck.Module.DataExport.Services
 
             var totalCount = 0;
             object[] pageItems = Array.Empty<object>();
+            string note = null;
+            List<HCTypeNamePair> forcedColumns = null;
 
             if (stream.Method == IHCDataExportStream.QueryMethod.Queryable)
             {
@@ -124,6 +137,8 @@ namespace HealthCheck.Module.DataExport.Services
                 var enumerableResult = await stream.GetEnumerableAsync(filter);
                 pageItems = enumerableResult?.PageItems?.Cast<object>()?.ToArray() ?? Array.Empty<object>();
                 totalCount = enumerableResult?.TotalCount ?? 0;
+                note = enumerableResult.Note;
+                forcedColumns = enumerableResult.AdditionalColumns;
             }
 
             var formatters = stream.ValueFormatters?.ToDictionaryIgnoreDuplicates(x => x.GetType().FullName, x => x);
@@ -135,7 +150,9 @@ namespace HealthCheck.Module.DataExport.Services
             var result = new HCDataExportQueryResponse
             {
                 Items = resultItems,
-                TotalCount = totalCount
+                TotalCount = totalCount,
+                Note = note,
+                AdditionalMembers = forcedColumns
             };
             return result;
         }
@@ -146,7 +163,8 @@ namespace HealthCheck.Module.DataExport.Services
             var streamId = stream.GetType().FullName;
             var itemType = item.GetType();
             var valueFormatters = (stream.ValueFormatters ?? Array.Empty<IHCDataExportValueFormatter>());
-            var itemDef = GetStreamItemDefinition(streamId, itemType, valueFormatters);
+            var itemDef = GetStreamItemDefinition(stream, itemType);
+            var additionals = stream.GetAdditionalColumnValues(item, includedProperties);
 
             var dict = new Dictionary<string, object>();
             var allowedIncludedProperties = itemDef.Members
@@ -191,10 +209,6 @@ namespace HealthCheck.Module.DataExport.Services
             {
                 var value = prop.GetValue(item);
 
-                var customFormatterConfig = valueFormatterConfigs?.ContainsKey(prop.Name) == true ? valueFormatterConfigs[prop.Name] : null;
-                var customFormatter = (customFormatterConfig?.FormatterId != null && formatters.ContainsKey(customFormatterConfig.FormatterId))
-                    ? formatters[customFormatterConfig.FormatterId] : null;
-
                 var propType = prop.Type;
                 var allowFormat = true;
                 if (prop.Name.EndsWith("]"))
@@ -211,28 +225,51 @@ namespace HealthCheck.Module.DataExport.Services
 
                 if (allowFormat)
                 {
-                    // Custom format
-                    if (customFormatter != null)
-                    {
-                        // Only build parameter object once
-                        customFormatterConfig.Parameters 
-                                ??= HCValueConversionUtils.ConvertInputModel(customFormatter.CustomParametersType, customFormatterConfig.CustomParameters)
-                                ?? Activator.CreateInstance(customFormatter.CustomParametersType);
-
-                        value = customFormatter.FormatValue(prop.Name, propType, value, customFormatterConfig.Parameters);
-                    }
-                    // Default format
-                    else
-                    {
-                        value = stream.DefaultFormatValue(prop.Name, propType, value);
-                    }
+                    value = formatValue(prop.Name, propType, value);
                 }
 
                 dict[prop.Name] = value;
             }
 
+            // Additionals
+            if (additionals != null)
+            {
+                foreach (var additional in additionals)
+                {
+                    var value = additional.Value;
+                    if (value != null)
+                    {
+                        value = formatValue(additional.Key, value.GetType(), value);
+                    }
+                    dict[additional.Key] = value;
+                }
+            }
+
+            object formatValue(string propName, Type propType, object value)
+            {
+                var customFormatterConfig = valueFormatterConfigs?.ContainsKey(propName) == true ? valueFormatterConfigs[propName] : null;
+                var customFormatter = (customFormatterConfig?.FormatterId != null && formatters.ContainsKey(customFormatterConfig.FormatterId))
+                    ? formatters[customFormatterConfig.FormatterId] : null;
+
+                // Custom format
+                if (customFormatter != null)
+                {
+                    // Only build parameter object once
+                    customFormatterConfig.Parameters
+                            ??= HCValueConversionUtils.ConvertInputModel(customFormatter.CustomParametersType, customFormatterConfig.CustomParameters)
+                            ?? Activator.CreateInstance(customFormatter.CustomParametersType);
+
+                    return customFormatter.FormatValue(propName, propType, value, customFormatterConfig.Parameters);
+                }
+                // Default format
+                else
+                {
+                    return stream.DefaultFormatValue(propName, propType, value);
+                }
+            }
+
             // Custom columns
-            foreach(var kvp in customColumns)
+            foreach (var kvp in customColumns)
             {
                 var key = kvp.Key;
                 var value = kvp.Value;

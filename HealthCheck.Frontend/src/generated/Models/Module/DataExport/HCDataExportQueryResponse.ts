@@ -2,8 +2,12 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
+import { HCTypeNamePair } from '../../Core/HCTypeNamePair';
+
 export interface HCDataExportQueryResponse
 {
 	TotalCount: number;
 	Items: any[];
+	Note: string;
+	AdditionalMembers: HCTypeNamePair[];
 }

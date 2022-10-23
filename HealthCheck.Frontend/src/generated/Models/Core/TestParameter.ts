@@ -13,12 +13,14 @@ export interface TestParameter
 	Description: string;
 	ParameterType: any;
 	DefaultValue: any;
+	DefaultValueFactory: () => any;
 	PossibleValues: any[];
 	IsOut: boolean;
 	IsRef: boolean;
 	NullName: string;
 	TextPattern: string;
 	IsCustomReferenceType: boolean;
+	CodeLanguage: string;
 	ReferenceFactory: RuntimeTestReferenceParameterFactory;
 	UIHints: HCUIHint[];
 }

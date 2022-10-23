@@ -234,6 +234,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
                     UIHints = uiHints,
                     NullName = parameterAttribute?.NullName,
                     TextPattern = parameterAttribute?.TextPattern,
+                    CodeLanguage = parameterAttribute?.CodeLanguage ?? "json",
                     PossibleValues = HCCustomPropertyAttribute.GetPossibleValues(parameter.ParameterType),
                     IsCustomReferenceType = isCustomReferenceType,
                     ReferenceFactory = referenceFactory,

@@ -2,6 +2,8 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
+import { HCDataExportStreamItemDefinitionMemberViewModel } from './HCDataExportStreamItemDefinitionMemberViewModel';
+
 export interface HCDataExportQueryResponseViewModel
 {
 	Success: boolean;
@@ -9,4 +11,6 @@ export interface HCDataExportQueryResponseViewModel
 	ErrorDetails: string;
 	TotalCount: number;
 	Items: any[];
+	Note: string;
+	AdditionalMembers: HCDataExportStreamItemDefinitionMemberViewModel[];
 }
