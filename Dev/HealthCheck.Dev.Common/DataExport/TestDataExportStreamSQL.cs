@@ -19,6 +19,11 @@ namespace HealthCheck.Dev.Common.DataExport
             {
                 Label = "Testing",
                 ConnectionString = @"Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=FeatureStudioDevNetFramework;Integrated Security=True;"
+            },
+            new ConnectionStringData
+            {
+                Label = "Broken",
+                ConnectionString = @"not_working"
             }
         };
 
