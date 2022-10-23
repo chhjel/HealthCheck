@@ -22,6 +22,9 @@ namespace HealthCheck.Module.DataExport.Models
         public bool ShowQueryInput { get; set; }
 
         /// <summary></summary>
+        public bool AllowAnyPropertyName { get; set; }
+
+        /// <summary></summary>
         public HCDataExportStreamItemDefinitionViewModel ItemDefinition { get; set; }
 
         /// <summary></summary>

@@ -51,6 +51,12 @@ namespace HealthCheck.Core.Modules.Tests.Attributes
         public string TextPattern { get; set; }
 
         /// <summary>
+        /// If <see cref="UIHints"/> include <see cref="HCUIHint.CodeArea"/>, this can be set to 'csharp', 'json', 'xml' or 'sql' to give the editor a hint of what content is displayed.
+        /// <para>Defaults to 'json'</para>
+        /// </summary>
+        public string CodeLanguage { get; set; } = "json";
+
+        /// <summary>
         /// Sets parameters options.
         /// </summary>
         /// <param name="target">Target parameter name.</param>

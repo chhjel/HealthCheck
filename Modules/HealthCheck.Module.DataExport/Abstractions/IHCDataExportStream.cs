@@ -62,6 +62,11 @@ namespace HealthCheck.Module.DataExport.Abstractions
         int? MaxMemberDiscoveryDepth { get;  }
 
         /// <summary>
+        /// If set to true, any property name can be entered and not only the ones from the model.
+        /// </summary>
+        bool AllowAnyPropertyName { get; }
+
+        /// <summary>
         /// Optional filter what members to include.
         /// </summary>
         HCMemberFilterRecursive IncludedMemberFilter { get; }

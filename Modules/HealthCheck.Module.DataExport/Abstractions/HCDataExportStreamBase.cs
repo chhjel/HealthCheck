@@ -53,6 +53,9 @@ namespace HealthCheck.Module.DataExport.Abstractions
         /// <inheritdoc />
         public virtual bool SupportsQuery() => Method == IHCDataExportStream.QueryMethod.Queryable;
 
+        /// <inheritdoc />
+        public virtual bool AllowAnyPropertyName => false;
+
         /// <summary>
         /// Formatters that can be selected per column.
         /// <para>Defaults to creating from <see cref="HCDataExportService.DefaultValueFormatters"/></para>

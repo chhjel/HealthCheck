@@ -159,6 +159,7 @@ export default class DiffComponent extends Vue {
                 {
                     case 'editorWorkerService': return this.processUrl(this.globalOptions.EditorConfig.EditorWorkerUrl);
                     case 'json': return this.processUrl(this.globalOptions.EditorConfig.JsonWorkerUrl);
+                    case 'sql': return this.processUrl(this.globalOptions.EditorConfig.SqlWorkerUrl);
                 }
                 return `/hc/unknown/monaco/worker/${label}.js`;
             }

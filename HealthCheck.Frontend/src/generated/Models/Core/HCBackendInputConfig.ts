@@ -14,6 +14,7 @@ export interface HCBackendInputConfig
 	DefaultValue: string;
 	NullName: string;
 	TextPattern: string;
+	CodeLanguage: string;
 	Flags: string[];
 	UIHints: HCUIHint[];
 	PossibleValues: string[];

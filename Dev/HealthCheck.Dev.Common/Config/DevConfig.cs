@@ -23,6 +23,7 @@ namespace HealthCheck.Dev.Common.Config
                 HCAssetGlobalConfig.DefaultReleaseNotesSummaryJavascriptUrl = $"{endpointBase}/GetReleaseNotesScript";
                 HCAssetGlobalConfig.DefaultEditorWorkerUrl = "[base]/getscript?name=editor.worker.js";
                 HCAssetGlobalConfig.DefaultJsonWorkerUrl = "[base]/getscript?name=json.worker.js";
+                HCAssetGlobalConfig.DefaultSqlWorkerUrl = "[base]/getscript?name=sql.worker.js";
             }
         }
     }

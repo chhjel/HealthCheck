@@ -32,6 +32,9 @@ namespace HealthCheck.Core.Util.Models
         /// <summary></summary>)
         public string TextPattern { get; set; }
 
+        /// <summary></summary>)
+        public string CodeLanguage { get; set; }
+
         /// <summary></summary>
         public List<string> Flags { get; set; }
 

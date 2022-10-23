@@ -17,6 +17,7 @@ export interface TestParameterViewModel
 	NullName: string;
 	TextPattern: string;
 	IsCustomReferenceType: boolean;
+	CodeLanguage: string;
 	IsUnsupportedJson: boolean;
 	ReferenceValueFactoryConfig: ReferenceValueFactoryConfigViewModel;
 	Hidden: boolean;

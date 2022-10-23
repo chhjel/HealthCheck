@@ -945,7 +945,8 @@ Web -> Frontend: Confirmation is delivered
             ParameterIndex: 0,
             ExtraValues: { },
             PropertyInfo: null,
-			TextPattern: ''
+			TextPattern: '',
+			CodeLanguage: 'json'
         };
     }
 

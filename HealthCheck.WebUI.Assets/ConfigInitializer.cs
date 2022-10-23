@@ -50,6 +50,7 @@ namespace HealthCheck.WebUI.Assets
             //HCAssetGlobalConfig.DefaultReleaseNotesSummaryJavascriptUrl = "[base]/GetAsset?n=releaseNotesSummary.js";
             HCAssetGlobalConfig.DefaultEditorWorkerUrl = "[base]/GetAsset?n=editor.worker.js&v=[HCVERSION]";
             HCAssetGlobalConfig.DefaultJsonWorkerUrl = "[base]/GetAsset?n=json.worker.js&v=[HCVERSION]";
+            HCAssetGlobalConfig.DefaultSqlWorkerUrl = "[base]/GetAsset?n=sql.worker.js&v=[HCVERSION]";
         }
 
         private static readonly Regex _cssUrlRegex = new(@"(?<prefix>url\()(?<url>[^\)]+)(?<suffix>\))");

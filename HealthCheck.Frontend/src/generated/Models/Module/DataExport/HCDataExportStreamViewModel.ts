@@ -13,6 +13,7 @@ export interface HCDataExportStreamViewModel
 	Description: string;
 	GroupName: string;
 	ShowQueryInput: boolean;
+	AllowAnyPropertyName: boolean;
 	ItemDefinition: HCDataExportStreamItemDefinitionViewModel;
 	CustomParameterDefinitions: HCBackendInputConfig[];
 	ValueFormatters: HCDataExportValueFormatterViewModel[];

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace HealthCheck.Dev.Common.DataExport
@@ -13,7 +14,7 @@ namespace HealthCheck.Dev.Common.DataExport
         public override string StreamDisplayName => "SQL stream";
         public override string StreamDescription => "A test using SQL directly.";
         public override string StreamGroupName => null;
-        public override object AllowedAccessRoles => RuntimeTestAccessRole.WebAdmins;
+        public override object AllowedAccessRoles => RuntimeTestAccessRole.QuerystringTest;
         public override List<string> Categories => null;
         public override int ExportBatchSize => 10000;
 
@@ -28,13 +29,14 @@ namespace HealthCheck.Dev.Common.DataExport
         public async Task<SqlExportStreamQueryExecutorResultModel> ExecuteQueryAsync(SqlExportStreamQueryExecutorQueryModel model)
         {
             string connectionString = @"Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=FeatureStudioDevNetFramework;Integrated Security=True;";
-            var totalCount = ExecuteScalarInt(connectionString, $"SELECT COUNT(*)\n{model.QueryPredicate}");
+            
+            var totalCountQuery = model.QuerySelectTotalCount.Replace("[PREDICATE]", model.QueryPredicate);
+            var totalCount = ExecuteScalarInt(connectionString, totalCountQuery, model, setCommandParameters);
 
+            var dataQuery = model.QuerySelectData.Replace("[PREDICATE]", model.QueryPredicate);
             using var connection = new SqlConnection(connectionString);
-            var query = $"{model.QuerySelect}\n{model.QueryPredicate}";
-            var command = new SqlCommand(query, connection);
-            command.Parameters.AddWithValue("@pageIndex", model.PageIndex);
-            command.Parameters.AddWithValue("@pageSize", model.PageSize);
+            var command = new SqlCommand(dataQuery, connection);
+            setCommandParameters(model, command);
             connection.Open();
             var reader = await command.ExecuteReaderAsync();
 
@@ -73,12 +75,21 @@ namespace HealthCheck.Dev.Common.DataExport
             {
                 reader.Close();
             }
+
+            static void setCommandParameters(SqlExportStreamQueryExecutorQueryModel model, SqlCommand command)
+            {
+                command.Parameters.AddWithValue("@pageIndex", model.PageIndex);
+                command.Parameters.AddWithValue("@pageSize", model.PageSize);
+                command.Parameters.AddWithValue("@skipCount", model.PageIndex * model.PageSize);
+                command.Parameters.AddWithValue("@takeCount", model.PageSize);
+            }
         }
 
-        private int ExecuteScalarInt(string connectionString, string query)
+        private int ExecuteScalarInt(string connectionString, string query, SqlExportStreamQueryExecutorQueryModel model, Action<SqlExportStreamQueryExecutorQueryModel, SqlCommand> parameterSetter)
         {
             using var connection = new SqlConnection(connectionString);
             var command = new SqlCommand(query, connection);
+            parameterSetter(model, command);
             connection.Open();
             return Convert.ToInt32(command.ExecuteScalar());
         }

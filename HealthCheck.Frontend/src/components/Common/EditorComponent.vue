@@ -42,7 +42,6 @@ import * as monaco from 'monaco-editor'
 import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
 import { ICodeMark, CodeSnippet } from '@models/modules/DynamicCodeExecution/Models';
 import { StoreUtil } from "@util/StoreUtil";
-import { nextTick } from "@vue/runtime-core";
 
 
 @Options({
@@ -190,6 +189,7 @@ export default class EditorComponent extends Vue {
                 {
                     case 'editorWorkerService': return this.processUrl(this.globalOptions.EditorConfig.EditorWorkerUrl);
                     case 'json': return this.processUrl(this.globalOptions.EditorConfig.JsonWorkerUrl);
+                    case 'sql': return this.processUrl(this.globalOptions.EditorConfig.SqlWorkerUrl);
                 }
                 return `/hc/unknown/monaco/worker/${label}.js`;
             }

@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Attributes;
+using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Models;
 using HealthCheck.Module.DataExport.Models;
 using Newtonsoft.Json;
@@ -13,7 +14,9 @@ namespace HealthCheck.Module.DataExport.Abstractions.Streams
     public abstract class SqlExportStreamBase : HCDataExportStreamBase<TestExportItem, TestParameters>
     {
         public override bool SupportsQuery() => false;
+        public override bool AllowAnyPropertyName { get; } = true;
         public override IHCDataExportStream.QueryMethod Method => IHCDataExportStream.QueryMethod.Enumerable;
+
 
         private readonly ISqlExportStreamQueryExecutor _queryExecutor;
 
@@ -28,7 +31,8 @@ namespace HealthCheck.Module.DataExport.Abstractions.Streams
             {
                 PageIndex = filter.PageIndex,
                 PageSize = filter.PageSize,
-                QuerySelect = filter.Parameters.QuerySelect,
+                QuerySelectTotalCount = filter.Parameters.QuerySelectTotalCount,
+                QuerySelectData = filter.Parameters.QuerySelectData,
                 QueryPredicate = filter.Parameters.QueryPredicate,
             };
             var queryResult = await _queryExecutor.ExecuteQueryAsync(queryModel);
@@ -45,7 +49,7 @@ namespace HealthCheck.Module.DataExport.Abstractions.Streams
             {
                 TotalCount = queryResult.TotalCount,
                 PageItems = pageItems,
-                Note = $"{queryResult.RecordsAffected} {"row".Pluralize(queryResult.RecordsAffected)} affected.",
+                Note = queryResult.RecordsAffected > 0 ? $"{queryResult.RecordsAffected} {"row".Pluralize(queryResult.RecordsAffected)} affected." : null,
                 AdditionalColumns = additionalColumns
             };
         }
@@ -73,18 +77,27 @@ namespace HealthCheck.Module.DataExport.Abstractions.Streams
 
         public class TestParameters
         {
-            public string QuerySelect { get; set; }
-            public string QueryPredicate { get; set; }
+            [HCCustomProperty(UIHints = HCUIHint.CodeArea | HCUIHint.NotNull | HCUIHint.FullWidth, CodeLanguage = "sql")]
+            public string QuerySelectTotalCount { get; set; } = "SELECT COUNT(*)\n[PREDICATE]";
+            [HCCustomProperty(UIHints = HCUIHint.CodeArea | HCUIHint.NotNull | HCUIHint.FullWidth, CodeLanguage = "sql")]
+            public string QuerySelectData { get; set; } = "SELECT *\n[PREDICATE]\nORDER BY \nOFFSET @skipCount ROWS\nFETCH NEXT @takeCount ROWS ONLY";
+            [HCCustomProperty(UIHints = HCUIHint.CodeArea | HCUIHint.NotNull | HCUIHint.FullWidth, CodeLanguage = "sql",
+                Description = "Available parameters: @pageIndex, @pageSize, @skipCount, @takeCount")]
+            public string QueryPredicate { get; set; } = "FROM ";
         }
     }
     public interface ISqlExportStreamQueryExecutor
     {
         // TODO: allow switching connection strings here. Method to fetch connectionstring options w/ names only
+        // TODO: allow custom parameters defined in frontend => use for parameterized query presets
+        // FROM OXX_FStudio_feature_variants
+
         Task<SqlExportStreamQueryExecutorResultModel> ExecuteQueryAsync(SqlExportStreamQueryExecutorQueryModel model);
     }
     public class SqlExportStreamQueryExecutorQueryModel
     {
-        public string QuerySelect { get; set; }
+        public string QuerySelectTotalCount { get; set; }
+        public string QuerySelectData { get; set; }
         public string QueryPredicate { get; set; }
         public int PageIndex { get; set; }
         public int PageSize { get; set; }

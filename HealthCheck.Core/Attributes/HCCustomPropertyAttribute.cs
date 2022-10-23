@@ -34,6 +34,12 @@ namespace HealthCheck.Core.Attributes
         public string NullName { get; set; }
 
         /// <summary>
+        /// If <see cref="UIHints"/> include <see cref="HCUIHint.CodeArea"/>, this can be set to 'csharp', 'json', 'xml' or 'sql' to give the editor a hint of what content is displayed.
+        /// <para>Defaults to 'json'</para>
+        /// </summary>
+        public string CodeLanguage { get; set; } = "json";
+
+        /// <summary>
         /// Can be used on text inputs to require the input to match the given regex pattern.
         /// <para>Use JavaScript format. If not starting with a '/' one will be prepended and '/g' will be appended.</para>
         /// <para>Example: O\-\d+ or /[abc]+/gi</para>
@@ -98,6 +104,7 @@ namespace HealthCheck.Core.Attributes
                 Nullable = isNullable,
                 NullName = attr?.NullName,
                 TextPattern = HCBackendInputConfig.EnsureJsRegexIsWrappedIfNotEmpty(attr?.TextPattern),
+                CodeLanguage = attr?.CodeLanguage,
                 DefaultValue = defaultValue,
                 Flags = new(),
                 UIHints = EnumUtils.GetFlaggedEnumValues<HCUIHint>(attr?.UIHints) ?? new(),

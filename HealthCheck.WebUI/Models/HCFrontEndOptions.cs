@@ -135,13 +135,22 @@ namespace HealthCheck.WebUI.Models
             /// </summary>
             public string JsonWorkerUrl { get; set; }
 
+            /// <summary>
+            /// Url to the sql worker script.
+            /// <para>Can be prefixed with "blob:" to proxy it through a generated blob url.</para>
+            /// <para>[base] can be used as a replacement for <c>EndpointBase</c></para>
+            /// </summary>
+            public string SqlWorkerUrl { get; set; }
+
             internal void SetDefaults(string endpointBase)
             {
                 EditorWorkerUrl ??= HCAssetGlobalConfig.DefaultEditorWorkerUrl ?? "";
                 JsonWorkerUrl ??= HCAssetGlobalConfig.DefaultJsonWorkerUrl ?? "";
+                SqlWorkerUrl ??= HCAssetGlobalConfig.DefaultSqlWorkerUrl ?? "";
 
                 EditorWorkerUrl = EditorWorkerUrl.Replace("[base]", endpointBase.TrimEnd('/'));
                 JsonWorkerUrl = JsonWorkerUrl.Replace("[base]", endpointBase.TrimEnd('/'));
+                SqlWorkerUrl = SqlWorkerUrl.Replace("[base]", endpointBase.TrimEnd('/'));
             }
         }
 

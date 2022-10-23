@@ -115,6 +115,7 @@ namespace HealthCheck.Module.DataExport
                     GroupName = stream.StreamGroupName,
                     ItemDefinition = Create(itemDef),
                     ShowQueryInput = showQueryInput,
+                    AllowAnyPropertyName = stream.AllowAnyPropertyName,
                     CustomParameterDefinitions = HCCustomPropertyAttribute.CreateInputConfigs(stream.CustomParametersType),
                     ValueFormatters = valueFormatters.Select(x => Create(x)).ToList()
                 };
