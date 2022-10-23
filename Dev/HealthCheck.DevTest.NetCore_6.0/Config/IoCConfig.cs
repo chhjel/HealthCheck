@@ -45,8 +45,8 @@ using HealthCheck.Dev.Common.GoTo;
 using HealthCheck.Dev.Common.Settings;
 using HealthCheck.Dev.Common.Tests.Modules;
 using HealthCheck.Module.DataExport.Abstractions;
-using HealthCheck.Module.DataExport.Abstractions.Streams;
 using HealthCheck.Module.DataExport.Services;
+using HealthCheck.Module.DataExport.SQLExecutor;
 using HealthCheck.Module.DataExport.Storage;
 using HealthCheck.Module.DynamicCodeExecution.Abstractions;
 using HealthCheck.Module.DynamicCodeExecution.Storage;
@@ -100,7 +100,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Config
             services.AddSingleton<IHCDataExportStream, TestDataExportStreamEnumerableWithQueryAndCustomParameters>();
             services.AddSingleton<IHCDataExportStream, TestDataExportStreamEnumerableWithoutInput>();
             services.AddSingleton<IHCDataExportStream, TestDataExportStreamHeavy>();
-            services.AddSingleton<ISqlExportStreamQueryExecutor, TestSqlExportStreamQueryExecutor>();
+            services.AddSingleton<IHCSqlExportStreamQueryExecutor, HCDataExportExportSqlQueryExecutor>();
             services.AddSingleton<IHCDataExportStream, TestDataExportStreamSQL>();
             services.AddSingleton<IHCDataExportService, HCDataExportService>();
             services.AddSingleton<IHCDataExportPresetStorage>(x => new HCFlatFileDataExportPresetStorage(@"C:\temp\DataExportPreset.json"));

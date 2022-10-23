@@ -232,14 +232,17 @@ namespace HealthCheck.Module.DataExport.Services
             }
 
             // Additionals
-            foreach(var additional in additionals)
+            if (additionals != null)
             {
-                var value = additional.Value;
-                if (value != null)
+                foreach (var additional in additionals)
                 {
-                    value = formatValue(additional.Key, value.GetType(), value);
+                    var value = additional.Value;
+                    if (value != null)
+                    {
+                        value = formatValue(additional.Key, value.GetType(), value);
+                    }
+                    dict[additional.Key] = value;
                 }
-                dict[additional.Key] = value;
             }
 
             object formatValue(string propName, Type propType, object value)
