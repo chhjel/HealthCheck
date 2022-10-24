@@ -1,10 +1,10 @@
-﻿using HealthCheck.Module.DataExport.Abstractions;
+﻿using HealthCheck.Core.Util;
+using HealthCheck.Module.DataExport.Abstractions;
 using HealthCheck.Module.DataExport.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,16 +13,33 @@ namespace HealthCheck.Module.DataExport.SQLExecutor
     /// <summary></summary>
     public class HCDataExportExportSqlQueryExecutor : IHCSqlExportStreamQueryExecutor
     {
+        /// <summary>
+        /// Throws an exception if the incoming queries seems to contain something that would result in a change of data.
+        /// <para>If set to false, updates/inserts/drops etc won't be attempted stopped.</para>
+        /// <para>For use when a readonly connectionstring is not available.</para>
+        /// <para>Defaults to true.</para>
+        /// </summary>
+        public bool TryPreventChanges { get; set; } = true;
+
         /// <summary></summary>
         public async Task<HCSqlExportStreamQueryExecutorResultModel> ExecuteQueryAsync(HCSqlExportStreamQueryExecutorQueryModel model)
         {
             string connectionString = model.ConnectionString;
             var totalCountQuery = model.QuerySelectTotalCount.Replace("[PREDICATE]", model.QueryPredicate);
+            var dataQuery = model.QuerySelectData.Replace("[PREDICATE]", model.QueryPredicate);
+
+            if (TryPreventChanges)
+            {
+                var totalCountQueryValidation = HCSQLUtils.TryCheckQueryForThingsThatCauseChanges(totalCountQuery);
+                if (!totalCountQueryValidation.Valid) throw new SqlValidationException(totalCountQueryValidation.InvalidReason);
+                var dataQueryValidation = HCSQLUtils.TryCheckQueryForThingsThatCauseChanges(dataQuery);
+                if (!dataQueryValidation.Valid) throw new SqlValidationException(dataQueryValidation.InvalidReason);
+            }
+
             var totalCountResult = await GetTotalResultCountAsync(connectionString, totalCountQuery, model, setCommandParameters);
             var totalCount = totalCountResult.Item1;
             var totalCountRowsAffected = totalCountResult.Item2;
 
-            var dataQuery = model.QuerySelectData.Replace("[PREDICATE]", model.QueryPredicate);
             using var connection = new SqlConnection(connectionString);
             var command = new SqlCommand(dataQuery, connection);
             setCommandParameters(model, command);
@@ -93,6 +110,22 @@ namespace HealthCheck.Module.DataExport.SQLExecutor
             var rowsAffected = reader.RecordsAffected;
 
             return (totalCount, rowsAffected);
+        }
+
+        /// <summary></summary>
+        [Serializable]
+        public class SqlValidationException : Exception
+        {
+            /// <summary></summary>
+            public SqlValidationException() { }
+            /// <summary></summary>
+            public SqlValidationException(string message) : base(message) { }
+            /// <summary></summary>
+            public SqlValidationException(string message, Exception inner) : base(message, inner) { }
+            /// <summary></summary>
+            protected SqlValidationException(
+              System.Runtime.Serialization.SerializationInfo info,
+              System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
         }
     }
 }
