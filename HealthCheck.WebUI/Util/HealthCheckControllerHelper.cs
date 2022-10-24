@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text;
 
 #if NETFULL
 using System.IO;
@@ -266,7 +267,7 @@ namespace HealthCheck.WebUI.Util
             }
         }
 
-        internal async Task<InvokeModuleMethodResult> InvokeModuleMethod(RequestInformation<TAccessRole> requestInfo, string moduleId, string methodName, string jsonPayload)
+        internal async Task<InvokeModuleMethodResult> InvokeModuleMethod(RequestInformation<TAccessRole> requestInfo, string moduleId, string methodName, string jsonPayload, bool isB64 = false)
         {
             var accessRoles = requestInfo.AccessRole;
 
@@ -280,6 +281,11 @@ namespace HealthCheck.WebUI.Util
             if (method == null || !RequestHasAccessToModuleMethod(accessRoles, module, method))
             {
                 return new InvokeModuleMethodResult();
+            }
+
+            if (isB64 && !string.IsNullOrWhiteSpace(jsonPayload))
+            {
+                jsonPayload = Encoding.UTF8.GetString(Convert.FromBase64String(jsonPayload));
             }
 
             var sensitiveDataStripper = (RegisteredModules.FirstOrDefault(x => x?.Module is HCAuditLogModule am)?.Module as HCAuditLogModule)?.SensitiveDataStripper;

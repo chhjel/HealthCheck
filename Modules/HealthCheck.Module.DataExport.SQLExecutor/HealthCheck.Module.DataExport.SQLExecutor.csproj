@@ -7,7 +7,7 @@
     <Version>1.0.1</Version>
     <Authors>ChristianH</Authors>
     <Company>ChristianH</Company>
-    <Description>Allows for exporting filtered data.</Description>
+    <Description>Abstractions to quickly create exports from sql queries.</Description>
     <Copyright>ChristianH</Copyright>
     <LangVersion>latest</LangVersion>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\HealthCheck.Module.DataExport.SQLExecutor.xml</DocumentationFile>
@@ -22,7 +22,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Data.SqlClient" Version="4.7.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.4.0" />
   </ItemGroup>
 
   <ItemGroup>

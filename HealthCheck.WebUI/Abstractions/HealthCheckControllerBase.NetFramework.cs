@@ -178,11 +178,11 @@ namespace HealthCheck.WebUI.Abstractions
         /// </summary>
         [HideFromRequestLog]
         [HttpPost]
-        public async Task<ActionResult> InvokeModuleMethod(string moduleId, string methodName, string jsonPayload)
+        public async Task<ActionResult> InvokeModuleMethod(string moduleId, string methodName, string jsonPayload, bool isB64)
         {
             if (!Enabled) return CreateNoAccessResult();
 
-            var result = await Helper.InvokeModuleMethod(CurrentRequestInformation, moduleId, methodName, jsonPayload);
+            var result = await Helper.InvokeModuleMethod(CurrentRequestInformation, moduleId, methodName, jsonPayload, isB64);
             if (!result.HasAccess)
             {
                 return CreateNoAccessResult();

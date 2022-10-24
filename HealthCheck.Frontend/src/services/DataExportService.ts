@@ -29,7 +29,7 @@ export default class DataExportService extends HCServiceBase
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<HCDataExportQueryResponseViewModel | null> | null = null
     ): void {
-        this.invokeModuleMethod(this.moduleId, "QueryStreamPaged", payload, statusObject, callbacks);
+        this.invokeModuleMethod(this.moduleId, "QueryStreamPaged", payload, statusObject, callbacks, true, true);
     }
     
     public PrepareExport(
@@ -37,7 +37,7 @@ export default class DataExportService extends HCServiceBase
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<string | null> | null = null
     ): void {
-        this.invokeModuleMethod(this.moduleId, "PrepareExport", payload, statusObject, callbacks);
+        this.invokeModuleMethod(this.moduleId, "PrepareExport", payload, statusObject, callbacks, true, true);
     }
     
     public GetStreamQueryPresets(
@@ -53,7 +53,7 @@ export default class DataExportService extends HCServiceBase
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<HCDataExportStreamQueryPresetViewModel | null> | null = null
     ): void {
-        this.invokeModuleMethod(this.moduleId, "SaveStreamQueryPreset", payload, statusObject, callbacks);
+        this.invokeModuleMethod(this.moduleId, "SaveStreamQueryPreset", payload, statusObject, callbacks, true, true);
     }
     
     public DeleteStreamQueryPreset(

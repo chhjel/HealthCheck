@@ -188,7 +188,7 @@ namespace HealthCheck.WebUI.Abstractions
         {
             if (!Enabled) return NotFound();
 
-            var result = await Helper.InvokeModuleMethod(CurrentRequestInformation, model.moduleId, model.methodName, model.jsonPayload);
+            var result = await Helper.InvokeModuleMethod(CurrentRequestInformation, model.moduleId, model.methodName, model.jsonPayload, model.isB64);
             if (!result.HasAccess)
             {
                 return NotFound();
@@ -518,6 +518,9 @@ namespace HealthCheck.WebUI.Abstractions
 
             /// <summary>Data to passto invoked method.</summary>
             public string jsonPayload { get; set; }
+
+            /// <summary>True if <see cref="jsonPayload"/> is in b64 format.</summary>
+            public bool isB64 { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
         }
 #endregion
