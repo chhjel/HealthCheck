@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -17,7 +18,9 @@ namespace HealthCheck.Module.DataExport.SQLExecutor
         {
             string connectionString = model.ConnectionString;
             var totalCountQuery = model.QuerySelectTotalCount.Replace("[PREDICATE]", model.QueryPredicate);
-            var totalCount = ExecuteScalarInt(connectionString, totalCountQuery, model, setCommandParameters);
+            var totalCountResult = await GetTotalResultCountAsync(connectionString, totalCountQuery, model, setCommandParameters);
+            var totalCount = totalCountResult.Item1;
+            var totalCountRowsAffected = totalCountResult.Item2;
 
             var dataQuery = model.QuerySelectData.Replace("[PREDICATE]", model.QueryPredicate);
             using var connection = new SqlConnection(connectionString);
@@ -49,10 +52,13 @@ namespace HealthCheck.Module.DataExport.SQLExecutor
                     rows.Add(tableRow.ItemArray.ToList());
                 }
 
+                var rowsAffected = ((reader.RecordsAffected < 0) ? 0 : reader.RecordsAffected)
+                    + ((totalCountRowsAffected < 0) ? 0 : totalCountRowsAffected);
+
                 return new HCSqlExportStreamQueryExecutorResultModel()
                 {
                     TotalCount = totalCount,
-                    RecordsAffected = reader.RecordsAffected,
+                    RecordsAffected = rowsAffected,
                     Columns = columns,
                     Rows = rows
                 };
@@ -71,13 +77,22 @@ namespace HealthCheck.Module.DataExport.SQLExecutor
             }
         }
 
-        private int ExecuteScalarInt(string connectionString, string query, HCSqlExportStreamQueryExecutorQueryModel model, Action<HCSqlExportStreamQueryExecutorQueryModel, SqlCommand> parameterSetter)
+        private async Task<(int, int)> GetTotalResultCountAsync(string connectionString, string query, HCSqlExportStreamQueryExecutorQueryModel model, Action<HCSqlExportStreamQueryExecutorQueryModel, SqlCommand> parameterSetter)
         {
             using var connection = new SqlConnection(connectionString);
             var command = new SqlCommand(query, connection);
             parameterSetter(model, command);
             connection.Open();
-            return Convert.ToInt32(command.ExecuteScalar());
+
+            var reader = await command.ExecuteReaderAsync();
+            var totalCount = 0;
+            if (reader.Read())
+            {
+                totalCount = reader.GetInt32(0);
+            }
+            var rowsAffected = reader.RecordsAffected;
+
+            return (totalCount, rowsAffected);
         }
     }
 }
