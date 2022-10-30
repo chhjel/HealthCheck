@@ -30,7 +30,7 @@ namespace HealthCheck.Module.DataExport.Models
         /// Query predicate optionally used in the other selects.
         /// </summary>
         [HCCustomProperty(UIHints = HCUIHint.CodeArea | HCUIHint.NotNull | HCUIHint.FullWidth, CodeLanguage = "sql",
-            Description = "Predicate optionally used ")]
+            Description = "Value here is inserted in the other queries using the placeholders [PREDICATE] to prevent having to write the same predicate twice.")]
         public string QueryPredicate { get; set; } = "FROM ";
     }
 }
