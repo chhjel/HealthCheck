@@ -65,12 +65,8 @@ export default class DataExportService extends HCServiceBase
     }
 
     public CreateExportDownloadUrl(endpointBase: string, key: string): string {
-        let url = `${endpointBase}/DEExport/${key}`;
-        const token = UrlUtils.GetQueryStringParameter('x-token');
-        if (token != null)
-        {
-            url += `?x-token=${token}`;
-        }
+        let url = `${location.origin}${endpointBase}/DEExport/${key}`;
+        url = UrlUtils.ApplyCurrentQueryStringParametersTo(url);
         return url;
     }
 }

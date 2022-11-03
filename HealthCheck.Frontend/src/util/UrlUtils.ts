@@ -87,6 +87,20 @@ export default class UrlUtils
             return fallbackValue;
         }
     }
+
+    static ApplyCurrentQueryStringParametersTo(rawUrl: string): string
+    {
+        let url = new URL(rawUrl);
+        let currentParams = new URLSearchParams(location.search);
+        const allCurrent = Array.from(currentParams);
+        if (allCurrent.length == 0) return rawUrl;
+
+        allCurrent
+            .filter(x => x[0] != 'h')
+            .forEach(x => url.searchParams.set(x[0], x[1]));
+
+        return url.toString();
+    }
     
     static makeAbsolute(base: string, relative: string): string
     {
