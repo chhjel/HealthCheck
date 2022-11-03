@@ -20,6 +20,8 @@ using HealthCheck.Core.Modules.EventNotifications;
 using HealthCheck.Core.Modules.EventNotifications.Abstractions;
 using HealthCheck.Core.Modules.GoTo;
 using HealthCheck.Core.Modules.GoTo.Abstractions;
+using HealthCheck.Core.Modules.Jobs;
+using HealthCheck.Core.Modules.Jobs.Abstractions;
 using HealthCheck.Core.Modules.LogViewer;
 using HealthCheck.Core.Modules.MappedData;
 using HealthCheck.Core.Modules.MappedData.Abstractions;
@@ -110,7 +112,8 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             IHCContentPermutationContentDiscoveryService permutationContentDiscoveryService,
             IHCComparisonService comparisonService,
             IHCGoToService goToService,
-            IHCMappedDataService mappeddataService
+            IHCMappedDataService mappeddataService,
+            IHCJobsService jobsService
         )
             : base()
         {
@@ -142,6 +145,10 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
                     .ConfigureGroup(RuntimeTestConstants.Group.AlmostBottomGroup, uiOrder: -20)
                     .ConfigureGroup(RuntimeTestConstants.Group.BottomGroup, uiOrder: -50)
                 );
+            UseModule(new HCJobsModule(new HCJobsModuleOptions
+            {
+                Service = jobsService
+            }));
             UseModule(new HCMappedDataModule(new HCMappedDataModuleOptions
             {
                 Service = mappeddataService,
@@ -321,6 +328,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
 
             config.GiveRolesAccessToModule(RuntimeTestAccessRole.SystemAdmins, TestModuleB.TestModuleBAccessOption.NumberOne);
 
+            config.GiveRolesAccessToModuleWithFullAccess<HCJobsModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCMappedDataModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCReleaseNotesModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCDataRepeaterModule>(RuntimeTestAccessRole.WebAdmins);

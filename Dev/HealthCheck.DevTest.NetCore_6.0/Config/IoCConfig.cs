@@ -16,6 +16,8 @@ using HealthCheck.Core.Modules.EventNotifications.Notifiers;
 using HealthCheck.Core.Modules.EventNotifications.Services;
 using HealthCheck.Core.Modules.GoTo.Abstractions;
 using HealthCheck.Core.Modules.GoTo.Services;
+using HealthCheck.Core.Modules.Jobs.Abstractions;
+using HealthCheck.Core.Modules.Jobs.Services;
 using HealthCheck.Core.Modules.LogViewer.Services;
 using HealthCheck.Core.Modules.MappedData.Abstractions;
 using HealthCheck.Core.Modules.MappedData.Services;
@@ -42,6 +44,7 @@ using HealthCheck.Dev.Common.DataRepeater;
 using HealthCheck.Dev.Common.EndpointControl;
 using HealthCheck.Dev.Common.EventNotifier;
 using HealthCheck.Dev.Common.GoTo;
+using HealthCheck.Dev.Common.Jobs;
 using HealthCheck.Dev.Common.Settings;
 using HealthCheck.Dev.Common.Tests.Modules;
 using HealthCheck.Module.DataExport.Abstractions;
@@ -143,6 +146,12 @@ namespace HealthCheck.DevTest.NetCore_6._0.Config
             HCMappedDataService.DisableCache = true;
             HCMappedDataUtils.SetExampleFor(new LeftRoot());
             services.AddSingleton<IHCMappedDataService, HCMappedDataService>();
+
+            // Jobs
+            services.AddSingleton<IHCJobsSource, DummyJobsSource>();
+            services.AddSingleton<IHCJobsHistoryStorage, DummyJobsHistoryStorage>();
+            services.AddSingleton<IHCJobsHistoryDetailsStorage, DummyJobsHistoryDetailsStorage>();
+            services.AddSingleton<IHCJobsService, HCJobsService>();
 
             services.AddSingleton<IHCReleaseNotesProvider>(new HCJsonFileReleaseNotesProvider(GetFilePath(@"App_Data\ReleaseNotes.json", env))
             {
