@@ -50,13 +50,19 @@ namespace HealthCheck.Core.Modules.Jobs
         }
 
         #region Invokable methods
-        // /// <summary>
-        // /// </summary>
-        // [HealthCheckModuleMethod]
-        // public Task<object> GetSomething(/*HealthCheckModuleContext context*/)
-        // {
-        //     return Task.FromResult(data);
-        // }
+        ///// <summary></summary>
+        //[HealthCheckModuleMethod]
+        //public Task<object> GetSomething(/*HealthCheckModuleContext context*/)
+        //{
+        //    return Task.FromResult(data);
+        //}
+
+        /*
+        Task<List<HCJobDefinitionWithSource>> GetJobDefinitions();
+        Task<List<HCJobHistoryEntry>> GetPagedHistoryAsync(string jobId, int pageIndex, int pageSize);
+        Task<List<HCJobHistoryEntry>> GetLatestHistoryPerJobIdAsync();
+        Task<HCJobHistoryDetailEntry> GetHistoryDetailAsync(Guid id);
+         */
         #endregion
     }
 }

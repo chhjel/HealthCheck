@@ -17,6 +17,9 @@ namespace HealthCheck.Core.Modules.Jobs.Abstractions
         Task<List<HCJobHistoryEntry>> GetPagedHistoryAsync(string jobId, int pageIndex, int pageSize);
 
         /// <summary></summary>
+        Task<List<HCJobHistoryEntry>> GetLatestHistoryPerJobIdAsync();
+
+        /// <summary></summary>
         Task DeleteHistoryItemAsync(Guid id);
 
         /// <summary></summary>

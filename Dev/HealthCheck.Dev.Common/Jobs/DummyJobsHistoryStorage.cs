@@ -39,6 +39,15 @@ namespace HealthCheck.Dev.Common.Jobs
             return Task.FromResult(items);
         }
 
+        public Task<List<HCJobHistoryEntry>> GetLatestHistoryPerJobIdAsync()
+        {
+            var items = _items
+                .GroupBy(x => x.JobId)
+                .Select(x => x.OrderByDescending(h => h.Timestamp).First())
+                .ToList();
+            return Task.FromResult(items);
+        }
+
         public Task InsertHistoryAsync(HCJobHistoryEntry history)
         {
             _items.Add(history);
