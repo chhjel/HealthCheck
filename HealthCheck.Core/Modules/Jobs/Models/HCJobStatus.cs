@@ -8,6 +8,9 @@ namespace HealthCheck.Core.Modules.Jobs.Models
     public class HCJobStatus
     {
         /// <summary></summary>
+        public string SourceId { get; set; }
+
+        /// <summary></summary>
         public string JobId { get; set; }
 
         /// <summary></summary>

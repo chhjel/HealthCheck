@@ -1,3 +1,13 @@
+import { HCJobsStartJobRequestModel } from '@generated/Models/Core/HCJobsStartJobRequestModel';
+import { HCJobsStopJobRequestModel } from '@generated/Models/Core/HCJobsStopJobRequestModel';
+import { HCJobsGetJobStatusRequestModel } from '@generated/Models/Core/HCJobsGetJobStatusRequestModel';
+import { HCJobStatusViewModel } from '@generated/Models/Core/HCJobStatusViewModel';
+import { HCJobHistoryEntryViewModel } from '@generated/Models/Core/HCJobHistoryEntryViewModel';
+import { HCJobsGetPagedHistoryRequestModel } from '@generated/Models/Core/HCJobsGetPagedHistoryRequestModel';
+import { HCJobsGetHistoryDetailRequestModel } from '@generated/Models/Core/HCJobsGetHistoryDetailRequestModel';
+import { HCJobDefinitionWithSourceViewModel } from '@generated/Models/Core/HCJobDefinitionWithSourceViewModel';
+import { HCPagedJobHistoryEntryViewModel } from '@generated/Models/Core/HCPagedJobHistoryEntryViewModel';
+import { HCJobHistoryDetailEntryViewModel } from '@generated/Models/Core/HCJobHistoryDetailEntryViewModel';
 import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
 
 export default class JobsService extends HCServiceBase
@@ -10,22 +20,84 @@ export default class JobsService extends HCServiceBase
         this.moduleId = moduleId;
     }
     
-    // public GetSomething(
-    //     statusObject: FetchStatus | null = null,
-    //     callbacks: ServiceFetchCallbacks<ReturnType | null> | null = null
-    // ): void {
-    //     this.invokeModuleMethod(this.moduleId, "EndpointName", null, statusObject, callbacks);
-    // }
+    public GetJobDefinitions(
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<Array<HCJobDefinitionWithSourceViewModel> | null> | null = null
+    ): void {
+        this.invokeModuleMethod(this.moduleId, "GetJobDefinitions", null, statusObject, callbacks);
+    }
     
-    // public DoSomething(
-    //     handlerIds: string[], input: string,
-    //     statusObject: FetchStatus | null = null,
-    //     callbacks: ServiceFetchCallbacks<ReturnType> | null = null
-    // ): void {
-    //     const payload: SomeModel = {
-    //         HandlerIds: handlerIds,
-    //         Input: input
-    //     };
-    //     this.invokeModuleMethod(this.moduleId, "EndpointName", payload, statusObject, callbacks);
-    // }
+    public GetPagedHistory(
+        jobId: string, pageIndex: number, pageSize: number,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<HCPagedJobHistoryEntryViewModel | null> | null = null
+    ): void {
+        const payload: HCJobsGetPagedHistoryRequestModel = {
+            JobId: jobId,
+            PageIndex: pageIndex,
+            PageSize: pageSize
+        };
+        this.invokeModuleMethod(this.moduleId, "GetPagedHistory", payload, statusObject, callbacks);
+    }
+    
+    public GetLatestHistoryPerJobId(
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<Array<HCJobHistoryEntryViewModel> | null> | null = null
+    ): void {
+        this.invokeModuleMethod(this.moduleId, "GetLatestHistoryPerJobId", null, statusObject, callbacks);
+    }
+    
+    public GetHistoryDetail(
+        id: string,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<HCJobHistoryDetailEntryViewModel | null> | null = null
+    ): void {
+        const payload: HCJobsGetHistoryDetailRequestModel = {
+            Id: id
+        };
+        this.invokeModuleMethod(this.moduleId, "GetHistoryDetail", payload, statusObject, callbacks);
+    }
+    
+    public GetJobStatuses(
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<Array<HCJobStatusViewModel> | null> | null = null
+    ): void {
+        this.invokeModuleMethod(this.moduleId, "GetJobStatuses", null, statusObject, callbacks);
+    }
+    
+    public GetJobStatus(
+        sourceId: string, jobId: string,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<HCJobStatusViewModel | null> | null = null
+    ): void {
+        const payload: HCJobsGetJobStatusRequestModel = {
+            SourceId: sourceId,
+            JobId: jobId
+        };
+        this.invokeModuleMethod(this.moduleId, "GetJobStatus", payload, statusObject, callbacks);
+    }
+    
+    public StartJob(
+        sourceId: string, jobId: string,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<HCJobStatusViewModel | null> | null = null
+    ): void {
+        const payload: HCJobsStartJobRequestModel = {
+            SourceId: sourceId,
+            JobId: jobId
+        };
+        this.invokeModuleMethod(this.moduleId, "StartJob", payload, statusObject, callbacks);
+    }
+    
+    public StopJob(
+        sourceId: string, jobId: string,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<HCJobStatusViewModel | null> | null = null
+    ): void {
+        const payload: HCJobsStopJobRequestModel = {
+            SourceId: sourceId,
+            JobId: jobId
+        };
+        this.invokeModuleMethod(this.moduleId, "StopJob", payload, statusObject, callbacks);
+    }
 }

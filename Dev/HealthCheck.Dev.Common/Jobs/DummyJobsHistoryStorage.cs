@@ -29,14 +29,18 @@ namespace HealthCheck.Dev.Common.Jobs
             return Task.CompletedTask;
         }
 
-        public Task<List<HCJobHistoryEntry>> GetPagedHistoryAsync(string jobId, int pageIndex, int pageSize)
+        public Task<HCPagedJobHistoryEntry> GetPagedHistoryAsync(string jobId, int pageIndex, int pageSize)
         {
-            var items = _items
-                .Where(x => x.JobId == jobId)
+            var potential = _items.Where(x => x.JobId == jobId);
+            var items = potential
                 .Skip(pageIndex * pageSize)
                 .Take(pageSize)
                 .ToList();
-            return Task.FromResult(items);
+            return Task.FromResult(new HCPagedJobHistoryEntry
+            {
+                Items = items,
+                TotalCount = potential.Count()
+            });
         }
 
         public Task<List<HCJobHistoryEntry>> GetLatestHistoryPerJobIdAsync()

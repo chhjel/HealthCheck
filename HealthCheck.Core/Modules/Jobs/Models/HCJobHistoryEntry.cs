@@ -7,9 +7,11 @@ namespace HealthCheck.Core.Modules.Jobs.Models
     /// </summary>
     public class HCJobHistoryEntry
     {
-
         /// <summary></summary>
         public Guid Id { get; set; }
+
+        /// <summary></summary>
+        public string SourceId { get; set; }
 
         /// <summary></summary>
         public string JobId { get; set; }

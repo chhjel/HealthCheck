@@ -1,7 +1,15 @@
 <!-- src/components/modules/Jobs/JobsPageComponent.vue -->
 <template>
     <div class="jobs">
-        // ToDo
+        <code>
+            {{jobDefinitions}}
+        </code>
+        <code>
+            {{latestHistory}}
+        </code>
+        <code>
+            {{pagedHistory}}
+        </code>
     </div>
 </template>
 
@@ -16,6 +24,10 @@ import ModuleOptions from '@models/Common/ModuleOptions';
 import { StoreUtil } from "@util/StoreUtil";
 import JobsService from "@services/JobsService";
 import IdUtils from "@util/IdUtils";
+import { HCJobDefinitionWithSourceViewModel } from "@generated/Models/Core/HCJobDefinitionWithSourceViewModel";
+import { HCJobHistoryEntryViewModel } from "@generated/Models/Core/HCJobHistoryEntryViewModel";
+import { HCJobHistoryDetailEntryViewModel } from "@generated/Models/Core/HCJobHistoryDetailEntryViewModel";
+import { HCPagedJobHistoryEntryViewModel } from "@generated/Models/Core/HCPagedJobHistoryEntryViewModel";
 
 @Options({
     components: {
@@ -34,17 +46,50 @@ export default class JobsPageComponent extends Vue {
     dataLoadStatus: FetchStatus = new FetchStatus();
 
     id: string = IdUtils.generateId();
+    jobDefinitions: Array<HCJobDefinitionWithSourceViewModel> = [];
+    latestHistory: Array<HCJobHistoryEntryViewModel> = [];
+    historyDetails: HCJobHistoryDetailEntryViewModel | null = null;
+    pagedHistory: HCPagedJobHistoryEntryViewModel | null = null;
 
     //////////////////
     //  LIFECYCLE  //
     ////////////////
     async mounted()
     {
+        this.loadJobDefinitions();
+        this.loadLatestHistory();
     }
 
     ////////////////
     //  METHODS  //
     //////////////
+    loadJobDefinitions(): void {
+        this.service.GetJobDefinitions(this.dataLoadStatus, {
+            onSuccess: (data) => this.onJobDefinitionsRetrieved(data)
+        });
+    }
+
+    onJobDefinitionsRetrieved(data: Array<HCJobDefinitionWithSourceViewModel> | null): void {
+        this.jobDefinitions = data || [];
+    }
+
+    loadLatestHistory(): void {
+        this.service.GetLatestHistoryPerJobId(this.dataLoadStatus, {
+            onSuccess: (data) => this.latestHistory = data || []
+        });
+    }
+
+    loadHistoryDetails(id: string): void {
+        this.service.GetHistoryDetail(id, this.dataLoadStatus, {
+            onSuccess: (data) => this.historyDetails = data
+        });
+    }
+
+    loadPagedHistory(jobId: string, pageIndex: number, pageSize: number): void {
+        this.service.GetPagedHistory(jobId, pageIndex, pageSize, this.dataLoadStatus, {
+            onSuccess: (data) => this.pagedHistory = data
+        });
+    }
 
     ////////////////
     //  GETTERS  //

@@ -11,12 +11,20 @@ namespace HealthCheck.Core.Modules.Jobs.Abstractions
     public interface IHCJobsService
     {
         /// <summary></summary>
+        Task<HCPagedJobHistoryEntry> GetPagedHistoryAsync(string jobId, int pageIndex, int pageSize);
+        /// <summary></summary>
         Task<HCJobHistoryDetailEntry> GetHistoryDetailAsync(Guid id);
         /// <summary></summary>
         Task<List<HCJobDefinitionWithSource>> GetJobDefinitions();
         /// <summary></summary>
         Task<List<HCJobHistoryEntry>> GetLatestHistoryPerJobIdAsync();
         /// <summary></summary>
-        Task<List<HCJobHistoryEntry>> GetPagedHistoryAsync(string jobId, int pageIndex, int pageSize);
+        Task<List<HCJobStatus>> GetJobStatusesAsync();
+        /// <summary></summary>
+        Task<HCJobStatus> GetJobStatusAsync(string sourceId, string jobId);
+        /// <summary></summary>
+        Task StartJobAsync(string sourceId, string jobId, object parameters);
+        /// <summary></summary>
+        Task StopJobAsync(string sourceId, string jobId);
     }
 }
