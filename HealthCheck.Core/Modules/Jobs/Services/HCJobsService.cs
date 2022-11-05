@@ -70,25 +70,26 @@ namespace HealthCheck.Core.Modules.Jobs.Services
             foreach (var source in _jobSources)
             {
                 var items = (await source.GetJobStatusesAsync());
+                items.ForEach(x => x.SourceId = CreateSourceId(source));
                 statuses.AddRange(items);
             }
             return statuses;
         }
 
         /// <inheritdoc />
-        public async Task StopJobAsync(string sourceId, string jobId)
+        public async Task<HCJobStopResult> StopJobAsync(string sourceId, string jobId)
         {
             var source = _jobSources.FirstOrDefault(x => CreateSourceId(x) == sourceId);
-            if (source == null) return;
-            await source.StopJobAsync(jobId);
+            if (source == null) return new HCJobStopResult { Message = "Job not found." };
+            return await source.StopJobAsync(jobId);
         }
 
         /// <inheritdoc />
-        public async Task StartJobAsync(string sourceId, string jobId, object parameters)
+        public async Task<HCJobStartResult> StartJobAsync(string sourceId, string jobId, object parameters)
         {
             var source = _jobSources.FirstOrDefault(x => CreateSourceId(x) == sourceId);
-            if (source == null) return;
-            await source.StartJobAsync(jobId, parameters);
+            if (source == null) return new HCJobStartResult { Message = "Job not found." };
+            return await source.StartJobAsync(jobId, parameters);
         }
 
         private string CreateSourceId(IHCJobsSource source) => source.GetType().FullName;

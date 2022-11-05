@@ -1,11 +1,31 @@
 <!-- src/components/modules/Jobs/JobsPageComponent.vue -->
 <template>
     <div class="jobs">
-        <code>
+
+        <div>
+            <div v-for="job in jobDefinitions"
+                :key="`job-${job.SourceId}-${job.Definition.Id}`">
+                <h4>{{ job.Definition.Name }}</h4>
+                <i>{{ job.Definition.Description }}</i>
+                <btn-component v-if="job.Definition.SupportsStart"
+                    :disabled="isLoading"
+                    @click="startJob(job.SourceId, job.Definition.Id)"
+                    >Start</btn-component>
+                <btn-component v-if="job.Definition.SupportsStart"
+                    :disabled="isLoading"
+                    @click="stopJob(job.SourceId, job.Definition.Id)"
+                    >Stop</btn-component>
+            </div>
+        </div>
+
+        <!-- <code>
             {{jobDefinitions}}
-        </code>
+        </code> -->
         <code>
             {{latestHistory}}
+        </code>
+        <code>
+            {{jobStatuses}}
         </code>
         <code>
             {{pagedHistory}}
@@ -28,6 +48,7 @@ import { HCJobDefinitionWithSourceViewModel } from "@generated/Models/Core/HCJob
 import { HCJobHistoryEntryViewModel } from "@generated/Models/Core/HCJobHistoryEntryViewModel";
 import { HCJobHistoryDetailEntryViewModel } from "@generated/Models/Core/HCJobHistoryDetailEntryViewModel";
 import { HCPagedJobHistoryEntryViewModel } from "@generated/Models/Core/HCPagedJobHistoryEntryViewModel";
+import { HCJobStatusViewModel } from "@generated/Models/Core/HCJobStatusViewModel";
 
 @Options({
     components: {
@@ -49,6 +70,7 @@ export default class JobsPageComponent extends Vue {
     jobDefinitions: Array<HCJobDefinitionWithSourceViewModel> = [];
     latestHistory: Array<HCJobHistoryEntryViewModel> = [];
     historyDetails: HCJobHistoryDetailEntryViewModel | null = null;
+    jobStatuses: Array<HCJobStatusViewModel> = [];
     pagedHistory: HCPagedJobHistoryEntryViewModel | null = null;
 
     //////////////////
@@ -58,6 +80,7 @@ export default class JobsPageComponent extends Vue {
     {
         this.loadJobDefinitions();
         this.loadLatestHistory();
+        this.loadJobStatuses();
     }
 
     ////////////////
@@ -79,15 +102,39 @@ export default class JobsPageComponent extends Vue {
         });
     }
 
+    loadPagedHistory(jobId: string, pageIndex: number, pageSize: number): void {
+        this.service.GetPagedHistory(jobId, pageIndex, pageSize, this.dataLoadStatus, {
+            onSuccess: (data) => this.pagedHistory = data
+        });
+    }
+
     loadHistoryDetails(id: string): void {
         this.service.GetHistoryDetail(id, this.dataLoadStatus, {
             onSuccess: (data) => this.historyDetails = data
         });
     }
 
-    loadPagedHistory(jobId: string, pageIndex: number, pageSize: number): void {
-        this.service.GetPagedHistory(jobId, pageIndex, pageSize, this.dataLoadStatus, {
-            onSuccess: (data) => this.pagedHistory = data
+    loadJobStatuses(): void {
+        this.service.GetJobStatuses(this.dataLoadStatus, {
+            onSuccess: (data) => this.jobStatuses = data
+        });
+    }
+
+    loadJobStatus(sourceId: string, jobId: string): void {
+        this.service.GetJobStatus(sourceId, jobId, this.dataLoadStatus, {
+            onSuccess: (data) => console.log(data)
+        });
+    }
+
+    startJob(sourceId: string, jobId: string): void {
+        this.service.StartJob(sourceId, jobId, this.dataLoadStatus, {
+            onSuccess: (data) => console.log(data)
+        });
+    }
+
+    stopJob(sourceId: string, jobId: string): void {
+        this.service.StopJob(sourceId, jobId, this.dataLoadStatus, {
+            onSuccess: (data) => console.log(data)
         });
     }
 

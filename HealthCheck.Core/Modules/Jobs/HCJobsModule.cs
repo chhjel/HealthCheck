@@ -113,25 +113,27 @@ namespace HealthCheck.Core.Modules.Jobs
 
         /// <summary></summary>
         [HealthCheckModuleMethod]
-        public async Task StartJob(HealthCheckModuleContext context, HCJobsStartJobRequestModel model)
+        public async Task<HCJobStartResultViewModel> StartJob(HealthCheckModuleContext context, HCJobsStartJobRequestModel model)
         {
             var defs = await GetDefinitionsRequestCanAccessAsync(context);
             var allowedSourceIds = new HashSet<string>(defs.Select(x => x.SourceId));
-            if (!allowedSourceIds.Contains(model.SourceId)) return;
+            if (!allowedSourceIds.Contains(model.SourceId)) return new HCJobStartResultViewModel { Message = "Job not found." };
 
             var parameters = "todo";
-            await Options.Service.StartJobAsync(model.SourceId, model.JobId, parameters);
+            var result = await Options.Service.StartJobAsync(model.SourceId, model.JobId, parameters);
+            return Create(result);
         }
 
         /// <summary></summary>
         [HealthCheckModuleMethod]
-        public async Task StopJob(HealthCheckModuleContext context, HCJobsStopJobRequestModel model)
+        public async Task<HCJobStopResultViewModel> StopJob(HealthCheckModuleContext context, HCJobsStopJobRequestModel model)
         {
             var defs = await GetDefinitionsRequestCanAccessAsync(context);
             var allowedSourceIds = new HashSet<string>(defs.Select(x => x.SourceId));
-            if (!allowedSourceIds.Contains(model.SourceId)) return;
+            if (!allowedSourceIds.Contains(model.SourceId)) return new HCJobStopResultViewModel { Message = "Job not found." };
 
-            await Options.Service.StopJobAsync(model.SourceId, model.JobId);
+            var result = await Options.Service.StopJobAsync(model.SourceId, model.JobId);
+            return Create(result);
         }
 
         /// <summary></summary>
@@ -174,6 +176,24 @@ namespace HealthCheck.Core.Modules.Jobs
         #endregion
 
         #region Factories
+        private HCJobStartResultViewModel Create(HCJobStartResult result)
+        {
+            return new HCJobStartResultViewModel
+            {
+                Success = result.Success,
+                Message = result.Message
+            };
+        }
+
+        private HCJobStopResultViewModel Create(HCJobStopResult result)
+        {
+            return new HCJobStopResultViewModel
+            {
+                Success = result.Success,
+                Message = result.Message
+            };
+        }
+
         private HCJobStatusViewModel Create(HCJobStatus status)
         {
             return new HCJobStatusViewModel

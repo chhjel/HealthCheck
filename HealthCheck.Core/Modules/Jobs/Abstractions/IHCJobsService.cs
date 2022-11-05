@@ -23,8 +23,8 @@ namespace HealthCheck.Core.Modules.Jobs.Abstractions
         /// <summary></summary>
         Task<HCJobStatus> GetJobStatusAsync(string sourceId, string jobId);
         /// <summary></summary>
-        Task StartJobAsync(string sourceId, string jobId, object parameters);
+        Task<HCJobStartResult> StartJobAsync(string sourceId, string jobId, object parameters);
         /// <summary></summary>
-        Task StopJobAsync(string sourceId, string jobId);
+        Task<HCJobStopResult> StopJobAsync(string sourceId, string jobId);
     }
 }

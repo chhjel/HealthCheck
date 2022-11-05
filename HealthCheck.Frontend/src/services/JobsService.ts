@@ -8,6 +8,8 @@ import { HCJobsGetHistoryDetailRequestModel } from '@generated/Models/Core/HCJob
 import { HCJobDefinitionWithSourceViewModel } from '@generated/Models/Core/HCJobDefinitionWithSourceViewModel';
 import { HCPagedJobHistoryEntryViewModel } from '@generated/Models/Core/HCPagedJobHistoryEntryViewModel';
 import { HCJobHistoryDetailEntryViewModel } from '@generated/Models/Core/HCJobHistoryDetailEntryViewModel';
+import { HCJobStartResultViewModel } from '@generated/Models/Core/HCJobStartResultViewModel';
+import { HCJobStopResultViewModel } from '@generated/Models/Core/HCJobStopResultViewModel';
 import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
 
 export default class JobsService extends HCServiceBase
@@ -80,7 +82,7 @@ export default class JobsService extends HCServiceBase
     public StartJob(
         sourceId: string, jobId: string,
         statusObject: FetchStatus | null = null,
-        callbacks: ServiceFetchCallbacks<HCJobStatusViewModel | null> | null = null
+        callbacks: ServiceFetchCallbacks<HCJobStartResultViewModel | null> | null = null
     ): void {
         const payload: HCJobsStartJobRequestModel = {
             SourceId: sourceId,
@@ -92,7 +94,7 @@ export default class JobsService extends HCServiceBase
     public StopJob(
         sourceId: string, jobId: string,
         statusObject: FetchStatus | null = null,
-        callbacks: ServiceFetchCallbacks<HCJobStatusViewModel | null> | null = null
+        callbacks: ServiceFetchCallbacks<HCJobStopResultViewModel | null> | null = null
     ): void {
         const payload: HCJobsStopJobRequestModel = {
             SourceId: sourceId,

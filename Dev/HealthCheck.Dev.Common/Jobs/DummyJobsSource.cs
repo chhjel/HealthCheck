@@ -38,7 +38,7 @@ namespace HealthCheck.Dev.Common.Jobs
         public Task<List<HCJobStatus>> GetJobStatusesAsync()
             => Task.FromResult(_jobStatuses.Values.ToList());
 
-        public Task StartJobAsync(string jobId, object parameters)
+        public Task<HCJobStartResult> StartJobAsync(string jobId, object parameters)
         {
             if (!_jobStatuses.ContainsKey(jobId))
             {
@@ -50,15 +50,27 @@ namespace HealthCheck.Dev.Common.Jobs
                 };
             }
 
+            if (_jobStatuses[jobId].IsRunning)
+            {
+                return Task.FromResult(new HCJobStartResult { Message = "Job is already running." });
+            }
+
             var status = _jobStatuses[jobId];
             status.StartedAt = DateTimeOffset.Now;
             status.IsRunning = true;
             status.Status = "Job started";
+            Task.Run(async () =>
+            {
+                await Task.Delay(TimeSpan.FromSeconds(10));
+                status.EndedAt = DateTimeOffset.Now;
+                status.IsRunning = false;
+                status.Status = "Finished";
+            });
 
-            return Task.CompletedTask;
+            return Task.FromResult(new HCJobStartResult { Success = true, Message = "Job was started." });
         }
 
-        public Task StopJobAsync(string jobId)
+        public Task<HCJobStopResult> StopJobAsync(string jobId)
         {
             if (!_jobStatuses.ContainsKey(jobId))
             {
@@ -68,6 +80,11 @@ namespace HealthCheck.Dev.Common.Jobs
                     IsEnabled = true,
                     NextExecutionScheduledAt = DateTime.Now.AddMinutes(12)
                 };
+            }
+
+            if (!_jobStatuses[jobId].IsRunning)
+            {
+                return Task.FromResult(new HCJobStopResult { Message = "Job is not running." });
             }
 
             var status = _jobStatuses[jobId];
@@ -75,7 +92,7 @@ namespace HealthCheck.Dev.Common.Jobs
             status.IsRunning = false;
             status.Status = "Job stopped";
 
-            return Task.CompletedTask;
+            return Task.FromResult(new HCJobStopResult { Success = true, Message = "Job was stopped." });
         }
     }
 }
