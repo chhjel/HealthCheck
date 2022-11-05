@@ -10,7 +10,7 @@ namespace HealthCheck.Core.Modules.Jobs.Abstractions
     public interface IHCJobsHistoryDetailsStorage
     {
         /// <summary></summary>
-        Task InsertDetailAsync(HCJobHistoryDetailEntry detail);
+        Task<HCJobHistoryDetailEntry> InsertDetailAsync(HCJobHistoryDetailEntry detail);
 
         /// <summary></summary>
         Task<HCJobHistoryDetailEntry> GetDetailAsync(Guid id);

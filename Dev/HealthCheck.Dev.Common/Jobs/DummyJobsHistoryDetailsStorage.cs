@@ -26,10 +26,11 @@ namespace HealthCheck.Dev.Common.Jobs
         public Task<HCJobHistoryDetailEntry> GetDetailAsync(Guid id)
             => Task.FromResult(_items.FirstOrDefault(x => x.Id == id));
 
-        public Task InsertDetailAsync(HCJobHistoryDetailEntry detail)
+        public Task<HCJobHistoryDetailEntry> InsertDetailAsync(HCJobHistoryDetailEntry detail)
         {
+            detail.Id = Guid.NewGuid();
             _items.Add(detail);
-            return Task.CompletedTask;
+            return Task.FromResult(detail);
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using HealthCheck.Core.Modules.Jobs.Abstractions;
 using HealthCheck.Core.Modules.Jobs.Models;
+using HealthCheck.Core.Util;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -61,10 +63,25 @@ namespace HealthCheck.Dev.Common.Jobs
             status.Status = "Job started";
             Task.Run(async () =>
             {
-                await Task.Delay(TimeSpan.FromSeconds(10));
+                await Task.Delay(TimeSpan.FromSeconds(_jobStatuses.Values.ToList().IndexOf(status) + 1));
                 status.EndedAt = DateTimeOffset.Now;
                 status.IsRunning = false;
                 status.Status = "Finished";
+
+                // Tmp testing
+                var detail = await HCIoCUtils.GetInstance<IHCJobsHistoryDetailsStorage>().InsertDetailAsync(new HCJobHistoryDetailEntry
+                {
+                    SourceId = GetType().FullName,
+                    Data = JsonConvert.SerializeObject(status)
+                });
+                await HCIoCUtils.GetInstance<IHCJobsHistoryStorage>().InsertHistoryAsync(new HCJobHistoryEntry
+                {
+                    SourceId = GetType().FullName,
+                    JobId = jobId,
+                    DetailId = detail.Id,
+                    Summary = $"Status was: {status.Status}",
+                    Timestamp = DateTimeOffset.Now
+                });
             });
 
             return Task.FromResult(new HCJobStartResult { Success = true, Message = "Job was started." });

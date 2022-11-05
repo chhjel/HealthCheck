@@ -162,6 +162,19 @@ namespace HealthCheck.Core.Modules.Jobs
                 .ToList();
             return models;
         }
+
+        // ToDo:
+        // Util:
+        //  InsertJobHistory(data.., detail..)
+        //
+        // Endpoints that handle:
+        //  History:
+        //   Task DeleteHistoryItemAsync(Guid id);
+        //   Task DeleteAllHistoryForJobAsync(string jobId);
+        //   Task DeleteAllHistoryAsync();
+        //  Details:
+        //   Task DeleteDetailAsync(Guid id); (call from ^DeleteHistoryItemAsync if it has detail)
+        //   Task DeleteAllDetailsAsync(); ^
         #endregion
 
         #region Helpers

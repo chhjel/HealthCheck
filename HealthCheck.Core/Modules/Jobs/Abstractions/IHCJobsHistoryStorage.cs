@@ -11,7 +11,7 @@ namespace HealthCheck.Core.Modules.Jobs.Abstractions
     public interface IHCJobsHistoryStorage
     {
         /// <summary></summary>
-        Task InsertHistoryAsync(HCJobHistoryEntry history);
+        Task<HCJobHistoryEntry> InsertHistoryAsync(HCJobHistoryEntry history);
 
         /// <summary></summary>
         Task<HCPagedJobHistoryEntry> GetPagedHistoryAsync(string jobId, int pageIndex, int pageSize);

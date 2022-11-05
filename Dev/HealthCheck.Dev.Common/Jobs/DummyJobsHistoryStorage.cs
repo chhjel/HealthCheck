@@ -52,10 +52,11 @@ namespace HealthCheck.Dev.Common.Jobs
             return Task.FromResult(items);
         }
 
-        public Task InsertHistoryAsync(HCJobHistoryEntry history)
+        public Task<HCJobHistoryEntry> InsertHistoryAsync(HCJobHistoryEntry history)
         {
+            history.Id = Guid.NewGuid();
             _items.Add(history);
-            return Task.CompletedTask;
+            return Task.FromResult(history);
         }
     }
 }

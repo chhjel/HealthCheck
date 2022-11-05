@@ -19,13 +19,15 @@ namespace HealthCheck.Core.Modules.Jobs.Abstractions
         Task<List<HCJobDefinition>> GetJobDefinitionsAsync();
 
         /// <summary></summary>
-        Task<HCJobStatus> GetJobStatusAsync(string id); // todo: ping every n seconds from frontend?
+        Task<HCJobStatus> GetJobStatusAsync(string id);
 
         /// <summary></summary>
         Task<List<HCJobStatus>> GetJobStatusesAsync();
 
-        /// <summary></summary>
-        Task<HCJobStartResult> StartJobAsync(string jobId, object parameters); // 1. save parameters, 2. start job, 3. job loads parameters
+        /// <summary>
+        /// E.g: 1. save parameters, 2. start job, 3. job loads parameters
+        /// </summary>
+        Task<HCJobStartResult> StartJobAsync(string jobId, object parameters);
 
         /// <summary></summary>
         Task<HCJobStopResult> StopJobAsync(string jobId);
