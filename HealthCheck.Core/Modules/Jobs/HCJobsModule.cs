@@ -49,7 +49,19 @@ namespace HealthCheck.Core.Modules.Jobs
         public enum AccessOption
         {
             /// <summary>Does nothing.</summary>
-            None = 0
+            None = 0,
+            /// <summary>Allows starting jobs that support it.</summary>
+            StartJob = 1,
+            /// <summary>Allows stopping jobs that support it.</summary>
+            StopJob = 2,
+            /// <summary>Allows viewing the history of a job.</summary>
+            ViewJobHistory = 4,
+            /// <summary>Allows viewing the detailed results of a job.</summary>
+            ViewJobHistoryDetails = 8,
+            /// <summary>Allows deleting history of jobs the user has access to.</summary>
+            DeleteHistory = 16,
+            /// <summary>Allows deleting all job history, including of those the user does not have access to.</summary>
+            DeleteAllHistory = 32,
         }
 
         #region Invokable methods
@@ -69,7 +81,7 @@ namespace HealthCheck.Core.Modules.Jobs
             var defs = await GetDefinitionsRequestCanAccessAsync(context);
             var allowedSourceIds = new HashSet<string>(defs.Select(x => x.SourceId));
 
-            var result = await Options.Service.GetPagedHistoryAsync(model.JobId, model.PageIndex, model.PageSize);
+            var result = await Options.Service.GetPagedHistoryAsync(model.SourceId, model.JobId, model.PageIndex, model.PageSize);
             var models = result.Items
                 .Where(x => allowedSourceIds.Contains(x.SourceId))
                 .Select(x => Create(x))
@@ -86,6 +98,8 @@ namespace HealthCheck.Core.Modules.Jobs
         [HealthCheckModuleMethod]
         public async Task<List<HCJobHistoryEntryViewModel>> GetLatestHistoryPerJobId(HealthCheckModuleContext context)
         {
+            if (!context.HasAccess(AccessOption.ViewJobHistory)) return new List<HCJobHistoryEntryViewModel>();
+
             var defs = await GetDefinitionsRequestCanAccessAsync(context);
             var allowedSourceIds = new HashSet<string>(defs.Select(x => x.SourceId));
 
@@ -102,6 +116,8 @@ namespace HealthCheck.Core.Modules.Jobs
         [HealthCheckModuleMethod]
         public async Task<HCJobHistoryDetailEntryViewModel> GetHistoryDetail(HealthCheckModuleContext context, HCJobsGetHistoryDetailRequestModel model)
         {
+            if (!context.HasAccess(AccessOption.ViewJobHistoryDetails)) return null;
+
             var defs = await GetDefinitionsRequestCanAccessAsync(context);
             var allowedSourceIds = new HashSet<string>(defs.Select(x => x.SourceId));
 
@@ -115,12 +131,16 @@ namespace HealthCheck.Core.Modules.Jobs
         [HealthCheckModuleMethod]
         public async Task<HCJobStartResultViewModel> StartJob(HealthCheckModuleContext context, HCJobsStartJobRequestModel model)
         {
+            if (!context.HasAccess(AccessOption.StartJob)) return new HCJobStartResultViewModel { Message = "You do not have access to start this job." };
+
             var defs = await GetDefinitionsRequestCanAccessAsync(context);
             var allowedSourceIds = new HashSet<string>(defs.Select(x => x.SourceId));
             if (!allowedSourceIds.Contains(model.SourceId)) return new HCJobStartResultViewModel { Message = "Job not found." };
 
             var parameters = "todo";
             var result = await Options.Service.StartJobAsync(model.SourceId, model.JobId, parameters);
+            context.AddAuditEvent(action: "Job started", subject: $"\"{model.JobId}\"")
+                .AddDetail("Result", result.Message);
             return Create(result);
         }
 
@@ -128,11 +148,15 @@ namespace HealthCheck.Core.Modules.Jobs
         [HealthCheckModuleMethod]
         public async Task<HCJobStopResultViewModel> StopJob(HealthCheckModuleContext context, HCJobsStopJobRequestModel model)
         {
+            if (!context.HasAccess(AccessOption.StopJob)) return new HCJobStopResultViewModel { Message = "You do not have access to stop this job." };
+
             var defs = await GetDefinitionsRequestCanAccessAsync(context);
             var allowedSourceIds = new HashSet<string>(defs.Select(x => x.SourceId));
             if (!allowedSourceIds.Contains(model.SourceId)) return new HCJobStopResultViewModel { Message = "Job not found." };
 
             var result = await Options.Service.StopJobAsync(model.SourceId, model.JobId);
+            context.AddAuditEvent(action: "Job stopped", subject: $"\"{model.JobId}\"")
+                .AddDetail("Result", result.Message);
             return Create(result);
         }
 
@@ -163,18 +187,34 @@ namespace HealthCheck.Core.Modules.Jobs
             return models;
         }
 
+        /// <summary></summary>
+        [HealthCheckModuleMethod(AccessOption.DeleteAllHistory)]
+        public async Task<HCJobSimpleResult> DeleteAllHistory() => await Options.Service.DeleteAllHistoryAsync();
+
+        /// <summary></summary>
+        [HealthCheckModuleMethod(AccessOption.DeleteHistory)]
+        public async Task<HCJobSimpleResult> DeleteHistoryItem(HealthCheckModuleContext context, HCJobDeleteHistoryItemRequestModel model)
+        {
+            var defs = await GetDefinitionsRequestCanAccessAsync(context);
+            var allowedSourceIds = new HashSet<string>(defs.Select(x => x.SourceId));
+            return await Options.Service.DeleteHistoryItemAsync(model.Id, item => allowedSourceIds.Contains(item.SourceId));
+        }
+
+        /// <summary></summary>
+        [HealthCheckModuleMethod(AccessOption.DeleteHistory)]
+        public async Task<HCJobSimpleResult> DeleteAllHistoryForJob(HealthCheckModuleContext context, HCJobDeleteAllHistoryForJobRequestModel model)
+        {
+            var defs = await GetDefinitionsRequestCanAccessAsync(context);
+            var allowedSourceIds = new HashSet<string>(defs.Select(x => x.SourceId));
+            if (!allowedSourceIds.Contains(model.SourceId))
+                return HCJobSimpleResult.CreateError("You do not have access to delete this history.");
+
+            return await Options.Service.DeleteAllHistoryForJobAsync(model.SourceId, model.JobId);
+        }
+
         // ToDo:
         // Util:
         //  InsertJobHistory(data.., detail..)
-        //
-        // Endpoints that handle:
-        //  History:
-        //   Task DeleteHistoryItemAsync(Guid id);
-        //   Task DeleteAllHistoryForJobAsync(string jobId);
-        //   Task DeleteAllHistoryAsync();
-        //  Details:
-        //   Task DeleteDetailAsync(Guid id); (call from ^DeleteHistoryItemAsync if it has detail)
-        //   Task DeleteAllDetailsAsync(); ^
         #endregion
 
         #region Helpers

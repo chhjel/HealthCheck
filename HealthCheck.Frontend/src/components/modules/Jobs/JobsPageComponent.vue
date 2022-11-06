@@ -20,21 +20,14 @@
         </Teleport>
 
         <div class="content-root">
-            <div>
-                <code>{{selectedJob}}</code>
-                <hr />
-                <div v-if="pagedHistory">
-                    <div v-for="entry in pagedHistory.Items"
-                        :key="`historyEntry-${entry.SourceId}-${entry.Id}`">
-                        <code
-                            class="clickable"
-                            @click="loadHistoryDetails(entry.DetailId)"
-                            >{{entry}}</code>
-                    </div>
-                </div>
-                <hr />
-                <code>historyDetails:{{historyDetails}}</code>
-            </div>
+            <job-component
+                v-if="selectedJob"
+                :config="config"
+                :options="options"
+                :job="selectedJob"
+                :status="selectedJobStatus"
+                :key="`${selectedJob.SourceId}_${selectedJob.Definition.Id}`"
+                />
             
             <hr />
 
@@ -60,8 +53,6 @@
             </code> -->
             <code>latestHistoryPerJob:{{latestHistoryPerJob}}</code>
             <code>jobStatuses:{{jobStatuses}}</code>
-            <code>pagedHistory:{{pagedHistory}}</code>
-            
         </div>
     </div>
 </template>
@@ -86,10 +77,12 @@ import StringUtils from "@util/StringUtils";
 import { FilterableListItem } from "@components/Common/FilterableListComponent.vue.models";
 import HashUtils from "@util/HashUtils";
 import UrlUtils from "@util/UrlUtils";
+import JobComponent from "./JobComponent.vue";
 
 @Options({
     components: {
-        FilterableListComponent
+        FilterableListComponent,
+        JobComponent
     }
 })
 export default class JobsPageComponent extends Vue {
@@ -112,8 +105,6 @@ export default class JobsPageComponent extends Vue {
 
     latestHistoryPerJob: Array<HCJobHistoryEntryViewModel> = [];
     jobStatuses: Array<HCJobStatusViewModel> = [];
-    pagedHistory: HCPagedJobHistoryEntryViewModel | null = null;
-    historyDetails: HCJobHistoryDetailEntryViewModel | null = null;
 
     //////////////////
     //  LIFECYCLE  //
@@ -155,18 +146,6 @@ export default class JobsPageComponent extends Vue {
     loadLatestHistoryPerJob(): void {
         this.service.GetLatestHistoryPerJobId(this.dataLoadStatus, {
             onSuccess: (data) => this.latestHistoryPerJob = data || []
-        });
-    }
-
-    loadPagedHistory(jobId: string, pageIndex: number, pageSize: number): void {
-        this.service.GetPagedHistory(jobId, pageIndex, pageSize, this.dataLoadStatus, {
-            onSuccess: (data) => this.pagedHistory = data
-        });
-    }
-
-    loadHistoryDetails(id: string): void {
-        this.service.GetHistoryDetail(id, this.dataLoadStatus, {
-            onSuccess: (data) => this.historyDetails = data
         });
     }
 
@@ -237,10 +216,6 @@ export default class JobsPageComponent extends Vue {
             return;
         }
 
-        this.pagedHistory = null;
-        this.historyDetails = null;
-        this.loadPagedHistory(this.selectedJob.Definition.Id, 0, 50);
-
         if (updateUrl && StringUtils.stringOrFirstOfArray(this.$route.params.streamId) != StringUtils.stringOrFirstOfArray(this.hash(job.Definition.Id)))
         {
             this.$router.push(`/jobs/${this.hash(job.Definition.Id)}`);
@@ -273,6 +248,11 @@ export default class JobsPageComponent extends Vue {
             (<any>d)['Href'] = "/td";
             return d;
         });
+    }
+
+    get selectedJobStatus(): HCJobStatusViewModel | null {
+        if (this.selectedJob == null) return null;
+        return this.jobStatuses.find(x => x.SourceId == this.selectedJob.SourceId && x.JobId == this.selectedJob.Definition.Id);
     }
     
     ///////////////////////

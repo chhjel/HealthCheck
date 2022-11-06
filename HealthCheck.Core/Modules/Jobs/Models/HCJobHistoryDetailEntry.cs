@@ -14,6 +14,9 @@ namespace HealthCheck.Core.Modules.Jobs.Models
         public string SourceId { get; set; }
 
         /// <summary></summary>
+        public string JobId { get; set; }
+
+        /// <summary></summary>
         public string Data { get; set; }
     }
 }

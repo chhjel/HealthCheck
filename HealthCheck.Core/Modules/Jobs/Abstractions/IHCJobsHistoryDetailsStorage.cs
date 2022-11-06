@@ -20,5 +20,8 @@ namespace HealthCheck.Core.Modules.Jobs.Abstractions
 
         /// <summary></summary>
         Task DeleteAllDetailsAsync();
+
+        /// <summary></summary>
+        Task DeleteAllDetailsForJobAsync(string sourceId, string jobId);
     }
 }

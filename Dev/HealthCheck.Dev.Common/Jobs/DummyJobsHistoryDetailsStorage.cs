@@ -13,24 +13,47 @@ namespace HealthCheck.Dev.Common.Jobs
 
         public Task DeleteAllDetailsAsync()
         {
-            _items.Clear();
-            return Task.CompletedTask;
+            lock (_items)
+            {
+                _items.Clear();
+                return Task.CompletedTask;
+            }
         }
 
         public Task DeleteDetailAsync(Guid id)
         {
-            _items.RemoveAll(x => x.Id == id);
-            return Task.CompletedTask;
+            lock (_items)
+            {
+                _items.RemoveAll(x => x.Id == id);
+                return Task.CompletedTask;
+            }
+        }
+
+        public Task DeleteAllDetailsForJobAsync(string sourceId, string jobId)
+        {
+            lock (_items)
+            {
+                _items.RemoveAll(x => x.SourceId == sourceId && x.JobId == jobId);
+                return Task.CompletedTask;
+            }
         }
 
         public Task<HCJobHistoryDetailEntry> GetDetailAsync(Guid id)
-            => Task.FromResult(_items.FirstOrDefault(x => x.Id == id));
+        {
+            lock (_items)
+            {
+                return Task.FromResult(_items.FirstOrDefault(x => x.Id == id));
+            }
+        }
 
         public Task<HCJobHistoryDetailEntry> InsertDetailAsync(HCJobHistoryDetailEntry detail)
         {
-            detail.Id = Guid.NewGuid();
-            _items.Add(detail);
-            return Task.FromResult(detail);
+            lock (_items)
+            {
+                detail.Id = Guid.NewGuid();
+                _items.Add(detail);
+                return Task.FromResult(detail);
+            }
         }
     }
 }

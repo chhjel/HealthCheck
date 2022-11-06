@@ -48,8 +48,8 @@ namespace HealthCheck.Core.Modules.Jobs.Services
             => await _historyStorage.GetLatestHistoryPerJobIdAsync();
 
         /// <inheritdoc />
-        public async Task<HCPagedJobHistoryEntry> GetPagedHistoryAsync(string jobId, int pageIndex, int pageSize)
-            => await _historyStorage.GetPagedHistoryAsync(jobId, pageIndex, pageSize);
+        public async Task<HCPagedJobHistoryEntry> GetPagedHistoryAsync(string sourceId, string jobId, int pageIndex, int pageSize)
+            => await _historyStorage.GetPagedHistoryAsync(sourceId, jobId, pageIndex, pageSize);
 
         /// <inheritdoc />
         public async Task<HCJobHistoryDetailEntry> GetHistoryDetailAsync(Guid id)
@@ -90,6 +90,43 @@ namespace HealthCheck.Core.Modules.Jobs.Services
             var source = _jobSources.FirstOrDefault(x => CreateSourceId(x) == sourceId);
             if (source == null) return new HCJobStartResult { Message = "Job not found." };
             return await source.StartJobAsync(jobId, parameters);
+        }
+
+        /// <inheritdoc />
+        public async Task<HCJobSimpleResult> DeleteHistoryItemAsync(Guid id, Func<HCJobHistoryEntry, bool> condition)
+        {
+            var item = await _historyStorage.GetHistory(id);
+            if (item != null)
+            {
+                return HCJobSimpleResult.CreateSuccess("History is already deleted or never existed.");
+            }
+            if (condition?.Invoke(item) != true)
+            {
+                return HCJobSimpleResult.CreateError("You do not have access to delete this item.");
+            }
+
+            await _historyStorage.DeleteHistoryItemAsync(id);
+            if (item.DetailId != null)
+            {
+                await _historyDetailsStorage.DeleteDetailAsync(item.DetailId.Value);
+            }
+            return HCJobSimpleResult.CreateSuccess("History item deleted.");
+        }
+
+        /// <inheritdoc />
+        public async Task<HCJobSimpleResult> DeleteAllHistoryForJobAsync(string sourceId, string jobId)
+        {
+            await _historyStorage.DeleteAllHistoryForJobAsync(sourceId, jobId);
+            await _historyDetailsStorage.DeleteAllDetailsForJobAsync(sourceId, jobId);
+            return HCJobSimpleResult.CreateSuccess("All history for job deleted.");
+        }
+
+        /// <inheritdoc />
+        public async Task<HCJobSimpleResult> DeleteAllHistoryAsync()
+        {
+            await _historyStorage.DeleteAllHistoryAsync();
+            await _historyDetailsStorage.DeleteAllDetailsAsync();
+            return HCJobSimpleResult.CreateSuccess("All history deleted.");
         }
 
         private string CreateSourceId(IHCJobsSource source) => source.GetType().FullName;

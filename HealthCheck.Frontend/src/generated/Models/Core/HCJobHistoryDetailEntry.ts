@@ -6,5 +6,6 @@ export interface HCJobHistoryDetailEntry
 {
 	Id: string;
 	SourceId: string;
+	JobId: string;
 	Data: string;
 }

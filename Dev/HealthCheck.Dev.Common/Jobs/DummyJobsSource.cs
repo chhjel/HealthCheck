@@ -1,6 +1,6 @@
-﻿using HealthCheck.Core.Modules.Jobs.Abstractions;
+﻿using HealthCheck.Core.Modules.Jobs;
+using HealthCheck.Core.Modules.Jobs.Abstractions;
 using HealthCheck.Core.Modules.Jobs.Models;
-using HealthCheck.Core.Util;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -68,20 +68,8 @@ namespace HealthCheck.Dev.Common.Jobs
                 status.IsRunning = false;
                 status.Status = "Finished";
 
-                // Tmp testing
-                var detail = await HCIoCUtils.GetInstance<IHCJobsHistoryDetailsStorage>().InsertDetailAsync(new HCJobHistoryDetailEntry
-                {
-                    SourceId = GetType().FullName,
-                    Data = JsonConvert.SerializeObject(status)
-                });
-                await HCIoCUtils.GetInstance<IHCJobsHistoryStorage>().InsertHistoryAsync(new HCJobHistoryEntry
-                {
-                    SourceId = GetType().FullName,
-                    JobId = jobId,
-                    DetailId = detail.Id,
-                    Summary = $"Status was: {status.Status}",
-                    Timestamp = DateTimeOffset.Now
-                });
+                var multiplier = (jobId == "8") ? 500 : 1;
+                for (int i=0;i< multiplier;i++) HCJobsUtils.StoreHistory<DummyJobsSource>(jobId, $"Status was: {status.Status}", JsonConvert.SerializeObject(status));
             });
 
             return Task.FromResult(new HCJobStartResult { Success = true, Message = "Job was started." });
@@ -108,6 +96,9 @@ namespace HealthCheck.Dev.Common.Jobs
             status.EndedAt = DateTimeOffset.Now;
             status.IsRunning = false;
             status.Status = "Job stopped";
+
+            var multiplier = (jobId == "8") ? 500 : 1;
+            for (int i = 0; i < multiplier; i++) HCJobsUtils.StoreHistory<DummyJobsSource>(jobId, $"Status was: {status.Status}", JsonConvert.SerializeObject(status));
 
             return Task.FromResult(new HCJobStopResult { Success = true, Message = "Job was stopped." });
         }

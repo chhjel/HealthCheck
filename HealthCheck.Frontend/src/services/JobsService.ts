@@ -1,3 +1,5 @@
+import { HCJobSimpleResult } from './../generated/Models/Core/HCJobSimpleResult';
+import { HCJobDeleteAllHistoryForJobRequestModel } from './../generated/Models/Core/HCJobDeleteAllHistoryForJobRequestModel';
 import { HCJobsStartJobRequestModel } from '@generated/Models/Core/HCJobsStartJobRequestModel';
 import { HCJobsStopJobRequestModel } from '@generated/Models/Core/HCJobsStopJobRequestModel';
 import { HCJobsGetJobStatusRequestModel } from '@generated/Models/Core/HCJobsGetJobStatusRequestModel';
@@ -11,6 +13,7 @@ import { HCJobHistoryDetailEntryViewModel } from '@generated/Models/Core/HCJobHi
 import { HCJobStartResultViewModel } from '@generated/Models/Core/HCJobStartResultViewModel';
 import { HCJobStopResultViewModel } from '@generated/Models/Core/HCJobStopResultViewModel';
 import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
+import { HCJobDeleteHistoryItemRequestModel } from '@generated/Models/Core/HCJobDeleteHistoryItemRequestModel';
 
 export default class JobsService extends HCServiceBase
 {
@@ -30,11 +33,12 @@ export default class JobsService extends HCServiceBase
     }
     
     public GetPagedHistory(
-        jobId: string, pageIndex: number, pageSize: number,
+        sourceId: string, jobId: string, pageIndex: number, pageSize: number,
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<HCPagedJobHistoryEntryViewModel | null> | null = null
     ): void {
         const payload: HCJobsGetPagedHistoryRequestModel = {
+            SourceId: sourceId,
             JobId: jobId,
             PageIndex: pageIndex,
             PageSize: pageSize
@@ -101,5 +105,35 @@ export default class JobsService extends HCServiceBase
             JobId: jobId
         };
         this.invokeModuleMethod(this.moduleId, "StopJob", payload, statusObject, callbacks);
+    }
+
+    public DeleteAllHistory(
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<HCJobSimpleResult | null> | null = null
+    ): void {
+        this.invokeModuleMethod(this.moduleId, "DeleteAllHistory", null, statusObject, callbacks);
+    }
+    
+    public DeleteAllHistoryForJob(
+        sourceId: string, jobId: string,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<HCJobSimpleResult | null> | null = null
+    ): void {
+        const payload: HCJobDeleteAllHistoryForJobRequestModel = {
+            SourceId: sourceId,
+            JobId: jobId
+        };
+        this.invokeModuleMethod(this.moduleId, "DeleteAllHistoryForJob", payload, statusObject, callbacks);
+    }
+    
+    public DeleteHistoryItem(
+        id: string,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<HCJobSimpleResult | null> | null = null
+    ): void {
+        const payload: HCJobDeleteHistoryItemRequestModel = {
+            Id: id
+        };
+        this.invokeModuleMethod(this.moduleId, "DeleteHistoryItem", payload, statusObject, callbacks);
     }
 }

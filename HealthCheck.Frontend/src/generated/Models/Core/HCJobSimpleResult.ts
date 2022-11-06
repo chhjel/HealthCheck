@@ -2,10 +2,8 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-export interface HCJobsGetPagedHistoryRequestModel
+export interface HCJobSimpleResult
 {
-	SourceId: string;
-	JobId: string;
-	PageIndex: number;
-	PageSize: number;
+	Success: boolean;
+	Message: string;
 }
