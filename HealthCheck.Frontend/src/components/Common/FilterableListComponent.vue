@@ -3,8 +3,8 @@
     <div class="filterable-list">
         <div class="menu-items">
             <filter-input-component class="filter contrast" v-model:value="filterText" v-if="showFilter" />
-            <div v-if="!showFilter" class="mb-5"></div>
-            <div v-if="!showFilter" style="margin-top: 76px"></div>
+            <div v-if="!showFilter && !noTopMargin" class="mb-5"></div>
+            <div v-if="!showFilter && !noTopMargin" style="margin-top: 76px"></div>
 
             <progress-linear-component 
                 v-if="loading"
@@ -115,6 +115,9 @@ export default class FilterableListComponent extends Vue {
 
     @Prop({ required: false, default: false })
     disabled!: boolean;
+
+    @Prop({ required: false, default: false })
+    noTopMargin!: boolean;
 
     @Prop({ required: false, default: true })
     groupIfSingleGroup!: boolean;

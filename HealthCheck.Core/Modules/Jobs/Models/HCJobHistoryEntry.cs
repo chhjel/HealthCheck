@@ -23,6 +23,9 @@ namespace HealthCheck.Core.Modules.Jobs.Models
         public Guid? DetailId { get; set; }
 
         /// <summary></summary>
+        public HCJobHistoryStatus Status { get; set; }
+
+        /// <summary></summary>
         public string Summary { get; set; }
     }
 }

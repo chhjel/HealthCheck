@@ -2,11 +2,8 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-export interface HCJobHistoryDetailEntry
-{
-	Id: string;
-	SourceId: string;
-	JobId: string;
-	Data: string;
-	DataIsHtml: boolean;
+export enum HCJobHistoryStatus { 
+	Success = "Success", 
+	Warning = "Warning", 
+	Error = "Error"
 }

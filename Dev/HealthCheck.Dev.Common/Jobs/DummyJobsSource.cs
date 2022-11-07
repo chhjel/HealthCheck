@@ -60,16 +60,22 @@ namespace HealthCheck.Dev.Common.Jobs
             var status = _jobStatuses[jobId];
             status.StartedAt = DateTimeOffset.Now;
             status.IsRunning = true;
-            status.Status = "Job started";
+            status.Summary = "Job started";
             Task.Run(async () =>
             {
                 await Task.Delay(TimeSpan.FromSeconds(_jobStatuses.Values.ToList().IndexOf(status) + 1));
                 status.EndedAt = DateTimeOffset.Now;
                 status.IsRunning = false;
-                status.Status = "Finished";
+                status.Summary = "Finished";
 
                 var multiplier = (jobId == "8") ? 500 : 1;
-                for (int i=0;i< multiplier;i++) HCJobsUtils.StoreHistory<DummyJobsSource>(jobId, $"Status was: {status.Status}", JsonConvert.SerializeObject(status));
+                for (int i = 0; i < multiplier; i++) {
+                    var stat = HCJobHistoryStatus.Success;
+                    if (i > 0) stat = (HCJobHistoryStatus)(i % 3);
+                    var data = JsonConvert.SerializeObject(status);
+                    var isHtml = false;
+                    HCJobsUtils.StoreHistory<DummyJobsSource>(jobId, stat, $"Summary: {status.Summary}", data, isHtml);
+                }
             });
 
             return Task.FromResult(new HCJobStartResult { Success = true, Message = "Job was started." });
@@ -95,10 +101,17 @@ namespace HealthCheck.Dev.Common.Jobs
             var status = _jobStatuses[jobId];
             status.EndedAt = DateTimeOffset.Now;
             status.IsRunning = false;
-            status.Status = "Job stopped";
+            status.Summary = "Job stopped";
 
             var multiplier = (jobId == "8") ? 500 : 1;
-            for (int i = 0; i < multiplier; i++) HCJobsUtils.StoreHistory<DummyJobsSource>(jobId, $"Status was: {status.Status}", JsonConvert.SerializeObject(status));
+            for (int i = 0; i < multiplier; i++)
+            {
+                var stat = HCJobHistoryStatus.Success;
+                if (i > 0) stat = (HCJobHistoryStatus)(i % 3);
+                var data = JsonConvert.SerializeObject(status);
+                var isHtml = false;
+                HCJobsUtils.StoreHistory<DummyJobsSource>(jobId, stat, $"Summary: {status.Summary}", data, isHtml);
+            }
 
             return Task.FromResult(new HCJobStopResult { Success = true, Message = "Job was stopped." });
         }

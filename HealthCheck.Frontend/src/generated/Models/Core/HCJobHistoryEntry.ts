@@ -2,6 +2,8 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
+import { HCJobHistoryStatus } from '../../Enums/Core/HCJobHistoryStatus';
+
 export interface HCJobHistoryEntry
 {
 	Id: string;
@@ -9,5 +11,6 @@ export interface HCJobHistoryEntry
 	JobId: string;
 	Timestamp: Date;
 	DetailId: string;
+	Status: HCJobHistoryStatus;
 	Summary: string;
 }

@@ -54,6 +54,9 @@ export default class DialogComponent extends Vue {
     @Prop({ required: false, default: false })
     persistent!: string | boolean;
 
+    @Prop({ required: false, default: true })
+    smartPersistent!: string | boolean;
+
     @Prop({ required: false, default: 800 })
     maxWidth!: number;
 
@@ -170,6 +173,7 @@ export default class DialogComponent extends Vue {
     get isFullscreen(): boolean { return ValueUtils.IsToggleTrue(this.fullscreen); }
     get isHideOverlay(): boolean { return ValueUtils.IsToggleTrue(this.hideOverlay); }
     get isPersistent(): boolean { return ValueUtils.IsToggleTrue(this.persistent); }
+    get isSmartPersistent(): boolean { return ValueUtils.IsToggleTrue(this.smartPersistent); }
     get isFullWidth(): boolean { return ValueUtils.IsToggleTrue(this.fullWidth); }
     get isDark(): boolean { return ValueUtils.IsToggleTrue(this.dark); }
     get isScrollableX(): boolean { return ValueUtils.IsToggleTrue(this.scrollableX); }
@@ -202,7 +206,7 @@ export default class DialogComponent extends Vue {
     /////////////////////
     onEscapeClicked(): void {
         if (this.isPersistent
-            || document.activeElement?.classList?.contains('monaco-mouse-cursor-text') == true) {
+            || (this.isSmartPersistent && document.activeElement?.classList?.contains('monaco-mouse-cursor-text') == true)) {
             this.shake();
             return;
         }

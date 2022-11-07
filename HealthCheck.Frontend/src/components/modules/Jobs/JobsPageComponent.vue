@@ -3,6 +3,17 @@
     <div class="jobs">
         <!-- NAVIGATION DRAWER -->
         <Teleport to="#module-nav-menu">
+            <div>
+                <side-menu-list-component
+                    :items="topMenuItems"
+                    :disabled="isLoading"
+                    ref="sideMenuList"
+                    class="mt-5"
+                    v-on:itemClicked="onSideMenuItemClicked"
+                    @itemMiddleClicked="onSideMenuItemMiddleClicked"
+                    />
+            </div>
+
             <filterable-list-component
                 :items="menuItems"
                 :groupByKey="x => x.Definition.GroupName"
@@ -13,6 +24,7 @@
                 :disabled="isLoading"
                 :showFilter="false"
                 :groupIfSingleGroup="false"
+                :noTopMargin="true"
                 ref="filterableList"
                 v-on:itemClicked="onMenuItemClicked"
                 @itemMiddleClicked="onMenuItemMiddleClicked"
@@ -20,6 +32,14 @@
         </Teleport>
 
         <div class="content-root">
+            <jobs-overview-component
+                v-if="!selectedJob"
+                :config="config"
+                :options="options"
+                :jobDefinitions="jobDefinitions"
+                :jobStatuses="jobStatuses"
+                />
+
             <job-component
                 v-if="selectedJob"
                 :config="config"
@@ -27,32 +47,8 @@
                 :job="selectedJob"
                 :status="selectedJobStatus"
                 :key="`${selectedJob.SourceId}_${selectedJob.Definition.Id}`"
+                @updateJobRunningStatus="updateJobRunningStatus"
                 />
-            
-            <hr />
-
-            <div>
-                <div v-for="job in jobDefinitions"
-                    :key="`job-${job.SourceId}-${job.Definition.Id}`">
-                    <h4>{{ job.Definition.Name }}</h4>
-                    <i>{{ job.Definition.Description }}</i>
-                    <btn-component v-if="job.Definition.SupportsStart"
-                        :disabled="isLoading || isJobRunning(job.SourceId, job.Definition.Id)"
-                        @click="startJob(job.SourceId, job.Definition.Id)"
-                        >Start</btn-component>
-                    <btn-component v-if="job.Definition.SupportsStop"
-                        :disabled="isLoading || !isJobRunning(job.SourceId, job.Definition.Id)"
-                        @click="stopJob(job.SourceId, job.Definition.Id)"
-                        >Stop</btn-component>
-                    <span v-if="isJobRunning(job.SourceId, job.Definition.Id)">Running..</span>
-                </div>
-            </div>
-
-            <!-- <code>
-                {{jobDefinitions}}
-            </code> -->
-            <code>latestHistoryPerJob:{{latestHistoryPerJob}}</code>
-            <code>jobStatuses:{{jobStatuses}}</code>
         </div>
     </div>
 </template>
@@ -69,20 +65,22 @@ import { StoreUtil } from "@util/StoreUtil";
 import JobsService from "@services/JobsService";
 import IdUtils from "@util/IdUtils";
 import { HCJobDefinitionWithSourceViewModel } from "@generated/Models/Core/HCJobDefinitionWithSourceViewModel";
-import { HCJobHistoryEntryViewModel } from "@generated/Models/Core/HCJobHistoryEntryViewModel";
-import { HCJobHistoryDetailEntryViewModel } from "@generated/Models/Core/HCJobHistoryDetailEntryViewModel";
-import { HCPagedJobHistoryEntryViewModel } from "@generated/Models/Core/HCPagedJobHistoryEntryViewModel";
 import { HCJobStatusViewModel } from "@generated/Models/Core/HCJobStatusViewModel";
 import StringUtils from "@util/StringUtils";
 import { FilterableListItem } from "@components/Common/FilterableListComponent.vue.models";
 import HashUtils from "@util/HashUtils";
 import UrlUtils from "@util/UrlUtils";
 import JobComponent from "./JobComponent.vue";
+import JobsOverviewComponent from "./JobsOverviewComponent.vue";
+import { SideMenuListItem } from "@components/Common/SideMenuListComponent.vue.models";
+import SideMenuListComponent from "@components/Common/SideMenuListComponent.vue";
 
 @Options({
     components: {
         FilterableListComponent,
-        JobComponent
+        JobComponent,
+        JobsOverviewComponent,
+        SideMenuListComponent
     }
 })
 export default class JobsPageComponent extends Vue {
@@ -93,6 +91,7 @@ export default class JobsPageComponent extends Vue {
     options!: ModuleOptions<any>;
     
     @Ref() readonly filterableList!: FilterableListComponent;
+    @Ref() readonly sideMenuList!: SideMenuListComponent;
 
     // Service
     service: JobsService = new JobsService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
@@ -102,9 +101,15 @@ export default class JobsPageComponent extends Vue {
     jobDefinitions: Array<HCJobDefinitionWithSourceViewModel> = [];
     selectedJob: HCJobDefinitionWithSourceViewModel | null = null;
     statusUpdateTimout: NodeJS.Timeout;
-
-    latestHistoryPerJob: Array<HCJobHistoryEntryViewModel> = [];
     jobStatuses: Array<HCJobStatusViewModel> = [];
+    topMenuItems: Array<SideMenuListItem> = [
+        {
+            label: 'Overview',
+            id: 'overview',
+            icon: 'view_list',
+            data: () => this.selectedJob = null
+        }
+    ];
 
     //////////////////
     //  LIFECYCLE  //
@@ -112,7 +117,6 @@ export default class JobsPageComponent extends Vue {
     async mounted()
     {
         this.loadJobDefinitions();
-        this.loadLatestHistoryPerJob();
         this.loadJobStatuses();
     
         // if (this.statusUpdateTimout) clearInterval(this.statusUpdateTimout);
@@ -134,23 +138,24 @@ export default class JobsPageComponent extends Vue {
         const idFromHash = StringUtils.stringOrFirstOfArray(this.$route.params.jobId) || null;
         if (this.jobDefinitions)
         {
+            const matchingMenuItem = this.topMenuItems.filter(x => this.hash(x.id) == idFromHash)[0];
+            if (matchingMenuItem) {
+                this.setActiveJob(matchingMenuItem.id, false);
+                return;
+            }
+
             const matchingJob = this.jobDefinitions.filter(x => this.hash(x.Definition.Id) == idFromHash)[0];
             if (matchingJob) {
                 this.setActiveJob(matchingJob, false);
-            } else if (this.jobDefinitions.length > 0) {
-                this.setActiveJob(this.jobDefinitions[0]);   
+                return;
             }
+
+            this.setActiveJob(this.topMenuItems[0].id);
         }
     }
 
-    loadLatestHistoryPerJob(): void {
-        this.service.GetLatestHistoryPerJobId(this.dataLoadStatus, {
-            onSuccess: (data) => this.latestHistoryPerJob = data || []
-        });
-    }
-
     loadJobStatuses(): void {
-        this.service.GetJobStatuses(this.dataLoadStatus, {
+        this.service.GetJobStatuses(null, {
             onSuccess: (data) => this.jobStatuses = data
         });
     }
@@ -159,22 +164,6 @@ export default class JobsPageComponent extends Vue {
         this.service.GetJobStatus(sourceId, jobId, this.dataLoadStatus, {
             onSuccess: (data) => console.log(data)
         });
-    }
-
-    startJob(sourceId: string, jobId: string): void {
-        this.service.StartJob(sourceId, jobId, this.dataLoadStatus, {
-            onSuccess: (data) => this.updateJobRunningStatus(sourceId, jobId, data.Success, true, data.Message)
-        });
-    }
-
-    stopJob(sourceId: string, jobId: string): void {
-        this.service.StopJob(sourceId, jobId, this.dataLoadStatus, {
-            onSuccess: (data) => this.updateJobRunningStatus(sourceId, jobId, data.Success, false, data.Message)
-        });
-    }
-
-    isJobRunning(sourceId: string, jobId: string): boolean | null {
-        return this.jobStatuses.find(x => x.SourceId == sourceId && x.JobId == jobId)?.IsRunning;
     }
     
     updateJobRunningStatus(sourceId: string, jobId: string, success: boolean, running: boolean, message: string): void {
@@ -185,40 +174,53 @@ export default class JobsPageComponent extends Vue {
 
         var status = this.jobStatuses.find(x => x.SourceId == sourceId && x.JobId == jobId);
         if (!status) {
-            status = status;
-            this.jobStatuses.push({
+            status = {
                 SourceId: sourceId,
                 JobId: jobId,
-                Status: '',
+                Summary: '',
                 IsRunning: running,
                 IsEnabled: false,
                 StartedAt: new Date(),
                 EndedAt: null,
                 LastRunWasSuccessful: null,
                 NextExecutionScheduledAt: null
-            });
+            };
+            this.jobStatuses.push(status);
         }
 
         status.StartedAt = new Date();
-        status.Status = message;
+        status.Summary = message;
         status.IsRunning = running;
     }
 
-    setActiveJob(job: HCJobDefinitionWithSourceViewModel | null, updateUrl: boolean = true): void {
+    setActiveJob(job: HCJobDefinitionWithSourceViewModel | string | null, updateUrl: boolean = true): void {
         if (this.isLoading) {
             return;
         }
 
-        this.selectedJob = job;
-        (this.filterableList as FilterableListComponent).setSelectedItem(job);
-        if (job == null)
+        let idForUrl: string = '';
+        if (typeof job === 'string') {
+            idForUrl = job;
+            this.sideMenuList.setSelectedItemById(job);
+            (this.filterableList as FilterableListComponent).setSelectedItem(null);
+            const menuItem = this.topMenuItems.find(x => x.id == job);
+            menuItem?.data();
+        }
+        else
         {
-            return;
+            this.selectedJob = job;
+            (this.filterableList as FilterableListComponent).setSelectedItem(job);
+            this.sideMenuList.setSelectedItemById(null);
+            if (job == null)
+            {
+                return;
+            }
+            idForUrl = job.Definition.Id;
         }
 
-        if (updateUrl && StringUtils.stringOrFirstOfArray(this.$route.params.streamId) != StringUtils.stringOrFirstOfArray(this.hash(job.Definition.Id)))
+        if (updateUrl && StringUtils.stringOrFirstOfArray(this.$route.params.streamId) != StringUtils.stringOrFirstOfArray(this.hash(idForUrl)))
         {
-            this.$router.push(`/jobs/${this.hash(job.Definition.Id)}`);
+            this.$router.push(`/jobs/${this.hash(idForUrl)}`);
         }
     }
     
@@ -263,9 +265,22 @@ export default class JobsPageComponent extends Vue {
     }
 
     onMenuItemMiddleClicked(item: FilterableListItem): void {
-        if (item && item.data && item.data.Id)
+        if (item && item.data && item.data.Definition && item.data.Definition.Id)
         {
-            const idHash = this.hash(item.data.Id);
+            const idHash = this.hash(item.data.Definition.Id);
+            const route = `#/jobs/${idHash}`;
+            UrlUtils.openRouteInNewTab(route);
+        }
+    }
+
+    onSideMenuItemClicked(item: SideMenuListItem): void {
+        this.setActiveJob(item.id, true);
+    }
+
+    onSideMenuItemMiddleClicked(item: SideMenuListItem): void {
+        if (item && item.id)
+        {
+            const idHash = this.hash(item.id);
             const route = `#/jobs/${idHash}`;
             UrlUtils.openRouteInNewTab(route);
         }

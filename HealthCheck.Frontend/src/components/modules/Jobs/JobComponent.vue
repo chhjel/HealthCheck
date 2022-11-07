@@ -1,10 +1,33 @@
-<!-- src/components/modules/Jobs/JobsPageComponent.vue -->
+<!-- src/components/modules/Jobs/JobComponent.vue -->
 <template>
     <div class="job-component">
-        <hr />
-        <code>job:{{job}}</code>
-        <code>status:{{status}}</code>
-        <hr />
+        <h1>{{ job.Definition.Name }}</h1>
+        <p v-if="job.Definition.Description">{{ job.Definition.Description }}</p>
+        <div v-if="status">
+            <code>IsEnabled:{{status.IsEnabled}}</code><br />
+            <code>IsRunning:{{status.IsRunning}}</code><br />
+            <code>Summary:{{status.Summary}}</code><br />
+            <code>NextExecutionScheduledAt:{{status.NextExecutionScheduledAt}}</code><br />
+            <code>StartedAt:{{status.StartedAt}}</code><br />
+            <code>EndedAt:{{status.EndedAt}}</code><br />
+            <code>LastRunWasSuccessful:{{status.LastRunWasSuccessful}}</code>
+        </div>
+
+        <btn-component v-if="job.Definition.SupportsStart"
+            :disabled="isLoading || isJobRunning"
+            @click="startJob"
+            color="primary"
+            >Start</btn-component>
+        <btn-component v-if="job.Definition.SupportsStop"
+            :disabled="isLoading || !isJobRunning"
+            @click="stopJob"
+            color="primary"
+            >Stop</btn-component>
+        <btn-component
+            :disabled="isLoading"
+            @click="refresh"
+            color="secondary"
+            >Refresh</btn-component>
 
         <div v-if="pagedHistory">
             <paging-component
@@ -21,7 +44,7 @@
                 :key="`historyEntry-${entry.SourceId}-${entry.Id}`">
                 <code
                     class="clickable"
-                    @click="loadHistoryDetails(entry.DetailId)"
+                    @click="loadHistoryDetailsFor(entry)"
                     >{{entry}}</code>
             </div>
         
@@ -35,8 +58,34 @@
                 class="mb-2 mt-2"
                 />
         </div>
-        <code>historyDetails:{{historyDetails}}</code>
-        <hr />
+
+        <dialog-component v-model:value="loadDetailsDialogVisible"
+            fullscreen
+            :dark="historyDetails?.DataIsHtml !== true"
+            :persistent="detailLoadProgress.inProgress"
+            :smartPersistent="false">
+            <template #header>{{detailsDialogTitle}}</template>
+            <template #footer>
+                <btn-component color="secondary"
+                    :disabled="detailLoadProgress.inProgress"
+                    :loading="detailLoadProgress.inProgress"
+                    @click="loadDetailsDialogVisible = false">Close</btn-component>
+            </template>
+            <div v-if="historyDetails" style="height: 100%">
+                <progress-linear-component 
+                    v-if="detailLoadProgress.inProgress"
+                    indeterminate color="success"></progress-linear-component>
+                <div v-if="historyDetails.DataIsHtml" v-html="historyDetails.Data"></div>
+                <div v-if="!historyDetails.DataIsHtml" style="height: 100%">
+                    <editor-component
+                        class="editor"
+                        :language="'json'"
+                        v-model:value="historyDetails.Data"
+                        :read-only="true"
+                        ref="editor" />
+                </div>
+            </div>
+        </dialog-component>
     </div>
 </template>
 
@@ -55,10 +104,14 @@ import { HCJobHistoryDetailEntryViewModel } from "@generated/Models/Core/HCJobHi
 import { HCPagedJobHistoryEntryViewModel } from "@generated/Models/Core/HCPagedJobHistoryEntryViewModel";
 import { HCJobStatusViewModel } from "@generated/Models/Core/HCJobStatusViewModel";
 import PagingComponent from "@components/Common/Basic/PagingComponent.vue";
+import EditorComponent from "@components/Common/EditorComponent.vue";
+import DateUtils from "@util/DateUtils";
+import { HCJobHistoryEntryViewModel } from "@generated/Models/Core/HCJobHistoryEntryViewModel";
 
 @Options({
     components: {
-        PagingComponent
+        PagingComponent,
+        EditorComponent
     }
 })
 export default class JobComponent extends Vue {
@@ -74,13 +127,17 @@ export default class JobComponent extends Vue {
     @Prop({ required: true })
     status: HCJobStatusViewModel | null;
     
+    @Ref() readonly editor!: EditorComponent;
+
     // Service
     service: JobsService = new JobsService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
     dataLoadStatus: FetchStatus = new FetchStatus();
+    detailLoadProgress: FetchStatus = new FetchStatus();
 
     id: string = IdUtils.generateId();
     pagedHistory: HCPagedJobHistoryEntryViewModel | null = null;
     historyDetails: HCJobHistoryDetailEntryViewModel | null = null;
+    historyDetailsParent: HCJobHistoryEntryViewModel | null = null;
 
     // Pagination
     totalHistoryCount: number = 0;
@@ -88,17 +145,30 @@ export default class JobComponent extends Vue {
     pageIndex: number = 0;
     pageSize: number = this.pageSizeDefault;
 
+    // Dialogs
+    loadDetailsDialogVisible: boolean = false;
+
     //////////////////
     //  LIFECYCLE  //
     ////////////////
     async mounted()
     {
         this.loadPagedHistory(true);
+        
+        this.refreshEditorSize();
+        this.$nextTick(() => this.refreshEditorSize());
+        setTimeout(() => {
+            this.refreshEditorSize();
+        }, 100);
     }
 
     ////////////////
     //  METHODS  //
     //////////////
+    refresh(): void {
+        this.loadPagedHistory(false);
+    }
+
     loadPagedHistory(resetPageIndex: boolean): void {
         if (resetPageIndex) {
             this.pageIndex = 0;
@@ -111,10 +181,45 @@ export default class JobComponent extends Vue {
         });
     }
 
+    loadHistoryDetailsFor(history: HCJobHistoryEntryViewModel): void {
+        this.historyDetailsParent = history;
+        this.loadHistoryDetails(history.DetailId);
+    }
+
     loadHistoryDetails(id: string): void {
-        this.service.GetHistoryDetail(id, this.dataLoadStatus, {
-            onSuccess: (data) => this.historyDetails = data
+        this.service.GetHistoryDetail(id, this.detailLoadProgress, {
+            onSuccess: (data) => {
+                this.historyDetails = data;
+                this.loadDetailsDialogVisible = true;
+            }
         });
+    }
+
+    startJob(): void {
+        const sourceId = this.job.SourceId;
+        const jobId = this.job.Definition.Id;
+        this.service.StartJob(sourceId, jobId, this.dataLoadStatus, {
+            onSuccess: (data) => this.updateJobRunningStatus(sourceId, jobId, data.Success, true, data.Message)
+        });
+    }
+
+    stopJob(): void {
+        const sourceId = this.job.SourceId;
+        const jobId = this.job.Definition.Id;
+        this.service.StopJob(sourceId, jobId, this.dataLoadStatus, {
+            onSuccess: (data) => this.updateJobRunningStatus(sourceId, jobId, data.Success, false, data.Message)
+        });
+    }
+
+    updateJobRunningStatus(sourceId: string, jobId: string, success: boolean, running: boolean, message: string): void {
+        this.$emit("updateJobRunningStatus", sourceId, jobId, success, running, message);
+    }
+
+    refreshEditorSize(): void {
+        if (this.editor)
+        {
+            this.editor.refreshSize();
+        }
     }
 
     ////////////////
@@ -126,6 +231,17 @@ export default class JobComponent extends Vue {
 
     get isLoading(): boolean {
         return this.dataLoadStatus.inProgress;
+    }
+
+    get isJobRunning(): boolean | null {
+        return this.status?.IsRunning == true;
+    }
+
+    get detailsDialogTitle(): string {
+        if (!this.historyDetails || !this.historyDetailsParent) return '';
+        const timestamp = new Date(this.historyDetailsParent.Timestamp);
+        const time = DateUtils.FormatDate(timestamp, 'd. MMM HH:mm:ss');
+        return `${time}`;
     }
     
     ///////////////////////
@@ -140,5 +256,9 @@ export default class JobComponent extends Vue {
 <style scoped lang="scss">
 .job-component {
 
+}
+.editor {
+  width: 100%;
+  height: 100%;
 }
 </style>

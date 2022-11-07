@@ -14,7 +14,7 @@ namespace HealthCheck.Core.Modules.Jobs.Models
         public string JobId { get; set; }
 
         /// <summary></summary>
-        public string Status { get; set; }
+        public string Summary { get; set; }
 
         /// <summary></summary>
         public bool IsRunning { get; set; }

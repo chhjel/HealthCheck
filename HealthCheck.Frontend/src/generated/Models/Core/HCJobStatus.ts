@@ -6,7 +6,7 @@ export interface HCJobStatus
 {
 	SourceId: string;
 	JobId: string;
-	Status: string;
+	Summary: string;
 	IsRunning: boolean;
 	IsEnabled: boolean;
 	NextExecutionScheduledAt: Date;

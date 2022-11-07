@@ -259,7 +259,7 @@ namespace HealthCheck.Core.Modules.Jobs
                 NextExecutionScheduledAt = status.NextExecutionScheduledAt,
                 SourceId = status.SourceId,
                 StartedAt = status.StartedAt,
-                Status = status.Status
+                Summary = status.Summary
             };
         }
 
@@ -269,7 +269,9 @@ namespace HealthCheck.Core.Modules.Jobs
             {
                 Id = result.Id,
                 SourceId = result.SourceId,
-                Data = result.Data
+                JobId = result.JobId,
+                Data = result.Data,
+                DataIsHtml = result.DataIsHtml
             };
         }
 
@@ -282,6 +284,7 @@ namespace HealthCheck.Core.Modules.Jobs
                 DetailId = x.DetailId,
                 SourceId = x.SourceId,
                 Summary = x.Summary,
+                Status = x.Status,
                 Timestamp = x.Timestamp
             };
         }

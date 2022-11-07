@@ -18,5 +18,8 @@ namespace HealthCheck.Core.Modules.Jobs.Models
 
         /// <summary></summary>
         public string Data { get; set; }
+
+        /// <summary></summary>
+        public bool DataIsHtml { get; set; }
     }
 }

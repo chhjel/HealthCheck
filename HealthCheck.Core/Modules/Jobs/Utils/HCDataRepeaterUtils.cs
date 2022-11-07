@@ -17,15 +17,17 @@ namespace HealthCheck.Core.Modules.Jobs
         /// Stores the given history data to be displayed in the jobs module.
         /// <para>Ignores any exception.</para>
         /// </summary>
-        public static void StoreHistory<TJobSource>(string jobId, string status, string html, int historyCountLimit = 100)
+        public static void StoreHistory<TJobSource>(string jobId,
+           HCJobHistoryStatus status, string summary, string data, bool dataIsHtml = false, int historyCountLimit = 100)
             where TJobSource: IHCJobsSource
-            => Task.Run(() => StoreHistoryAsync<TJobSource>(jobId, status, html, historyCountLimit));
+            => Task.Run(() => StoreHistoryAsync<TJobSource>(jobId, status, summary, data, dataIsHtml, historyCountLimit));
 
         /// <summary>
         /// Stores the given history data to be displayed in the jobs module.
         /// <para>Ignores any exception.</para>
         /// </summary>
-        public static async Task<HCJobHistoryEntry> StoreHistoryAsync<TJobSource>(string jobId, string status, string html, int historyCountLimit = 100)
+        public static async Task<HCJobHistoryEntry> StoreHistoryAsync<TJobSource>(string jobId,
+            HCJobHistoryStatus status, string summary, string data, bool dataIsHtml = false, int historyCountLimit = 100)
             where TJobSource : IHCJobsSource
         {
             var sourceId = typeof(TJobSource).FullName;
@@ -34,13 +36,15 @@ namespace HealthCheck.Core.Modules.Jobs
                 SourceId = sourceId,
                 JobId = jobId,
                 Timestamp = DateTimeOffset.Now,
-                Summary = status
+                Summary = summary,
+                Status = status
             };
             var detail = new HCJobHistoryDetailEntry
             {
                 SourceId = sourceId,
                 JobId = jobId,
-                Data = html
+                Data = data,
+                DataIsHtml = dataIsHtml
             };
             return await StoreHistoryAsync(history, detail, historyCountLimit);
         }
