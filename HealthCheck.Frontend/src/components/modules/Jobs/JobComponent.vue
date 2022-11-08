@@ -1,7 +1,8 @@
 <!-- src/components/modules/Jobs/JobComponent.vue -->
 <template>
     <div class="job-component">
-        <h1>{{ job.Definition.Name }}</h1>
+        <icon-component :color="jobIconColor()">{{ jobIcon() }}</icon-component>
+        <h2>{{ job.Definition.Name }}</h2>
         <p v-if="job.Definition.Description">{{ job.Definition.Description }}</p>
         <div v-if="status">
             <code>IsEnabled:{{status.IsEnabled}}</code><br />
@@ -11,25 +12,31 @@
             <code>StartedAt:{{status.StartedAt}}</code><br />
             <code>EndedAt:{{status.EndedAt}}</code><br />
             <code>LastRunWasSuccessful:{{status.LastRunWasSuccessful}}</code>
+            <progress-linear-component v-if="isJobRunning"
+                indeterminate
+                height="4"
+                color="primary"
+            />
+            <div v-else style="height: 4px"></div>
         </div>
 
-        <btn-component v-if="job.Definition.SupportsStart"
+        <btn-component v-if="showStartJobButton"
             :disabled="isLoading || isJobRunning"
             @click="startJob"
             color="primary"
-            >Start</btn-component>
-        <btn-component v-if="job.Definition.SupportsStop"
+            >Start job</btn-component>
+        <btn-component v-if="showStopJobButton"
             :disabled="isLoading || !isJobRunning"
             @click="stopJob"
             color="primary"
-            >Stop</btn-component>
-        <btn-component
+            >Stop job</btn-component>
+        <btn-component v-if="showRefreshButton"
             :disabled="isLoading"
             @click="refresh"
             color="secondary"
-            >Refresh</btn-component>
+            >Refresh results</btn-component>
 
-        <div v-if="pagedHistory">
+        <div v-if="pagedHistory && pagedHistory.Items.length > 0">
             <paging-component
                 :count="totalHistoryCount"
                 :pageSize="pageSize"
@@ -42,8 +49,9 @@
                 
             <div v-for="entry in pagedHistory.Items"
                 :key="`historyEntry-${entry.SourceId}-${entry.Id}`">
+                <icon-component :color="jobHistoryIconColor(entry)">{{ jobHistoryIcon(entry) }}</icon-component>
                 <code
-                    class="clickable"
+                    :class="{ clickable: hasAccessToViewJobHistoryDetails }"
                     @click="loadHistoryDetailsFor(entry)"
                     >{{entry}}</code>
             </div>
@@ -58,6 +66,7 @@
                 class="mb-2 mt-2"
                 />
         </div>
+        <div v-if="!pagedHistory || pagedHistory.TotalCount == 0" class="no-results-text">Job has no extended results yet.</div>
 
         <dialog-component v-model:value="loadDetailsDialogVisible"
             fullscreen
@@ -107,6 +116,7 @@ import PagingComponent from "@components/Common/Basic/PagingComponent.vue";
 import EditorComponent from "@components/Common/EditorComponent.vue";
 import DateUtils from "@util/DateUtils";
 import { HCJobHistoryEntryViewModel } from "@generated/Models/Core/HCJobHistoryEntryViewModel";
+import JobUtils from "./JobUtils";
 
 @Options({
     components: {
@@ -136,6 +146,7 @@ export default class JobComponent extends Vue {
 
     id: string = IdUtils.generateId();
     pagedHistory: HCPagedJobHistoryEntryViewModel | null = null;
+    latestHistory: HCJobHistoryEntryViewModel | null = null;
     historyDetails: HCJobHistoryDetailEntryViewModel | null = null;
     historyDetailsParent: HCJobHistoryEntryViewModel | null = null;
 
@@ -170,18 +181,27 @@ export default class JobComponent extends Vue {
     }
 
     loadPagedHistory(resetPageIndex: boolean): void {
+        if (!this.hasAccessToViewJobHistory) return;
+
         if (resetPageIndex) {
             this.pageIndex = 0;
         }
+        let pageIndex = this.pageIndex;
         this.service.GetPagedHistory(this.job.SourceId, this.job.Definition.Id, this.pageIndex, this.pageSize, this.dataLoadStatus, {
             onSuccess: (data) => {
                 this.pagedHistory = data;
                 this.totalHistoryCount = data.TotalCount;
+
+                if (pageIndex == 0) {
+                    this.latestHistory = data.Items[0];
+                }
             }
         });
     }
 
     loadHistoryDetailsFor(history: HCJobHistoryEntryViewModel): void {
+        if (!this.hasAccessToViewJobHistoryDetails) return;
+
         this.historyDetailsParent = history;
         this.loadHistoryDetails(history.DetailId);
     }
@@ -222,6 +242,15 @@ export default class JobComponent extends Vue {
         }
     }
 
+    hasAccess(option: string): boolean {
+        return this.options.AccessOptions.indexOf(option) != -1;
+    }
+
+    jobIcon(): string { return JobUtils.jobIcon(this.status, this.latestHistory); };
+    jobIconColor(): string { return JobUtils.jobIconColor(this.status, this.latestHistory); };
+    jobHistoryIcon(history: HCJobHistoryEntryViewModel): string { return JobUtils.jobIcon(null, history); };
+    jobHistoryIconColor(history: HCJobHistoryEntryViewModel): string { return JobUtils.jobIconColor(null, history); };
+
     ////////////////
     //  GETTERS  //
     //////////////
@@ -243,6 +272,17 @@ export default class JobComponent extends Vue {
         const time = DateUtils.FormatDate(timestamp, 'd. MMM HH:mm:ss');
         return `${time}`;
     }
+
+    get showStartJobButton(): boolean { return this.hasAccessToStartJob && this.job.Definition.SupportsStart; }
+    get showStopJobButton(): boolean { return this.hasAccessToStopJob && this.job.Definition.SupportsStop; }
+    get showRefreshButton(): boolean { return this.hasAccessToViewJobHistory; }
+
+    get hasAccessToStartJob(): boolean { return this.hasAccess('StartJob'); }
+    get hasAccessToStopJob(): boolean { return this.hasAccess('StopJob'); }
+    get hasAccessToViewJobHistory(): boolean { return this.hasAccess('ViewJobHistory'); }
+    get hasAccessToViewJobHistoryDetails(): boolean { return this.hasAccess('ViewJobHistoryDetails'); }
+    get hasAccessToDeleteHistory(): boolean { return this.hasAccess('DeleteHistory'); }
+    get hasAccessToDeleteAllHistory(): boolean { return this.hasAccess('DeleteAllHistory'); }
     
     ///////////////////////
     //  EVENT HANDLERS  //
@@ -256,6 +296,10 @@ export default class JobComponent extends Vue {
 <style scoped lang="scss">
 .job-component {
 
+}
+.no-results-text {
+    padding: 10px;
+    font-weight: 600;
 }
 .editor {
   width: 100%;

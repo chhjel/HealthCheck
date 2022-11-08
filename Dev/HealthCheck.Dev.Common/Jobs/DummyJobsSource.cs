@@ -22,7 +22,7 @@ namespace HealthCheck.Dev.Common.Jobs
                 {
                     Id = x.ToString(),
                     Name = $"Job #{x}",
-                    Description = $"Some description here for job #{x}",
+                    Description = string.Concat(Enumerable.Repeat($"Some description here for job #{x} ", x)),
                     AllowedAccessRoles = null,
                     GroupName = (x % 5 == 0) ? null : $"Group #{x % 2}",
                     SupportsStart = x == 0 || x == 1 || x > 3,

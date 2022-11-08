@@ -38,6 +38,7 @@
                 :options="options"
                 :jobDefinitions="jobDefinitions"
                 :jobStatuses="jobStatuses"
+                @setActiveJobById="setActiveJobById"
                 />
 
             <job-component
@@ -101,6 +102,8 @@ export default class JobsPageComponent extends Vue {
     jobDefinitions: Array<HCJobDefinitionWithSourceViewModel> = [];
     selectedJob: HCJobDefinitionWithSourceViewModel | null = null;
     statusUpdateTimout: NodeJS.Timeout;
+    autoRefresh: boolean = true;
+    isMounted: boolean = false;
     jobStatuses: Array<HCJobStatusViewModel> = [];
     topMenuItems: Array<SideMenuListItem> = [
         {
@@ -116,11 +119,16 @@ export default class JobsPageComponent extends Vue {
     ////////////////
     async mounted()
     {
+        this.isMounted = true;
         this.loadJobDefinitions();
         this.loadJobStatuses();
-    
-        // if (this.statusUpdateTimout) clearInterval(this.statusUpdateTimout);
-        // this.statusUpdateTimout = setInterval(this.loadJobStatuses, 2500);
+    }
+
+    beforeUnmount(): void {
+        this.isMounted = false;
+        if (this.statusUpdateTimout) {
+            clearTimeout(this.statusUpdateTimout);
+        }
     }
 
     ////////////////
@@ -156,7 +164,13 @@ export default class JobsPageComponent extends Vue {
 
     loadJobStatuses(): void {
         this.service.GetJobStatuses(null, {
-            onSuccess: (data) => this.jobStatuses = data
+            onSuccess: (data) => {
+                this.jobStatuses = data;
+            
+                if (this.autoRefresh && this.isMounted) {
+                    this.statusUpdateTimout = setTimeout(this.loadJobStatuses, 2500);
+                }
+            }
         });
     }
 
@@ -191,6 +205,12 @@ export default class JobsPageComponent extends Vue {
         status.StartedAt = new Date();
         status.Summary = message;
         status.IsRunning = running;
+    }
+
+    setActiveJobById(jobId: string): void {
+        const job = this.jobDefinitions.find(x => x.Definition.Id == jobId);
+        if (!job || this.selectedJob == job) return;
+        this.setActiveJob(job);
     }
 
     setActiveJob(job: HCJobDefinitionWithSourceViewModel | string | null, updateUrl: boolean = true): void {
