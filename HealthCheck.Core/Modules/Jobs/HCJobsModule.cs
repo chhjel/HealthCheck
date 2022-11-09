@@ -3,6 +3,7 @@ using HealthCheck.Core.Modules.Jobs.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace HealthCheck.Core.Modules.Jobs
@@ -122,7 +123,13 @@ namespace HealthCheck.Core.Modules.Jobs
             var allowedSourceIds = new HashSet<string>(defs.Select(x => x.SourceId));
 
             var result = await Options.Service.GetHistoryDetailAsync(model.Id);
-            if (!allowedSourceIds.Contains(result.SourceId)) return null;
+            if (result == null) return null;
+            if (!allowedSourceIds.Contains(result.SourceId)) return new HCJobHistoryDetailEntryViewModel
+            {
+                Id = model.Id,
+                DataIsHtml = true,
+                Data = $"<b>Not found</b>"
+            };
 
             return Create(result);
         }

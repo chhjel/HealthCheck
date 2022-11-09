@@ -15,6 +15,7 @@
 			"@components/*": ["src/components/*"],
 			"@services/*": ["src/services/*"],
 			"@util/*": ["src/util/*"],
+			"@systems/*": ["src/systems/*"],
 			"src/*": ["src/*"]
         },
         "noImplicitAny": false,

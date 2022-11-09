@@ -5,6 +5,7 @@ import { App, createApp } from 'vue'
 import HealthCheckPageComponent from "@components/HealthCheckPageComponent.vue";
 import ModuleConfig from "@models/Common/ModuleConfig";
 import shadow from 'vue-shadow-dom';
+import InitializeSubModules from "src/systems/submodules/SubModuleInitializer";
 
 // Datepicker
 import Datepicker from '@vuepic/vue-datepicker';
@@ -63,6 +64,8 @@ if (appElement !== null)
 		.use(shadow);
 	registerGlobalComponents(app);
 	app.mount(appElement);
+
+	InitializeSubModules();
 }
 else if (document.getElementById("app-download") !== null)
 {
@@ -98,7 +101,8 @@ import SelectComponent from '@components/Common/Basic/SelectComponent.vue';
 import CheckboxComponent from '@components/Common/Basic/CheckboxComponent.vue';
 import SwitchComponent from '@components/Common/Basic/SwitchComponent.vue';
 import getCustomDirectives from "@util/VueDirectives";
-function registerGlobalComponents(app: App<Element>): void {
+
+export function registerGlobalComponents(app: App<Element>): void {
 	app.component("ToolbarComponent", ToolbarComponent);
 	app.component("BtnComponent", BtnComponent);
 	app.component("IconComponent", IconComponent);

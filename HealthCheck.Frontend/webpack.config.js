@@ -101,6 +101,7 @@ module.exports = {
       "@components": path.resolve(__dirname, "./src/components"),
       "@models": path.resolve(__dirname, "./src/models"),
       "@services": path.resolve(__dirname, "./src/services"),
+      "@systems": path.resolve(__dirname, "./src/systems"),
       "@util": path.resolve(__dirname, "./src/util"),
       "src": path.resolve(__dirname, "./src")
     }

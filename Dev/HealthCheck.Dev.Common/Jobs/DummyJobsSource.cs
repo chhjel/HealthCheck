@@ -85,6 +85,7 @@ namespace HealthCheck.Dev.Common.Jobs
                             .AddItem(new HtmlPresetKeyValueList().AddItem("KeyA", "Value A").AddItem("KeyB", "Value B"))
                             .AddItem(new HtmlPresetProgressbar("100", "75"))
                             .AddItem(new HtmlPresetLink("https://localhost:7241/", "Some link"))
+                            .AddItem(new HtmlPresetDataTable())
                             .ToHtml();
                     }
 
