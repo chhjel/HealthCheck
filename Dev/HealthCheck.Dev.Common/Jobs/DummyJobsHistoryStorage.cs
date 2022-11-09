@@ -61,7 +61,7 @@ namespace HealthCheck.Dev.Common.Jobs
             {
                 var items = _items
                     .GroupBy(x => x.JobId)
-                    .Select(x => x.OrderByDescending(h => h.Timestamp).First())
+                    .Select(x => x.OrderByDescending(h => h.EndedAt).First())
                     .ToList();
                 return Task.FromResult(items);
             }

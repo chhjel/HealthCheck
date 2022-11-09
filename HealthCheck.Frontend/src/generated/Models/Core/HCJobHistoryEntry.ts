@@ -9,8 +9,9 @@ export interface HCJobHistoryEntry
 	Id: string;
 	SourceId: string;
 	JobId: string;
-	Timestamp: Date;
+	EndedAt: Date;
 	DetailId: string;
 	Status: HCJobHistoryStatus;
 	Summary: string;
+	StartedAt: Date;
 }

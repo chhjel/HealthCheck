@@ -38,6 +38,12 @@ code {
     font-weight: 900;
 	font-size: 12px;
 	padding: 2px;
+
+	&.inline-detail {
+		color: var(--color--primary-base);
+		font-family: inherit;
+		margin-top: 1px;
+	}
 }
 
 input[type=number] {

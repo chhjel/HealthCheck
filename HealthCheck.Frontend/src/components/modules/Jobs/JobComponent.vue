@@ -1,34 +1,35 @@
 <!-- src/components/modules/Jobs/JobComponent.vue -->
 <template>
     <div class="job-component">
-        <icon-component :color="jobIconColor()">{{ jobIcon() }}</icon-component>
-        <h2>{{ job.Definition.Name }}</h2>
+        <div class="job__header">
+            <icon-component :color="jobIconColor()">{{ jobIcon() }}</icon-component>
+            <h2>{{ job.Definition.Name }}</h2>
+        </div>
         <p v-if="job.Definition.Description">{{ job.Definition.Description }}</p>
-        <div v-if="status">
-            <code>IsEnabled:{{status.IsEnabled}}</code><br />
-            <code>IsRunning:{{status.IsRunning}}</code><br />
-            <code>Summary:{{status.Summary}}</code><br />
-            <code>NextExecutionScheduledAt:{{status.NextExecutionScheduledAt}}</code><br />
-            <code>StartedAt:{{status.StartedAt}}</code><br />
-            <code>EndedAt:{{status.EndedAt}}</code><br />
-            <code>LastRunWasSuccessful:{{status.LastRunWasSuccessful}}</code>
-            <progress-linear-component v-if="isJobRunning"
-                indeterminate
-                height="4"
-                color="primary"
-            />
-            <div v-else style="height: 4px"></div>
+        <progress-linear-component v-if="isJobRunning"
+            indeterminate
+            height="4"
+            color="primary"
+        />
+        <div v-else style="height: 4px"></div>
+        <div v-if="status" class="job__status">
+            <ul style="min-height: 62px">
+                <li v-if="runningStatusText" v-html="runningStatusText"></li>
+                <li v-if="nextExecStatusText" v-html="nextExecStatusText"></li>
+                <li v-if="enabledStatusText" v-html="enabledStatusText"></li>
+                <li v-if="showLastResult">Last result was: <code class="inline-detail">{{ status.Summary }}</code></li>
+            </ul>
         </div>
 
         <btn-component v-if="showStartJobButton"
             :disabled="isLoading || isJobRunning"
             @click="startJob"
             color="primary"
-            >Start job</btn-component>
+            >{{ startJobButtonText }}</btn-component>
         <btn-component v-if="showStopJobButton"
             :disabled="isLoading || !isJobRunning"
             @click="stopJob"
-            color="primary"
+            color="error"
             >Stop job</btn-component>
         <btn-component v-if="showRefreshButton"
             :disabled="isLoading"
@@ -36,7 +37,7 @@
             color="secondary"
             >Refresh results</btn-component>
 
-        <div v-if="pagedHistory && pagedHistory.Items.length > 0">
+        <div v-if="pagedHistory && pagedHistory.Items.length > 0" class="mt-4">
             <paging-component
                 :count="totalHistoryCount"
                 :pageSize="pageSize"
@@ -46,14 +47,19 @@
                 :asIndex="true"
                 class="mb-2 mt-2"
                 />
-                
-            <div v-for="entry in pagedHistory.Items"
-                :key="`historyEntry-${entry.SourceId}-${entry.Id}`">
-                <icon-component :color="jobHistoryIconColor(entry)">{{ jobHistoryIcon(entry) }}</icon-component>
-                <code
+            
+            <div>
+                <div v-for="entry in pagedHistory.Items"
+                    :key="`historyEntry-${entry.SourceId}-${entry.Id}`"
+                    class="history-entry"
                     :class="{ clickable: hasAccessToViewJobHistoryDetails }"
-                    @click="loadHistoryDetailsFor(entry)"
-                    >{{entry}}</code>
+                    @click="loadHistoryDetailsFor(entry)">
+                    <div class="history-entry__header">
+                        <icon-component :color="jobHistoryIconColor(entry)" class="mr-1">{{ jobHistoryIcon(entry) }}</icon-component>
+                        <div v-html="pagedEntryTitle(entry)"></div>
+                    </div>
+                    <div class="history-entry__summary">{{ entry.Summary }}</div>
+                </div>
             </div>
         
             <paging-component
@@ -68,12 +74,16 @@
         </div>
         <div v-if="!pagedHistory || pagedHistory.TotalCount == 0" class="no-results-text">Job has no extended results yet.</div>
 
+        <!-- DIALOGS -->
         <dialog-component v-model:value="loadDetailsDialogVisible"
             fullscreen
             :dark="historyDetails?.DataIsHtml !== true"
             :persistent="detailLoadProgress.inProgress"
             :smartPersistent="false">
-            <template #header>{{detailsDialogTitle}}</template>
+            <template #header>
+                <div v-if="historyDetailsParent"
+                    v-html="detailDialogTitle(historyDetailsParent)"></div>
+            </template>
             <template #footer>
                 <btn-component color="secondary"
                     :disabled="detailLoadProgress.inProgress"
@@ -251,6 +261,32 @@ export default class JobComponent extends Vue {
     jobHistoryIcon(history: HCJobHistoryEntryViewModel): string { return JobUtils.jobIcon(null, history); };
     jobHistoryIconColor(history: HCJobHistoryEntryViewModel): string { return JobUtils.jobIconColor(null, history); };
 
+    pagedEntryTitle(entry: HCJobHistoryEntryViewModel): string {
+        if (entry.StartedAt != null) {
+            const elapsedMs = new Date(entry.EndedAt).getTime() - new Date(entry.StartedAt).getTime();
+            const duration = DateUtils.prettifyDurationString(elapsedMs, '', '0 seconds');
+            return `${this.detailCodeTagStart}${this.formatDateTime(entry.StartedAt)}</code> to ${this.detailCodeTagStart}${this.formatDateTime(entry.EndedAt)}</code>. Ran for ${this.detailCodeTagStart}${duration}</code>.`;
+        }
+        else return this.formatDateTime(entry.EndedAt);
+    }
+
+    detailDialogTitle(entry: HCJobHistoryEntryViewModel): string {
+        if (entry.StartedAt != null) {
+            const elapsedMs = new Date(entry.EndedAt).getTime() - new Date(entry.StartedAt).getTime();
+            const duration = DateUtils.prettifyDurationString(elapsedMs, '', '0 seconds');
+            return `${this.formatDateTime(entry.StartedAt)} to ${this.formatDateTime(entry.EndedAt)}. Ran for ${duration}.`;
+        }
+        else return this.formatDateTime(entry.EndedAt);
+    }
+
+    formatTimeOnly(date: Date | string): string {
+        return DateUtils.FormatDate(date, 'HH:mm:ss');
+    }
+
+    formatDateTime(date: Date | string): string {
+        return DateUtils.FormatDate(date, 'd. MMM HH:mm:ss');
+    }
+
     ////////////////
     //  GETTERS  //
     //////////////
@@ -266,16 +302,10 @@ export default class JobComponent extends Vue {
         return this.status?.IsRunning == true;
     }
 
-    get detailsDialogTitle(): string {
-        if (!this.historyDetails || !this.historyDetailsParent) return '';
-        const timestamp = new Date(this.historyDetailsParent.Timestamp);
-        const time = DateUtils.FormatDate(timestamp, 'd. MMM HH:mm:ss');
-        return `${time}`;
-    }
-
     get showStartJobButton(): boolean { return this.hasAccessToStartJob && this.job.Definition.SupportsStart; }
-    get showStopJobButton(): boolean { return this.hasAccessToStopJob && this.job.Definition.SupportsStop; }
+    get showStopJobButton(): boolean { return this.hasAccessToStopJob && this.job.Definition.SupportsStop && this.isJobRunning; }
     get showRefreshButton(): boolean { return this.hasAccessToViewJobHistory; }
+    get startJobButtonText(): string { return this.isJobRunning ? 'Running..' : "Start job"; }
 
     get hasAccessToStartJob(): boolean { return this.hasAccess('StartJob'); }
     get hasAccessToStopJob(): boolean { return this.hasAccess('StopJob'); }
@@ -283,6 +313,40 @@ export default class JobComponent extends Vue {
     get hasAccessToViewJobHistoryDetails(): boolean { return this.hasAccess('ViewJobHistoryDetails'); }
     get hasAccessToDeleteHistory(): boolean { return this.hasAccess('DeleteHistory'); }
     get hasAccessToDeleteAllHistory(): boolean { return this.hasAccess('DeleteAllHistory'); }
+
+    detailCodeTagStart: string = '<code class="inline-detail">';
+    get runningStatusText(): string {
+        if (this.status.IsRunning) {
+            const elapsedMs = new Date().getTime() - new Date(this.status.StartedAt).getTime();
+            const duration = DateUtils.prettifyDurationString(elapsedMs, '', '0 seconds');
+            return `Job is running.. Started at ${this.detailCodeTagStart}${this.formatTimeOnly(this.status.StartedAt)}</code> and has been running for ${this.detailCodeTagStart}${duration}</code>.`;
+        }
+        else if (this.status.StartedAt != null && this.status.EndedAt != null) {
+            const elapsedMs = new Date(this.status.EndedAt).getTime() - new Date(this.status.StartedAt).getTime();
+            const duration = DateUtils.prettifyDurationString(elapsedMs, '', '0 seconds');
+            return `Job last ran from ${this.detailCodeTagStart}${this.formatTimeOnly(this.status.StartedAt)}</code> to ${this.detailCodeTagStart}${this.formatTimeOnly(this.status.StartedAt)}</code> and used ${this.detailCodeTagStart}${duration}</code>.`;
+        }
+        else return '';
+    }
+
+    get nextExecStatusText(): string {
+        if (this.status.IsRunning || !this.status.IsEnabled) return '';
+        else if (this.status.NextExecutionScheduledAt) {
+            const msUntil = new Date(this.status.NextExecutionScheduledAt).getTime() - new Date().getTime();
+            const duration = DateUtils.prettifyDurationString(msUntil, '', 'now');
+            return `Next run is scheduled to start at ${this.detailCodeTagStart}${this.formatDateTime(this.status.NextExecutionScheduledAt)}</code>, in ${this.detailCodeTagStart}${duration}</code>.`;
+        }
+        else return '';
+    }
+
+    get enabledStatusText(): string {
+        if (!this.status.IsEnabled) return 'Job is currently disabled.';
+        else return '';
+    }
+
+    get showLastResult(): boolean {
+        return this.status.StartedAt != null && this.status.EndedAt != null && this.status.Summary != null;
+    }
     
     ///////////////////////
     //  EVENT HANDLERS  //
@@ -296,6 +360,40 @@ export default class JobComponent extends Vue {
 <style scoped lang="scss">
 .job-component {
 
+}
+.job__header {
+    display: flex;
+    align-items: center;
+    h2 {
+        margin-left: 5px;
+    }
+}
+.job__status {
+    font-size: 13px;
+    color: var(--color--accent-darken10);
+}
+.history-entry {
+    padding: 5px;
+    font-size: 12px;
+    border-left: 4px solid transparent;
+    &__header {
+        display: flex;
+        align-items: center;
+    }
+    &__summary {
+        margin-left: 29px;
+        margin-top: 2px;
+    }
+    &.clickable:hover {
+        background-color: var(--color--info-lighten4);
+        border-left: 4px solid var(--color--primary-base);
+    }
+    &:nth-child(odd) {
+        background-color: var(--color--accent-base);
+    }
+    &:nth-child(even) {
+        background-color: var(--color--accent-darken1);
+    }
 }
 .no-results-text {
     padding: 10px;

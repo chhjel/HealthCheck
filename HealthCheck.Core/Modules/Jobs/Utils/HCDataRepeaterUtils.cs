@@ -18,16 +18,18 @@ namespace HealthCheck.Core.Modules.Jobs
         /// <para>Ignores any exception.</para>
         /// </summary>
         public static void StoreHistory<TJobSource>(string jobId,
-           HCJobHistoryStatus status, string summary, string data, bool dataIsHtml = false, int historyCountLimit = 100)
+           HCJobHistoryStatus status, string summary, string data, bool dataIsHtml = false, int historyCountLimit = 100,
+           HCJobsContext context = null)
             where TJobSource: IHCJobsSource
-            => Task.Run(() => StoreHistoryAsync<TJobSource>(jobId, status, summary, data, dataIsHtml, historyCountLimit));
+            => Task.Run(() => StoreHistoryAsync<TJobSource>(jobId, status, summary, data, dataIsHtml, historyCountLimit, context));
 
         /// <summary>
         /// Stores the given history data to be displayed in the jobs module.
         /// <para>Ignores any exception.</para>
         /// </summary>
         public static async Task<HCJobHistoryEntry> StoreHistoryAsync<TJobSource>(string jobId,
-            HCJobHistoryStatus status, string summary, string data, bool dataIsHtml = false, int historyCountLimit = 100)
+            HCJobHistoryStatus status, string summary, string data, bool dataIsHtml = false, int historyCountLimit = 100,
+           HCJobsContext context = null)
             where TJobSource : IHCJobsSource
         {
             var sourceId = typeof(TJobSource).FullName;
@@ -35,7 +37,8 @@ namespace HealthCheck.Core.Modules.Jobs
             {
                 SourceId = sourceId,
                 JobId = jobId,
-                Timestamp = DateTimeOffset.Now,
+                StartedAt = context?.StartedAt,
+                EndedAt = DateTimeOffset.Now,
                 Summary = summary,
                 Status = status
             };

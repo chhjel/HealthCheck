@@ -1,6 +1,7 @@
 ﻿using HealthCheck.Core.Modules.Jobs;
 using HealthCheck.Core.Modules.Jobs.Abstractions;
 using HealthCheck.Core.Modules.Jobs.Models;
+using HealthCheck.Core.Modules.Tests.Utils.HtmlPresets;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -42,6 +43,7 @@ namespace HealthCheck.Dev.Common.Jobs
 
         public Task<HCJobStartResult> StartJobAsync(string jobId, object parameters)
         {
+            var context = new HCJobsContext();
             if (!_jobStatuses.ContainsKey(jobId))
             {
                 _jobStatuses[jobId] = new HCJobStatus
@@ -72,9 +74,21 @@ namespace HealthCheck.Dev.Common.Jobs
                 for (int i = 0; i < multiplier; i++) {
                     var stat = HCJobHistoryStatus.Success;
                     if (i > 0) stat = (HCJobHistoryStatus)(i % 3);
-                    var data = JsonConvert.SerializeObject(status);
+                    
                     var isHtml = false;
-                    HCJobsUtils.StoreHistory<DummyJobsSource>(jobId, stat, $"Summary: {status.Summary}", data, isHtml);
+                    var data = JsonConvert.SerializeObject(status);
+                    if (jobId == "8")
+                    {
+                        isHtml = true;
+                        data = new HtmlPresetBuilder()
+                            .AddItem(new HtmlPresetList().AddItem("Item A").AddItem("Item B").AddItem("Item C"))
+                            .AddItem(new HtmlPresetKeyValueList().AddItem("KeyA", "Value A").AddItem("KeyB", "Value B"))
+                            .AddItem(new HtmlPresetProgressbar("100", "75"))
+                            .AddItem(new HtmlPresetLink("https://localhost:7241/", "Some link"))
+                            .ToHtml();
+                    }
+
+                    HCJobsUtils.StoreHistory<DummyJobsSource>(jobId, stat, $"Summary: {status.Summary}", data, isHtml, context: context);
                 }
             });
 
@@ -83,6 +97,7 @@ namespace HealthCheck.Dev.Common.Jobs
 
         public Task<HCJobStopResult> StopJobAsync(string jobId)
         {
+            var context = new HCJobsContext();
             if (!_jobStatuses.ContainsKey(jobId))
             {
                 _jobStatuses[jobId] = new HCJobStatus
@@ -110,7 +125,7 @@ namespace HealthCheck.Dev.Common.Jobs
                 if (i > 0) stat = (HCJobHistoryStatus)(i % 3);
                 var data = JsonConvert.SerializeObject(status);
                 var isHtml = false;
-                HCJobsUtils.StoreHistory<DummyJobsSource>(jobId, stat, $"Summary: {status.Summary}", data, isHtml);
+                HCJobsUtils.StoreHistory<DummyJobsSource>(jobId, stat, $"Summary: {status.Summary}", data, isHtml, context: context);
             }
 
             return Task.FromResult(new HCJobStopResult { Success = true, Message = "Job was stopped." });

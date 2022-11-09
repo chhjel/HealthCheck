@@ -62,8 +62,4 @@
     <None Remove="Modules\LogViewer\Services\Storage\**" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Modules\Tests\Utils\HtmlPresets\" />
-  </ItemGroup>
-
 </Project>

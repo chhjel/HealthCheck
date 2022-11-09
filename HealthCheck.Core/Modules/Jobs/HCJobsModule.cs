@@ -285,7 +285,8 @@ namespace HealthCheck.Core.Modules.Jobs
                 SourceId = x.SourceId,
                 Summary = x.Summary,
                 Status = x.Status,
-                Timestamp = x.Timestamp
+                EndedAt = x.EndedAt,
+                StartedAt = x.StartedAt
             };
         }
 

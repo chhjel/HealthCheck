@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace HealthCheck.Core.Modules.Jobs.Models
 {
@@ -17,7 +18,7 @@ namespace HealthCheck.Core.Modules.Jobs.Models
         public string JobId { get; set; }
 
         /// <summary></summary>
-        public DateTimeOffset Timestamp { get; set; }
+        public DateTimeOffset EndedAt { get; set; }
 
         /// <summary></summary>
         public Guid? DetailId { get; set; }
@@ -27,5 +28,8 @@ namespace HealthCheck.Core.Modules.Jobs.Models
 
         /// <summary></summary>
         public string Summary { get; set; }
+
+        /// <summary></summary>
+        public DateTimeOffset? StartedAt { get; set; }
     }
 }

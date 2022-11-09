@@ -137,7 +137,7 @@ export default class JobsOverviewComponent extends Vue {
     }
 
     createHistoryTimestamp(history: HCJobHistoryEntryViewModel): string {
-        const timestamp = new Date(history.Timestamp);
+        const timestamp = new Date(history.EndedAt);
         return DateUtils.FormatDate(timestamp, 'd. MMM HH:mm:ss');
     }
 
