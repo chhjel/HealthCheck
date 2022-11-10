@@ -41,7 +41,7 @@ namespace HealthCheck.Dev.Common.Jobs
         public Task<List<HCJobStatus>> GetJobStatusesAsync()
             => Task.FromResult(_jobStatuses.Values.ToList());
 
-        public Task<HCJobStartResult> StartJobAsync(string jobId, object parameters)
+        public async Task<HCJobStartResult> StartJobAsync(string jobId, object parameters)
         {
             var context = new HCJobsContext();
             if (!_jobStatuses.ContainsKey(jobId))
@@ -56,62 +56,61 @@ namespace HealthCheck.Dev.Common.Jobs
 
             if (_jobStatuses[jobId].IsRunning)
             {
-                return Task.FromResult(new HCJobStartResult { Message = "Job is already running." });
+                return new HCJobStartResult { Message = "Job is already running." };
             }
 
             var status = _jobStatuses[jobId];
             status.StartedAt = DateTimeOffset.Now;
             status.IsRunning = true;
             status.Summary = "Job started";
-            Task.Run(async () =>
-            {
-                await Task.Delay(TimeSpan.FromSeconds(_jobStatuses.Values.ToList().IndexOf(status) + 1));
-                status.EndedAt = DateTimeOffset.Now;
-                status.IsRunning = false;
-                status.Summary = "Finished";
+             
+            await Task.Delay(TimeSpan.FromSeconds(_jobStatuses.Values.ToList().IndexOf(status) + 1));
+            status.EndedAt = DateTimeOffset.Now;
+            status.IsRunning = false;
+            status.Summary = "Finished";
 
-                var items = Enumerable.Range(0, 8000)
-                    .Select((x, i) => new DummyItem
-                    {
-                        EndedAt = DateTimeOffset.Now.AddMinutes(-i),
-                        IsEnabled = i % 2 == 0,
-                        IsRunning = i % 5 == 0,
-                        JobId = Guid.NewGuid().ToString(),
-                        SourceId = Guid.NewGuid().ToString(),
-                        Summary = $"Summary here {Guid.NewGuid()}.",
-                        StartedAt = DateTimeOffset.Now.AddDays(-1).AddHours(-5).AddMinutes(i),
-                        LastRunWasSuccessful = i % 3 == 0,
-                        NextExecutionScheduledAt = DateTimeOffset.Now.AddMinutes(5 + (i))
-                    })
-                    .ToArray();
+            var items = Enumerable.Range(0, 8000)
+                .Select((x, i) => new DummyItem
+                {
+                    EndedAt = DateTimeOffset.Now.AddMinutes(-i),
+                    IsEnabled = i % 2 == 0,
+                    IsRunning = i % 5 == 0,
+                    JobId = Guid.NewGuid().ToString(),
+                    SourceId = Guid.NewGuid().ToString(),
+                    Summary = $"Summary here {Guid.NewGuid()}.",
+                    StartedAt = DateTimeOffset.Now.AddDays(-1).AddHours(-5).AddMinutes(i),
+                    LastRunWasSuccessful = i % 3 == 0,
+                    NextExecutionScheduledAt = DateTimeOffset.Now.AddMinutes(5 + (i))
+                })
+                .ToArray();
+            var html = new HtmlPresetBuilder()
+                        //.AddItem(new HtmlPresetList().AddItem("Item A").AddItem("Item B").AddItem("Item C"))
+                        //.AddItem(new HtmlPresetKeyValueList().AddItem("KeyA", "Value A").AddItem("KeyB", "Value B"))
+                        //.AddItem(new HtmlPresetProgressbar("100", "75"))
+                        //.AddItem(new HtmlPresetLink("https://localhost:7241/", "Some link"))
+                        .AddItem(new HtmlPresetDataTable().AddItems(items))
+                        .ToHtml();
+            var data = JsonConvert.SerializeObject(status);
 
-                var multiplier = (jobId == "8") ? 500 : 1;
-                for (int i = 0; i < multiplier; i++) {
-                    var stat = HCJobHistoryStatus.Success;
-                    if (i > 0) stat = (HCJobHistoryStatus)(i % 3);
+            var multiplier = (jobId == "8") ? 500 : 1;
+            for (int i = 0; i < multiplier; i++) {
+                var stat = HCJobHistoryStatus.Success;
+                if (i > 0) stat = (HCJobHistoryStatus)(i % 3);
                     
-                    var isHtml = false;
-                    var data = JsonConvert.SerializeObject(status);
-                    if (jobId == "8")
-                    {
-                        isHtml = true;
-                        data = new HtmlPresetBuilder()
-                            //.AddItem(new HtmlPresetList().AddItem("Item A").AddItem("Item B").AddItem("Item C"))
-                            //.AddItem(new HtmlPresetKeyValueList().AddItem("KeyA", "Value A").AddItem("KeyB", "Value B"))
-                            //.AddItem(new HtmlPresetProgressbar("100", "75"))
-                            //.AddItem(new HtmlPresetLink("https://localhost:7241/", "Some link"))
-                            .AddItem(new HtmlPresetDataTable().AddItems(items))
-                            .ToHtml();
-                    }
-
-                    HCJobsUtils.StoreHistory<DummyJobsSource>(jobId, stat, $"Summary: {status.Summary}", data, isHtml, context: context);
+                var isHtml = false;
+                if (jobId == "8")
+                {
+                    isHtml = true;
+                    data = html;
                 }
-            });
 
-            return Task.FromResult(new HCJobStartResult { Success = true, Message = "Job was started." });
+                await HCJobsUtils.StoreHistoryAsync<DummyJobsSource>(jobId, stat, $"Summary: {status.Summary}", data, isHtml, context: context);
+            }
+
+            return new HCJobStartResult { Success = true, Message = "Job was started." };
         }
 
-        public Task<HCJobStopResult> StopJobAsync(string jobId)
+        public async Task<HCJobStopResult> StopJobAsync(string jobId)
         {
             var context = new HCJobsContext();
             if (!_jobStatuses.ContainsKey(jobId))
@@ -126,7 +125,7 @@ namespace HealthCheck.Dev.Common.Jobs
 
             if (!_jobStatuses[jobId].IsRunning)
             {
-                return Task.FromResult(new HCJobStopResult { Message = "Job is not running." });
+                return new HCJobStopResult { Message = "Job is not running." };
             }
 
             var status = _jobStatuses[jobId];
@@ -134,17 +133,18 @@ namespace HealthCheck.Dev.Common.Jobs
             status.IsRunning = false;
             status.Summary = "Job stopped";
 
+            var stat = HCJobHistoryStatus.Success;
+            var data = JsonConvert.SerializeObject(status);
+            var isHtml = false;
+
             var multiplier = (jobId == "8") ? 500 : 1;
             for (int i = 0; i < multiplier; i++)
             {
-                var stat = HCJobHistoryStatus.Success;
                 if (i > 0) stat = (HCJobHistoryStatus)(i % 3);
-                var data = JsonConvert.SerializeObject(status);
-                var isHtml = false;
-                HCJobsUtils.StoreHistory<DummyJobsSource>(jobId, stat, $"Summary: {status.Summary}", data, isHtml, context: context);
+                await HCJobsUtils.StoreHistoryAsync<DummyJobsSource>(jobId, stat, $"Summary: {status.Summary}", data, isHtml, context: context);
             }
 
-            return Task.FromResult(new HCJobStopResult { Success = true, Message = "Job was stopped." });
+            return new HCJobStopResult { Success = true, Message = "Job was stopped." };
         }
 
         public class DummyItem
