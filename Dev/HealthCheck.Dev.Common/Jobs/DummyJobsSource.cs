@@ -70,6 +70,21 @@ namespace HealthCheck.Dev.Common.Jobs
                 status.IsRunning = false;
                 status.Summary = "Finished";
 
+                var items = Enumerable.Range(0, 8000)
+                    .Select((x, i) => new DummyItem
+                    {
+                        EndedAt = DateTimeOffset.Now.AddMinutes(-i),
+                        IsEnabled = i % 2 == 0,
+                        IsRunning = i % 5 == 0,
+                        JobId = Guid.NewGuid().ToString(),
+                        SourceId = Guid.NewGuid().ToString(),
+                        Summary = $"Summary here {Guid.NewGuid()}.",
+                        StartedAt = DateTimeOffset.Now.AddDays(-1).AddHours(-5).AddMinutes(i),
+                        LastRunWasSuccessful = i % 3 == 0,
+                        NextExecutionScheduledAt = DateTimeOffset.Now.AddMinutes(5 + (i))
+                    })
+                    .ToArray();
+
                 var multiplier = (jobId == "8") ? 500 : 1;
                 for (int i = 0; i < multiplier; i++) {
                     var stat = HCJobHistoryStatus.Success;
@@ -85,7 +100,7 @@ namespace HealthCheck.Dev.Common.Jobs
                             .AddItem(new HtmlPresetKeyValueList().AddItem("KeyA", "Value A").AddItem("KeyB", "Value B"))
                             .AddItem(new HtmlPresetProgressbar("100", "75"))
                             .AddItem(new HtmlPresetLink("https://localhost:7241/", "Some link"))
-                            .AddItem(new HtmlPresetDataTable())
+                            .AddItem(new HtmlPresetDataTable().AddItems(items))
                             .ToHtml();
                     }
 
@@ -130,6 +145,19 @@ namespace HealthCheck.Dev.Common.Jobs
             }
 
             return Task.FromResult(new HCJobStopResult { Success = true, Message = "Job was stopped." });
+        }
+
+        public class DummyItem
+        {
+            public string SourceId { get; set; }
+            public string JobId { get; set; }
+            public string Summary { get; set; }
+            public bool IsRunning { get; set; }
+            public bool IsEnabled { get; set; }
+            public DateTimeOffset? NextExecutionScheduledAt { get; set; }
+            public DateTimeOffset? StartedAt { get; set; }
+            public DateTimeOffset? EndedAt { get; set; }
+            public bool? LastRunWasSuccessful { get; set; }
         }
     }
 }

@@ -29,7 +29,7 @@ namespace HealthCheck.Core.Util
             var key = $"{(caseSensitive ? "cs______" : "")}_{pattern}";
             lock (_regexCache)
             {
-                if (_regexCache.Count > 1000)
+                if (_regexCache.Count > MaxCount)
                 {
                     _regexCache.Clear();
                 }
