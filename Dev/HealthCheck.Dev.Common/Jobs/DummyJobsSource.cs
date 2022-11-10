@@ -96,10 +96,10 @@ namespace HealthCheck.Dev.Common.Jobs
                     {
                         isHtml = true;
                         data = new HtmlPresetBuilder()
-                            .AddItem(new HtmlPresetList().AddItem("Item A").AddItem("Item B").AddItem("Item C"))
-                            .AddItem(new HtmlPresetKeyValueList().AddItem("KeyA", "Value A").AddItem("KeyB", "Value B"))
-                            .AddItem(new HtmlPresetProgressbar("100", "75"))
-                            .AddItem(new HtmlPresetLink("https://localhost:7241/", "Some link"))
+                            //.AddItem(new HtmlPresetList().AddItem("Item A").AddItem("Item B").AddItem("Item C"))
+                            //.AddItem(new HtmlPresetKeyValueList().AddItem("KeyA", "Value A").AddItem("KeyB", "Value B"))
+                            //.AddItem(new HtmlPresetProgressbar("100", "75"))
+                            //.AddItem(new HtmlPresetLink("https://localhost:7241/", "Some link"))
                             .AddItem(new HtmlPresetDataTable().AddItems(items))
                             .ToHtml();
                     }

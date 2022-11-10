@@ -2,47 +2,34 @@
 <template>
     <div class="submodule">
         <div>
-            <paging-component
-                :count="rowCount"
-                :pageSize="pageSize"
-                v-model:value="pageIndex"
-                :asIndex="true"
-                class="mb-2 mt-2"
-                />
-            
-            <table class="table">
-                <thead>
-                    <draggable
-                        v-model="headerIndices"
-                        :itemKey="x => `datatable-${id}-header-${x}`"
-                        group="grp"
-                        style="min-height: 10px"
-                        tag="tr"
-                        @end="onDragEnded">
-                        <template #item="{element}">
-                            <th class="datatable-header">{{ subModuleOptions.Headers[element] }}</th>
-                        </template>
-                    </draggable>
-                </thead>
-                <tbody>
-                    <tr v-for="(row, rowIndex) in currentRows"
-                        :key="`datatable-${id}-${pageIndex}-${rowIndex}`"
-                        class="datatable-row">
-                        <td v-for="(headerIndex, colIndex) in headerIndices"
-                            :key="`datatable-${id}-${pageIndex}-${rowIndex}-col-${colIndex}`"
-                            class="datatable-cell">
-                            {{row[headerIndex]}}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        
-            <paging-component
-                :count="rowCount"
-                :pageSize="pageSize"
-                v-model:value="pageIndex"
-                :asIndex="true"
-                class="mb-2 mt-2"
+            <vue-good-table
+                :columns="columns"
+                :rows="rows"
+                :line-numbers="true"
+                :pagination-options="{
+                    enabled: true,
+                    mode: 'pages',
+                    perPage: 10,
+                    position: 'bottom',
+                    perPageDropdown: [10,20,30,40,50],
+                    dropdownAllowAll: false,
+                    setCurrentPage: 1,
+                    nextLabel: 'next',
+                    prevLabel: 'prev',
+                    rowsPerPageLabel: 'Rows per page',
+                    ofLabel: 'of',
+                    pageLabel: 'page', // for 'pages' mode
+                    allLabel: 'All'
+                }"
+                :sort-options="{
+                    enabled: true,
+                    multipleColumns: true
+                }"
+                :search-options="{
+                    enabled: true,
+                    trigger: 'enter'
+                }"
+                styleClass="vgt-table striped bordered"
                 />
         </div>
     </div>
@@ -56,12 +43,12 @@ import { StoreUtil } from "@util/StoreUtil";
 import { DataTableSubmoduleOptions } from "./DataTableSubmodule";
 import IdUtils from "@util/IdUtils";
 import PagingComponent from "@components/Common/Basic/PagingComponent.vue";
-import draggable from 'vuedraggable'
+import { VueGoodTable } from 'vue-good-table-next';
 
 @Options({
     components: {
         PagingComponent,
-        draggable
+        VueGoodTable
     }
 })
 export default class DiffComponent extends Vue {
@@ -69,17 +56,21 @@ export default class DiffComponent extends Vue {
     subModuleOptions: DataTableSubmoduleOptions;
     
     id: string = IdUtils.generateId();
-    headerIndices: Array<number> = [];
-    sortByHeaderIndex: number | null = null;
-    sortAscending: boolean = false;
-
-    // Pagination
-    pageSizeDefault: number = 50;
-    pageIndex: number = 0;
-    pageSize: number = this.pageSizeDefault;
+    columns: Array<any> = [];
+    rows: Array<any> = [];
 
     created(): void {
-        this.headerIndices = this.subModuleOptions.Headers.map((x, i) => i);
+        this.columns = this.subModuleOptions.Headers.map(h => ({
+            label: h,
+            field: h
+        }));
+        this.rows = this.subModuleOptions.Rows.map((r, i) => {
+            let rowData = {};
+            this.subModuleOptions.Headers.forEach((h, hIndex) => {
+                rowData[h] = r[hIndex];
+            });
+            return { ...{ id: i }, ...rowData };
+        });
     }
 
     mounted(): void {
@@ -95,21 +86,9 @@ export default class DiffComponent extends Vue {
         return StoreUtil.store.state.globalOptions;
     }
 
-    get rowCount(): number { return this.subModuleOptions.Rows.length; }
-
-    get currentRows(): Array<Array<string>> {
-        return this.subModuleOptions.Rows
-            .slice(this.pageIndex * this.pageSize)
-            .slice(0, this.pageSize);
-    }
-
     ////////////////////////////////////////////////////////////
     //// EVENTHANDLERS /////////////////////////////////////////
     ////////////////////////////////////////////////////////////
-    onDragEnded(e: any): void {
-        const oldIndex = e.oldIndex;
-        const newIndex = e.newIndex;
-    }
 }
 </script>
 

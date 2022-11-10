@@ -76,10 +76,11 @@
 
         <!-- DIALOGS -->
         <dialog-component v-model:value="loadDetailsDialogVisible"
-            fullscreen
             :dark="historyDetails?.DataIsHtml !== true"
             :persistent="detailLoadProgress.inProgress"
-            :smartPersistent="false">
+            :smartPersistent="false"
+            width="90%"
+            max-width="90%">
             <template #header>
                 <div v-if="historyDetailsParent"
                     v-html="detailDialogTitle(historyDetailsParent)"></div>
@@ -94,7 +95,9 @@
                 <progress-linear-component 
                     v-if="detailLoadProgress.inProgress"
                     indeterminate color="success"></progress-linear-component>
-                <div v-if="historyDetails.DataIsHtml" v-html="historyDetails.Data"></div>
+                <div v-if="historyDetails.DataIsHtml"
+                    v-html="historyDetails.Data"
+                    :key="historyDetails.Id"></div>
                 <div v-if="!historyDetails.DataIsHtml" style="height: 100%">
                     <editor-component
                         class="editor"
@@ -205,6 +208,12 @@ export default class JobComponent extends Vue {
                 if (pageIndex == 0) {
                     this.latestHistory = data.Items[0];
                 }
+
+                // DEV
+                // if (this.pagedHistory.Items.length > 0) {
+                //     this.loadHistoryDetailsFor(this.pagedHistory.Items[0]);
+                // }
+                //
             }
         });
     }
@@ -401,6 +410,7 @@ export default class JobComponent extends Vue {
 }
 .editor {
   width: 100%;
-  height: 100%;
+  /* height: 100%; */
+  height: 75vh;
 }
 </style>

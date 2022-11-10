@@ -11,6 +11,10 @@ import InitializeSubModules from "src/systems/submodules/SubModuleInitializer";
 import Datepicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 
+// Table
+import VueGoodTablePlugin from 'vue-good-table-next';
+import 'vue-good-table-next/dist/vue-good-table-next.css'
+
 // Debugging
 if (window.location.search?.includes('hc_debug_warning=true'))
 {
@@ -127,6 +131,7 @@ export function registerGlobalComponents(app: App<Element>): void {
 	
 	// External
 	app.component('Datepicker', Datepicker);
+	app.component("VueGoodTablePlugin", VueGoodTablePlugin);
 
 	const customDirectives = getCustomDirectives();
 	customDirectives.forEach(d => app.directive(d.name, d.directive));
