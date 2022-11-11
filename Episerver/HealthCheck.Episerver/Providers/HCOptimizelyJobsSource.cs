@@ -151,6 +151,10 @@ namespace HealthCheck.Episerver.Providers
         /// <summary></summary>
         public Task<HCJobStartResult> StartJobAsync(string jobId, object parameters)
         {
+            // ToDo: if parameters is not null:
+            // 1. save parameters to DDS, 2. start job, 3. job loads parameters
+            // - in job defs, include parameters. Set from type on attribute.
+
             var jobs = _jobRepo.List();
             var plugin = GetIncludedJobPlugins()
                 .FirstOrDefault(x => CreateJobId(x) == jobId);
