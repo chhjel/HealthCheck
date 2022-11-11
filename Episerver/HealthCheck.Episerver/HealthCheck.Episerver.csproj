@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;netcoreapp3.1;net461;net472;net6.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;net461;net472;net6.0</TargetFrameworks>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>1.0.1</Version>
@@ -16,11 +16,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="EPiServer.Framework" Version="11.1.0" />
+    <ProjectReference Include="..\..\HealthCheck.Core\HealthCheck.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\HealthCheck.Core\HealthCheck.Core.csproj" />
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <PackageReference Include="EPiServer.Framework" Version="12.0.3" />
+    <PackageReference Include="EPiServer.CMS.Core" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1' or '$(TargetFramework)' == 'net461' or '$(TargetFramework)' == 'net472'">
+    <PackageReference Include="EPiServer.Framework" Version="11.1.0" />
+    <PackageReference Include="EPiServer.CMS.Core" Version="11.1.0" />
   </ItemGroup>
 
   <ItemGroup>

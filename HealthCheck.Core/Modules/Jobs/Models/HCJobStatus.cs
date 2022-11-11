@@ -8,7 +8,7 @@ namespace HealthCheck.Core.Modules.Jobs.Models
     public class HCJobStatus
     {
         /// <summary></summary>
-        public string SourceId { get; set; }
+        internal string SourceId { get; set; }
 
         /// <summary></summary>
         public string JobId { get; set; }
@@ -32,6 +32,6 @@ namespace HealthCheck.Core.Modules.Jobs.Models
         public DateTimeOffset? EndedAt { get; set; }
 
         /// <summary></summary>
-        public bool? LastRunWasSuccessful { get; set; }
+        public HCJobHistoryStatus? Status { get; set; }
     }
 }

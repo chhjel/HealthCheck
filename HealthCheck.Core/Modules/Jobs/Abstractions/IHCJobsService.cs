@@ -17,6 +17,10 @@ namespace HealthCheck.Core.Modules.Jobs.Abstractions
         Task<List<HCJobHistoryEntry>> GetLatestHistoryPerJobIdAsync();
         /// <summary></summary>
         Task<HCPagedJobHistoryEntry> GetPagedHistoryAsync(string sourceId, string jobId, int pageIndex, int pageSize);
+
+        /// <summary></summary>
+        Task<HCPagedJobLogItems> GetPagedJobLogItemsAsync(string sourceId, string jobId, int pageIndex, int pageSize);
+
         /// <summary></summary>
         Task<HCJobHistoryDetailEntry> GetHistoryDetailAsync(Guid id);
 

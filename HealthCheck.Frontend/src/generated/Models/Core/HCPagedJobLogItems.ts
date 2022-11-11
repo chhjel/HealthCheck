@@ -2,9 +2,10 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-export enum HCJobHistoryStatus { 
-	Success = "Success", 
-	Warning = "Warning", 
-	Error = "Error", 
-	Cancelled = "Cancelled"
+import { HCJobLogItem } from './HCJobLogItem';
+
+export interface HCPagedJobLogItems
+{
+	TotalCount: number;
+	Items: HCJobLogItem[];
 }

@@ -8,6 +8,8 @@
         /// <summary></summary>
         Warning = 1,
         /// <summary></summary>
-        Error = 2
+        Error = 2,
+        /// <summary></summary>
+        Cancelled = 3
     }
 }

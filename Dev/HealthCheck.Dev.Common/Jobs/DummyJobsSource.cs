@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Modules.Jobs;
+﻿using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Modules.Jobs;
 using HealthCheck.Core.Modules.Jobs.Abstractions;
 using HealthCheck.Core.Modules.Jobs.Models;
 using HealthCheck.Core.Modules.Tests.Utils.HtmlPresets;
@@ -21,7 +22,7 @@ namespace HealthCheck.Dev.Common.Jobs
             var jobs = Enumerable.Range(1, 8)
                 .Select(x => new HCJobDefinition
                 {
-                    Id = x.ToString(),
+                    Id = $"{typeof(DummyJob).FullName}_{typeof(DummyJob).Assembly.ShortName()}",
                     Name = $"Job #{x}",
                     Description = string.Concat(Enumerable.Repeat($"Some description here for job #{x} ", x)),
                     AllowedAccessRoles = null,
@@ -32,6 +33,9 @@ namespace HealthCheck.Dev.Common.Jobs
                 .ToList();
             return Task.FromResult(jobs);
         }
+
+        public Task<HCPagedJobLogItems> GetJobLogItemsPaged(string jobId, int pageIndex, int pageSize)
+            => Task.FromResult(new HCPagedJobLogItems());
 
         public Task<HCJobStatus> GetJobStatusAsync(string id)
             => _jobStatuses.TryGetValue(id, out var status)
@@ -75,7 +79,7 @@ namespace HealthCheck.Dev.Common.Jobs
                     EndedAt = DateTimeOffset.Now.AddMinutes(-i),
                     IsEnabled = i % 2 == 0,
                     IsRunning = i % 5 == 0,
-                    JobId = Guid.NewGuid().ToString(),
+                    JobId = $"{typeof(DummyJob).FullName}_{typeof(DummyJob).Assembly.ShortName()}",
                     SourceId = Guid.NewGuid().ToString(),
                     Summary = $"Summary here {Guid.NewGuid()}.",
                     StartedAt = DateTimeOffset.Now.AddDays(-1).AddHours(-5).AddMinutes(i),
@@ -104,11 +108,13 @@ namespace HealthCheck.Dev.Common.Jobs
                     data = html;
                 }
 
-                await HCJobsUtils.StoreHistoryAsync<DummyJobsSource>(jobId, stat, $"Summary: {status.Summary}", data, isHtml, context: context);
+                await HCJobsUtils.StoreHistoryAsync<DummyJobsSource, DummyJob>(stat, $"Summary: {status.Summary}", data, isHtml, context: context);
             }
 
             return new HCJobStartResult { Success = true, Message = "Job was started." };
         }
+
+        public class DummyJob {}
 
         public async Task<HCJobStopResult> StopJobAsync(string jobId)
         {
@@ -141,7 +147,7 @@ namespace HealthCheck.Dev.Common.Jobs
             for (int i = 0; i < multiplier; i++)
             {
                 if (i > 0) stat = (HCJobHistoryStatus)(i % 3);
-                await HCJobsUtils.StoreHistoryAsync<DummyJobsSource>(jobId, stat, $"Summary: {status.Summary}", data, isHtml, context: context);
+                await HCJobsUtils.StoreHistoryAsync<DummyJobsSource, DummyJob>(stat, $"Summary: {status.Summary}", data, isHtml, context: context);
             }
 
             return new HCJobStopResult { Success = true, Message = "Job was stopped." };

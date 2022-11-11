@@ -4,15 +4,9 @@
 
 import { HCJobHistoryStatus } from '../../Enums/Core/HCJobHistoryStatus';
 
-export interface HCJobStatus
+export interface HCJobLogItem
 {
-	SourceId: string;
-	JobId: string;
-	Summary: string;
-	IsRunning: boolean;
-	IsEnabled: boolean;
-	NextExecutionScheduledAt: Date;
-	StartedAt: Date;
-	EndedAt: Date;
 	Status: HCJobHistoryStatus;
+	Summary: string;
+	Timestamp: Date;
 }

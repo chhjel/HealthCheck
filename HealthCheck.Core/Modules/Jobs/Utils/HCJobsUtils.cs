@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Config;
+using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.Jobs.Abstractions;
 using HealthCheck.Core.Modules.Jobs.Models;
 using System;
@@ -17,10 +18,31 @@ namespace HealthCheck.Core.Modules.Jobs
         /// Stores the given history data to be displayed in the jobs module.
         /// <para>Ignores any exception.</para>
         /// </summary>
-        public static void StoreHistory<TJobSource>(string jobId,
-           HCJobHistoryStatus status, string summary, string data, bool dataIsHtml = false, int historyCountLimit = 100,
+        public static void StoreHistory<TJobSource, TJob>(HCJobHistoryStatus status, string summary, string data, bool dataIsHtml = false, int historyCountLimit = 100,
            HCJobsContext context = null)
             where TJobSource: IHCJobsSource
+            => Task.Run(() => StoreHistoryAsync<TJobSource, TJob>(status, summary, data, dataIsHtml, historyCountLimit, context));
+
+        /// <summary>
+        /// Stores the given history data to be displayed in the jobs module.
+        /// <para>Ignores any exception.</para>
+        /// </summary>
+        public static async Task<HCJobHistoryEntry> StoreHistoryAsync<TJobSource, TJob>(
+            HCJobHistoryStatus status, string summary, string data, bool dataIsHtml = false, int historyCountLimit = 100,
+           HCJobsContext context = null)
+            where TJobSource : IHCJobsSource
+        {
+            var jobId = $"{typeof(TJob).FullName}_{typeof(TJob).Assembly.ShortName()}";
+            return await StoreHistoryAsync<TJobSource>(jobId, status, summary, data, dataIsHtml, historyCountLimit, context);
+        }
+
+        /// <summary>
+        /// Stores the given history data to be displayed in the jobs module.
+        /// <para>Ignores any exception.</para>
+        /// </summary>
+        public static void StoreHistory<TJobSource>(string jobId, HCJobHistoryStatus status, string summary, string data, bool dataIsHtml = false, int historyCountLimit = 100,
+           HCJobsContext context = null)
+            where TJobSource : IHCJobsSource
             => Task.Run(() => StoreHistoryAsync<TJobSource>(jobId, status, summary, data, dataIsHtml, historyCountLimit, context));
 
         /// <summary>
@@ -37,8 +59,8 @@ namespace HealthCheck.Core.Modules.Jobs
             {
                 SourceId = sourceId,
                 JobId = jobId,
-                StartedAt = context?.StartedAt,
-                EndedAt = DateTimeOffset.Now,
+                StartedAt = context?.StartedAt.UtcDateTime,
+                EndedAt = DateTimeOffset.UtcNow,
                 Summary = summary,
                 Status = status
             };
@@ -69,6 +91,9 @@ namespace HealthCheck.Core.Modules.Jobs
             {
                 if (HCGlobalConfig.GetDefaultInstanceResolver()?.Invoke(typeof(IHCJobsHistoryStorage)) is not IHCJobsHistoryStorage historyStorage) return null;
                 if (HCGlobalConfig.GetDefaultInstanceResolver()?.Invoke(typeof(IHCJobsHistoryDetailsStorage)) is not IHCJobsHistoryDetailsStorage detailsStorage) return null;
+
+                history.Id = Guid.NewGuid();
+                detail.Id = Guid.NewGuid();
 
                 detail = await detailsStorage.InsertDetailAsync(detail);
                 history.DetailId = detail.Id;

@@ -3,7 +3,6 @@ using HealthCheck.Core.Modules.Jobs.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace HealthCheck.Core.Modules.Jobs
@@ -81,11 +80,32 @@ namespace HealthCheck.Core.Modules.Jobs
         {
             var defs = await GetDefinitionsRequestCanAccessAsync(context);
             var allowedSourceIds = new HashSet<string>(defs.Select(x => x.SourceId));
+            if (!allowedSourceIds.Contains(model.SourceId)) return new HCPagedJobHistoryEntryViewModel();
 
             var result = await Options.Service.GetPagedHistoryAsync(model.SourceId, model.JobId, model.PageIndex, model.PageSize);
             var models = result.Items
                 .Where(x => allowedSourceIds.Contains(x.SourceId))
                 .Select(x => Create(x))
+                .ToList();
+
+            return new HCPagedJobHistoryEntryViewModel
+            {
+                Items = models,
+                TotalCount = result.TotalCount
+            };
+        }
+
+        /// <summary></summary>
+        [HealthCheckModuleMethod]
+        public async Task<HCPagedJobHistoryEntryViewModel> GetPagedLogItems(HealthCheckModuleContext context, HCJobsGetPagedHistoryRequestModel model)
+        {
+            var defs = await GetDefinitionsRequestCanAccessAsync(context);
+            var allowedSourceIds = new HashSet<string>(defs.Select(x => x.SourceId));
+            if (!allowedSourceIds.Contains(model.SourceId)) return new HCPagedJobHistoryEntryViewModel();
+
+            var result = await Options.Service.GetPagedJobLogItemsAsync(model.SourceId, model.JobId, model.PageIndex, model.PageSize);
+            var models = result.Items
+                .Select(x => Create(x, model.SourceId, model.JobId))
                 .ToList();
 
             return new HCPagedJobHistoryEntryViewModel
@@ -262,10 +282,10 @@ namespace HealthCheck.Core.Modules.Jobs
                 IsEnabled = status.IsEnabled,
                 IsRunning = status.IsRunning,
                 JobId = status.JobId,
-                LastRunWasSuccessful = status.LastRunWasSuccessful,
+                Status = status.Status,
                 NextExecutionScheduledAt = status.NextExecutionScheduledAt,
                 SourceId = status.SourceId,
-                StartedAt = status.StartedAt,
+                StartedAt = status.StartedAt?.ToLocalTime(),
                 Summary = status.Summary
             };
         }
@@ -292,8 +312,21 @@ namespace HealthCheck.Core.Modules.Jobs
                 SourceId = x.SourceId,
                 Summary = x.Summary,
                 Status = x.Status,
-                EndedAt = x.EndedAt,
-                StartedAt = x.StartedAt
+                EndedAt = x.EndedAt.ToLocalTime(),
+                StartedAt = x.StartedAt?.ToLocalTime()
+            };
+        }
+
+        private HCJobHistoryEntryViewModel Create(HCJobLogItem x, string sourceId, string jobId)
+        {
+            return new HCJobHistoryEntryViewModel
+            {
+                Id = Guid.Empty,
+                JobId = jobId,
+                SourceId = sourceId,
+                Summary = x.Summary,
+                Status = x.Status ?? HCJobHistoryStatus.Warning,
+                EndedAt = x.Timestamp.ToLocalTime()
             };
         }
 

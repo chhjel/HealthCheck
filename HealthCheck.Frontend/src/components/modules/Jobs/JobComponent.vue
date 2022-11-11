@@ -6,12 +6,31 @@
             <h2>{{ job.Definition.Name }}</h2>
         </div>
         <p v-if="job.Definition.Description">{{ job.Definition.Description }}</p>
+
+        <div>
+            <btn-component v-if="showStartJobButton"
+                :disabled="disableStartJobButton"
+                @click="startJob"
+                color="primary"
+                >{{ startJobButtonText }}</btn-component>
+            <btn-component v-if="showStopJobButton"
+                :disabled="disableStopJobButton"
+                @click="stopJob"
+                color="error"
+                >{{ stopJobButtonText }}</btn-component>
+            <btn-component v-if="showRefreshButton"
+                :disabled="isLoading"
+                @click="refresh"
+                color="secondary"
+                >Refresh results</btn-component>
+        </div>
         <progress-linear-component v-if="isJobRunning"
             indeterminate
             height="4"
             color="primary"
         />
         <div v-else style="height: 4px"></div>
+
         <div v-if="status" class="job__status">
             <ul style="min-height: 62px">
                 <li v-if="runningStatusText" v-html="runningStatusText"></li>
@@ -21,23 +40,8 @@
             </ul>
         </div>
 
-        <btn-component v-if="showStartJobButton"
-            :disabled="isLoading || isJobRunning"
-            @click="startJob"
-            color="primary"
-            >{{ startJobButtonText }}</btn-component>
-        <btn-component v-if="showStopJobButton"
-            :disabled="isLoading || !isJobRunning"
-            @click="stopJob"
-            color="error"
-            >Stop job</btn-component>
-        <btn-component v-if="showRefreshButton"
-            :disabled="isLoading"
-            @click="refresh"
-            color="secondary"
-            >Refresh results</btn-component>
-
         <div v-if="pagedHistory && pagedHistory.Items.length > 0" class="mt-4">
+            <h4>Extended job results</h4>
             <paging-component
                 :count="totalHistoryCount"
                 :pageSize="pageSize"
@@ -72,7 +76,40 @@
                 class="mb-2 mt-2"
                 />
         </div>
-        <div v-if="!pagedHistory || pagedHistory.TotalCount == 0" class="no-results-text">Job has no extended results yet.</div>
+        <div v-if="pagedLogItems && pagedLogItems.Items.length > 0" class="mt-4">
+            <h4>Job results</h4>
+            <paging-component
+                :count="logTotalHistoryCount"
+                :pageSize="logPageSize"
+                v-model:value="logPageIndex"
+                @change="onLogPageIndexChanged"
+                :disabled="isLoading"
+                :asIndex="true"
+                class="mb-2 mt-2"
+                />
+            
+            <div>
+                <div v-for="entry in pagedLogItems.Items"
+                    :key="`logEntry-${entry.SourceId}-${entry.Id}-${entry.Timestamp}`"
+                    class="log-entry">
+                    <div class="log-entry__header">
+                        <icon-component :color="jobHistoryIconColor(entry)" class="mr-1">{{ jobHistoryIcon(entry) }}</icon-component>
+                        <div v-html="pagedEntryTitle(entry)"></div>
+                    </div>
+                    <div class="log-entry__summary">{{ entry.Summary }}</div>
+                </div>
+            </div>
+        
+            <paging-component
+                :count="logTotalHistoryCount"
+                :pageSize="logPageSize"
+                v-model:value="logPageIndex"
+                @change="onLogPageIndexChanged"
+                :disabled="isLoading"
+                :asIndex="true"
+                class="mb-2 mt-2"
+                />
+        </div>
 
         <!-- DIALOGS -->
         <dialog-component v-model:value="loadDetailsDialogVisible"
@@ -159,15 +196,24 @@ export default class JobComponent extends Vue {
 
     id: string = IdUtils.generateId();
     pagedHistory: HCPagedJobHistoryEntryViewModel | null = null;
+    pagedLogItems: HCPagedJobHistoryEntryViewModel | null = null;
     latestHistory: HCJobHistoryEntryViewModel | null = null;
+    latestLogItem: HCJobHistoryEntryViewModel | null = null;
     historyDetails: HCJobHistoryDetailEntryViewModel | null = null;
     historyDetailsParent: HCJobHistoryEntryViewModel | null = null;
 
     // Pagination
     totalHistoryCount: number = 0;
-    pageSizeDefault: number = 4;
+    pageSizeDefault: number = 10;
     pageIndex: number = 0;
     pageSize: number = this.pageSizeDefault;
+    logTotalHistoryCount: number = 0;
+    logPageSizeDefault: number = 10;
+    logPageIndex: number = 0;
+    logPageSize: number = this.pageSizeDefault;
+
+    isStarting: boolean = false;
+    isStopping: boolean = false;
 
     // Dialogs
     loadDetailsDialogVisible: boolean = false;
@@ -178,6 +224,7 @@ export default class JobComponent extends Vue {
     async mounted()
     {
         this.loadPagedHistory(true);
+        this.loadPagedLogItems(true);
         
         this.refreshEditorSize();
         this.$nextTick(() => this.refreshEditorSize());
@@ -191,6 +238,7 @@ export default class JobComponent extends Vue {
     //////////////
     refresh(): void {
         this.loadPagedHistory(false);
+        this.loadPagedLogItems(false);
     }
 
     loadPagedHistory(resetPageIndex: boolean): void {
@@ -218,6 +266,25 @@ export default class JobComponent extends Vue {
         });
     }
 
+    loadPagedLogItems(resetPageIndex: boolean): void {
+        if (!this.hasAccessToViewJobHistory) return;
+
+        if (resetPageIndex) {
+            this.logPageIndex = 0;
+        }
+        let pageIndex = this.logPageIndex;
+        this.service.GetPagedLogItems(this.job.SourceId, this.job.Definition.Id, this.logPageIndex, this.logPageSize, this.dataLoadStatus, {
+            onSuccess: (data) => {
+                this.pagedLogItems = data;
+                this.logTotalHistoryCount = data.TotalCount;
+
+                if (pageIndex == 0) {
+                    this.latestLogItem = data.Items[0];
+                }
+            }
+        });
+    }
+
     loadHistoryDetailsFor(history: HCJobHistoryEntryViewModel): void {
         if (!this.hasAccessToViewJobHistoryDetails) return;
 
@@ -238,7 +305,7 @@ export default class JobComponent extends Vue {
         const sourceId = this.job.SourceId;
         const jobId = this.job.Definition.Id;
         this.service.StartJob(sourceId, jobId, this.dataLoadStatus, {
-            onSuccess: (data) => this.updateJobRunningStatus(sourceId, jobId, data.Success, true, data.Message)
+            onSuccess: (data) => this.isStarting = data.Success
         });
     }
 
@@ -246,12 +313,8 @@ export default class JobComponent extends Vue {
         const sourceId = this.job.SourceId;
         const jobId = this.job.Definition.Id;
         this.service.StopJob(sourceId, jobId, this.dataLoadStatus, {
-            onSuccess: (data) => this.updateJobRunningStatus(sourceId, jobId, data.Success, false, data.Message)
+            onSuccess: (data) => this.isStopping = data.Success
         });
-    }
-
-    updateJobRunningStatus(sourceId: string, jobId: string, success: boolean, running: boolean, message: string): void {
-        this.$emit("updateJobRunningStatus", sourceId, jobId, success, running, message);
     }
 
     refreshEditorSize(): void {
@@ -314,7 +377,10 @@ export default class JobComponent extends Vue {
     get showStartJobButton(): boolean { return this.hasAccessToStartJob && this.job.Definition.SupportsStart; }
     get showStopJobButton(): boolean { return this.hasAccessToStopJob && this.job.Definition.SupportsStop && this.isJobRunning; }
     get showRefreshButton(): boolean { return this.hasAccessToViewJobHistory; }
-    get startJobButtonText(): string { return this.isJobRunning ? 'Running..' : "Start job"; }
+    get startJobButtonText(): string { return this.isJobRunning ? 'Running..' : (this.isStarting ? "Starting.." : "Start job"); }
+    get stopJobButtonText(): string { return this.isStopping ? "Requested stop.." : "Stop job"; }
+    get disableStartJobButton(): boolean { return this.isStarting || this.isLoading || this.isJobRunning; }
+    get disableStopJobButton(): boolean { return this.isStopping || this.isLoading || !this.isJobRunning; }
 
     get hasAccessToStartJob(): boolean { return this.hasAccess('StartJob'); }
     get hasAccessToStopJob(): boolean { return this.hasAccess('StopJob'); }
@@ -363,6 +429,15 @@ export default class JobComponent extends Vue {
     onPageIndexChanged(): void {
         this.loadPagedHistory(false);
     }
+    onLogPageIndexChanged(): void {
+        this.loadPagedLogItems(false);
+    }
+
+    @Watch("status", { deep: true })
+    onStatusChanged(): void {
+        this.isStarting = false;
+        this.isStopping = false;
+    }
 }
 </script>
 
@@ -381,7 +456,8 @@ export default class JobComponent extends Vue {
     font-size: 13px;
     color: var(--color--accent-darken10);
 }
-.history-entry {
+.history-entry,
+.log-entry {
     padding: 5px;
     font-size: 12px;
     border-left: 4px solid transparent;

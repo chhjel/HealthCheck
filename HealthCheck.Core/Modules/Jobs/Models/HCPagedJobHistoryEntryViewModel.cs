@@ -1,5 +1,4 @@
-﻿using HealthCheck.Core.Modules.DataRepeater.Abstractions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace HealthCheck.Core.Modules.Jobs.Models
 {
@@ -9,11 +8,11 @@ namespace HealthCheck.Core.Modules.Jobs.Models
         /// <summary>
         /// Total count.
         /// </summary>
-        public int TotalCount { get; set; }
+        public long TotalCount { get; set; }
 
         /// <summary>
         /// Items on the current page.
         /// </summary>
-        public List<HCJobHistoryEntryViewModel> Items { get; set; }
+        public List<HCJobHistoryEntryViewModel> Items { get; set; } = new();
     }
 }

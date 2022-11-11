@@ -121,11 +121,11 @@ export default class JobsOverviewComponent extends Vue {
     }
 
     getJobStatus(sourceId: string, jobId: string): HCJobStatusViewModel | null {
-        return this.jobStatuses.find(x => x.SourceId == sourceId && x.JobId == jobId);
+        return this.jobStatuses.find(x => x.JobId == jobId);
     }
 
     getJobHistory(sourceId: string, jobId: string): HCJobHistoryEntryViewModel | null {
-        return this.latestHistoryPerJob.find(x => x.SourceId == sourceId && x.JobId == jobId);
+        return this.latestHistoryPerJob.find(x => x.JobId == jobId);
     }
 
     createJobDetails(job: HCJobDefinitionWithSourceViewModel): JobDetails {

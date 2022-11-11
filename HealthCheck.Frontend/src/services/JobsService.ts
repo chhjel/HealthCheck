@@ -46,6 +46,20 @@ export default class JobsService extends HCServiceBase
         this.invokeModuleMethod(this.moduleId, "GetPagedHistory", payload, statusObject, callbacks);
     }
     
+    public GetPagedLogItems(
+        sourceId: string, jobId: string, pageIndex: number, pageSize: number,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<HCPagedJobHistoryEntryViewModel | null> | null = null
+    ): void {
+        const payload: HCJobsGetPagedHistoryRequestModel = {
+            SourceId: sourceId,
+            JobId: jobId,
+            PageIndex: pageIndex,
+            PageSize: pageSize
+        };
+        this.invokeModuleMethod(this.moduleId, "GetPagedLogItems", payload, statusObject, callbacks);
+    }
+
     public GetLatestHistoryPerJobId(
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<Array<HCJobHistoryEntryViewModel> | null> | null = null

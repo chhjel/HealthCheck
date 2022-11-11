@@ -186,7 +186,7 @@ export default class JobsPageComponent extends Vue {
             return;
         }
 
-        var status = this.jobStatuses.find(x => x.SourceId == sourceId && x.JobId == jobId);
+        var status = this.jobStatuses.find(x => x.JobId == jobId);
         if (!status) {
             status = {
                 SourceId: sourceId,
@@ -196,7 +196,7 @@ export default class JobsPageComponent extends Vue {
                 IsEnabled: false,
                 StartedAt: new Date(),
                 EndedAt: null,
-                LastRunWasSuccessful: null,
+                Status: null,
                 NextExecutionScheduledAt: null
             };
             this.jobStatuses.push(status);
@@ -274,7 +274,7 @@ export default class JobsPageComponent extends Vue {
 
     get selectedJobStatus(): HCJobStatusViewModel | null {
         if (this.selectedJob == null) return null;
-        return this.jobStatuses.find(x => x.SourceId == this.selectedJob.SourceId && x.JobId == this.selectedJob.Definition.Id);
+        return this.jobStatuses.find(x => x.JobId == this.selectedJob.Definition.Id);
     }
     
     ///////////////////////

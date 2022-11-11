@@ -13,10 +13,13 @@ namespace HealthCheck.Core.Modules.Jobs.Abstractions
         string Name { get; }
 
         /// <summary></summary>
-        public string Description { get; }
+        string Description { get; }
 
         /// <summary></summary>
         Task<List<HCJobDefinition>> GetJobDefinitionsAsync();
+
+        /// <summary></summary>
+        Task<HCPagedJobLogItems> GetJobLogItemsPaged(string jobId, int pageIndex, int pageSize);
 
         /// <summary></summary>
         Task<HCJobStatus> GetJobStatusAsync(string id);
@@ -24,9 +27,7 @@ namespace HealthCheck.Core.Modules.Jobs.Abstractions
         /// <summary></summary>
         Task<List<HCJobStatus>> GetJobStatusesAsync();
 
-        /// <summary>
-        /// E.g: 1. save parameters, 2. start job, 3. job loads parameters
-        /// </summary>
+        /// <summary></summary>
         Task<HCJobStartResult> StartJobAsync(string jobId, object parameters);
 
         /// <summary></summary>

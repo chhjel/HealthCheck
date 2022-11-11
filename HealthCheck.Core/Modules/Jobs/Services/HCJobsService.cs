@@ -50,6 +50,18 @@ namespace HealthCheck.Core.Modules.Jobs.Services
         /// <inheritdoc />
         public async Task<HCPagedJobHistoryEntry> GetPagedHistoryAsync(string sourceId, string jobId, int pageIndex, int pageSize)
             => await _historyStorage.GetPagedHistoryAsync(sourceId, jobId, pageIndex, pageSize);
+        
+        /// <inheritdoc />
+        public async Task<HCPagedJobLogItems> GetPagedJobLogItemsAsync(string sourceId, string jobId, int pageIndex, int pageSize)
+        {
+            var source = _jobSources.FirstOrDefault(x => CreateSourceId(x) == sourceId);
+            HCPagedJobLogItems sourceResult = new();
+            if (source != null)
+            {
+                sourceResult = await source.GetJobLogItemsPaged(jobId, pageIndex, pageSize);
+            }
+            return sourceResult;
+        }
 
         /// <inheritdoc />
         public async Task<HCJobHistoryDetailEntry> GetHistoryDetailAsync(Guid id)
@@ -60,7 +72,9 @@ namespace HealthCheck.Core.Modules.Jobs.Services
         {
             var source = _jobSources.FirstOrDefault(x => CreateSourceId(x) == sourceId);
             if (source == null) return null;
-            return await source.GetJobStatusAsync(jobId);
+            var statuse = await source.GetJobStatusAsync(jobId);
+            statuse.SourceId = sourceId;
+            return statuse;
         }
 
         /// <inheritdoc />
