@@ -1,6 +1,7 @@
 ﻿using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Config;
 using HealthCheck.Core.Modules.SiteEvents.Models;
+using HealthCheck.Core.Modules.Tests.Utils.HtmlPresets;
 using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
@@ -437,6 +438,16 @@ namespace HealthCheck.Core.Modules.Tests.Models
             => AddUrlsData(
                 (string.IsNullOrWhiteSpace(link?.Url) && onlyIfNotNullOrEmpty) ? new HyperLink[0] : new[] { link },
                 title, onlyIfNotNullOrEmpty);
+
+        /// <summary>
+        /// Creates a sortable, filterable datatable from the given items.
+        /// <para>Only top level, public properties will be included.</para>
+        /// </summary>
+        public TestResult AddDataTable(IList<object> items, string title = null, bool onlyIfNotNullOrEmpty = true)
+            => AddHtmlData(
+                new HtmlPresetBuilder().AddItem(new HtmlPresetDataTable().AddItems(items)).ToHtml(),
+                title, onlyIfNotNullOrEmpty
+            );
 
         /// <summary>
         /// Include a timeline built from the given data in the result data.

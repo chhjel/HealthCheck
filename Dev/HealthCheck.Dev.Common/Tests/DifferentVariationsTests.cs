@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Models;
+﻿using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Models;
 using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Modules.Tests.Utils.HtmlPresets;
@@ -8,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using static HealthCheck.Dev.Common.Jobs.DummyJobsSource;
 
 namespace HealthCheck.Dev.Common.Tests
 {
@@ -122,6 +124,20 @@ namespace HealthCheck.Dev.Common.Tests
         public TestResult TestAllDataDumpTypes(int imageWidth = 640, int imageHeight = 480, int imageCount = 10, int linkCount = 4, long largeNumber = 214124112412123L)
         {
             var objectToSerialize = TestResult.CreateWarning($"Some random json object");
+            var dataTableItems = Enumerable.Range(0, 8000)
+                .Select((x, i) => new DummyItem
+                {
+                    EndedAt = DateTimeOffset.Now.AddMinutes(-i),
+                    IsEnabled = i % 2 == 0,
+                    IsRunning = i % 5 == 0,
+                    JobId = $"{typeof(DummyJob).FullName}_{typeof(DummyJob).Assembly.ShortName()}",
+                    SourceId = Guid.NewGuid().ToString(),
+                    Summary = $"Summary here {Guid.NewGuid()}.",
+                    StartedAt = DateTimeOffset.Now.AddDays(-1).AddHours(-5).AddMinutes(i),
+                    LastRunWasSuccessful = i % 3 == 0,
+                    NextExecutionScheduledAt = DateTimeOffset.Now.AddMinutes(5 + (i))
+                })
+                .ToArray();
 
             return TestResult.CreateSuccess($"Data has been served - {largeNumber}")
                 .AddDiff(
@@ -157,6 +173,7 @@ namespace HealthCheck.Dev.Common.Tests
                 .AddJsonData("{ \"test\": true }", "Json data")
                 .AddUrlsData(Enumerable.Range(1, linkCount).Select(x => new HyperLink($"Link number #{x}", $"{"https://"}www.google.com?q={x}")))
                 .AddImageUrlsData(Enumerable.Range(1, imageCount).Select(x => $"{"https://"}loremflickr.com/{imageWidth}/{imageHeight}?v={x}"), $"{imageCount} images from https://loremflickr.com")
+                .AddDataTable(dataTableItems)
                 .AddHtmlData(new HtmlPresetBuilder()
                                 .AddItems(
                                     new HtmlPresetHeader("Title woop!"),
