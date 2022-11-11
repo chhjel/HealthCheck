@@ -400,6 +400,7 @@ The `TestResult` class has a few static factory methods for quick creation of a 
 |AddData|Adds string data and optionally define the type yourself.|
 |AddSerializedData|Two variants of this method exists. Use the extension method variant unless you want to provide your own serializer implementation. The method simply serializes the given object to json and includes it.|
 |AddHtmlData|Two variants of this method exists. Use the extension method variant for html presets using `new HtmlPresetBuilder()` or the non-extension method for raw html.|
+|AddDataTable|Creates a sortable, filterable datatable from the given list of objects. Top-level properties will be used.|
 |AddTimingData|Creates timing metric display.|
 |AddTimelineData|Creates a timeline from the given steps. Each step can show a dialog with more info/links.|
 |AddFileDownload|Creates a download button that can download e.g. larger files by id. Requires `HCTestsModuleOptions.FileDownloadHandler` to be implemented, see further below.|

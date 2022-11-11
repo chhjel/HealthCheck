@@ -66,12 +66,13 @@ export default class DateUtils
         return parts.joinForSentence(', ', ' and ') + suffix;
     }
 
-    static FormatDate(date: Date, format: string): string
+    static FormatDate(dateInput: Date | string, format: string): string
     {
-        if (!date) return '';
-        else if (typeof date === 'string')
+        if (!dateInput) return '';
+        let date: Date = <any>dateInput;
+        if (typeof dateInput === 'string')
         {
-            date = new Date(date);
+            date = new Date(dateInput);
         }
 
         let _pad = (n: any, c: any): any => {

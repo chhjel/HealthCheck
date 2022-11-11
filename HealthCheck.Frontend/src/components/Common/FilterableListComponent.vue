@@ -3,8 +3,8 @@
     <div class="filterable-list">
         <div class="menu-items">
             <filter-input-component class="filter contrast" v-model:value="filterText" v-if="showFilter" />
-            <div v-if="!showFilter" class="mb-5"></div>
-            <div v-if="!showFilter" style="margin-top: 76px"></div>
+            <div v-if="!showFilter && !noTopMargin" class="mb-5"></div>
+            <div v-if="!showFilter && !noTopMargin" style="margin-top: 76px"></div>
 
             <progress-linear-component 
                 v-if="loading"
@@ -77,12 +77,7 @@
 <script lang="ts">
 import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
-import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
-import { EntryState } from '@models/modules/RequestLog/EntryState';
-import DateUtils from '@util/DateUtils';
 import LinqUtils from '@util/LinqUtils';
-import KeyArray from '@util/models/KeyArray';
-import KeyValuePair from '@models/Common/KeyValuePair';
 // @ts-ignore
 import FilterInputComponent from '@components/Common/FilterInputComponent.vue';
 
@@ -98,16 +93,16 @@ export default class FilterableListComponent extends Vue {
     items!: Array<FilterableListItem>;
 
     @Prop({ required: false, default: '' })
-    groupByKey!: string;
+    groupByKey!: string | ((d: any) => any) | null;
+
+    @Prop({ required: false, default: null })
+    sortByKey!: string | ((d: any) => any) | null;
 
     @Prop({ required: false, default: null })
     iconsKey!: string | null;
 
     @Prop({ required: false, default: null })
     hrefKey!: string | null;
-
-    @Prop({ required: false, default: null })
-    sortByKey!: string | null;
 
     @Prop({ required: false, default: null })
     groupOrders!: { [key:string]:number } | null;
@@ -120,6 +115,9 @@ export default class FilterableListComponent extends Vue {
 
     @Prop({ required: false, default: false })
     disabled!: boolean;
+
+    @Prop({ required: false, default: false })
+    noTopMargin!: boolean;
 
     @Prop({ required: false, default: true })
     groupIfSingleGroup!: boolean;
@@ -150,15 +148,16 @@ export default class FilterableListComponent extends Vue {
     {
         if (this.groups.length > 0) return [];
         return this.items
-            .sort((a, b) => LinqUtils.SortBy(a, b, (x: any) => x.data[this.sortByKey || '']));
+            .sort((a, b) => LinqUtils.SortBy(a, b, (x: any) => this.resolveSortBy(x.data)));
     }
 
     get groups(): Array<FilterableListGroup>
     {
         let groupList: Array<FilterableListGroup> = [];
-        if (this.groupByKey.length == 0) return groupList;
+        if (this.resolveGroupBy == null
+            || (typeof this.groupByKey === 'string' && this.groupByKey.length == 0)) return groupList;
 
-        LinqUtils.GroupByInto(this.items, (x: any) => x.data[this.groupByKey] || 'Other', 
+        LinqUtils.GroupByInto(this.items, (x: any) => this.resolveGroupBy(x.data), 
             (key, items) => groupList.push({
                 title: key,
                 items: items
@@ -175,14 +174,14 @@ export default class FilterableListComponent extends Vue {
         {
             for (let i=0;i<groupList.length;i++)
             {
-                groupList[i].items = groupList[i].items.sort((a, b) => LinqUtils.SortBy(a, b, (x: any) => x.data[this.sortByKey || '']));
+                groupList[i].items = groupList[i].items.sort((a, b) => LinqUtils.SortBy(a, b, (x: any) => this.resolveSortBy(x.data)));
             }
         }
         // Sort groups
         if (this.groupOrders != null && this.groupByKey != null)
         {
             groupList = groupList.sort((a, b) => LinqUtils.SortBy(a, b, (x: FilterableListGroup) => {
-                const groupName: string = x.items[0].data[this.groupByKey];
+                const groupName: string = this.resolveGroupBy(x.items[0].data);
                 const groupOrder: number = this.groupOrders[groupName] || -999999;
                 return groupOrder;
             }));
@@ -244,6 +243,18 @@ export default class FilterableListComponent extends Vue {
         if (this.hrefKey == null) return null;
         const href = data[this.hrefKey] || null;
         return href;
+    }
+
+    resolveSortBy(data: any): any {
+        if (this.sortByKey == null) return '';
+        else if (typeof this.sortByKey === 'string') return data[this.sortByKey || ''];
+        else return this.sortByKey(data);
+    }
+
+    resolveGroupBy(data: any): any {
+        if (this.groupByKey == null) return '';
+        else if (typeof this.groupByKey === 'string') return data[this.groupByKey || 'Other'];
+        else return this.groupByKey(data) || 'Other';
     }
 
     public filterInputText(): string { return this.filterText; }

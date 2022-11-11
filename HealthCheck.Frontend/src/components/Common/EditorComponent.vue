@@ -1,6 +1,6 @@
 <!-- src/components/Common/EditorComponent.vue -->
 <template>
-    <div class="editor-component">
+    <div class="editor-component" :class="rootClasses">
         <div class="editor-component__loader-bar" v-if="!isEditorInited">
             <progress-linear-component 
                 indeterminate
@@ -138,6 +138,13 @@ export default class EditorComponent extends Vue {
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
         return StoreUtil.store.state.globalOptions;
+    }
+
+    get rootClasses(): any {
+        let classes: any = {
+            'editor-readonly': this.readOnly
+        };
+        return classes;
     }
     
     ////////////////////////////////////////////////////////////
