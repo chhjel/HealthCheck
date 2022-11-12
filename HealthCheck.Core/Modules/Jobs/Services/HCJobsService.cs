@@ -1,5 +1,6 @@
 using HealthCheck.Core.Modules.Jobs.Abstractions;
 using HealthCheck.Core.Modules.Jobs.Models;
+using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -99,11 +100,22 @@ namespace HealthCheck.Core.Modules.Jobs.Services
         }
 
         /// <inheritdoc />
-        public async Task<HCJobStartResult> StartJobAsync(string sourceId, string jobId, object parameters)
+        public async Task<HCJobStartResult> StartJobAsync(string sourceId, string jobId, Dictionary<string, string> parameters)
         {
             var source = _jobSources.FirstOrDefault(x => CreateSourceId(x) == sourceId);
             if (source == null) return new HCJobStartResult { Message = "Job not found." };
-            return await source.StartJobAsync(jobId, parameters);
+
+            var jobs = await source.GetJobDefinitionsAsync();
+            var job = jobs.FirstOrDefault(x => x.Id == jobId);
+            object parametersObject = job?.CustomParametersType == null ? null : HCValueConversionUtils.ConvertInputModel(job.CustomParametersType, parameters);
+            var parametersModel = new HCJobStartCustomParameters
+            {
+                CustomParametersRaw = parameters,
+                CustomParametersInstance = parametersObject,
+                CustomParametersType = job?.CustomParametersType
+            };
+
+            return await source.StartJobAsync(jobId, parametersModel);
         }
 
         /// <inheritdoc />

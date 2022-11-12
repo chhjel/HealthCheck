@@ -13,6 +13,11 @@
                 @click="startJob"
                 color="primary"
                 >{{ startJobButtonText }}</btn-component>
+            <btn-component v-if="showStartJobWithParametersButton"
+                :disabled="disableStartJobWithParametersButton"
+                @click="startWithParametersDialogVisible = true"
+                color="primary"
+                >Start job with parameters..</btn-component>
             <btn-component v-if="showStopJobButton"
                 :disabled="disableStopJobButton"
                 @click="stopJob"
@@ -145,6 +150,33 @@
                 </div>
             </div>
         </dialog-component>
+        <dialog-component v-model:value="startWithParametersDialogVisible">
+            <template #header>Start job with parameters</template>
+            <template #footer>
+                <btn-component color="primary"
+                    v-if="showStartJobWithParametersButton"
+                    :disabled="disableStartJobWithParametersButton"
+                    @click="startJobWithParametersClicked"
+                    >{{ startJobButtonText }}</btn-component>
+                <btn-component color="secondary"
+                    :disabled="detailLoadProgress.inProgress"
+                    :loading="detailLoadProgress.inProgress"
+                    @click="startWithParametersDialogVisible = false">Close</btn-component>
+            </template>
+            <div v-if="customParameterDefinitions != null">
+                <div class="job-parameter-items">
+                    <backend-input-component
+                        v-for="(parameterDef, pIndex) in customParameterDefinitions"
+                        :key="`job-parameter-item-${job.Id}-${pIndex}`"
+                        class="job-parameter-item"
+                        :class="jobParameterItemClasses(parameterDef)"
+                        v-model:value="customParameters[parameterDef.Id]"
+                        :config="parameterDef"
+                        :readonly="isLoading"
+                        />
+                </div>
+            </div>
+        </dialog-component>
     </div>
 </template>
 
@@ -167,11 +199,15 @@ import EditorComponent from "@components/Common/EditorComponent.vue";
 import DateUtils from "@util/DateUtils";
 import { HCJobHistoryEntryViewModel } from "@generated/Models/Core/HCJobHistoryEntryViewModel";
 import JobUtils from "./JobUtils";
+import { HCBackendInputConfig } from "@generated/Models/Core/HCBackendInputConfig";
+import { HCUIHint } from "@generated/Enums/Core/HCUIHint";
+import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
 
 @Options({
     components: {
         PagingComponent,
-        EditorComponent
+        EditorComponent,
+        BackendInputComponent
     }
 })
 export default class JobComponent extends Vue {
@@ -217,6 +253,8 @@ export default class JobComponent extends Vue {
 
     // Dialogs
     loadDetailsDialogVisible: boolean = false;
+    startWithParametersDialogVisible: boolean = false;
+    customParameters: { [key:string]: string } = {};
 
     //////////////////
     //  LIFECYCLE  //
@@ -301,10 +339,16 @@ export default class JobComponent extends Vue {
         });
     }
 
-    startJob(): void {
+    startJobWithParametersClicked(): void {
+        this.startJob(true);
+        this.startWithParametersDialogVisible = false;
+    }
+
+    startJob(includeParameters: boolean = false): void {
         const sourceId = this.job.SourceId;
         const jobId = this.job.Definition.Id;
-        this.service.StartJob(sourceId, jobId, this.dataLoadStatus, {
+        const parameters: { [key:string]: string } = includeParameters == true ? this.customParameters : {};
+        this.service.StartJob(sourceId, jobId, parameters, this.dataLoadStatus, {
             onSuccess: (data) => this.isStarting = data.Success
         });
     }
@@ -358,6 +402,13 @@ export default class JobComponent extends Vue {
     formatDateTime(date: Date | string): string {
         return DateUtils.FormatDate(date, 'd. MMM HH:mm:ss');
     }
+    
+    jobParameterItemClasses(parameter: HCBackendInputConfig): any {
+        let classes: any = {
+            'full-width': parameter.UIHints.includes(HCUIHint.FullWidth)
+        };
+        return classes;
+    }
 
     ////////////////
     //  GETTERS  //
@@ -375,19 +426,27 @@ export default class JobComponent extends Vue {
     }
 
     get showStartJobButton(): boolean { return this.hasAccessToStartJob && this.job.Definition.SupportsStart; }
+    get showStartJobWithParametersButton(): boolean {
+        return this.showStartJobButton
+            && this.hasAccessToStartJobWithParameters
+            && this.job?.Definition?.HasCustomParameters == true;
+    }
     get showStopJobButton(): boolean { return this.hasAccessToStopJob && this.job.Definition.SupportsStop && this.isJobRunning; }
     get showRefreshButton(): boolean { return this.hasAccessToViewJobHistory; }
     get startJobButtonText(): string { return this.isJobRunning ? 'Running..' : (this.isStarting ? "Starting.." : "Start job"); }
     get stopJobButtonText(): string { return this.isStopping ? "Requested stop.." : "Stop job"; }
     get disableStartJobButton(): boolean { return this.isStarting || this.isLoading || this.isJobRunning; }
+    get disableStartJobWithParametersButton(): boolean { return this.isStarting || this.isLoading || this.isJobRunning; }
     get disableStopJobButton(): boolean { return this.isStopping || this.isLoading || !this.isJobRunning; }
 
     get hasAccessToStartJob(): boolean { return this.hasAccess('StartJob'); }
+    get hasAccessToStartJobWithParameters(): boolean { return this.hasAccessToStartJob && this.hasAccess('StartJobWithCustomParameters'); }
     get hasAccessToStopJob(): boolean { return this.hasAccess('StopJob'); }
     get hasAccessToViewJobHistory(): boolean { return this.hasAccess('ViewJobHistory'); }
     get hasAccessToViewJobHistoryDetails(): boolean { return this.hasAccess('ViewJobHistoryDetails'); }
     get hasAccessToDeleteHistory(): boolean { return this.hasAccess('DeleteHistory'); }
     get hasAccessToDeleteAllHistory(): boolean { return this.hasAccess('DeleteAllHistory'); }
+    get customParameterDefinitions(): HCBackendInputConfig[] { return this.job.Definition.CustomParameters; }
 
     detailCodeTagStart: string = '<code class="inline-detail">';
     get runningStatusText(): string {
@@ -479,6 +538,9 @@ export default class JobComponent extends Vue {
     &:nth-child(even) {
         background-color: var(--color--accent-darken1);
     }
+}
+.job-parameter-item {
+    margin-bottom: 10px;
 }
 .no-results-text {
     padding: 10px;

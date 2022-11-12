@@ -2,6 +2,8 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
+import { HCBackendInputConfig } from './HCBackendInputConfig';
+
 export interface HCJobDefinitionViewModel
 {
 	Id: string;
@@ -11,4 +13,6 @@ export interface HCJobDefinitionViewModel
 	Categories: string[];
 	SupportsStart: boolean;
 	SupportsStop: boolean;
+	HasCustomParameters: boolean;
+	CustomParameters: HCBackendInputConfig[];
 }

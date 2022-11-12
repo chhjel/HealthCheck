@@ -2,9 +2,9 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-export interface HCJobsStartJobRequestModel
+export interface HCJobStartCustomParameters
 {
-	SourceId: string;
-	JobId: string;
-	Parameters: { [key:string]: string };
+	CustomParametersType: any;
+	CustomParametersInstance: any;
+	CustomParametersRaw: { [key:string]: string };
 }

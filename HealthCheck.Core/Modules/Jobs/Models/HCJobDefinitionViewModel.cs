@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using HealthCheck.Core.Util.Models;
+using System.Collections.Generic;
 
 namespace HealthCheck.Core.Modules.Jobs.Models
 {
@@ -27,5 +28,11 @@ namespace HealthCheck.Core.Modules.Jobs.Models
 
         /// <summary></summary>
         public bool SupportsStop { get; set; }
+
+        /// <summary></summary>
+        public bool HasCustomParameters { get; set; }
+
+        /// <summary></summary>
+        public List<HCBackendInputConfig> CustomParameters { get; set; }
     }
 }

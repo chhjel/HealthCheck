@@ -30,7 +30,7 @@ namespace HealthCheck.Core.Modules.Jobs.Abstractions
         Task<HCJobStatus> GetJobStatusAsync(string sourceId, string jobId);
 
         /// <summary></summary>
-        Task<HCJobStartResult> StartJobAsync(string sourceId, string jobId, object parameters);
+        Task<HCJobStartResult> StartJobAsync(string sourceId, string jobId, Dictionary<string, string> parameters);
         /// <summary></summary>
         Task<HCJobStopResult> StopJobAsync(string sourceId, string jobId);
 

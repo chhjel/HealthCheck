@@ -2,6 +2,8 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
+import { HCBackendInputConfig } from './HCBackendInputConfig';
+
 export interface HCJobDefinition
 {
 	Id: string;
@@ -12,4 +14,6 @@ export interface HCJobDefinition
 	AllowedAccessRoles: any;
 	SupportsStart: boolean;
 	SupportsStop: boolean;
+	CustomParametersType: any;
+	CustomParameters: HCBackendInputConfig[];
 }
