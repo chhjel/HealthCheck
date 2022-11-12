@@ -32,7 +32,7 @@ namespace HealthCheck.Core.Modules.Jobs
            HCJobsContext context = null)
             where TJobSource : IHCJobsSource
         {
-            var jobId = $"{typeof(TJob).FullName}_{typeof(TJob).Assembly.ShortName()}";
+            var jobId = CreateJobId<TJob>();
             return await StoreHistoryAsync<TJobSource>(jobId, status, summary, data, dataIsHtml, historyCountLimit, context);
         }
 
@@ -113,5 +113,8 @@ namespace HealthCheck.Core.Modules.Jobs
                 return null;
             }
         }
+
+        internal static string CreateJobId<TJob>() => CreateJobId(typeof(TJob));
+        internal static string CreateJobId(Type type) => $"{type.FullName}_{type.Assembly.ShortName()}";
     }
 }

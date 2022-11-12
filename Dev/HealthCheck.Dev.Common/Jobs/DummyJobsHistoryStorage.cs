@@ -42,7 +42,9 @@ namespace HealthCheck.Dev.Common.Jobs
         {
             lock (_items)
             {
-                var potential = _items.Where(x => x.SourceId == sourceId && x.JobId == jobId);
+                var potential = _items
+                    .OrderByDescending(h => h.EndedAt)
+                    .Where(x => x.SourceId == sourceId && x.JobId == jobId);
                 var items = potential
                     .Skip(pageIndex * pageSize)
                     .Take(pageSize)

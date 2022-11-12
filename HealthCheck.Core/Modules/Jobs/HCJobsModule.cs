@@ -62,6 +62,8 @@ namespace HealthCheck.Core.Modules.Jobs
             DeleteHistory = 16,
             /// <summary>Allows deleting all job history, including of those the user does not have access to.</summary>
             DeleteAllHistory = 32,
+            /// <summary>Allows starting jobs with custom parameters for those that support it.</summary>
+            StartJobWithCustomParameters = 64,
         }
 
         #region Invokable methods
@@ -159,13 +161,16 @@ namespace HealthCheck.Core.Modules.Jobs
         public async Task<HCJobStartResultViewModel> StartJob(HealthCheckModuleContext context, HCJobsStartJobRequestModel model)
         {
             if (!context.HasAccess(AccessOption.StartJob)) return new HCJobStartResultViewModel { Message = "You do not have access to start this job." };
+            if (!context.HasAccess(AccessOption.StartJobWithCustomParameters))
+            {
+                model.Parameters = null;
+            }
 
             var defs = await GetDefinitionsRequestCanAccessAsync(context);
             var allowedSourceIds = new HashSet<string>(defs.Select(x => x.SourceId));
             if (!allowedSourceIds.Contains(model.SourceId)) return new HCJobStartResultViewModel { Message = "Job not found." };
 
-            var parameters = "todo";
-            var result = await Options.Service.StartJobAsync(model.SourceId, model.JobId, parameters);
+            var result = await Options.Service.StartJobAsync(model.SourceId, model.JobId, model.Parameters);
             context.AddAuditEvent(action: "Job started", subject: $"\"{model.JobId}\"")
                 .AddDetail("Result", result.Message);
             return Create(result);
@@ -349,7 +354,9 @@ namespace HealthCheck.Core.Modules.Jobs
                 Description = x.Description,
                 GroupName = x.GroupName,
                 SupportsStart = x.SupportsStart,
-                SupportsStop = x.SupportsStop
+                SupportsStop = x.SupportsStop,
+                CustomParameters = x.CustomParameters,
+                HasCustomParameters = x.CustomParameters?.Count > 0
             };
         }
         #endregion

@@ -98,13 +98,14 @@ export default class JobsService extends HCServiceBase
     }
     
     public StartJob(
-        sourceId: string, jobId: string,
+        sourceId: string, jobId: string, parameters: { [key:string]: string },
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<HCJobStartResultViewModel | null> | null = null
     ): void {
         const payload: HCJobsStartJobRequestModel = {
             SourceId: sourceId,
-            JobId: jobId
+            JobId: jobId,
+            Parameters: parameters
         };
         this.invokeModuleMethod(this.moduleId, "StartJob", payload, statusObject, callbacks);
     }

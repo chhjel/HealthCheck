@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Extensions;
+﻿using HealthCheck.Core.Attributes;
+using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.Jobs;
 using HealthCheck.Core.Modules.Jobs.Abstractions;
 using HealthCheck.Core.Modules.Jobs.Models;
@@ -22,13 +23,15 @@ namespace HealthCheck.Dev.Common.Jobs
             var jobs = Enumerable.Range(1, 8)
                 .Select(x => new HCJobDefinition
                 {
-                    Id = $"{typeof(DummyJob).FullName}_{typeof(DummyJob).Assembly.ShortName()}",
+                    Id = $"{typeof(DummyJob).FullName}_{typeof(DummyJob).Assembly.ShortName()}_{x}",
                     Name = $"Job #{x}",
                     Description = string.Concat(Enumerable.Repeat($"Some description here for job #{x} ", x)),
                     AllowedAccessRoles = null,
                     GroupName = (x % 5 == 0) ? null : $"Group #{x % 2}",
                     SupportsStart = x == 0 || x == 1 || x > 3,
-                    SupportsStop = x == 0 || x == 2|| x > 3,
+                    SupportsStop = x == 0 || x == 2 || x > 3,
+                    CustomParametersType = x % 2 == 0 ? typeof(DummyJobParameters) : null,
+                    CustomParameters = x % 2 == 0 ? HCCustomPropertyAttribute.CreateInputConfigs(typeof(DummyJobParameters)) : null
                 })
                 .ToList();
             return Task.FromResult(jobs);
@@ -45,7 +48,7 @@ namespace HealthCheck.Dev.Common.Jobs
         public Task<List<HCJobStatus>> GetJobStatusesAsync()
             => Task.FromResult(_jobStatuses.Values.ToList());
 
-        public async Task<HCJobStartResult> StartJobAsync(string jobId, object parameters)
+        public async Task<HCJobStartResult> StartJobAsync(string jobId, HCJobStartCustomParameters parameters)
         {
             var context = new HCJobsContext();
             if (!_jobStatuses.ContainsKey(jobId))
@@ -71,7 +74,7 @@ namespace HealthCheck.Dev.Common.Jobs
             await Task.Delay(TimeSpan.FromSeconds(_jobStatuses.Values.ToList().IndexOf(status) + 1));
             status.EndedAt = DateTimeOffset.Now;
             status.IsRunning = false;
-            status.Summary = "Finished";
+            status.Summary = $"Finished - 'SomeString' parameter was '{parameters.GetParametersAs<DummyJobParameters>()?.SomeString}'";
 
             var items = Enumerable.Range(0, 8000)
                 .Select((x, i) => new DummyItem
@@ -96,7 +99,7 @@ namespace HealthCheck.Dev.Common.Jobs
                         .ToHtml();
             var data = JsonConvert.SerializeObject(status);
 
-            var multiplier = (jobId == "8") ? 500 : 1;
+            var multiplier = jobId.EndsWith("_8") ? 500 : 1;
             for (int i = 0; i < multiplier; i++) {
                 var stat = HCJobHistoryStatus.Success;
                 if (i > 0) stat = (HCJobHistoryStatus)(i % 3);
@@ -108,7 +111,7 @@ namespace HealthCheck.Dev.Common.Jobs
                     data = html;
                 }
 
-                await HCJobsUtils.StoreHistoryAsync<DummyJobsSource, DummyJob>(stat, $"Summary: {status.Summary}", data, isHtml, context: context);
+                await HCJobsUtils.StoreHistoryAsync<DummyJobsSource>(jobId, stat, $"Summary: {status.Summary}", data, isHtml, context: context);
             }
 
             return new HCJobStartResult { Success = true, Message = "Job was started." };
@@ -143,11 +146,11 @@ namespace HealthCheck.Dev.Common.Jobs
             var data = JsonConvert.SerializeObject(status);
             var isHtml = false;
 
-            var multiplier = (jobId == "8") ? 500 : 1;
+            var multiplier = jobId.EndsWith("_8") ? 500 : 1;
             for (int i = 0; i < multiplier; i++)
             {
                 if (i > 0) stat = (HCJobHistoryStatus)(i % 3);
-                await HCJobsUtils.StoreHistoryAsync<DummyJobsSource, DummyJob>(stat, $"Summary: {status.Summary}", data, isHtml, context: context);
+                await HCJobsUtils.StoreHistoryAsync<DummyJobsSource>(jobId, stat, $"Summary: {status.Summary}", data, isHtml, context: context);
             }
 
             return new HCJobStopResult { Success = true, Message = "Job was stopped." };
@@ -164,6 +167,15 @@ namespace HealthCheck.Dev.Common.Jobs
             public DateTimeOffset? StartedAt { get; set; }
             public DateTimeOffset? EndedAt { get; set; }
             public bool? LastRunWasSuccessful { get; set; }
+        }
+
+        public class DummyJobParameters
+        {
+            public string SomeString { get; set; }
+            public bool? SomeBool { get; set; }
+            public DateTimeOffset? WhenAt { get; set; }
+            [HCCustomProperty(UIHints = Core.Models.HCUIHint.CodeArea)]
+            public string SomeCode{ get; set; }
         }
     }
 }
