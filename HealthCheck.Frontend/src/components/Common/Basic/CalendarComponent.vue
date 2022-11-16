@@ -129,11 +129,12 @@ export default class CalendarComponent extends Vue {
             .filter(x => x.start != null)
             .sort((a,b) => (<Date>a.start).getTime() - (<Date>b.start).getTime())[0];
         const end = this.internalCalendarEvents
-            .filter(x => x.end != null)
-            .sort((a,b) => (<Date>b.end).getTime() - (<Date>a.end).getTime())[0];
+            .map(x => x.end || x.start)
+            .filter(x => x != null)
+            .sort((a,b) => (<Date>b).getTime() - (<Date>a).getTime())[0];
         let dateRange: DateRangeInput = {
             start: start?.start || null,
-            end: end?.end || null
+            end: end || null
         }
         this.calendarOptions.validRange = dateRange;
     }
