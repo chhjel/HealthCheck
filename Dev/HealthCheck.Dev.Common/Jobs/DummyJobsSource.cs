@@ -24,7 +24,7 @@ namespace HealthCheck.Dev.Common.Jobs
                 .Select(x => new HCJobDefinition
                 {
                     Id = $"{typeof(DummyJob).FullName}_{typeof(DummyJob).Assembly.ShortName()}_{x}",
-                    Name = $"Job #{x}",
+                    Name = $"Some prefix: Job #{x} that does thing etc long text and maybe some more even",
                     Description = string.Concat(Enumerable.Repeat($"Some description here for job #{x} ", x)),
                     AllowedAccessRoles = null,
                     GroupName = (x % 5 == 0) ? null : $"Group #{x % 2}",
