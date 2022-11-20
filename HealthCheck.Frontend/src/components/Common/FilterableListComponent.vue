@@ -247,13 +247,13 @@ export default class FilterableListComponent extends Vue {
 
     resolveSortBy(data: any): any {
         if (this.sortByKey == null) return '';
-        else if (typeof this.sortByKey === 'string') return data[this.sortByKey || ''];
+        else if (typeof this.sortByKey === 'string') return data[this.sortByKey] || '';
         else return this.sortByKey(data);
     }
 
     resolveGroupBy(data: any): any {
         if (this.groupByKey == null) return '';
-        else if (typeof this.groupByKey === 'string') return data[this.groupByKey || 'Other'];
+        else if (typeof this.groupByKey === 'string') return data[this.groupByKey] || 'Other';
         else return this.groupByKey(data) || 'Other';
     }
 
@@ -312,7 +312,7 @@ export default class FilterableListComponent extends Vue {
 .filterable-menu-item {
     display: flex;
     cursor: pointer;
-    padding-left: 46px;
+    padding: 5px 0 5px 46px;
     &.active {
         padding-left: 42px;
         border-left: 4px solid #d1495b;
@@ -346,11 +346,15 @@ export default class FilterableListComponent extends Vue {
 }
 .open 
 .group-item, .filterable-menu-item {
-    height: 42px;
+    min-height: 32px;
     align-items: center;
     &.active, &:hover {
         background: hsla(0,0%,100%,.08);
     }
+}
+.open 
+.group-item {
+    height: 42px;
 }
 </style>
 

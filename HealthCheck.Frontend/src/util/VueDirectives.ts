@@ -8,48 +8,40 @@ export default function getCustomDirectives(): Array<CustomDirective>
 {
     return [
         (() => {
-            let selfElement: HTMLElement;
-            let targetElements: Array<HTMLElement>;
-            let observer: ResizeObserver;
             const getElementHeight = (e: HTMLElement) => {
                 const margin = (parseFloat(e.style.marginTop) || 0) + (parseFloat(e.style.marginBottom) || 0);
-                // const padding = (parseFloat(e.style.paddingTop) || 0) + (parseFloat(e.style.paddingBottom) || 0);
                 return e.offsetHeight + margin;
             }
-            const setHeight = () => {
+            const setHeight = (el: HTMLElement) => {
+                const targetElements: Array<HTMLElement> = (<any>el)._hc.targetElements;
                 const height = targetElements.reduce((total: number, e: HTMLElement) => total + getElementHeight(e), 0);
-                selfElement.style.maxHeight = `${height}px`;
+                el.style.maxHeight = `${height}px`;
             }
-            const onResize = (entries: ResizeObserverEntry[], observer: ResizeObserver) => {
-                setHeight();
+            const onResize = (el: HTMLElement) => {
+                setHeight(el);
             };
             return {
                 name: 'set-max-height-from-children',
                 directive: {
                     mounted: (el: HTMLElement, binding, vnode) => {
-                        selfElement = el;
-                        targetElements = [el];
+                        let targetElements: Array<HTMLElement> = [el];
                         Array.from(el.children).forEach(e => targetElements.push(e as HTMLElement));
-                        // const targetArg: string | number | null = (binding.arg == null || binding.arg.length == 0)
-                        //     ? null
-                        //     : (binding.arg == 'c' ? 'c' : Number(binding.arg));
-                        setHeight();
-                        observer = new ResizeObserver(onResize);
+
+                        const observer = new ResizeObserver(() => onResize(el));
                         targetElements.forEach(e => observer.observe(e));
+                        
+                        (<any>el)._hc = {};
+                        (<any>el)._hc.targetElements = targetElements;
+                        (<any>el)._hc.observer = observer
+                        
+                        setHeight(el);
                     },
                     beforeUnmount: (el: HTMLElement) => {
+                        const observer: ResizeObserver = (<any>el)._hc.observer;
                         observer.disconnect();
                     }
                 }
             };
         })(),
-        // {
-        //     name: 'set-max-height-from-child',
-        //     directive: {
-        //         mounted: (el: HTMLElement) => {
-        //             el.style.maxHeight = `${el.children[0].clientHeight}px`;
-        //         }
-        //     }
-        // },
     ];
 }
