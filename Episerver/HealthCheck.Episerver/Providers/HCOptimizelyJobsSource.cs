@@ -115,20 +115,7 @@ namespace HealthCheck.Episerver.Providers
             var jobs = _jobRepo.List();
             var plugin = GetIncludedJobPlugins().FirstOrDefault(x => CreateJobId(x) == id);
             var job = jobs.FirstOrDefault(j => j.TypeName == plugin?.TypeName && j.AssemblyName == plugin?.AssemblyName);
-            var attr = plugin.GetAttribute<ScheduledPlugInAttribute>();
-            var lastLog = (await _jobLogRepo.GetAsync(job.ID, 0, 1)).PagedResult.FirstOrDefault();
-            var status = new HCJobStatus
-            {
-                JobId = CreateJobId(plugin),
-                StartedAt = job.LastExecution,
-                EndedAt = lastLog.CompletedUtc.ToLocalTime() + lastLog.Duration,
-                IsEnabled = job.IsEnabled,
-                IsRunning = job.IsRunning,
-                Summary = job.CurrentStatusMessage ?? job.LastExecutionMessage,
-                NextExecutionScheduledAt = job.NextExecution,
-                Status = Create(job?.LastExecutionStatus)
-            };
-            return status;
+            return await CreateStatus(plugin, job);
         }
 
         /// <summary></summary>
@@ -141,20 +128,7 @@ namespace HealthCheck.Episerver.Providers
             {
                 var job = jobs.FirstOrDefault(j => j.TypeName == plugin.TypeName && j.AssemblyName == plugin.AssemblyName);
                 if (job == null) continue;
-                var attr = plugin.GetAttribute<ScheduledPlugInAttribute>();
-                var lastLog = (await _jobLogRepo.GetAsync(job.ID, 0, 1)).PagedResult.FirstOrDefault();
-                var status = new HCJobStatus
-                {
-                    JobId = CreateJobId(plugin),
-                    StartedAt = ToDateTimeOffset(job.LastExecution),
-                    EndedAt = ToDateTimeOffset(lastLog?.CompletedUtc.ToLocalTime() + lastLog?.Duration),
-                    IsEnabled = job.IsEnabled,
-                    IsRunning = job.IsRunning,
-                    Summary = job.CurrentStatusMessage ?? job.LastExecutionMessage,
-                    NextExecutionScheduledAt = ToDateTimeOffset(job.NextExecution),
-                    Status = Create(job?.LastExecutionStatus)
-                };
-
+                var status = await CreateStatus(plugin, job);
                 statuses.Add(status);
             }
             return statuses;
@@ -214,6 +188,25 @@ namespace HealthCheck.Episerver.Providers
         }
 
         private string CreateJobId(PlugInDescriptor plugin) => HCJobsUtils.CreateJobId(plugin.PlugInType);
+
+        private async Task<HCJobStatus> CreateStatus(PlugInDescriptor plugin, ScheduledJob job)
+        {
+            var lastLog = (await _jobLogRepo.GetAsync(job.ID, 0, 1)).PagedResult.FirstOrDefault();
+            var isRunning = job.IsRunning && job.SecondsAfterLastPing < 10;
+
+            var status = new HCJobStatus
+            {
+                JobId = CreateJobId(plugin),
+                StartedAt = ToDateTimeOffset(job.LastExecution),
+                EndedAt = ToDateTimeOffset(lastLog?.CompletedUtc.ToLocalTime() + lastLog?.Duration),
+                IsEnabled = job.IsEnabled,
+                IsRunning = isRunning,
+                Summary = job.CurrentStatusMessage ?? job.LastExecutionMessage,
+                NextExecutionScheduledAt = ToDateTimeOffset(job.NextExecution),
+                Status = Create(job?.LastExecutionStatus)
+            };
+            return status;
+        }
 
         private static readonly DateTime _lowestDateTime = new(2, 1, 1);
         private static DateTimeOffset? ToDateTimeOffset(DateTime? dateTime)
