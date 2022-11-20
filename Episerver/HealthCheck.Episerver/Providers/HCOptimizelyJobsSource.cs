@@ -192,13 +192,15 @@ namespace HealthCheck.Episerver.Providers
         private async Task<HCJobStatus> CreateStatus(PlugInDescriptor plugin, ScheduledJob job)
         {
             var lastLog = (await _jobLogRepo.GetAsync(job.ID, 0, 1)).PagedResult.FirstOrDefault();
-            var isRunning = job.IsRunning && job.SecondsAfterLastPing < 10;
+            var isRunning = job.IsRunning && job.SecondsAfterLastPing < 30;
+            var startedAt = ToDateTimeOffset(job.LastExecution);
+            var endedAt = ToDateTimeOffset(lastLog?.CompletedUtc.ToLocalTime());
 
             var status = new HCJobStatus
             {
                 JobId = CreateJobId(plugin),
-                StartedAt = ToDateTimeOffset(job.LastExecution),
-                EndedAt = ToDateTimeOffset(lastLog?.CompletedUtc.ToLocalTime() + lastLog?.Duration),
+                StartedAt = startedAt,
+                EndedAt = endedAt,
                 IsEnabled = job.IsEnabled,
                 IsRunning = isRunning,
                 Summary = job.CurrentStatusMessage ?? job.LastExecutionMessage,

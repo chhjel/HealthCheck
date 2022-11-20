@@ -41,7 +41,7 @@
                 <li v-if="runningStatusText" v-html="runningStatusText"></li>
                 <li v-if="nextExecStatusText" v-html="nextExecStatusText"></li>
                 <li v-if="enabledStatusText" v-html="enabledStatusText"></li>
-                <li v-if="showLastResult">Last result was: <code class="inline-detail">{{ status.Summary }}</code></li>
+                <li v-if="statusText" v-html="statusText"></li>
             </ul>
         </div>
 
@@ -451,9 +451,10 @@ export default class JobComponent extends Vue {
     detailCodeTagStart: string = '<code class="inline-detail">';
     get runningStatusText(): string {
         if (this.status.IsRunning) {
-            const elapsedMs = new Date().getTime() - new Date(this.status.StartedAt).getTime();
-            const duration = DateUtils.prettifyDurationString(elapsedMs, '', '0 seconds');
-            return `Job is running.. Started at ${this.detailCodeTagStart}${this.formatTimeOnly(this.status.StartedAt)}</code> and has been running for ${this.detailCodeTagStart}${duration}</code>.`;
+            // const elapsedMs = new Date().getTime() - new Date(this.status.StartedAt).getTime();
+            // const duration = DateUtils.prettifyDurationString(elapsedMs, '', '0 seconds');
+            // return `Job is running.. Started at ${this.detailCodeTagStart}${this.formatTimeOnly(this.status.StartedAt)}</code> and has been running for ${this.detailCodeTagStart}${duration}</code>.`;
+            return `Job is running..`;
         }
         else if (this.status.StartedAt != null && this.status.EndedAt != null) {
             const elapsedMs = new Date(this.status.EndedAt).getTime() - new Date(this.status.StartedAt).getTime();
@@ -469,6 +470,16 @@ export default class JobComponent extends Vue {
             const msUntil = new Date(this.status.NextExecutionScheduledAt).getTime() - new Date().getTime();
             const duration = DateUtils.prettifyDurationString(msUntil, '', 'now');
             return `Next run is scheduled to start at ${this.detailCodeTagStart}${this.formatDateTime(this.status.NextExecutionScheduledAt)}</code>, in ${this.detailCodeTagStart}${duration}</code>.`;
+        }
+        else return '';
+    }
+    
+    // <li v-if="showLastResult">Last result was: <code class="inline-detail">{{ status.Summary }}</code></li>
+    get statusText(): string {
+        if (this.status.StartedAt != null && this.status.EndedAt != null && this.status.Summary != null) {
+            return this.isJobRunning
+                ? `Last reported status: ${this.detailCodeTagStart}${this.status.Summary}</code>`
+                : `Last result was: ${this.detailCodeTagStart}${this.status.Summary}</code>`;
         }
         else return '';
     }
