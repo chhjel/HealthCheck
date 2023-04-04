@@ -132,7 +132,7 @@ namespace HealthCheck.WebUI.Config
         {
             /* No effect for other targets atm. */
 #if NETFRAMEWORK
-            HCGlobalConfig.DefaultInstanceResolver = (type) => DependencyResolver.Current.GetService(type);
+            HCGlobalConfig.DefaultInstanceResolver = (type, scopeContainer) => DependencyResolver.Current.GetService(type);
 #endif
         }
     }

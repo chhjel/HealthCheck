@@ -158,10 +158,11 @@ namespace HealthCheck.Core.Modules.Tests.Services
             Func<TestDefinition, bool> testFilter = null,
             Action<TestResult, object> resultAction = null)
         {
+            var iocScope = new HCIoCUtils.ScopeContainer();
             var results = new ConcurrentBag<TestResult>();
             foreach (var testClass in testClasses)
             {
-                var classInstance = HCIoCUtils.GetInstanceExt(testClass.ClassType, maxDepth: MaxIoCRecursiveDepth);
+                var classInstance = HCIoCUtils.GetInstanceExt(testClass.ClassType, maxDepth: MaxIoCRecursiveDepth, scope: iocScope);
                 var includedTests = testClass.Tests.Where(x => testFilter?.Invoke(x) != false).ToList();
 
                 var defaultAllowsParallel = testClass.DefaultAllowParallelExecution;
