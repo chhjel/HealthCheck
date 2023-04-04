@@ -2,6 +2,7 @@ using HealthCheck.Core.Config;
 using HealthCheck.Core.Modules.Metrics.Context;
 using HealthCheck.Core.Util;
 using HealthCheck.DevTest.NetCore_6._0.Config;
+using HealthCheck.Web.Core.Utils;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
 
@@ -33,7 +34,8 @@ app.UseEndpoints(x => {
     x.MapDefaultControllerRoute();
 });
 
-HCGlobalConfig.DefaultInstanceResolver = (type) => app.Services.GetService(type);
+HCIoCSetup.ConfigureForServiceProvider(app.Services);
+//HCGlobalConfig.DefaultInstanceResolver = (type) => app.Services.GetService(type);
 HCGlobalConfig.OnExceptionEvent += (t, m, e) =>
 {
     HCMetricsContext.AddGlobalNote($"{t.Name}.{m}()", HCExceptionUtils.GetFullExceptionDetails(e));

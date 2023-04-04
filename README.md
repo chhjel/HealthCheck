@@ -55,8 +55,9 @@ Available modules:
 5. For .NET Core configure HttpContextAccessor and your instance resolver:
 
 * `services.AddHttpContextAccessor()`
-* `HCGlobalConfig.DefaultInstanceResolver = (type) => app.ApplicationServices.GetService(type);`
-* `or HCGlobalConfig.DefaultInstanceResolver = (type) => app.Services.GetService(type);`
+* `HCIoCSetup.ConfigureForServiceProvider(app.Services);`
+* or `HCGlobalConfig.DefaultInstanceResolver = (type) => app.ApplicationServices.GetService(type);`
+* or `HCGlobalConfig.DefaultInstanceResolver = (type) => app.Services.GetService(type);`
 
 <details><summary>Example controller</summary>
 <p>
