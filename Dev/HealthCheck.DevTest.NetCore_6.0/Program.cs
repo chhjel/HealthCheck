@@ -35,7 +35,6 @@ app.UseEndpoints(x => {
 });
 
 HCIoCSetup.ConfigureForServiceProvider(app.Services);
-//HCGlobalConfig.DefaultInstanceResolver = (type) => app.Services.GetService(type);
 HCGlobalConfig.OnExceptionEvent += (t, m, e) =>
 {
     HCMetricsContext.AddGlobalNote($"{t.Name}.{m}()", HCExceptionUtils.GetFullExceptionDetails(e));

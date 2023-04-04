@@ -56,8 +56,8 @@ Available modules:
 
 * `services.AddHttpContextAccessor()`
 * `HCIoCSetup.ConfigureForServiceProvider(app.Services);`
-* or `HCGlobalConfig.DefaultInstanceResolver = (type) => app.ApplicationServices.GetService(type);`
-* or `HCGlobalConfig.DefaultInstanceResolver = (type) => app.Services.GetService(type);`
+* or `HCGlobalConfig.DefaultInstanceResolver = (type, scopeContainer) => app.ApplicationServices.GetService(type);`
+* or `HCGlobalConfig.DefaultInstanceResolver = (type, scopeContainer) => app.Services.GetService(type);`
 
 <details><summary>Example controller</summary>
 <p>

@@ -108,7 +108,7 @@ namespace HealthCheck.DevTest
                 });
             }
 
-            HCGlobalConfig.DefaultInstanceResolver = (type) =>
+            HCGlobalConfig.DefaultInstanceResolver = (type, scopeContainer) =>
             {
                 if (type == typeof(IEndpointControlService))
                 {

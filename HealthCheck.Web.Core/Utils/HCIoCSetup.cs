@@ -25,7 +25,7 @@ public static class HCIoCSetup
     /// </summary>
     public static void ConfigureForServiceProvider(IServiceProvider serviceProvider)
     {
-        HCGlobalConfig.DefaultInstanceResolver = (type) =>
+        HCGlobalConfig.DefaultInstanceResolver = (type, currentScopeContainer) =>
         {
             try
             {
@@ -44,7 +44,8 @@ public static class HCIoCSetup
                 var requiresScope = _scopedServiceDefCache[type];
                 if (requiresScope)
                 {
-                    var scope = serviceProvider.CreateScope();
+                    var scope = currentScopeContainer?.Scope as IServiceScope ?? serviceProvider.CreateScope();
+                    if (currentScopeContainer != null) currentScopeContainer.Scope = scope;
                     return scope.ServiceProvider.GetService(type);
                 }
 

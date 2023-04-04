@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using static HealthCheck.Core.Util.HCIoCUtils;
 
 namespace HealthCheck.Core.Config
 {
@@ -17,7 +18,7 @@ namespace HealthCheck.Core.Config
         /// <para>For .NET Framework this defaults to <c>DependencyResolver.Current.GetService</c> if the WebUI nuget is used.</para>
 		/// <para>Fallback is <c>Activator.CreateInstance</c></para>
         /// </summary>
-        public static Func<Type, object> DefaultInstanceResolver { get; set; }
+        public static InstanceResolverDelegate DefaultInstanceResolver { get; set; }
 
         /// <summary>
         /// Factory that creates information about the current request.
@@ -67,7 +68,12 @@ namespace HealthCheck.Core.Config
         /// <summary>
         /// Gets the value of <see cref="DefaultInstanceResolver"/> or attempts <see cref="Activator.CreateInstance(Type)"/> if null.
         /// </summary>
-        public static Func<Type, object> GetDefaultInstanceResolver() => DefaultInstanceResolver ?? FallbackInstanceResolver;
+        public static InstanceResolverDelegate GetDefaultInstanceResolver() => DefaultInstanceResolver ?? FallbackInstanceResolver;
+
+        /// <summary>
+        /// Signature for instance resolver.
+        /// </summary>
+        public delegate object InstanceResolverDelegate(Type type, ScopeContainer scope = null);
 
         /// <summary>
         /// Retrieves the current session id if any.
@@ -179,7 +185,7 @@ namespace HealthCheck.Core.Config
             return true;
         }
 
-        private static object FallbackInstanceResolver(Type type)
+        private static object FallbackInstanceResolver(Type type, object scope = null)
         {
             try
             {

@@ -28,13 +28,15 @@ namespace HealthCheck.Core.Util
         /// <param name="instanceFactory">Defaults to <see cref="HCGlobalConfig.DefaultInstanceResolver"/></param>
         /// <param name="forcedParameterValues">Any values used here will be used on the first matching constructor parameter if any.</param>
         /// <param name="recursive">Any parameter values in constructors in injected parameters will also be using forced parameter values if enabled.</param>
+        /// <param name="scope">Optional ioc scope</param>
         public static TClass GetInstanceExt<TClass>(
-            Func<Type, object> instanceFactory = null,
+            HCGlobalConfig.InstanceResolverDelegate instanceFactory = null,
             object[] forcedParameterValues = null,
-            bool recursive = true
+            bool recursive = true,
+            ScopeContainer scope = null
         )
             where TClass : class
-            => GetInstanceExt(typeof(TClass), instanceFactory, forcedParameterValues, recursive) as TClass;
+            => GetInstanceExt(typeof(TClass), instanceFactory, forcedParameterValues, recursive, 20, scope: scope) as TClass;
 
         /// <summary>
         /// Attempts to get an instance of the given type.
@@ -44,13 +46,15 @@ namespace HealthCheck.Core.Util
         /// <param name="forcedParameterValues">Any values used here will be used on the first matching constructor parameter if any.</param>
         /// <param name="recursive">Any parameter values in constructors in injected parameters will also be using forced parameter values if enabled.</param>
         /// <param name="maxDepth">Max recursive depth.</param>
+        /// <param name="scope">Optional ioc scope</param>
         public static object GetInstanceExt(
             Type type,
-            Func<Type, object> instanceFactory = null,
+            HCGlobalConfig.InstanceResolverDelegate instanceFactory = null,
             object[] forcedParameterValues = null,
             bool recursive = true,
-            int maxDepth = 20
-        ) => GetInstanceExt(type, instanceFactory, forcedParameterValues, recursive, maxDepth, 0).Instance;
+            int maxDepth = 20,
+            ScopeContainer scope = null
+        ) => GetInstanceExt(type, instanceFactory, forcedParameterValues, recursive, maxDepth, 0, scope: scope).Instance;
 
         /// <summary>
         /// Attempts to get an instance of the given type.
@@ -60,21 +64,24 @@ namespace HealthCheck.Core.Util
         /// <param name="forcedParameterValues">Any values used here will be used on the first matching constructor parameter if any.</param>
         /// <param name="recursive">Any parameter values in constructors in injected parameters will also be using forced parameter values if enabled.</param>
         /// <param name="maxDepth">Max recursive depth.</param>
+        /// <param name="scope">Optional ioc scope</param>
         public static ActivatedInstanceResult GetInstanceExtWithDetails(
             Type type,
-            Func<Type, object> instanceFactory = null,
+            HCGlobalConfig.InstanceResolverDelegate instanceFactory = null,
             object[] forcedParameterValues = null,
             bool recursive = true,
-            int maxDepth = 20
-        ) => GetInstanceExt(type, instanceFactory, forcedParameterValues, recursive, maxDepth, 0);
+            int maxDepth = 20,
+            ScopeContainer scope = null
+        ) => GetInstanceExt(type, instanceFactory, forcedParameterValues, recursive, maxDepth, 0, scope: scope);
 
         private static ActivatedInstanceResult GetInstanceExt(
             Type type,
-            Func<Type, object> instanceFactory,
+            HCGlobalConfig.InstanceResolverDelegate instanceFactory,
             object[] forcedParameterValues,
             bool recursive,
             int maxDepth,
-            int currentDepth
+            int currentDepth,
+            ScopeContainer scope = null
         )
         {
             if (currentDepth >= maxDepth)
@@ -93,6 +100,7 @@ namespace HealthCheck.Core.Util
                 };
             }
 
+            scope ??= new ScopeContainer();
             instanceFactory ??= HCGlobalConfig.GetDefaultInstanceResolver();
 
             if (type.IsInterface)
@@ -109,7 +117,8 @@ namespace HealthCheck.Core.Util
                             var instanceResult = GetInstanceExt(
                                 instanceType, instanceFactory,
                                 forcedParameterValues, recursive,
-                                maxDepth, currentDepth + 1);
+                                maxDepth, currentDepth + 1,
+                                scope: scope);
                             if (instanceResult.Instance != null)
                             {
                                 return instanceResult;
@@ -118,7 +127,7 @@ namespace HealthCheck.Core.Util
                         catch (Exception) { /* Ignore recursive errors */ }
                     }
                 }
-                var instance = instanceFactory?.Invoke(type);
+                var instance = instanceFactory?.Invoke(type, scope);
                 return new ActivatedInstanceResult
                 {
                     Success = true,
@@ -191,6 +200,18 @@ namespace HealthCheck.Core.Util
                 Instance = ctoredInstance
             };
         }
+
+        /// <summary>
+        /// Container for optional scope object.
+        /// </summary>
+        public class ScopeContainer
+        {
+            /// <summary>
+            /// Optional ioc scope object.
+            /// </summary>
+            public object Scope { get; set; }
+        }
+
 
         /// <summary>
         /// Wrapper containing success/error/instance data.
