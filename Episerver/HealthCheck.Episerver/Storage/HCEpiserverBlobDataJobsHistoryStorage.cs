@@ -49,7 +49,6 @@ namespace HealthCheck.Episerver.Storage
             : base(cache)
         {
             _blobHelper = new HCEpiserverBlobHelper<HCJobHistoryEntryBlobData>(blobFactory, () => ContainerIdWithFallback, () => ProviderName);
-            MaxItemCount = 100;
         }
 
         /// <inheritdoc />
