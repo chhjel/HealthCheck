@@ -1,13 +1,13 @@
 ﻿using HealthCheck.Core.Config;
-using HealthCheck.Core.Exceptions;
-using HealthCheck.Core.Util;
 #if NETCORE
-using Microsoft.Extensions.DependencyInjection;
-#endif
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
+using HealthCheck.Core.Exceptions;
+using HealthCheck.Core.Util;
+#endif
 
 namespace HealthCheck.Web.Core.Utils;
 
