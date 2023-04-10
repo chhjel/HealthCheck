@@ -442,6 +442,18 @@ UseModule(new HCTestsModule(new HCTestsModuleOptions()
     ...
 ```
 
+#### Result modification through exceptions
+
+When an exception is thrown during a test, the final result can be modified through the exception if it implements `IHCExceptionWithTestResultData`.
+
+```csharp
+[Serializable]
+public class MyCustomException : Exception, IHCExceptionWithTestResultData
+{
+    public Action<TestResult> ResultModifier { get; } = x => x.AddHtmlData("<b>Success!</b>");
+...
+```
+
 ### Attributes
 
 Methods are configured through the `RuntimeTestClass`, `RuntimeTest` and `RuntimeTestParameter` attributes.

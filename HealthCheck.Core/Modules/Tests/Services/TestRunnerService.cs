@@ -352,15 +352,28 @@ namespace HealthCheck.Core.Modules.Tests.Services
             catch (Exception ex)
             {
                 var extraDetails = HCExceptionUtils.GetExceptionDetails(ex);
-                return new TestResult()
+                var result = new TestResult()
                 {
                     Test = test,
                     Status = TestResultStatus.Error,
                     Message = $"Failed to execute test with the exception: {ex.Message}",
                     StackTrace = includeExceptionStackTraces ? ex.ToString() : null,
                     DurationInMilliseconds = stopWatch.ElapsedMilliseconds
+                };
+
+                // Check for result modification from exception
+                try
+                {
+                    IHCExceptionWithTestResultData modifier = ex as IHCExceptionWithTestResultData ?? ex?.InnerException as IHCExceptionWithTestResultData;
+                    modifier?.ResultModifier?.Invoke(result);
                 }
-                .AddCodeData(extraDetails, "WebException response");
+                catch(Exception mEx)
+                {
+                    result.AddCodeData($"Custom result modification failed.\n\n{mEx}");
+                }
+                
+                result.AddCodeData(extraDetails, "WebException response");
+                return result;
             }
             finally
             {

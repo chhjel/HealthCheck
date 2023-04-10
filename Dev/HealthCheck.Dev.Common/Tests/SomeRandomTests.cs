@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Models;
+﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Models;
 using HealthCheck.Core.Modules.SiteEvents.Enums;
 using HealthCheck.Core.Modules.SiteEvents.Models;
 using HealthCheck.Core.Modules.Tests.Attributes;
@@ -297,6 +298,25 @@ namespace HealthCheck.Dev.Common.Tests
         {
             return TestResult.CreateSuccess($"Success")
                 .AddHtmlData($"This is the h-tag you ordered: <h{hNumber}>{text}</h{hNumber}>");
+        }
+
+        [RuntimeTest]
+        public TestResult TestThatThrowsExceptionWithModifier()
+        {
+            throw new ResultModifierException("Testing!");
+        }
+
+        [Serializable]
+        public class ResultModifierException : Exception, IHCExceptionWithTestResultData
+        {
+            public Action<TestResult> ResultModifier { get; } = x => x.AddHtmlData("<b>Success!</b>");
+
+            public ResultModifierException() { }
+            public ResultModifierException(string message) : base(message) { }
+            public ResultModifierException(string message, Exception inner) : base(message, inner) { }
+            protected ResultModifierException(
+              System.Runtime.Serialization.SerializationInfo info,
+              System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
         }
 
         [RuntimeTest(Description = "Throws some stuff depending on other stuff not really just throws stuff.")]
