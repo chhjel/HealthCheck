@@ -29,127 +29,126 @@ using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Routing;
 
-namespace QoDL.Toolkit.DevTest
+namespace QoDL.Toolkit.DevTest;
+
+public class WebApiApplication : System.Web.HttpApplication
 {
-    public class WebApiApplication : System.Web.HttpApplication
+    protected void Application_Start()
     {
-        protected void Application_Start()
-        {
-            AreaRegistration.RegisterAllAreas();
-            GlobalConfiguration.Configure(WebApiConfig.Register);
-            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
-            FilterConfig.RegisterWebApiFilters(GlobalConfiguration.Configuration.Filters);
-            RouteConfig.RegisterRoutes(RouteTable.Routes);
+        AreaRegistration.RegisterAllAreas();
+        GlobalConfiguration.Configure(WebApiConfig.Register);
+        FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
+        FilterConfig.RegisterWebApiFilters(GlobalConfiguration.Configuration.Filters);
+        RouteConfig.RegisterRoutes(RouteTable.Routes);
 
-            RequestLogServiceAccessor.Current = new RequestLogService(
-                new FlatFileRequestLogStorage(HostingEnvironment.MapPath("~/App_Data/RequestLog.json")),
-                new RequestLogServiceOptions
-                {
-                    MaxCallCount = 3,
-                    MaxErrorCount = 5,
-                    CallStoragePolicy = RequestLogCallStoragePolicy.RemoveOldest,
-                    ErrorStoragePolicy = RequestLogCallStoragePolicy.RemoveOldest,
-                });
-
-            RequestLogUtil.EnsureDefinitionsFromTypes(RequestLogServiceAccessor.Current, new[] { typeof(DevController).Assembly });
-            TKMetricsUtil.AllowTrackRequestMetrics = (r) => true;
-            DevConfig.ConfigureLocalAssetUrls("/dev");
-            SetupDummyIoC();
-        }
-
-        private static readonly FlatFileEndpointControlRequestHistoryStorage _endpointControlHistoryStorage
-            = new(@"c:\temp\EC_History.json")
+        RequestLogServiceAccessor.Current = new RequestLogService(
+            new FlatFileRequestLogStorage(HostingEnvironment.MapPath("~/App_Data/RequestLog.json")),
+            new RequestLogServiceOptions
             {
-                PrettyFormat = true
-            };
+                MaxCallCount = 3,
+                MaxErrorCount = 5,
+                CallStoragePolicy = RequestLogCallStoragePolicy.RemoveOldest,
+                ErrorStoragePolicy = RequestLogCallStoragePolicy.RemoveOldest,
+            });
 
-        private static readonly FlatFileEndpointControlEndpointDefinitionStorage _endpointControlDefinitionStorage
-            = new(@"c:\temp\EC_Definitions.json");
+        RequestLogUtil.EnsureDefinitionsFromTypes(RequestLogServiceAccessor.Current, new[] { typeof(DevController).Assembly });
+        TKMetricsUtil.AllowTrackRequestMetrics = (r) => true;
+        DevConfig.ConfigureLocalAssetUrls("/dev");
+        SetupDummyIoC();
+    }
 
-        private static readonly FlatFileEndpointControlRuleStorage _endpointControlRuleStorage
-            = new(@"c:\temp\EC_Rules.json");
-        private static readonly ITKStringDictionaryStorage _settingsService = new TKFlatFileStringDictionaryStorage(@"C:\temp\settings.json");
-        private static readonly TKMemoryMetricsStorage _memoryMetricsService = new();
-        private static readonly ITKReleaseNotesProvider _releaseNotesProvider = new TKJsonFileReleaseNotesProvider(HostingEnvironment.MapPath(@"~\App_Data\ReleaseNotes.json"))
+    private static readonly FlatFileEndpointControlRequestHistoryStorage _endpointControlHistoryStorage
+        = new(@"c:\temp\EC_History.json")
         {
-            IssueUrlFactory = (id) => $"{"https://"}www.google.com/?q=Issue+{id}",
-            IssueLinkTitleFactory = (id) => $"Jira {id}",
-            PullRequestUrlFactory = (number) => $"{"https://"}www.google.com/?q=PR+{number}",
-            //CommitShaUrlFactory = (sha) => $"{"https://"}github.com/chhjel/Toolkit/commit/{sha}"
+            PrettyFormat = true
         };
 
-        private static readonly ITKDataExportService _dataExportService = new TKDataExportService(new ITKDataExportStream[]
-        {
-            new TestDataExportStreamQueryable(),
-            new TestDataExportStreamEnumerableWithCustomParameters(),
-            new TestDataExportStreamEnumerableWithQuery(),
-            new TestDataExportStreamEnumerableWithQueryAndCustomParameters(),
-            new TestDataExportStreamEnumerableWithoutInput(),
-            new TestDataExportStreamHeavy()
-        });
-        private static readonly ITKDataExportPresetStorage _dataExportPresetStorage = new TKFlatFileDataExportPresetStorage(@"C:\temp\DataExportPreset.json");
+    private static readonly FlatFileEndpointControlEndpointDefinitionStorage _endpointControlDefinitionStorage
+        = new(@"c:\temp\EC_Definitions.json");
 
-        private void SetupDummyIoC()
-        {
-            if (!_endpointControlRuleStorage.GetRules().Any())
-            {
-                _endpointControlRuleStorage.InsertRule(new EndpointControlRule
-                {
-                    Enabled = true,
-                    CurrentEndpointRequestCountLimits = new List<EndpointControlCountOverDuration>
-                    {
-                        new EndpointControlCountOverDuration() { Duration = TimeSpan.FromSeconds(10), Count = 5 }
-                    },
-                    TotalRequestCountLimits = new List<EndpointControlCountOverDuration>(),
-                    EndpointIdFilter = new EndpointControlPropertyFilter(),
-                    UserAgentFilter = new EndpointControlPropertyFilter(),
-                    UrlFilter = new EndpointControlPropertyFilter(),
-                    UserLocationIdFilter = new EndpointControlPropertyFilter()
-                });
-            }
+    private static readonly FlatFileEndpointControlRuleStorage _endpointControlRuleStorage
+        = new(@"c:\temp\EC_Rules.json");
+    private static readonly ITKStringDictionaryStorage _settingsService = new TKFlatFileStringDictionaryStorage(@"C:\temp\settings.json");
+    private static readonly TKMemoryMetricsStorage _memoryMetricsService = new();
+    private static readonly ITKReleaseNotesProvider _releaseNotesProvider = new TKJsonFileReleaseNotesProvider(HostingEnvironment.MapPath(@"~\App_Data\ReleaseNotes.json"))
+    {
+        IssueUrlFactory = (id) => $"{"https://"}www.google.com/?q=Issue+{id}",
+        IssueLinkTitleFactory = (id) => $"Jira {id}",
+        PullRequestUrlFactory = (number) => $"{"https://"}www.google.com/?q=PR+{number}",
+        //CommitShaUrlFactory = (sha) => $"{"https://"}github.com/chhjel/Toolkit/commit/{sha}"
+    };
 
-            TKGlobalConfig.DefaultInstanceResolver = (type, scopeContainer) =>
+    private static readonly ITKDataExportService _dataExportService = new TKDataExportService(new ITKDataExportStream[]
+    {
+        new TestDataExportStreamQueryable(),
+        new TestDataExportStreamEnumerableWithCustomParameters(),
+        new TestDataExportStreamEnumerableWithQuery(),
+        new TestDataExportStreamEnumerableWithQueryAndCustomParameters(),
+        new TestDataExportStreamEnumerableWithoutInput(),
+        new TestDataExportStreamHeavy()
+    });
+    private static readonly ITKDataExportPresetStorage _dataExportPresetStorage = new TKFlatFileDataExportPresetStorage(@"C:\temp\DataExportPreset.json");
+
+    private void SetupDummyIoC()
+    {
+        if (!_endpointControlRuleStorage.GetRules().Any())
+        {
+            _endpointControlRuleStorage.InsertRule(new EndpointControlRule
             {
-                if (type == typeof(IEndpointControlService))
+                Enabled = true,
+                CurrentEndpointRequestCountLimits = new List<EndpointControlCountOverDuration>
                 {
-                    return new DefaultEndpointControlService(_endpointControlHistoryStorage, _endpointControlDefinitionStorage, _endpointControlRuleStorage)
-                        .AddCustomBlockedResult(new CustomBlockedJsonResult())
-                        .AddCustomBlockedResult(new EndpointControlForwardedRequestResult());
-                }
-                else if (type == typeof(IEndpointControlRuleStorage))
-                {
-                    return _endpointControlRuleStorage;
-                }
-                else if (type == typeof(IEndpointControlEndpointDefinitionStorage))
-                {
-                    return _endpointControlDefinitionStorage;
-                }
-                else if (type == typeof(IEndpointControlRequestHistoryStorage))
-                {
-                    return _endpointControlHistoryStorage;
-                }
-                else if (type == typeof(ITKStringDictionaryStorage))
-                {
-                    return _settingsService;
-                }
-                else if (type == typeof(ITKMetricsStorage))
-                {
-                    return _memoryMetricsService;
-                }
-                else if (type == typeof(ITKReleaseNotesProvider))
-                {
-                    return _releaseNotesProvider;
-                }
-                else if (type == typeof(ITKDataExportService))
-                {
-                    return _dataExportService;
-                }
-                else if (type == typeof(ITKDataExportPresetStorage))
-                {
-                    return _dataExportPresetStorage;
-                }
-                return null;
-            };
+                    new EndpointControlCountOverDuration() { Duration = TimeSpan.FromSeconds(10), Count = 5 }
+                },
+                TotalRequestCountLimits = new List<EndpointControlCountOverDuration>(),
+                EndpointIdFilter = new EndpointControlPropertyFilter(),
+                UserAgentFilter = new EndpointControlPropertyFilter(),
+                UrlFilter = new EndpointControlPropertyFilter(),
+                UserLocationIdFilter = new EndpointControlPropertyFilter()
+            });
         }
+
+        TKGlobalConfig.DefaultInstanceResolver = (type, scopeContainer) =>
+        {
+            if (type == typeof(IEndpointControlService))
+            {
+                return new DefaultEndpointControlService(_endpointControlHistoryStorage, _endpointControlDefinitionStorage, _endpointControlRuleStorage)
+                    .AddCustomBlockedResult(new CustomBlockedJsonResult())
+                    .AddCustomBlockedResult(new EndpointControlForwardedRequestResult());
+            }
+            else if (type == typeof(IEndpointControlRuleStorage))
+            {
+                return _endpointControlRuleStorage;
+            }
+            else if (type == typeof(IEndpointControlEndpointDefinitionStorage))
+            {
+                return _endpointControlDefinitionStorage;
+            }
+            else if (type == typeof(IEndpointControlRequestHistoryStorage))
+            {
+                return _endpointControlHistoryStorage;
+            }
+            else if (type == typeof(ITKStringDictionaryStorage))
+            {
+                return _settingsService;
+            }
+            else if (type == typeof(ITKMetricsStorage))
+            {
+                return _memoryMetricsService;
+            }
+            else if (type == typeof(ITKReleaseNotesProvider))
+            {
+                return _releaseNotesProvider;
+            }
+            else if (type == typeof(ITKDataExportService))
+            {
+                return _dataExportService;
+            }
+            else if (type == typeof(ITKDataExportPresetStorage))
+            {
+                return _dataExportPresetStorage;
+            }
+            return null;
+        };
     }
 }

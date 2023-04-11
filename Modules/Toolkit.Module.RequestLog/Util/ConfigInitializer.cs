@@ -9,38 +9,37 @@ using System.Collections.Generic;
 using QoDL.Toolkit.RequestLog.Services;
 #endif
 
-namespace QoDL.Toolkit.Module.RequestLog.Util
+namespace QoDL.Toolkit.Module.RequestLog.Util;
+
+internal class ConfigInitializer : ITKExtModuleInitializer
 {
-    internal class ConfigInitializer : ITKExtModuleInitializer
+    private static bool _initialized = false;
+    private static void SetInitialized() => _initialized = true;
+
+    /// <summary>
+    /// Invoked from <see cref="TKGlobalConfig"/> constructor.
+    /// </summary>
+    public void Initialize()
     {
-        private static bool _initialized = false;
-        private static void SetInitialized() => _initialized = true;
-
-        /// <summary>
-        /// Invoked from <see cref="TKGlobalConfig"/> constructor.
-        /// </summary>
-        public void Initialize()
+        if (_initialized)
         {
-            if (_initialized)
-            {
-                return;
-            }
-            SetInitialized();
-
-            InitLazyFactory();
+            return;
         }
+        SetInitialized();
 
-        private static void InitLazyFactory()
-        {
+        InitLazyFactory();
+    }
+
+    private static void InitLazyFactory()
+    {
 #if NETFULL
-            static Dictionary<Type, IEnumerable<object>> factory(Func<string, string> createPath) => new()
-            {
-                { typeof(IRequestLogStorage), new object[] {
-                    new FlatFileRequestLogStorage(createPath(@"RequestLog_History.json")) } }
-            };
-            TKExtModuleInitializerUtil.TryExternalLazyFactoryInit(TKModuleType.RequestLog, factory);
+        static Dictionary<Type, IEnumerable<object>> factory(Func<string, string> createPath) => new()
+        {
+            { typeof(IRequestLogStorage), new object[] {
+                new FlatFileRequestLogStorage(createPath(@"RequestLog_History.json")) } }
+        };
+        TKExtModuleInitializerUtil.TryExternalLazyFactoryInit(TKModuleType.RequestLog, factory);
 #endif
-            /* Otherwise to nothing */
-        }
+        /* Otherwise to nothing */
     }
 }

@@ -3,8 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace QoDL.Toolkit.Core.Util.Modules
-{
+namespace QoDL.Toolkit.Core.Util.Modules;
+
 	/// <summary>
 	/// Handles loading of modules.
 	/// </summary>
@@ -124,7 +124,7 @@ namespace QoDL.Toolkit.Core.Util.Modules
 			}
 
 			if (string.IsNullOrWhiteSpace(loadedModule.Config.ComponentName) && string.IsNullOrWhiteSpace(loadedModule.Config.RawHtml))
-            {
+        {
 				loadedModule.LoadErrors.Add($"Either set config property '{nameof(IToolkitModuleConfig.ComponentName)}' or '{nameof(IToolkitModuleConfig.RawHtml)}'.");
 
 			}
@@ -158,4 +158,3 @@ namespace QoDL.Toolkit.Core.Util.Modules
 			return null;
 		}
 	}
-}

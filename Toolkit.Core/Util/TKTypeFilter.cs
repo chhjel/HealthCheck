@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace QoDL.Toolkit.Core.Util
-{
+namespace QoDL.Toolkit.Core.Util;
+
 	/// <summary>
 	/// Used to filter types.
 	/// </summary>
@@ -75,4 +75,3 @@ namespace QoDL.Toolkit.Core.Util
 			}
 		}
 	}
-}

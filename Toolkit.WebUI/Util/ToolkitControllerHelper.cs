@@ -32,630 +32,630 @@ using System.IO;
 using Microsoft.AspNetCore.Http;
 #endif
 
-namespace QoDL.Toolkit.WebUI.Util
+namespace QoDL.Toolkit.WebUI.Util;
+
+/// <summary>
+/// Shared code for .net framework/core controllers.
+/// </summary>
+internal class ToolkitControllerHelper<TAccessRole>
 {
     /// <summary>
-    /// Shared code for .net framework/core controllers.
+    /// Access related options.
     /// </summary>
-    internal class ToolkitControllerHelper<TAccessRole>
+    public AccessConfig<TAccessRole> AccessConfig { get; set; } = new AccessConfig<TAccessRole>();
+
+    /// <summary>
+    /// Used for auditing, is set from first audit module if any.
+    /// </summary>
+    public IAuditEventStorage AuditEventService { get; set; }
+
+    private readonly Func<TKPageOptions> _pageOptionsGetter;
+    private bool _includeClientConnectionDetailsInAllAuditEvents;
+
+    /// <summary>
+    /// Initialize a new Toolkit helper with the given services.
+    /// </summary>
+    public ToolkitControllerHelper(Func<TKPageOptions> pageOptionsGetter, Func<TKFrontEndOptions> frontendOptionsGetter)
     {
-        /// <summary>
-        /// Access related options.
-        /// </summary>
-        public AccessConfig<TAccessRole> AccessConfig { get; set; } = new AccessConfig<TAccessRole>();
+        _pageOptionsGetter = pageOptionsGetter;
+        AccessConfig.RoleModuleAccessLevels = RoleModuleAccessLevels;
 
-        /// <summary>
-        /// Used for auditing, is set from first audit module if any.
-        /// </summary>
-        public IAuditEventStorage AuditEventService { get; set; }
+        TestRunnerService.Serializer = new NewtonsoftJsonSerializer();
+        TestRunnerService.GetCurrentTestContext = ToolkitTestContextHelper.GetCurrentTestContext;
+        TestRunnerService.CurrentRequestIsTest = () => ToolkitTestContextHelper.CurrentRequestIsTest;
+        TestRunnerService.SetCurrentRequestIsTest = () => ToolkitTestContextHelper.CurrentRequestIsTest = true;
 
-        private readonly Func<TKPageOptions> _pageOptionsGetter;
-        private bool _includeClientConnectionDetailsInAllAuditEvents;
+        TKAssetGlobalConfig.EndpointBase ??= frontendOptionsGetter?.Invoke()?.EndpointBase;
+    }
 
-        /// <summary>
-        /// Initialize a new Toolkit helper with the given services.
-        /// </summary>
-        public ToolkitControllerHelper(Func<TKPageOptions> pageOptionsGetter, Func<TKFrontEndOptions> frontendOptionsGetter)
-        {
-            _pageOptionsGetter = pageOptionsGetter;
-            AccessConfig.RoleModuleAccessLevels = RoleModuleAccessLevels;
+    internal bool HasAccessToAnyContent(Maybe<TAccessRole> currentRequestAccessRoles)
+        => GetModulesRequestHasAccessTo(currentRequestAccessRoles).Count > 0;
 
-            TestRunnerService.Serializer = new NewtonsoftJsonSerializer();
-            TestRunnerService.GetCurrentTestContext = ToolkitTestContextHelper.GetCurrentTestContext;
-            TestRunnerService.CurrentRequestIsTest = () => ToolkitTestContextHelper.CurrentRequestIsTest;
-            TestRunnerService.SetCurrentRequestIsTest = () => ToolkitTestContextHelper.CurrentRequestIsTest = true;
+    internal static bool ShouldEnableRequestBuffering() => false;
 
-            TKAssetGlobalConfig.EndpointBase ??= frontendOptionsGetter?.Invoke()?.EndpointBase;
-        }
+    #region Modules
+    private List<ToolkitLoadedModule> LoadedModules { get; set; } = new List<ToolkitLoadedModule>();
+    private List<RegisteredModuleData> RegisteredModules { get; set; } = new List<RegisteredModuleData>();
+    private class RegisteredModuleData
+    {
+        public IToolkitModule Module { get; set; }
+        public string NameOverride { get; set; }
+    }
 
-        internal bool HasAccessToAnyContent(Maybe<TAccessRole> currentRequestAccessRoles)
-            => GetModulesRequestHasAccessTo(currentRequestAccessRoles).Count > 0;
+    private List<ModuleAccessData<TAccessRole>> RoleModuleAccessLevels { get; set; } = new List<ModuleAccessData<TAccessRole>>();
 
-        internal static bool ShouldEnableRequestBuffering() => false;
-
-        #region Modules
-        private List<ToolkitLoadedModule> LoadedModules { get; set; } = new List<ToolkitLoadedModule>();
-        private List<RegisteredModuleData> RegisteredModules { get; set; } = new List<RegisteredModuleData>();
-        private class RegisteredModuleData
-        {
-            public IToolkitModule Module { get; set; }
-            public string NameOverride { get; set; }
-        }
-
-        private List<ModuleAccessData<TAccessRole>> RoleModuleAccessLevels { get; set; } = new List<ModuleAccessData<TAccessRole>>();
-
-        internal List<TKFrontEndOptions.TKUserModuleCategories> GetUserModuleCategories(Maybe<TAccessRole> currentRequestAccessRoles)
-            => RoleModuleAccessLevels
-                .GroupBy(x => x.AccessOptionsType)
-                .Select(g =>
+    internal List<TKFrontEndOptions.TKUserModuleCategories> GetUserModuleCategories(Maybe<TAccessRole> currentRequestAccessRoles)
+        => RoleModuleAccessLevels
+            .GroupBy(x => x.AccessOptionsType)
+            .Select(g =>
+            {
+                var accessOptionsType = g.First().AccessOptionsType;
+                var moduleType = GetModuleTypeFromAccessOptionsType(accessOptionsType);
+                var module = LoadedModules.FirstOrDefault(x => x.Type == moduleType);
+                if (module == null || !RequestCanViewModule(currentRequestAccessRoles, module))
                 {
-                    var accessOptionsType = g.First().AccessOptionsType;
-                    var moduleType = GetModuleTypeFromAccessOptionsType(accessOptionsType);
-                    var module = LoadedModules.FirstOrDefault(x => x.Type == moduleType);
-                    if (module == null || !RequestCanViewModule(currentRequestAccessRoles, module))
-                    {
-                        return null;
-                    }
-                    return new TKFrontEndOptions.TKUserModuleCategories
-                    {
-                        ModuleId = module.Id,
-                        ModuleName = module.Name,
-                        Categories = g.Any(x => x.FullAccess)
-                            ? new List<string>()
-                            : (g.SelectMany(x => x.Categories ?? Array.Empty<string>())?.ToList())
-                    };
-                })
-                .Where(x => x != null)
-                .OrderBy(x => x.ModuleName)
-                .ToList();
-
-        private List<ToolkitLoadedModule> GetModulesRequestHasAccessTo(Maybe<TAccessRole> accessRoles)
-            => LoadedModules.Where(x => RequestCanViewModule(accessRoles, x)).ToList();
-
-        private bool RequestCanViewModule(Maybe<TAccessRole> accessRoles, ToolkitLoadedModule module)
-        {
-            if (accessRoles == null)
-            {
-                return false;
-            }
-
-            return RoleModuleAccessLevels.Any(x => 
-                x.AccessOptionsType == module.AccessOptionsType
-                && EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, x.Roles));
-        }
-
-        private bool RequestHasAccessToModuleMethod(Maybe<TAccessRole> accessRoles,
-            ToolkitLoadedModule module, ToolkitInvokableMethod method)
-        {
-            var requiredAccessOptions = method.RequiresAccessTo;
-            if (requiredAccessOptions == null)
-            {
-                return RequestCanViewModule(accessRoles, module);
-            }
-
-            var accessOptionsType = requiredAccessOptions.GetType();
-
-            return EnumUtils.GetFlaggedEnumValues(requiredAccessOptions).All(opt =>
-                RoleModuleAccessLevels.Any(x =>
-                    x.AccessOptionsType == accessOptionsType
-                    && EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, x.Roles)
-                    && x.GetAllSelectedAccessOptions().Contains(opt))
-            );
-        }
-
-        private bool RequestHasAccessToModuleAction(Maybe<TAccessRole> accessRoles, ToolkitInvokableAction action)
-        {
-            var requiredAccessOptions = action.RequiresAccessTo;
-            if (requiredAccessOptions == null)
-            {
-                return true;
-            }
-
-            var accessOptionsType = requiredAccessOptions.GetType();
-
-            return EnumUtils.GetFlaggedEnumValues(requiredAccessOptions).All(opt =>
-                RoleModuleAccessLevels.Any(x =>
-                    x.AccessOptionsType == accessOptionsType
-                    && EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, x.Roles)
-                    && x.GetAllSelectedAccessOptions().Contains(opt))
-            );
-        }
-
-        private object GetCurrentRequestModuleAccessOptions(
-            Maybe<TAccessRole> currentRequestAccessRoles, Type moduleType)
-        {
-            try
-            {
-                var accessOptionsType = ToolkitModuleLoader.GetModuleAccessOptionsType(moduleType);
-                var entriesForCurrentRole = RoleModuleAccessLevels
-                    .Where(x => EnumUtils.EnumFlagHasAnyFlagsSet(currentRequestAccessRoles.Value, x.Roles)
-                                && x.AccessOptionsType == accessOptionsType);
-                var values = entriesForCurrentRole.SelectMany(x => x.GetAllSelectedAccessOptions()).ToList();
-                var joinedValue = 0;
-                foreach(var value in values)
-                {
-                    joinedValue |= (int)value;
+                    return null;
                 }
-                return Enum.ToObject(accessOptionsType, joinedValue);
-            }
-            catch (Exception)
-            {
-                throw new TKException($"Invalid module '{moduleType?.Name}' registered.");
-            }
-        }
-
-        private class ToolkitInvokableActionWithModule
-        {
-            public ToolkitInvokableAction Action { get; set; }
-            public ToolkitLoadedModule Module { get; set; }
-        }
-        private IEnumerable<ToolkitInvokableActionWithModule> GetInvokableActionsRequestHasAccessTo(RequestInformation<TAccessRole> requestInfo)
-        {
-            var accessRoles = requestInfo.AccessRole;
-            
-            var modules = LoadedModules;
-            if (modules == null || !modules.Any())
-            {
-                return Enumerable.Empty<ToolkitInvokableActionWithModule>();
-            }
-
-            var methods = new List<ToolkitInvokableActionWithModule>();
-            foreach(var module in modules)
-            {
-                var actions = module.CustomActions;
-                foreach(var action in actions)
+                return new TKFrontEndOptions.TKUserModuleCategories
                 {
-                    if (RequestHasAccessToModuleAction(accessRoles, action))
-                    {
-                        methods.Add(new ToolkitInvokableActionWithModule
-                        {
-                            Action = action,
-                            Module = module
-                        });
-                    }
-                }
-            }
-            return methods;
-        }
-
-        internal async Task<InvokeModuleActionResult> InvokeModuleAction(
-            RequestInformation<TAccessRole> requestInfo, string actionName, string url)
-        {
-            var match = GetInvokableActionsRequestHasAccessTo(requestInfo)
-                .FirstOrDefault(x => x.Action.Name?.Trim()?.ToLower() == actionName?.ToLower()?.Trim());
-            if (match == null)
-            {
-                return new InvokeModuleActionResult();
-            }
-
-            var accessRoles = requestInfo.AccessRole;
-            var action = match.Action;
-            var module = match.Module;
-
-            var sensitiveDataStripper = (RegisteredModules.FirstOrDefault(x => x?.Module is TKAuditLogModule am)?.Module as TKAuditLogModule)?.SensitiveDataStripper;
-            var context = CreateModuleContext(requestInfo, accessRoles, module.Name, module.Id, module.Module, sensitiveDataStripper);
-            try
-            {
-                var result = await action.Invoke(module.Module, context, url).ConfigureAwait(false);
-                return new InvokeModuleActionResult()
-                {
-                    HasAccess = true,
-                    Result = result
+                    ModuleId = module.Id,
+                    ModuleName = module.Name,
+                    Categories = g.Any(x => x.FullAccess)
+                        ? new List<string>()
+                        : (g.SelectMany(x => x.Categories ?? Array.Empty<string>())?.ToList())
                 };
-            }
-            catch (Exception ex)
-            {
-                return new InvokeModuleActionResult()
-                {
-                    HasAccess = true,
-                    Result = $"Exception: {ex.Message}"
-                };
-            }
-            finally
-            {
-                if (context?.AuditEvents != null && context.AuditEvents.Count > 0 && AuditEventService != null)
-                {
-                    foreach (var e in context.AuditEvents.Where(x => x != null))
-                    {
-                        if (_includeClientConnectionDetailsInAllAuditEvents)
-                        {
-                            e.AddClientConnectionDetails(context);
-                        }
-                        await AuditEventService.StoreEvent(e);
-                    }
-                }
-            }
-        }
+            })
+            .Where(x => x != null)
+            .OrderBy(x => x.ModuleName)
+            .ToList();
 
-        internal async Task<InvokeModuleMethodResult> InvokeModuleMethod(RequestInformation<TAccessRole> requestInfo, string moduleId, string methodName, string jsonPayload, bool isB64 = false)
+    private List<ToolkitLoadedModule> GetModulesRequestHasAccessTo(Maybe<TAccessRole> accessRoles)
+        => LoadedModules.Where(x => RequestCanViewModule(accessRoles, x)).ToList();
+
+    private bool RequestCanViewModule(Maybe<TAccessRole> accessRoles, ToolkitLoadedModule module)
+    {
+        if (accessRoles == null)
         {
-            var accessRoles = requestInfo.AccessRole;
-
-            var module = GetModulesRequestHasAccessTo(accessRoles).FirstOrDefault(x => x.Id == moduleId);
-            if (module == null)
-            {
-                return new InvokeModuleMethodResult();
-            }
-
-            var method = module.InvokableMethods.FirstOrDefault(x => x.Name == methodName);
-            if (method == null || !RequestHasAccessToModuleMethod(accessRoles, module, method))
-            {
-                return new InvokeModuleMethodResult();
-            }
-
-            if (isB64 && !string.IsNullOrWhiteSpace(jsonPayload))
-            {
-                jsonPayload = Encoding.UTF8.GetString(Convert.FromBase64String(jsonPayload));
-            }
-
-            var sensitiveDataStripper = (RegisteredModules.FirstOrDefault(x => x?.Module is TKAuditLogModule am)?.Module as TKAuditLogModule)?.SensitiveDataStripper;
-            var context = CreateModuleContext(requestInfo, accessRoles, module.Name, module.Id, module.Module, sensitiveDataStripper);
-            try
-            {
-                var result = await method.Invoke(module.Module, context, jsonPayload, new NewtonsoftJsonSerializer());
-                return new InvokeModuleMethodResult()
-                {
-                    HasAccess = true,
-                    Result = result
-                };
-            }
-            catch (Exception ex)
-            {
-                return new InvokeModuleMethodResult()
-                {
-                    HasAccess = true,
-                    Result = $"Exception: {ex}"
-                };
-            }
-            finally
-            {
-                if (context?.AuditEvents != null && context.AuditEvents.Count > 0 && AuditEventService != null)
-                {
-                    foreach (var e in context.AuditEvents.Where(x => x != null))
-                    {
-                        if (_includeClientConnectionDetailsInAllAuditEvents)
-                        {
-                            e.AddClientConnectionDetails(context);
-                        }
-                        await AuditEventService.StoreEvent(e);
-                    }
-                }
-            }
-        }
-
-        internal string GetAssetContentType(string n)
-        {
-            if (n?.EndsWith(".js") == true) return "text/javascript";
-            else if (n?.EndsWith(".css") == true) return "text/css";
-            else if (n?.EndsWith(".woff2") == true) return "font/woff2";
-            else return "text/plain";
-        }
-
-        private ToolkitModuleContext CreateModuleContext(RequestInformation<TAccessRole> requestInfo, Maybe<TAccessRole> accessRoles,
-            string moduleName, string moduleId,
-            IToolkitModule module,
-            TKAuditLogModuleOptions.StripSensitiveDataDelegate sensitiveDataStripper)
-        {
-            var moduleAccess = new List<ToolkitModuleContext.ModuleAccess>();
-            var visibleModules = GetModulesRequestHasAccessTo(accessRoles);
-            var allowedRoleModuleAccessLevels = RoleModuleAccessLevels.Where(x => visibleModules.Any(m => m.AccessOptionsType == x.AccessOptionsType));
-            foreach (var access in allowedRoleModuleAccessLevels)
-            {
-                var accessModuleId = GetModuleTypeFromAccessOptionsType(access.AccessOptionsType)?.Name;
-                if (accessModuleId == null) continue;
-
-                var item = moduleAccess.FirstOrDefault(x => x.ModuleId == accessModuleId);
-                if (item == null)
-                {
-                    item = new ToolkitModuleContext.ModuleAccess
-                    {
-                        ModuleId = accessModuleId,
-                        AccessOptions = new List<string>(),
-                        AccessCategories = new List<string>(),
-                        AccessIds = new List<string>()
-                    };
-                    moduleAccess.Add(item);
-                }
-
-                item.AccessOptions = item.AccessOptions
-                    .Union(access.GetAllSelectedAccessOptions().Select(x => x.ToString()))
-                    .ToList();
-                item.AccessCategories = access.FullAccess
-                    ? new List<string>()
-                    : access.Categories?.ToList() ?? new List<string>();
-                item.AccessIds = access.FullAccess
-                    ? new List<string>()
-                    : access.Ids?.ToList() ?? new List<string>();
-            }
-
-            var request = new ToolkitModuleRequestData()
-            {
-                Method = requestInfo.Method,
-                Headers = requestInfo.Headers,
-                RelativeUrl = requestInfo.Url,
-                ClientIP = requestInfo.ClientIP,
-                InputStream = requestInfo.InputStream,
-                FormFiles = requestInfo.FormFiles,
-            };
-
-            var pageOptions = _pageOptionsGetter?.Invoke();
-            var currentModuleAccess = moduleAccess.FirstOrDefault(x => x.ModuleId == moduleId);
-            var endpointBase = TKAssetGlobalConfig.EndpointBase ?? "";
-
-            var jsUrls = pageOptions?.JavaScriptUrls ?? new List<string>();
-            if (jsUrls.Count == 0) jsUrls = TKAssetGlobalConfig.DefaultJavaScriptUrls ?? new List<string>();
-            jsUrls = jsUrls.Select(x => x.Replace("[base]", endpointBase.TrimEnd('/'))).ToList();
-            
-            var cssUrls = pageOptions?.CssUrls ?? new List<string>();
-            if (cssUrls.Count == 0) cssUrls = TKAssetGlobalConfig.DefaultCssUrls ?? new List<string>();
-            cssUrls = cssUrls.Select(x => x.Replace("[base]", endpointBase.TrimEnd('/'))).ToList();
-
-            return new ToolkitModuleContext()
-            {
-                UserId = requestInfo.UserId,
-                UserName = requestInfo.UserName,
-                ModuleName = moduleName,
-                ModuleId = moduleId,
-                CurrentTokenId = requestInfo.CurrentTokenId,
-                AllowAccessTokenKillswitch = requestInfo.AllowAccessTokenKillswitch,
-
-                JavaScriptUrls = jsUrls,
-                CssUrls = cssUrls,
-
-                CurrentRequestRoles = accessRoles.Value,
-                CurrentRequestModuleAccessOptions = GetCurrentRequestModuleAccessOptions(accessRoles, module?.GetType()),
-
-                CurrentRequestModulesAccess = moduleAccess,
-                CurrentModuleAccess = currentModuleAccess,
-                CurrentModuleCategoryAccess = currentModuleAccess?.AccessCategories ?? new List<string>(),
-                CurrentModuleIdAccess = currentModuleAccess?.AccessIds ?? new List<string>(),
-                LoadedModules = LoadedModules.AsReadOnly(),
-
-                Request = request,
-                SensitiveDataStripper = sensitiveDataStripper
-            };
-        }
-
-        private Type GetModuleTypeFromAccessOptionsType(Type optionsType)
-        {
-            var baseType = typeof(ToolkitModuleBase<>).MakeGenericType(optionsType);
-            return RegisteredModules.FirstOrDefault(x => baseType.IsInstanceOfType(x.Module))?.Module?.GetType();
-        }
-
-        internal class InvokeModuleMethodResult
-        {
-            public string Result { get; set; }
-            public bool HasAccess { get; set; }
-        }
-        internal class InvokeModuleActionResult
-        {
-            public bool HasAccess { get; set; }
-            public object Result { get; set; }
-        }
-
-        private object GetModuleFrontendOptions(Maybe<TAccessRole> accessRoles)
-        {
-            var availableModules = GetModulesRequestHasAccessTo(accessRoles);
-            var options = new Dictionary<string, object>();
-            foreach (var module in availableModules)
-            {
-                var accessOptions = RoleModuleAccessLevels
-                    .Where(x => x.AccessOptionsType == module.AccessOptionsType
-                                && EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, x.Roles))
-                    .SelectMany(x => x.GetAllSelectedAccessOptions())
-                    .Distinct()
-                    .Select(x => x?.ToString())
-                    .ToArray();
-                options[module.Id] = new
-                {
-                    Options = module.FrontendOptions,
-                    AccessOptions = accessOptions
-                };
-            }
-            return options;
-        }
-
-        private List<ToolkitModuleConfigWrapper> GetModuleConfigs(Maybe<TAccessRole> accessRoles)
-        {
-            var availableModules = GetModulesRequestHasAccessTo(accessRoles);
-            var configs = new List<ToolkitModuleConfigWrapper>();
-            foreach (var module in availableModules)
-            {
-                configs.Add(new ToolkitModuleConfigWrapper {
-                    Id = module.Id,
-                    Name = module.Name,
-                    Config = module.Config,
-                    LoadedSuccessfully = module.LoadedSuccessfully,
-                    LoadErrors = module.LoadErrors,
-                    LoadErrorStacktrace = module.LoadErrorStacktrace
-                });
-            }
-            return configs;
-        }
-
-        private class ToolkitModuleConfigWrapper
-        {
-            public string Id { get; set; }
-            public string Name { get; set; }
-            public IToolkitModuleConfig Config { get; set; }
-            public bool LoadedSuccessfully { get; set; }
-            public List<string> LoadErrors { get; set; }
-            public string LoadErrorStacktrace { get; set; }
-        }
-
-        /// <summary>
-        /// Register a module that will be available.
-        /// <para>Optionally override name or id of module.</para>
-        /// </summary>
-        public TModule UseModule<TModule>(TModule module, string name = null)
-            where TModule : IToolkitModule
-        {
-            RegisteredModules.Add(new RegisteredModuleData
-            {
-                Module = module,
-                NameOverride = name
-            });
-            return module;
-        }
-
-        /// <summary>
-        /// Get the first registered module of the given type.
-        /// </summary>
-        public TModule GetModule<TModule>() where TModule: class
-            => RegisteredModules.FirstOrDefault(x => x.Module is TModule)?.Module as TModule;
-        #endregion
-
-        internal bool ApplyTokenAccessIfDetected(RequestInformation<TAccessRole> currentRequestInformation)
-        {
-            foreach(var module in RegisteredModules)
-            {
-                if (module.Module is TKAccessTokensModule acModule)
-                {
-                    var token = acModule.GetTokenForRequest(currentRequestInformation);
-                    if (token != null)
-                    {
-                        ApplyTokenAccess(token, currentRequestInformation);
-                        return true;
-                    }
-                }
-            }
             return false;
         }
 
-        private void ApplyTokenAccess(TKAccessToken token, RequestInformation<TAccessRole> currentRequestInformation)
-        {
-            currentRequestInformation.UserId = token.Id.ToString();
-            currentRequestInformation.UserName = $"Token '{token.Name}'";
-            currentRequestInformation.CurrentTokenId = token.Id;
-            currentRequestInformation.AllowAccessTokenKillswitch = token.AllowKillswitch;
+        return RoleModuleAccessLevels.Any(x => 
+            x.AccessOptionsType == module.AccessOptionsType
+            && EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, x.Roles));
+    }
 
-            var roleValue = 0;
-            foreach (var role in token.Roles)
+    private bool RequestHasAccessToModuleMethod(Maybe<TAccessRole> accessRoles,
+        ToolkitLoadedModule module, ToolkitInvokableMethod method)
+    {
+        var requiredAccessOptions = method.RequiresAccessTo;
+        if (requiredAccessOptions == null)
+        {
+            return RequestCanViewModule(accessRoles, module);
+        }
+
+        var accessOptionsType = requiredAccessOptions.GetType();
+
+        return EnumUtils.GetFlaggedEnumValues(requiredAccessOptions).All(opt =>
+            RoleModuleAccessLevels.Any(x =>
+                x.AccessOptionsType == accessOptionsType
+                && EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, x.Roles)
+                && x.GetAllSelectedAccessOptions().Contains(opt))
+        );
+    }
+
+    private bool RequestHasAccessToModuleAction(Maybe<TAccessRole> accessRoles, ToolkitInvokableAction action)
+    {
+        var requiredAccessOptions = action.RequiresAccessTo;
+        if (requiredAccessOptions == null)
+        {
+            return true;
+        }
+
+        var accessOptionsType = requiredAccessOptions.GetType();
+
+        return EnumUtils.GetFlaggedEnumValues(requiredAccessOptions).All(opt =>
+            RoleModuleAccessLevels.Any(x =>
+                x.AccessOptionsType == accessOptionsType
+                && EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, x.Roles)
+                && x.GetAllSelectedAccessOptions().Contains(opt))
+        );
+    }
+
+    private object GetCurrentRequestModuleAccessOptions(
+        Maybe<TAccessRole> currentRequestAccessRoles, Type moduleType)
+    {
+        try
+        {
+            var accessOptionsType = ToolkitModuleLoader.GetModuleAccessOptionsType(moduleType);
+            var entriesForCurrentRole = RoleModuleAccessLevels
+                .Where(x => EnumUtils.EnumFlagHasAnyFlagsSet(currentRequestAccessRoles.Value, x.Roles)
+                            && x.AccessOptionsType == accessOptionsType);
+            var values = entriesForCurrentRole.SelectMany(x => x.GetAllSelectedAccessOptions()).ToList();
+            var joinedValue = 0;
+            foreach(var value in values)
+            {
+                joinedValue |= (int)value;
+            }
+            return Enum.ToObject(accessOptionsType, joinedValue);
+        }
+        catch (Exception)
+        {
+            throw new TKException($"Invalid module '{moduleType?.Name}' registered.");
+        }
+    }
+
+    private class ToolkitInvokableActionWithModule
+    {
+        public ToolkitInvokableAction Action { get; set; }
+        public ToolkitLoadedModule Module { get; set; }
+    }
+    private IEnumerable<ToolkitInvokableActionWithModule> GetInvokableActionsRequestHasAccessTo(RequestInformation<TAccessRole> requestInfo)
+    {
+        var accessRoles = requestInfo.AccessRole;
+        
+        var modules = LoadedModules;
+        if (modules == null || !modules.Any())
+        {
+            return Enumerable.Empty<ToolkitInvokableActionWithModule>();
+        }
+
+        var methods = new List<ToolkitInvokableActionWithModule>();
+        foreach(var module in modules)
+        {
+            var actions = module.CustomActions;
+            foreach(var action in actions)
+            {
+                if (RequestHasAccessToModuleAction(accessRoles, action))
+                {
+                    methods.Add(new ToolkitInvokableActionWithModule
+                    {
+                        Action = action,
+                        Module = module
+                    });
+                }
+            }
+        }
+        return methods;
+    }
+
+    internal async Task<InvokeModuleActionResult> InvokeModuleAction(
+        RequestInformation<TAccessRole> requestInfo, string actionName, string url)
+    {
+        var match = GetInvokableActionsRequestHasAccessTo(requestInfo)
+            .FirstOrDefault(x => x.Action.Name?.Trim()?.ToLower() == actionName?.ToLower()?.Trim());
+        if (match == null)
+        {
+            return new InvokeModuleActionResult();
+        }
+
+        var accessRoles = requestInfo.AccessRole;
+        var action = match.Action;
+        var module = match.Module;
+
+        var sensitiveDataStripper = (RegisteredModules.FirstOrDefault(x => x?.Module is TKAuditLogModule am)?.Module as TKAuditLogModule)?.SensitiveDataStripper;
+        var context = CreateModuleContext(requestInfo, accessRoles, module.Name, module.Id, module.Module, sensitiveDataStripper);
+        try
+        {
+            var result = await action.Invoke(module.Module, context, url).ConfigureAwait(false);
+            return new InvokeModuleActionResult()
+            {
+                HasAccess = true,
+                Result = result
+            };
+        }
+        catch (Exception ex)
+        {
+            return new InvokeModuleActionResult()
+            {
+                HasAccess = true,
+                Result = $"Exception: {ex.Message}"
+            };
+        }
+        finally
+        {
+            if (context?.AuditEvents != null && context.AuditEvents.Count > 0 && AuditEventService != null)
+            {
+                foreach (var e in context.AuditEvents.Where(x => x != null))
+                {
+                    if (_includeClientConnectionDetailsInAllAuditEvents)
+                    {
+                        e.AddClientConnectionDetails(context);
+                    }
+                    await AuditEventService.StoreEvent(e);
+                }
+            }
+        }
+    }
+
+    internal async Task<InvokeModuleMethodResult> InvokeModuleMethod(RequestInformation<TAccessRole> requestInfo, string moduleId, string methodName, string jsonPayload, bool isB64 = false)
+    {
+        var accessRoles = requestInfo.AccessRole;
+
+        var module = GetModulesRequestHasAccessTo(accessRoles).FirstOrDefault(x => x.Id == moduleId);
+        if (module == null)
+        {
+            return new InvokeModuleMethodResult();
+        }
+
+        var method = module.InvokableMethods.FirstOrDefault(x => x.Name == methodName);
+        if (method == null || !RequestHasAccessToModuleMethod(accessRoles, module, method))
+        {
+            return new InvokeModuleMethodResult();
+        }
+
+        if (isB64 && !string.IsNullOrWhiteSpace(jsonPayload))
+        {
+            jsonPayload = Encoding.UTF8.GetString(Convert.FromBase64String(jsonPayload));
+        }
+
+        var sensitiveDataStripper = (RegisteredModules.FirstOrDefault(x => x?.Module is TKAuditLogModule am)?.Module as TKAuditLogModule)?.SensitiveDataStripper;
+        var context = CreateModuleContext(requestInfo, accessRoles, module.Name, module.Id, module.Module, sensitiveDataStripper);
+        try
+        {
+            var result = await method.Invoke(module.Module, context, jsonPayload, new NewtonsoftJsonSerializer());
+            return new InvokeModuleMethodResult()
+            {
+                HasAccess = true,
+                Result = result
+            };
+        }
+        catch (Exception ex)
+        {
+            return new InvokeModuleMethodResult()
+            {
+                HasAccess = true,
+                Result = $"Exception: {ex}"
+            };
+        }
+        finally
+        {
+            if (context?.AuditEvents != null && context.AuditEvents.Count > 0 && AuditEventService != null)
+            {
+                foreach (var e in context.AuditEvents.Where(x => x != null))
+                {
+                    if (_includeClientConnectionDetailsInAllAuditEvents)
+                    {
+                        e.AddClientConnectionDetails(context);
+                    }
+                    await AuditEventService.StoreEvent(e);
+                }
+            }
+        }
+    }
+
+    internal string GetAssetContentType(string n)
+    {
+        if (n?.EndsWith(".js") == true) return "text/javascript";
+        else if (n?.EndsWith(".css") == true) return "text/css";
+        else if (n?.EndsWith(".woff2") == true) return "font/woff2";
+        else return "text/plain";
+    }
+
+    private ToolkitModuleContext CreateModuleContext(RequestInformation<TAccessRole> requestInfo, Maybe<TAccessRole> accessRoles,
+        string moduleName, string moduleId,
+        IToolkitModule module,
+        TKAuditLogModuleOptions.StripSensitiveDataDelegate sensitiveDataStripper)
+    {
+        var moduleAccess = new List<ToolkitModuleContext.ModuleAccess>();
+        var visibleModules = GetModulesRequestHasAccessTo(accessRoles);
+        var allowedRoleModuleAccessLevels = RoleModuleAccessLevels.Where(x => visibleModules.Any(m => m.AccessOptionsType == x.AccessOptionsType));
+        foreach (var access in allowedRoleModuleAccessLevels)
+        {
+            var accessModuleId = GetModuleTypeFromAccessOptionsType(access.AccessOptionsType)?.Name;
+            if (accessModuleId == null) continue;
+
+            var item = moduleAccess.FirstOrDefault(x => x.ModuleId == accessModuleId);
+            if (item == null)
+            {
+                item = new ToolkitModuleContext.ModuleAccess
+                {
+                    ModuleId = accessModuleId,
+                    AccessOptions = new List<string>(),
+                    AccessCategories = new List<string>(),
+                    AccessIds = new List<string>()
+                };
+                moduleAccess.Add(item);
+            }
+
+            item.AccessOptions = item.AccessOptions
+                .Union(access.GetAllSelectedAccessOptions().Select(x => x.ToString()))
+                .ToList();
+            item.AccessCategories = access.FullAccess
+                ? new List<string>()
+                : access.Categories?.ToList() ?? new List<string>();
+            item.AccessIds = access.FullAccess
+                ? new List<string>()
+                : access.Ids?.ToList() ?? new List<string>();
+        }
+
+        var request = new ToolkitModuleRequestData()
+        {
+            Method = requestInfo.Method,
+            Headers = requestInfo.Headers,
+            RelativeUrl = requestInfo.Url,
+            ClientIP = requestInfo.ClientIP,
+            InputStream = requestInfo.InputStream,
+            FormFiles = requestInfo.FormFiles,
+        };
+
+        var pageOptions = _pageOptionsGetter?.Invoke();
+        var currentModuleAccess = moduleAccess.FirstOrDefault(x => x.ModuleId == moduleId);
+        var endpointBase = TKAssetGlobalConfig.EndpointBase ?? "";
+
+        var jsUrls = pageOptions?.JavaScriptUrls ?? new List<string>();
+        if (jsUrls.Count == 0) jsUrls = TKAssetGlobalConfig.DefaultJavaScriptUrls ?? new List<string>();
+        jsUrls = jsUrls.Select(x => x.Replace("[base]", endpointBase.TrimEnd('/'))).ToList();
+        
+        var cssUrls = pageOptions?.CssUrls ?? new List<string>();
+        if (cssUrls.Count == 0) cssUrls = TKAssetGlobalConfig.DefaultCssUrls ?? new List<string>();
+        cssUrls = cssUrls.Select(x => x.Replace("[base]", endpointBase.TrimEnd('/'))).ToList();
+
+        return new ToolkitModuleContext()
+        {
+            UserId = requestInfo.UserId,
+            UserName = requestInfo.UserName,
+            ModuleName = moduleName,
+            ModuleId = moduleId,
+            CurrentTokenId = requestInfo.CurrentTokenId,
+            AllowAccessTokenKillswitch = requestInfo.AllowAccessTokenKillswitch,
+
+            JavaScriptUrls = jsUrls,
+            CssUrls = cssUrls,
+
+            CurrentRequestRoles = accessRoles.Value,
+            CurrentRequestModuleAccessOptions = GetCurrentRequestModuleAccessOptions(accessRoles, module?.GetType()),
+
+            CurrentRequestModulesAccess = moduleAccess,
+            CurrentModuleAccess = currentModuleAccess,
+            CurrentModuleCategoryAccess = currentModuleAccess?.AccessCategories ?? new List<string>(),
+            CurrentModuleIdAccess = currentModuleAccess?.AccessIds ?? new List<string>(),
+            LoadedModules = LoadedModules.AsReadOnly(),
+
+            Request = request,
+            SensitiveDataStripper = sensitiveDataStripper
+        };
+    }
+
+    private Type GetModuleTypeFromAccessOptionsType(Type optionsType)
+    {
+        var baseType = typeof(ToolkitModuleBase<>).MakeGenericType(optionsType);
+        return RegisteredModules.FirstOrDefault(x => baseType.IsInstanceOfType(x.Module))?.Module?.GetType();
+    }
+
+    internal class InvokeModuleMethodResult
+    {
+        public string Result { get; set; }
+        public bool HasAccess { get; set; }
+    }
+    internal class InvokeModuleActionResult
+    {
+        public bool HasAccess { get; set; }
+        public object Result { get; set; }
+    }
+
+    private object GetModuleFrontendOptions(Maybe<TAccessRole> accessRoles)
+    {
+        var availableModules = GetModulesRequestHasAccessTo(accessRoles);
+        var options = new Dictionary<string, object>();
+        foreach (var module in availableModules)
+        {
+            var accessOptions = RoleModuleAccessLevels
+                .Where(x => x.AccessOptionsType == module.AccessOptionsType
+                            && EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, x.Roles))
+                .SelectMany(x => x.GetAllSelectedAccessOptions())
+                .Distinct()
+                .Select(x => x?.ToString())
+                .ToArray();
+            options[module.Id] = new
+            {
+                Options = module.FrontendOptions,
+                AccessOptions = accessOptions
+            };
+        }
+        return options;
+    }
+
+    private List<ToolkitModuleConfigWrapper> GetModuleConfigs(Maybe<TAccessRole> accessRoles)
+    {
+        var availableModules = GetModulesRequestHasAccessTo(accessRoles);
+        var configs = new List<ToolkitModuleConfigWrapper>();
+        foreach (var module in availableModules)
+        {
+            configs.Add(new ToolkitModuleConfigWrapper {
+                Id = module.Id,
+                Name = module.Name,
+                Config = module.Config,
+                LoadedSuccessfully = module.LoadedSuccessfully,
+                LoadErrors = module.LoadErrors,
+                LoadErrorStacktrace = module.LoadErrorStacktrace
+            });
+        }
+        return configs;
+    }
+
+    private class ToolkitModuleConfigWrapper
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public IToolkitModuleConfig Config { get; set; }
+        public bool LoadedSuccessfully { get; set; }
+        public List<string> LoadErrors { get; set; }
+        public string LoadErrorStacktrace { get; set; }
+    }
+
+    /// <summary>
+    /// Register a module that will be available.
+    /// <para>Optionally override name or id of module.</para>
+    /// </summary>
+    public TModule UseModule<TModule>(TModule module, string name = null)
+        where TModule : IToolkitModule
+    {
+        RegisteredModules.Add(new RegisteredModuleData
+        {
+            Module = module,
+            NameOverride = name
+        });
+        return module;
+    }
+
+    /// <summary>
+    /// Get the first registered module of the given type.
+    /// </summary>
+    public TModule GetModule<TModule>() where TModule: class
+        => RegisteredModules.FirstOrDefault(x => x.Module is TModule)?.Module as TModule;
+    #endregion
+
+    internal bool ApplyTokenAccessIfDetected(RequestInformation<TAccessRole> currentRequestInformation)
+    {
+        foreach(var module in RegisteredModules)
+        {
+            if (module.Module is TKAccessTokensModule acModule)
+            {
+                var token = acModule.GetTokenForRequest(currentRequestInformation);
+                if (token != null)
+                {
+                    ApplyTokenAccess(token, currentRequestInformation);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private void ApplyTokenAccess(TKAccessToken token, RequestInformation<TAccessRole> currentRequestInformation)
+    {
+        currentRequestInformation.UserId = token.Id.ToString();
+        currentRequestInformation.UserName = $"Token '{token.Name}'";
+        currentRequestInformation.CurrentTokenId = token.Id;
+        currentRequestInformation.AllowAccessTokenKillswitch = token.AllowKillswitch;
+
+        var roleValue = 0;
+        foreach (var role in token.Roles)
+        {
+            try
+            {
+                var parsedEnumValue = Enum.Parse(typeof(TAccessRole), role);
+                roleValue |= (int)parsedEnumValue;
+            }
+            catch (Exception) { /* Ignore error here */ }
+        }
+        currentRequestInformation.AccessRole = new Maybe<TAccessRole>((TAccessRole)Enum.ToObject(typeof(TAccessRole), roleValue));
+
+        foreach (var moduleData in token.Modules)
+        {
+            var module = RegisteredModules.FirstOrDefault(x => x.Module.GetType().Name == moduleData.ModuleId);
+            if (module == null)
+            {
+                continue;
+            }
+
+            var moduleOptionsType = ToolkitModuleLoader.GetModuleAccessOptionsType(module.Module.GetType());
+            var moduleOptionsValue = 0;
+            foreach (var option in moduleData.Options)
             {
                 try
                 {
-                    var parsedEnumValue = Enum.Parse(typeof(TAccessRole), role);
-                    roleValue |= (int)parsedEnumValue;
+                    var parsedEnumValue = Enum.Parse(moduleOptionsType, option);
+                    moduleOptionsValue |= (int)parsedEnumValue;
                 }
-                catch (Exception) { /* Ignore error here */ }
+                catch (Exception) { /* Ignore invalid enum parsing */ }
             }
-            currentRequestInformation.AccessRole = new Maybe<TAccessRole>((TAccessRole)Enum.ToObject(typeof(TAccessRole), roleValue));
+            var moduleOptions = Enum.ToObject(moduleOptionsType, moduleOptionsValue);
 
-            foreach (var moduleData in token.Modules)
-            {
-                var module = RegisteredModules.FirstOrDefault(x => x.Module.GetType().Name == moduleData.ModuleId);
-                if (module == null)
-                {
-                    continue;
-                }
+            AccessConfig.GiveRolesAccessToModule(moduleOptionsType, currentRequestInformation.AccessRole.Value, moduleOptions,
+                moduleData.Categories?.ToArray(), moduleData.Ids?.ToArray());
+        }
+    }
 
-                var moduleOptionsType = ToolkitModuleLoader.GetModuleAccessOptionsType(module.Module.GetType());
-                var moduleOptionsValue = 0;
-                foreach (var option in moduleData.Options)
-                {
-                    try
-                    {
-                        var parsedEnumValue = Enum.Parse(moduleOptionsType, option);
-                        moduleOptionsValue |= (int)parsedEnumValue;
-                    }
-                    catch (Exception) { /* Ignore invalid enum parsing */ }
-                }
-                var moduleOptions = Enum.ToObject(moduleOptionsType, moduleOptionsValue);
-
-                AccessConfig.GiveRolesAccessToModule(moduleOptionsType, currentRequestInformation.AccessRole.Value, moduleOptions,
-                    moduleData.Categories?.ToArray(), moduleData.Ids?.ToArray());
-            }
+    internal void AfterConfigure(RequestInformation<TAccessRole> currentRequestInformation)
+    {
+        ToolkitModuleContext createModuleContext(RegisteredModuleData module, TKAuditLogModuleOptions.StripSensitiveDataDelegate sensitiveDataStripper)
+        {
+            return CreateModuleContext(currentRequestInformation, currentRequestInformation.AccessRole,
+                module.NameOverride ?? module.Module.GetType().Name, module.Module.GetType().Name, module.Module, sensitiveDataStripper);
         }
 
-        internal void AfterConfigure(RequestInformation<TAccessRole> currentRequestInformation)
+        var sensitiveDataStripper = (RegisteredModules.FirstOrDefault(x => x?.Module is TKAuditLogModule am)?.Module as TKAuditLogModule)?.SensitiveDataStripper;
+
+        var loader = new ToolkitModuleLoader();
+        LoadedModules = RegisteredModules
+            .Select(x => loader.Load(x.Module, createModuleContext(x, sensitiveDataStripper), x.NameOverride))
+            .Where(x => x != null)
+            .ToList();
+
+        foreach (var loadedModule in LoadedModules)
         {
-            ToolkitModuleContext createModuleContext(RegisteredModuleData module, TKAuditLogModuleOptions.StripSensitiveDataDelegate sensitiveDataStripper)
+            if (loadedModule.Module is TKTestsModule testsModule)
             {
-                return CreateModuleContext(currentRequestInformation, currentRequestInformation.AccessRole,
-                    module.NameOverride ?? module.Module.GetType().Name, module.Module.GetType().Name, module.Module, sensitiveDataStripper);
+                ToolkitControllerHelper<TAccessRole>.InitStringConverter(testsModule.ParameterConverter);
             }
-
-            var sensitiveDataStripper = (RegisteredModules.FirstOrDefault(x => x?.Module is TKAuditLogModule am)?.Module as TKAuditLogModule)?.SensitiveDataStripper;
-
-            var loader = new ToolkitModuleLoader();
-            LoadedModules = RegisteredModules
-                .Select(x => loader.Load(x.Module, createModuleContext(x, sensitiveDataStripper), x.NameOverride))
-                .Where(x => x != null)
-                .ToList();
-
-            foreach (var loadedModule in LoadedModules)
+            else if (loadedModule.Module is TKAuditLogModule auditModule)
             {
-                if (loadedModule.Module is TKTestsModule testsModule)
-                {
-                    ToolkitControllerHelper<TAccessRole>.InitStringConverter(testsModule.ParameterConverter);
-                }
-                else if (loadedModule.Module is TKAuditLogModule auditModule)
-                {
-                    AuditEventService = auditModule.AuditEventService;
-                    _includeClientConnectionDetailsInAllAuditEvents = auditModule.IncludeClientConnectionDetailsInAllEvents;
-                }
+                AuditEventService = auditModule.AuditEventService;
+                _includeClientConnectionDetailsInAllAuditEvents = auditModule.IncludeClientConnectionDetailsInAllEvents;
             }
         }
+    }
 
-        /// <summary>
-        /// Serializes the given object into a json string.
-        /// </summary>
-        public static string SerializeJson(object obj, bool stringEnums = true)
+    /// <summary>
+    /// Serializes the given object into a json string.
+    /// </summary>
+    public static string SerializeJson(object obj, bool stringEnums = true)
+    {
+        var settings = new JsonSerializerSettings
         {
-            var settings = new JsonSerializerSettings
-            {
-                Formatting = Formatting.Indented
-            };
-            if (stringEnums)
-            {
-                settings.Converters.Add(new StringEnumConverter());
-            }
-
-            return JsonConvert.SerializeObject(obj, settings);
+            Formatting = Formatting.Indented
+        };
+        if (stringEnums)
+        {
+            settings.Converters.Add(new StringEnumConverter());
         }
 
-        private const string Q = "\"";
+        return JsonConvert.SerializeObject(obj, settings);
+    }
 
-        /// <summary>
-        /// Create view html from the given options.
-        /// </summary>
-        /// <exception cref="ConfigValidationException"></exception>
-        public string CreateViewHtml(Maybe<TAccessRole> accessRoles,
-            TKFrontEndOptions frontEndOptions, TKPageOptions pageOptions)
-        {
-            ValidateConfig(frontEndOptions, pageOptions);
+    private const string Q = "\"";
 
-            var allowStacktrace = AccessRolesHasAccessTo(accessRoles, AccessConfig.ShowFailedModuleLoadStackTrace, defaultValue: false);
-            var moduleConfigs = GetModuleConfigs(accessRoles);
-            var moduleConfigData = moduleConfigs.Select(x => new {
-                x.Id,
-                x.Name,
-                x.LoadedSuccessfully,
-                x.LoadErrors,
-                LoadErrorStacktrace = (allowStacktrace ? x.LoadErrorStacktrace : null),
-                x.Config?.ComponentName,
-                x.Config?.RawHtml,
-                InitialRoute = x?.Config?.InitialRoute == null ? null : string.Format(x.Config.InitialRoute, x.Config.DefaultRootRouteSegment),
-                RoutePath = x?.Config?.RoutePath == null ? null : string.Format(x.Config.RoutePath, x.Config.DefaultRootRouteSegment)
-            });
+    /// <summary>
+    /// Create view html from the given options.
+    /// </summary>
+    /// <exception cref="ConfigValidationException"></exception>
+    public string CreateViewHtml(Maybe<TAccessRole> accessRoles,
+        TKFrontEndOptions frontEndOptions, TKPageOptions pageOptions)
+    {
+        ValidateConfig(frontEndOptions, pageOptions);
 
-            var cssTagsHtml = TKAssetGlobalConfig.CreateCssTags(frontEndOptions.EndpointBase, pageOptions?.CssUrls);
-            var moduleCssUrls = moduleConfigs.Select(x => x.Config)
-                .Where(x => x?.LinkTags != null).SelectMany(x => x.LinkTags.Select(t => t.ToString()));
-            cssTagsHtml += string.Join("\n", moduleCssUrls);
+        var allowStacktrace = AccessRolesHasAccessTo(accessRoles, AccessConfig.ShowFailedModuleLoadStackTrace, defaultValue: false);
+        var moduleConfigs = GetModuleConfigs(accessRoles);
+        var moduleConfigData = moduleConfigs.Select(x => new {
+            x.Id,
+            x.Name,
+            x.LoadedSuccessfully,
+            x.LoadErrors,
+            LoadErrorStacktrace = (allowStacktrace ? x.LoadErrorStacktrace : null),
+            x.Config?.ComponentName,
+            x.Config?.RawHtml,
+            InitialRoute = x?.Config?.InitialRoute == null ? null : string.Format(x.Config.InitialRoute, x.Config.DefaultRootRouteSegment),
+            RoutePath = x?.Config?.RoutePath == null ? null : string.Format(x.Config.RoutePath, x.Config.DefaultRootRouteSegment)
+        });
 
-            var jsTagsHtml = TKAssetGlobalConfig.CreateJavaScriptTags(frontEndOptions.EndpointBase, pageOptions?.JavaScriptUrls);
-            var moduleJsUrls = moduleConfigs.Select(x => x.Config)
-                .Where(x => x?.ScriptTags != null).SelectMany(x => x.ScriptTags.Select(t => t.ToString()));
-            jsTagsHtml += string.Join("\n", moduleJsUrls);
+        var cssTagsHtml = TKAssetGlobalConfig.CreateCssTags(frontEndOptions.EndpointBase, pageOptions?.CssUrls);
+        var moduleCssUrls = moduleConfigs.Select(x => x.Config)
+            .Where(x => x?.LinkTags != null).SelectMany(x => x.LinkTags.Select(t => t.ToString()));
+        cssTagsHtml += string.Join("\n", moduleCssUrls);
 
-            var moduleOptions = GetModuleFrontendOptions(accessRoles);
-            var serializer = new NewtonsoftJsonSerializer();
+        var jsTagsHtml = TKAssetGlobalConfig.CreateJavaScriptTags(frontEndOptions.EndpointBase, pageOptions?.JavaScriptUrls);
+        var moduleJsUrls = moduleConfigs.Select(x => x.Config)
+            .Where(x => x?.ScriptTags != null).SelectMany(x => x.ScriptTags.Select(t => t.ToString()));
+        jsTagsHtml += string.Join("\n", moduleJsUrls);
 
-            var noIndexMeta = pageOptions.IncludeNoIndex ? $"<meta name={Q}robots{Q} content={Q}noindex{Q}>" : "";
-            var loaderStyling = CreateLoaderStyling();
+        var moduleOptions = GetModuleFrontendOptions(accessRoles);
+        var serializer = new NewtonsoftJsonSerializer();
 
-            return $@"
+        var noIndexMeta = pageOptions.IncludeNoIndex ? $"<meta name={Q}robots{Q} content={Q}noindex{Q}>" : "";
+        var loaderStyling = CreateLoaderStyling();
+
+        return $@"
 <!doctype html>
 <html>
 <head>
@@ -711,11 +711,11 @@ namespace QoDL.Toolkit.WebUI.Util
     {pageOptions.CustomBodyHtml}
 </body>
 </html>";
-        }
+    }
 
-        private static string CreateLoaderStyling()
-        {
-            return @"
+    private static string CreateLoaderStyling()
+    {
+        return @"
 <style>
 #tk-load-errors {
     white-space: pre;
@@ -859,155 +859,154 @@ namespace QoDL.Toolkit.WebUI.Util
 }
 </style>
 ";
-        }
+    }
 
-        private static void ValidateConfig(TKFrontEndOptions frontEndOptions, TKPageOptions pageOptions)
+    private static void ValidateConfig(TKFrontEndOptions frontEndOptions, TKPageOptions pageOptions)
+    {
+        frontEndOptions.Validate();
+        pageOptions.Validate();
+    }
+
+    #region Access
+    /// <summary>
+    /// Check if the given roles has access to calling the ping endpoint.
+    /// </summary>
+    public bool CanUsePingEndpoint(Maybe<TAccessRole> accessRoles)
+        => AccessRolesHasAccessTo(accessRoles, AccessConfig.PingAccess, defaultValue: true);
+
+    /// <summary>
+    /// Default value if pageAccess is null, false if no roles were given.
+    /// </summary>
+    private static bool AccessRolesHasAccessTo(Maybe<TAccessRole> accessRoles, Maybe<TAccessRole> pageAccess, bool defaultValue = true)
+    {
+        // No access defined => default
+        if (pageAccess == null || !pageAccess.HasValue)
         {
-            frontEndOptions.Validate();
-            pageOptions.Validate();
+            return defaultValue;
         }
-
-        #region Access
-        /// <summary>
-        /// Check if the given roles has access to calling the ping endpoint.
-        /// </summary>
-        public bool CanUsePingEndpoint(Maybe<TAccessRole> accessRoles)
-            => AccessRolesHasAccessTo(accessRoles, AccessConfig.PingAccess, defaultValue: true);
-
-        /// <summary>
-        /// Default value if pageAccess is null, false if no roles were given.
-        /// </summary>
-        private static bool AccessRolesHasAccessTo(Maybe<TAccessRole> accessRoles, Maybe<TAccessRole> pageAccess, bool defaultValue = true)
+        // Access is defined but no user roles => denied
+        else if (accessRoles.HasNothing() && pageAccess.HasValue())
         {
-            // No access defined => default
-            if (pageAccess == null || !pageAccess.HasValue)
-            {
-                return defaultValue;
-            }
-            // Access is defined but no user roles => denied
-            else if (accessRoles.HasNothing() && pageAccess.HasValue())
-            {
-                return false;
-            }
-
-            return EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, pageAccess.Value);
+            return false;
         }
+
+        return EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, pageAccess.Value);
+    }
 #endregion
 
 #region Init module extras
-        private static void InitStringConverter(TKStringConverter converter)
-        {
-            converter.RegisterConverter<byte[]>(
-                (input) => ConvertFileInputToBytes(input),
-                (file) => null);
+    private static void InitStringConverter(TKStringConverter converter)
+    {
+        converter.RegisterConverter<byte[]>(
+            (input) => ConvertFileInputToBytes(input),
+            (file) => null);
 
-            converter.RegisterConverter<List<byte[]>>(
-                (input) =>
-                {
-                    var list = new List<byte[]>();
-                    if (input == null || string.IsNullOrWhiteSpace(input)) return list;
-
-                    var listItems = JsonConvert.DeserializeObject<List<string>>(input);
-                    list.AddRange(
-                        listItems
-                        .Select(x => ConvertFileInputToBytes(x))
-                        .Where(x => x != null)
-                    );
-
-                    return list;
-                },
-                (file) => null);
-
-#if NETCORE
-            converter.RegisterConverter<IFormFile>(
-                (input) => ConvertFileInputToMemoryFile(input),
-                (file) => null);
-
-            converter.RegisterConverter<List<IFormFile>>(
-                (input) =>
-                {
-                    var list = new List<IFormFile>();
-                    if (input == null || string.IsNullOrWhiteSpace(input)) return list;
-
-                    var listItems = JsonConvert.DeserializeObject<List<string>>(input);
-                    list.AddRange(
-                        listItems
-                        .Select(x => ConvertFileInputToMemoryFile(x))
-                        .Where(x => x != null)
-                    );
-
-                    return list;
-                },
-                (file) => null);
-#endif
-#if NETFULL
-            converter.RegisterConverter<HttpPostedFileBase>(
-                (input) => ConvertFileInputToMemoryFile(input),
-                (file) => null);
-
-            converter.RegisterConverter<List<HttpPostedFileBase>>(
-                (input) =>
-                {
-                    var list = new List<HttpPostedFileBase>();
-                    if (input == null || string.IsNullOrWhiteSpace(input)) return list;
-
-                    var listItems = JsonConvert.DeserializeObject<List<string>>(input);
-                    list.AddRange(
-                        listItems
-                        .Select(x => ConvertFileInputToMemoryFile(x))
-                        .Where(x => x != null)
-                    );
-
-                    return list;
-                },
-                (file) => null);
-#endif
-        }
-
-        private static byte[] ConvertFileInputToBytes(string input)
-        {
-            if (input == null)
+        converter.RegisterConverter<List<byte[]>>(
+            (input) =>
             {
-                return null;
-            }
+                var list = new List<byte[]>();
+                if (input == null || string.IsNullOrWhiteSpace(input)) return list;
 
-            var parts = input.Split('|');
-            if (parts.Length < 3) return null;
+                var listItems = JsonConvert.DeserializeObject<List<string>>(input);
+                list.AddRange(
+                    listItems
+                    .Select(x => ConvertFileInputToBytes(x))
+                    .Where(x => x != null)
+                );
 
-            var bytes = Convert.FromBase64String(parts[2]);
-            return bytes;
-        }
+                return list;
+            },
+            (file) => null);
 
 #if NETCORE
-        private static IFormFile ConvertFileInputToMemoryFile(string input)
+        converter.RegisterConverter<IFormFile>(
+            (input) => ConvertFileInputToMemoryFile(input),
+            (file) => null);
+
+        converter.RegisterConverter<List<IFormFile>>(
+            (input) =>
+            {
+                var list = new List<IFormFile>();
+                if (input == null || string.IsNullOrWhiteSpace(input)) return list;
+
+                var listItems = JsonConvert.DeserializeObject<List<string>>(input);
+                list.AddRange(
+                    listItems
+                    .Select(x => ConvertFileInputToMemoryFile(x))
+                    .Where(x => x != null)
+                );
+
+                return list;
+            },
+            (file) => null);
+#endif
+#if NETFULL
+        converter.RegisterConverter<HttpPostedFileBase>(
+            (input) => ConvertFileInputToMemoryFile(input),
+            (file) => null);
+
+        converter.RegisterConverter<List<HttpPostedFileBase>>(
+            (input) =>
+            {
+                var list = new List<HttpPostedFileBase>();
+                if (input == null || string.IsNullOrWhiteSpace(input)) return list;
+
+                var listItems = JsonConvert.DeserializeObject<List<string>>(input);
+                list.AddRange(
+                    listItems
+                    .Select(x => ConvertFileInputToMemoryFile(x))
+                    .Where(x => x != null)
+                );
+
+                return list;
+            },
+            (file) => null);
+#endif
+    }
+
+    private static byte[] ConvertFileInputToBytes(string input)
+    {
+        if (input == null)
         {
-            if (input == null) return null;
-
-            var parts = input.Split('|');
-            if (parts.Length < 3) return null;
-
-            var bytes = Convert.FromBase64String(parts[2]);
-
-            return new FormFile(new MemoryStream(bytes), 0, bytes.Length, "Data", parts[1]);
+            return null;
         }
+
+        var parts = input.Split('|');
+        if (parts.Length < 3) return null;
+
+        var bytes = Convert.FromBase64String(parts[2]);
+        return bytes;
+    }
+
+#if NETCORE
+    private static IFormFile ConvertFileInputToMemoryFile(string input)
+    {
+        if (input == null) return null;
+
+        var parts = input.Split('|');
+        if (parts.Length < 3) return null;
+
+        var bytes = Convert.FromBase64String(parts[2]);
+
+        return new FormFile(new MemoryStream(bytes), 0, bytes.Length, "Data", parts[1]);
+    }
 #endif
 
 #if NETFULL
-        private static MemoryFile ConvertFileInputToMemoryFile(string input)
-        {
-            if (input == null) return null;
+    private static MemoryFile ConvertFileInputToMemoryFile(string input)
+    {
+        if (input == null) return null;
 
-            var parts = input.Split('|');
-            if (parts.Length < 3) return null;
+        var parts = input.Split('|');
+        if (parts.Length < 3) return null;
 
-            var bytes = Convert.FromBase64String(parts[2]);
-            return new MemoryFile(
-                contentType: parts[0],
-                fileName: parts[1],
-                stream: new MemoryStream(bytes)
-            );
-        }
+        var bytes = Convert.FromBase64String(parts[2]);
+        return new MemoryFile(
+            contentType: parts[0],
+            fileName: parts[1],
+            stream: new MemoryStream(bytes)
+        );
+    }
 #endif
 #endregion
-    }
 }

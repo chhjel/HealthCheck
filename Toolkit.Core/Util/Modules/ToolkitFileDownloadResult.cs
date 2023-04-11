@@ -2,12 +2,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace QoDL.Toolkit.Core.Util.Modules
-{
-    /// <summary>
-    /// Can be returned from module actions to download a file.
-    /// </summary>
-    public class ToolkitFileDownloadResult
+namespace QoDL.Toolkit.Core.Util.Modules;
+
+/// <summary>
+/// Can be returned from module actions to download a file.
+/// </summary>
+public class ToolkitFileDownloadResult
 	{
 		/// <summary>
 		/// Name of the file to be downloaded.
@@ -68,4 +68,3 @@ namespace QoDL.Toolkit.Core.Util.Modules
 		public static ToolkitFileDownloadResult CreateFromString(string filename, string content, string contentType = null, Encoding encoding = null)
 			=> new() { FileName = filename, Content = content, ContentType = contentType ?? "text/plain", Encoding = encoding ?? Encoding.UTF8 };
 	}
-}

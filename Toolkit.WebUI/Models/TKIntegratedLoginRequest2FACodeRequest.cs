@@ -1,13 +1,12 @@
-namespace QoDL.Toolkit.WebUI.Models
+namespace QoDL.Toolkit.WebUI.Models;
+
+/// <summary>
+/// Request sent to custom login handler.
+/// </summary>
+public class TKIntegratedLoginRequest2FACodeRequest
 {
     /// <summary>
-    /// Request sent to custom login handler.
+    /// Username.
     /// </summary>
-    public class TKIntegratedLoginRequest2FACodeRequest
-    {
-        /// <summary>
-        /// Username.
-        /// </summary>
-        public string Username { get; set; }
-    }
+    public string Username { get; set; }
 }

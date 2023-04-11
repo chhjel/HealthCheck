@@ -7,14 +7,14 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace QoDL.Toolkit.Core.Util
-{
-    /// <summary>
-    /// Stores items serialized on disk and keeps them in memory for fast access.
+namespace QoDL.Toolkit.Core.Util;
+
+/// <summary>
+/// Stores items serialized on disk and keeps them in memory for fast access.
 	/// <para>Optimized for few items, somewhere less than 500.</para>
 	/// <para>Should be used as a singleton.</para>
-    /// </summary>
-    public class TKSimpleCachedDataStore<TData>
+/// </summary>
+public class TKSimpleCachedDataStore<TData>
 	{
 		/// <summary>
 		/// Filepath where the flatfile will be stored.
@@ -153,9 +153,9 @@ namespace QoDL.Toolkit.Core.Util
 					var timer = new TKMetricsTimer($"{GetType().GetFriendlyTypeName()}.SaveData()");
 					var folder = Directory.GetParent(FilePath).FullName;
 					if (!Directory.Exists(folder))
-                    {
+                {
 						Directory.CreateDirectory(folder);
-                    }
+                }
 					File.WriteAllText(FilePath, json);
 					TKMetricsContext.AddGlobalTimingValue(timer);
 				}
@@ -242,4 +242,3 @@ namespace QoDL.Toolkit.Core.Util
 		}
 		#endregion
 	}
-}

@@ -9,256 +9,256 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace QoDL.Toolkit.Module.DynamicCodeExecution
+namespace QoDL.Toolkit.Module.DynamicCodeExecution;
+
+/// <summary>
+/// Compiles and executes code.
+/// </summary>
+internal class RuntimeCodeTester
 {
     /// <summary>
-    /// Compiles and executes code.
+    /// Configuration for the code execution. Authorization, preprocessors etc.
     /// </summary>
-    internal class RuntimeCodeTester
+    public RuntimeCodeTesterConfig Config { get; set; }
+
+    /// <summary>
+    /// Your entry assembly.
+    /// </summary>
+    public Assembly TargetAssembly { get; set; }
+
+    /// <summary>
+    /// Extra references.
+    /// </summary>
+    private List<string> AdditionalReferencedAssemblies { get; set; }
+
+    /// <summary>
+    /// Create a new instance of the runtime code tester.
+    /// </summary>
+    /// <param name="config">Various configs</param>
+    /// <param name="assembly">Your entry assembly.</param>
+    public RuntimeCodeTester(RuntimeCodeTesterConfig config, Assembly assembly)
     {
-        /// <summary>
-        /// Configuration for the code execution. Authorization, preprocessors etc.
-        /// </summary>
-        public RuntimeCodeTesterConfig Config { get; set; }
+        Config = config ?? new RuntimeCodeTesterConfig();
+        TargetAssembly = assembly ?? Assembly.GetEntryAssembly();
+        AdditionalReferencedAssemblies = config?.AdditionalReferencedAssemblies;
+    }
 
-        /// <summary>
-        /// Your entry assembly.
-        /// </summary>
-        public Assembly TargetAssembly { get; set; }
-
-        /// <summary>
-        /// Extra references.
-        /// </summary>
-        private List<string> AdditionalReferencedAssemblies { get; set; }
-
-        /// <summary>
-        /// Create a new instance of the runtime code tester.
-        /// </summary>
-        /// <param name="config">Various configs</param>
-        /// <param name="assembly">Your entry assembly.</param>
-        public RuntimeCodeTester(RuntimeCodeTesterConfig config, Assembly assembly)
+    /// <summary>
+    /// Applies any pre-processors and executes the code.
+    /// </summary>
+    /// <param name="source">C# to execute.</param>
+    /// <param name="disabledPreProcessorIds">List of pre-processor ids that will be requested disabled.</param>
+    /// <returns>A result with any output, errors and dumps.</returns>
+    public CodeExecutionResult ExecuteCode(string source, List<string> disabledPreProcessorIds = null)
+    {
+        disabledPreProcessorIds ??= new List<string>();
+        var options = CreateCompilerParameters();
+        var appliedPreProcessorIds = new List<string>();
+        try
         {
-            Config = config ?? new RuntimeCodeTesterConfig();
-            TargetAssembly = assembly ?? Assembly.GetEntryAssembly();
-            AdditionalReferencedAssemblies = config?.AdditionalReferencedAssemblies;
+            source = PreProcess(source, options, disabledPreProcessorIds, appliedPreProcessorIds);
+        }
+        catch (Exception ex)
+        {
+            return new CodeExecutionResult()
+            {
+                Status = CodeExecutionResult.StatusTypes.CompilerError,
+                Errors = ExceptionToCodeError(ex)
+            };
         }
 
-        /// <summary>
-        /// Applies any pre-processors and executes the code.
-        /// </summary>
-        /// <param name="source">C# to execute.</param>
-        /// <param name="disabledPreProcessorIds">List of pre-processor ids that will be requested disabled.</param>
-        /// <returns>A result with any output, errors and dumps.</returns>
-        public CodeExecutionResult ExecuteCode(string source, List<string> disabledPreProcessorIds = null)
-        {
-            disabledPreProcessorIds ??= new List<string>();
-            var options = CreateCompilerParameters();
-            var appliedPreProcessorIds = new List<string>();
-            try
-            {
-                source = PreProcess(source, options, disabledPreProcessorIds, appliedPreProcessorIds);
-            }
-            catch (Exception ex)
-            {
-                return new CodeExecutionResult()
-                {
-                    Status = CodeExecutionResult.StatusTypes.CompilerError,
-                    Errors = ExceptionToCodeError(ex)
-                };
-            }
+        return ExecuteCode(source, options, appliedPreProcessorIds);
+    }
 
-            return ExecuteCode(source, options, appliedPreProcessorIds);
+    private CompilerParameters CreateCompilerParameters()
+    {
+        var options = new CompilerParameters();
+        AddAssemblies(Assembly.GetExecutingAssembly(), options);
+        AddAssemblies(TargetAssembly, options);
+
+        if (AdditionalReferencedAssemblies != null)
+        {
+            foreach (var reference in AdditionalReferencedAssemblies)
+            {
+                options.ReferencedAssemblies.Add(reference);
+            }
         }
 
-        private CompilerParameters CreateCompilerParameters()
+        return options;
+    }
+
+    /// <summary>
+    /// Get a list of all the assemblies used.
+    /// </summary>
+    public IEnumerable<string> GetAssemblyLocations()
+    {
+        var list = new List<string>();
+        var exec = Assembly.GetExecutingAssembly();
+        if (exec != null)
         {
-            var options = new CompilerParameters();
-            AddAssemblies(Assembly.GetExecutingAssembly(), options);
-            AddAssemblies(TargetAssembly, options);
-
-            if (AdditionalReferencedAssemblies != null)
-            {
-                foreach (var reference in AdditionalReferencedAssemblies)
-                {
-                    options.ReferencedAssemblies.Add(reference);
-                }
-            }
-
-            return options;
+            list.Add(exec.Location);
+            list.AddRange(exec.GetReferencedAssemblies().Select(x => ReflectionOnlyLoadWithPolicy(x.FullName).Location));
         }
-
-        /// <summary>
-        /// Get a list of all the assemblies used.
-        /// </summary>
-        public IEnumerable<string> GetAssemblyLocations()
+        if (TargetAssembly != null)
         {
-            var list = new List<string>();
-            var exec = Assembly.GetExecutingAssembly();
-            if (exec != null)
-            {
-                list.Add(exec.Location);
-                list.AddRange(exec.GetReferencedAssemblies().Select(x => ReflectionOnlyLoadWithPolicy(x.FullName).Location));
-            }
-            if (TargetAssembly != null)
-            {
-                list.Add(TargetAssembly.Location);
-                list.AddRange(TargetAssembly.GetReferencedAssemblies().Select(x => ReflectionOnlyLoadWithPolicy(x.FullName).Location));
-            }
-            return list.GroupBy(x => x).Select(x => x.First());
+            list.Add(TargetAssembly.Location);
+            list.AddRange(TargetAssembly.GetReferencedAssemblies().Select(x => ReflectionOnlyLoadWithPolicy(x.FullName).Location));
         }
+        return list.GroupBy(x => x).Select(x => x.First());
+    }
 
-        private string PreProcess(string source, CompilerParameters options, List<string> disabledPreProcessorIds, List<string> appliedPreProcessorIds)
+    private string PreProcess(string source, CompilerParameters options, List<string> disabledPreProcessorIds, List<string> appliedPreProcessorIds)
+    {
+        if (Config.PreProcessors == null || !Config.PreProcessors.Any())
         {
-            if (Config.PreProcessors == null || !Config.PreProcessors.Any())
-            {
-                return source;
-            }
-
-            foreach(var processor in Config.PreProcessors.Where(p => p != null && (!p.CanBeDisabled || !disabledPreProcessorIds.Contains(p.Id))))
-            {
-                try
-                {
-                    appliedPreProcessorIds.Add(processor.Id);
-                    source = processor.PreProcess(options, source);
-                }
-                catch (Exception ex)
-                {
-                    throw new PreProcessorException($"The preprocessor '{processor.GetType().Name}' caused an error.", ex);
-                }
-            }
-
             return source;
         }
 
-        private CodeExecutionResult ExecuteCode(string source, CompilerParameters options, List<string> appliedPreProcessorIds)
+        foreach(var processor in Config.PreProcessors.Where(p => p != null && (!p.CanBeDisabled || !disabledPreProcessorIds.Contains(p.Id))))
         {
-            var provider = CodeDomProvider.CreateProvider("C#");
-
-            var result = new CodeExecutionResult()
-            {
-                Code = source,
-                AppliedPreProcessorIds = appliedPreProcessorIds
-            };
-            var compilerResult = provider.CompileAssemblyFromSource(options, source, ExtraSource);
-            if (compilerResult.Errors.Count > 0)
-            {
-                var errors = new List<CodeError>();
-                foreach (CompilerError err in compilerResult.Errors)
-                {
-                    errors.Add(new CodeError(err.Line, err.Column, err.ErrorText));
-                }
-                result.Errors = errors;
-                result.Status = CodeExecutionResult.StatusTypes.CompilerError;
-                return result;
-            }
-
-            // Check that the required method that we are going to call is in place.
-            Type type = null;
-            object instance = null;
-            MethodInfo method = null;
-            var dumps = new List<DataDump>();
-            var diffs = new List<DiffModel>();
             try
             {
-                // Init internal
-                compilerResult.CompiledAssembly
-                    .GetType("DCEInternalHelpers")
-                    .GetMethod("Init", BindingFlags.Public | BindingFlags.Static)
-                    .Invoke(null, new object[] { dumps, diffs });
-
-                // Invoke custom main method
-                type = compilerResult.CompiledAssembly.GetType("CodeTesting.EntryClass");
-                instance = TKIoCUtils.GetInstanceExt(type);
-                method = type.GetMethod("Main");
+                appliedPreProcessorIds.Add(processor.Id);
+                source = processor.PreProcess(options, source);
             }
             catch (Exception ex)
             {
-                result.Status = CodeExecutionResult.StatusTypes.RuntimeError;
-                result.Errors.Add(new CodeError(
-                    $"Namespace must be CodeTesting, classname must be EntryClass, and method must be Main and optionally return something stringable. Exception was: {ex}"
-                ));
-                return result;
+                throw new PreProcessorException($"The preprocessor '{processor.GetType().Name}' caused an error.", ex);
             }
+        }
 
-            if (method == null)
+        return source;
+    }
+
+    private CodeExecutionResult ExecuteCode(string source, CompilerParameters options, List<string> appliedPreProcessorIds)
+    {
+        var provider = CodeDomProvider.CreateProvider("C#");
+
+        var result = new CodeExecutionResult()
+        {
+            Code = source,
+            AppliedPreProcessorIds = appliedPreProcessorIds
+        };
+        var compilerResult = provider.CompileAssemblyFromSource(options, source, ExtraSource);
+        if (compilerResult.Errors.Count > 0)
+        {
+            var errors = new List<CodeError>();
+            foreach (CompilerError err in compilerResult.Errors)
             {
-                result.Status = CodeExecutionResult.StatusTypes.RuntimeError;
-                result.Errors.Add(new CodeError("No Main method was found. It has to exist within CodeTesting.EntryClass, can be async and optionally return something stringable."));
-                return result;
+                errors.Add(new CodeError(err.Line, err.Column, err.ErrorText));
             }
-
-            try
-            {
-                var returnType = method.ReturnType;
-                object rawResult = null;
-
-                // Task or Task<T>
-                if (returnType == typeof(Task)
-                    || (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>)))
-                {
-                    rawResult = TKAsyncUtils.InvokeAsyncSync(method, instance, null);
-                    if (returnType == typeof(Task))
-                    {
-                        rawResult = null;
-                    }
-                }
-                // Not async
-                else
-                {
-                    rawResult = method.Invoke(instance, null);
-                }
-
-                result.Output = rawResult?.ToString();
-                result.Status = CodeExecutionResult.StatusTypes.Executed;
-            }
-            catch (Exception ex)
-            {
-                result.Status = CodeExecutionResult.StatusTypes.RuntimeError;
-                result.Errors = ExceptionToCodeError(ex);
-            }
-
-            result.Dumps = dumps.Where(d => d.Display).ToList();
-            result.Diffs = diffs;
+            result.Errors = errors;
+            result.Status = CodeExecutionResult.StatusTypes.CompilerError;
             return result;
         }
 
-        private void AddAssemblies(Assembly currentAssembly, CompilerParameters options)
+        // Check that the required method that we are going to call is in place.
+        Type type = null;
+        object instance = null;
+        MethodInfo method = null;
+        var dumps = new List<DataDump>();
+        var diffs = new List<DiffModel>();
+        try
         {
-            options.ReferencedAssemblies.Add(currentAssembly.Location);
+            // Init internal
+            compilerResult.CompiledAssembly
+                .GetType("DCEInternalHelpers")
+                .GetMethod("Init", BindingFlags.Public | BindingFlags.Static)
+                .Invoke(null, new object[] { dumps, diffs });
 
-            foreach(var refAssemblyName in currentAssembly.GetReferencedAssemblies())
+            // Invoke custom main method
+            type = compilerResult.CompiledAssembly.GetType("CodeTesting.EntryClass");
+            instance = TKIoCUtils.GetInstanceExt(type);
+            method = type.GetMethod("Main");
+        }
+        catch (Exception ex)
+        {
+            result.Status = CodeExecutionResult.StatusTypes.RuntimeError;
+            result.Errors.Add(new CodeError(
+                $"Namespace must be CodeTesting, classname must be EntryClass, and method must be Main and optionally return something stringable. Exception was: {ex}"
+            ));
+            return result;
+        }
+
+        if (method == null)
+        {
+            result.Status = CodeExecutionResult.StatusTypes.RuntimeError;
+            result.Errors.Add(new CodeError("No Main method was found. It has to exist within CodeTesting.EntryClass, can be async and optionally return something stringable."));
+            return result;
+        }
+
+        try
+        {
+            var returnType = method.ReturnType;
+            object rawResult = null;
+
+            // Task or Task<T>
+            if (returnType == typeof(Task)
+                || (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>)))
             {
-                AddAssemblyWithPolicy(refAssemblyName.FullName, options);
+                rawResult = TKAsyncUtils.InvokeAsyncSync(method, instance, null);
+                if (returnType == typeof(Task))
+                {
+                    rawResult = null;
+                }
             }
-        }
-
-        private void AddAssemblyWithPolicy(string assemblyName, CompilerParameters options)
-        {
-            var refAssembly = ReflectionOnlyLoadWithPolicy(assemblyName);
-            options.ReferencedAssemblies.Add(refAssembly.Location);
-        }
-
-        private Assembly ReflectionOnlyLoadWithPolicy(string assemblyName)
-        {
-            var newName = AppDomain.CurrentDomain?.ApplyPolicy(assemblyName);
-            return Assembly.ReflectionOnlyLoad(newName);
-        }
-
-        private List<CodeError> ExceptionToCodeError(Exception ex)
-        {
-            var errors = new List<CodeError>
+            // Not async
+            else
             {
-                new CodeError($"{ex}{Environment.NewLine}{ex.StackTrace}")
-            };
-
-            if (ex.InnerException != null)
-            {
-                errors.AddRange(ExceptionToCodeError(ex.InnerException));
+                rawResult = method.Invoke(instance, null);
             }
-            return errors;
+
+            result.Output = rawResult?.ToString();
+            result.Status = CodeExecutionResult.StatusTypes.Executed;
+        }
+        catch (Exception ex)
+        {
+            result.Status = CodeExecutionResult.StatusTypes.RuntimeError;
+            result.Errors = ExceptionToCodeError(ex);
         }
 
-        private readonly string ExtraSource = $@"
+        result.Dumps = dumps.Where(d => d.Display).ToList();
+        result.Diffs = diffs;
+        return result;
+    }
+
+    private void AddAssemblies(Assembly currentAssembly, CompilerParameters options)
+    {
+        options.ReferencedAssemblies.Add(currentAssembly.Location);
+
+        foreach(var refAssemblyName in currentAssembly.GetReferencedAssemblies())
+        {
+            AddAssemblyWithPolicy(refAssemblyName.FullName, options);
+        }
+    }
+
+    private void AddAssemblyWithPolicy(string assemblyName, CompilerParameters options)
+    {
+        var refAssembly = ReflectionOnlyLoadWithPolicy(assemblyName);
+        options.ReferencedAssemblies.Add(refAssembly.Location);
+    }
+
+    private Assembly ReflectionOnlyLoadWithPolicy(string assemblyName)
+    {
+        var newName = AppDomain.CurrentDomain?.ApplyPolicy(assemblyName);
+        return Assembly.ReflectionOnlyLoad(newName);
+    }
+
+    private List<CodeError> ExceptionToCodeError(Exception ex)
+    {
+        var errors = new List<CodeError>
+        {
+            new CodeError($"{ex}{Environment.NewLine}{ex.StackTrace}")
+        };
+
+        if (ex.InnerException != null)
+        {
+            errors.AddRange(ExceptionToCodeError(ex.InnerException));
+        }
+        return errors;
+    }
+
+    private readonly string ExtraSource = $@"
     public static class DCEInternalHelpers 
     {{
         public static System.Collections.Generic.List<QoDL.Toolkit.Module.DynamicCodeExecution.Models.DataDump> Dumps {{ get; set; }}
@@ -293,6 +293,5 @@ namespace QoDL.Toolkit.Module.DynamicCodeExecution
         {{ return QoDL.Toolkit.Module.DynamicCodeExecution.Util.DumpHelper.Diff<TLeft, TRight>(left, right, onlyIfDifferent, DCEInternalHelpers.Diffs, title, ignoreErrors); }}
 	}}
 ";
-    }
 }
 #endif

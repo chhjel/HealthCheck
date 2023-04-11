@@ -1,15 +1,14 @@
 using System;
 
-namespace QoDL.Toolkit.Core.Modules.SiteEvents.Models
+namespace QoDL.Toolkit.Core.Modules.SiteEvents.Models;
+
+/// <summary>
+/// Request model sent to <see cref="TKSiteEventsModule.DeleteSiteEvent"/>
+/// </summary>
+public class DeleteSiteEventRequestModel
 {
     /// <summary>
-    /// Request model sent to <see cref="TKSiteEventsModule.DeleteSiteEvent"/>
+    /// Id of event to delete.
     /// </summary>
-    public class DeleteSiteEventRequestModel
-    {
-        /// <summary>
-        /// Id of event to delete.
-        /// </summary>
-        public Guid Id { get; set; }
-    }
+    public Guid Id { get; set; }
 }

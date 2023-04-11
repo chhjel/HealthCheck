@@ -5,10 +5,10 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-namespace QoDL.Toolkit.Core.Util
-{
-    /// <summary>Utils to simplify life from Toolkit tests and DCE.</summary>
-    public static class TKReflectionUtils
+namespace QoDL.Toolkit.Core.Util;
+
+/// <summary>Utils to simplify life from Toolkit tests and DCE.</summary>
+public static class TKReflectionUtils
 	{
 		/// <summary>
 		/// Attempt to invoke a method on the given type.
@@ -166,7 +166,7 @@ namespace QoDL.Toolkit.Core.Util
 
 			/// <summary></summary>
 			public override string ToString() => $"{Name} [{Type.Name}]";
-        }
+    }
 
 		/// <summary>
 		/// Get a list of members recursively.
@@ -186,7 +186,7 @@ namespace QoDL.Toolkit.Core.Util
 			var paths = worklist ?? new List<TypeMemberData>();
 			if (currentDepth >= maxDepth) return paths;
 
-            static bool allowRecurseType(Type type)
+        static bool allowRecurseType(Type type)
 			{
 				var genericTypeDef = type.IsGenericType ? type.GetGenericTypeDefinition() : null;
 				return !type.IsSpecialName
@@ -204,11 +204,11 @@ namespace QoDL.Toolkit.Core.Util
 			{
 				var name = $"{(path == null ? "" : $"{path}.")}{prop.Name}";
 				if (filter?.AllowMember(prop, name) == false)
-                {
-                    continue;
-                }
+            {
+                continue;
+            }
 
-                paths.Add(new TypeMemberData
+            paths.Add(new TypeMemberData
 				{
 					Name = name,
 					Type = prop.PropertyType
@@ -245,10 +245,10 @@ namespace QoDL.Toolkit.Core.Util
 				var name = $"{(path == null ? "" : $"{path}.")}{field.Name}";
 				if (filter?.AllowMember(field, name) == false)
 				{
-                    continue;
-                }
+                continue;
+            }
 
-                paths.Add(new TypeMemberData
+            paths.Add(new TypeMemberData
 				{
 					Name = name,
 					Type = field.FieldType
@@ -335,9 +335,9 @@ namespace QoDL.Toolkit.Core.Util
 
 				var cleanName = membName;
 				if (cleanName.Contains("["))
-                {
+            {
 					cleanName = cleanName.Substring(0, cleanName.IndexOf("["));
-                }
+            }
 
 				// First look for matching property
 				object memberValue = null;
@@ -362,13 +362,13 @@ namespace QoDL.Toolkit.Core.Util
 				// Check if member is indexed
 				int? targetIndex = null;
 				if (membName.Contains("["))
-                {
+            {
 					var strIndex = membName.Substring(membName.IndexOf("[") + 1);
 					strIndex = strIndex.Substring(0, strIndex.IndexOf("]"));
 					targetIndex = int.Parse(strIndex);
 				}
 				if (targetIndex != null && memberValue?.GetType()?.SupportsGetCollectionValueIndexed() == true)
-                {
+            {
 					return memberValue.GetType().GetCollectionValueIndexed(memberValue, targetIndex.Value);
 				}
 
@@ -387,7 +387,7 @@ namespace QoDL.Toolkit.Core.Util
 				}
 			}
 
-            return getValue(path, out _);
+        return getValue(path, out _);
 		}
 
 
@@ -440,12 +440,11 @@ namespace QoDL.Toolkit.Core.Util
 
 		private static object GetMemberValue(this MemberInfo memberInfo, object instance)
 		{
-            return memberInfo.MemberType switch
-            {
-                MemberTypes.Field => ((FieldInfo)memberInfo).GetValue(instance),
-                MemberTypes.Property => ((PropertyInfo)memberInfo).GetValue(instance),
-                _ => null,
-            };
-        }
+        return memberInfo.MemberType switch
+        {
+            MemberTypes.Field => ((FieldInfo)memberInfo).GetValue(instance),
+            MemberTypes.Property => ((PropertyInfo)memberInfo).GetValue(instance),
+            _ => null,
+        };
+    }
 	}
-}

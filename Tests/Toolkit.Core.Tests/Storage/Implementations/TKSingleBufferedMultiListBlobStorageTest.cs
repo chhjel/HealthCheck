@@ -3,9 +3,9 @@ using QoDL.Toolkit.Core.Util.Storage;
 using System;
 using System.Collections.Generic;
 
-namespace QoDL.Toolkit.Core.Tests.Storage.Implementations
-{
-    public class TKSingleBufferedMultiListBlobStorageTest : TKSingleBufferedMultiListBlobStorageBase<TKSingleBufferedMultiListBlobStorageTest.TestData, TestItem, int>
+namespace QoDL.Toolkit.Core.Tests.Storage.Implementations;
+
+public class TKSingleBufferedMultiListBlobStorageTest : TKSingleBufferedMultiListBlobStorageBase<TKSingleBufferedMultiListBlobStorageTest.TestData, TestItem, int>
 	{
 		public TKSingleBufferedMultiListBlobStorageTest(ITKCache cache) : base(cache) { }
 
@@ -23,6 +23,5 @@ namespace QoDL.Toolkit.Core.Tests.Storage.Implementations
 		public class TestData : IBufferedBlobMultiListStorageData
 		{
 			public Dictionary<int, List<TestItem>> Lists { get; set; } = new Dictionary<int, List<TestItem>>();
-        }
+    }
 	}
-}

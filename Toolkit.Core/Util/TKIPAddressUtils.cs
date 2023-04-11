@@ -3,8 +3,8 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 
-namespace QoDL.Toolkit.Core.Util
-{
+namespace QoDL.Toolkit.Core.Util;
+
 	/// <summary>
 	/// IP address related utils.
 	/// </summary>
@@ -34,12 +34,12 @@ namespace QoDL.Toolkit.Core.Util
 				return data;
 			}
 
-            if (IPAddress.TryParse(ip, out IPAddress address))
+        if (IPAddress.TryParse(ip, out IPAddress address))
 			{
 				data.AddressFamily = address.AddressFamily;
 			}
 
-            static int? parsePort(string rawPort)
+        static int? parsePort(string rawPort)
 			{
 				if (!int.TryParse(rawPort, out var num)
 					|| num < IPEndPoint.MinPort || num > IPEndPoint.MaxPort)
@@ -87,4 +87,3 @@ namespace QoDL.Toolkit.Core.Util
 			return data;
 		}
 	}
-}

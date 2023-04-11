@@ -3,14 +3,14 @@ using QoDL.Toolkit.Core.Config;
 using System;
 using System.Threading.Tasks;
 
-namespace QoDL.Toolkit.Core.Util
-{
-    /// <summary>
-    /// Utility for checking self site uptime by storing the last uptime periodically and checking against it.
-    /// <para>Initialize on startup using <c>TKSelfUptimeChecker.EnsureIntervalCheckStarted(..)</c></para>
-    /// <para>Any exceptions will be sent to <see cref="TKGlobalConfig.OnExceptionEvent"/></para>
-    /// </summary>
-    public class TKSelfUptimeChecker
+namespace QoDL.Toolkit.Core.Util;
+
+/// <summary>
+/// Utility for checking self site uptime by storing the last uptime periodically and checking against it.
+/// <para>Initialize on startup using <c>TKSelfUptimeChecker.EnsureIntervalCheckStarted(..)</c></para>
+/// <para>Any exceptions will be sent to <see cref="TKGlobalConfig.OnExceptionEvent"/></para>
+/// </summary>
+public class TKSelfUptimeChecker
 	{
 		private static TKSelfUptimeChecker Instance { get; } = new();
 
@@ -98,4 +98,3 @@ namespace QoDL.Toolkit.Core.Util
 			}
 		}
 	}
-}

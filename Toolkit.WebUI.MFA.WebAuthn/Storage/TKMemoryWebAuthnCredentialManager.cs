@@ -7,12 +7,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace QoDL.Toolkit.WebUI.MFA.WebAuthn.Storage
-{
-    /// <summary>
-    /// Simple implementation that only stores data statically in memory.
-    /// </summary>
-    public class TKMemoryWebAuthnCredentialManager : ITKWebAuthnCredentialManager
+namespace QoDL.Toolkit.WebUI.MFA.WebAuthn.Storage;
+
+/// <summary>
+/// Simple implementation that only stores data statically in memory.
+/// </summary>
+public class TKMemoryWebAuthnCredentialManager : ITKWebAuthnCredentialManager
 	{
 		private static readonly ConcurrentDictionary<string, Fido2User> _storedUsers = new();
 		private static readonly List<TKWebAuthnStoredCredential> _storedCredentials = new();
@@ -68,4 +68,3 @@ namespace QoDL.Toolkit.WebUI.MFA.WebAuthn.Storage
 			return Task.FromResult(_storedUsers.Where(u => u.Value.Id.SequenceEqual(cred.UserId)).Select(u => u.Value).ToList());
 		}
 	}
-}

@@ -4,13 +4,13 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Text;
 
-namespace QoDL.Toolkit.Module.DataExport.Exporters
+namespace QoDL.Toolkit.Module.DataExport.Exporters;
+
+/// <summary>
+/// Outputs a json array.
+/// </summary>
+public class TKDataExportExporterJsonArray : ITKDataExportExporter
 {
-    /// <summary>
-    /// Outputs a json array.
-    /// </summary>
-    public class TKDataExportExporterJsonArray : ITKDataExportExporter
-    {
 		/// <inheritdoc />
 		public string DisplayName { get; set; } = "JSON Array";
 
@@ -43,4 +43,3 @@ namespace QoDL.Toolkit.Module.DataExport.Exporters
 		/// <inheritdoc />
 		public byte[] GetContents() => Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(_builder, Prettify ? Formatting.Indented : Formatting.None));
 	}
-}

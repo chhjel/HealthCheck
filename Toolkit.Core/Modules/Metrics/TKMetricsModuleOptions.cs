@@ -1,15 +1,14 @@
 using QoDL.Toolkit.Core.Modules.Metrics.Abstractions;
 
-namespace QoDL.Toolkit.Core.Modules.Metrics
+namespace QoDL.Toolkit.Core.Modules.Metrics;
+
+/// <summary>
+/// Options for <see cref="TKMetricsModule"/>.
+/// </summary>
+public class TKMetricsModuleOptions
 {
     /// <summary>
-    /// Options for <see cref="TKMetricsModule"/>.
+    /// Where to get stored metrics to display from.
     /// </summary>
-    public class TKMetricsModuleOptions
-    {
-        /// <summary>
-        /// Where to get stored metrics to display from.
-        /// </summary>
-        public ITKMetricsStorage Storage { get; set; }
-    }
+    public ITKMetricsStorage Storage { get; set; }
 }

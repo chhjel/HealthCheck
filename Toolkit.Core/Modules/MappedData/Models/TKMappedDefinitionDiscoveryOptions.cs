@@ -1,11 +1,11 @@
 using System.Reflection;
 
-namespace QoDL.Toolkit.Core.Modules.MappedData.Models
-{
-    /// <summary>
-    /// Options passed to <see cref="Utils.TKMappedDataDefinitionBuilder"/>.
-    /// </summary>
-    public class TKMappedDefinitionDiscoveryOptions
+namespace QoDL.Toolkit.Core.Modules.MappedData.Models;
+
+/// <summary>
+/// Options passed to <see cref="Utils.TKMappedDataDefinitionBuilder"/>.
+/// </summary>
+public class TKMappedDefinitionDiscoveryOptions
 	{
 		/// <summary>
 		/// Checks if display name of a property is allowed to be attempted resolved by checking attributes for certain properties.
@@ -28,4 +28,3 @@ namespace QoDL.Toolkit.Core.Modules.MappedData.Models
 		/// </summary>
 		public ResolveMemberDisplayNameDelegate MemberDisplayNameOverride { get; set; }
 	}
-}

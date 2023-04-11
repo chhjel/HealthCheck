@@ -9,12 +9,12 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 
-namespace QoDL.Toolkit.Core.Util
-{
-    /// <summary>
-    /// Utilities for any object.
-    /// </summary>
-    public static class TKObjectUtils
+namespace QoDL.Toolkit.Core.Util;
+
+/// <summary>
+/// Utilities for any object.
+/// </summary>
+public static class TKObjectUtils
 	{
 		// Relative or absolute url.
 		private static readonly Regex _urlRegex
@@ -107,7 +107,7 @@ namespace QoDL.Toolkit.Core.Util
 
 					builder.AppendLine("<br />");
 				}
-                catch (Exception) {}
+            catch (Exception) {}
 			}
 
 			return builder.ToString();
@@ -117,7 +117,7 @@ namespace QoDL.Toolkit.Core.Util
 		{
 			if (prop == null) return ObjectPropertyType.Unknown;
 
-            static bool isStringifiable(Type t, object v)
+        static bool isStringifiable(Type t, object v)
 				=> t.IsPrimitive || _stringifiableTypes.Contains(t) || v is string;
 
 			var type = prop.PropertyType;
@@ -178,4 +178,3 @@ namespace QoDL.Toolkit.Core.Util
 			Exception
 		}
 	}
-}

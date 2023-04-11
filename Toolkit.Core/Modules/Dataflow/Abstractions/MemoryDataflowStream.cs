@@ -3,93 +3,92 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace QoDL.Toolkit.Core.Modules.Dataflow.Abstractions
+namespace QoDL.Toolkit.Core.Modules.Dataflow.Abstractions;
+
+/// <summary>
+/// Stream type that stores the last n items in memory.
+/// </summary>
+public abstract class MemoryDataflowStream<TAccessRole, TEntry>
+    : StoredDataflowStream<TAccessRole, TEntry>
+    where TEntry : IDataflowEntryWithInsertionTime
 {
     /// <summary>
     /// Stream type that stores the last n items in memory.
     /// </summary>
-    public abstract class MemoryDataflowStream<TAccessRole, TEntry>
-        : StoredDataflowStream<TAccessRole, TEntry>
-        where TEntry : IDataflowEntryWithInsertionTime
+    protected MemoryDataflowStream(
+        int maxItemCount,
+        Action<TEntry, Guid> idSetter,
+        TimeSpan? maxDuration = null)
+        : base(new MemoryDataflowStreamStore(maxItemCount, idSetter, maxDuration))
     {
-        /// <summary>
-        /// Stream type that stores the last n items in memory.
-        /// </summary>
-        protected MemoryDataflowStream(
+    }
+
+    internal class MemoryDataflowStreamStore : IDataStoreWithEntryId<TEntry>
+    {
+        private int MaxItemCount { get; set; }
+        private TimeSpan? MaxDuration { get; set; }
+        private Action<TEntry, Guid> IdSetter { get; set; }
+
+        private List<TEntry> Items { get; set; } = new List<TEntry>();
+
+        public MemoryDataflowStreamStore(
             int maxItemCount,
             Action<TEntry, Guid> idSetter,
             TimeSpan? maxDuration = null)
-            : base(new MemoryDataflowStreamStore(maxItemCount, idSetter, maxDuration))
         {
+            MaxItemCount = maxItemCount;
+            MaxDuration = maxDuration;
+            IdSetter = idSetter;
         }
 
-        internal class MemoryDataflowStreamStore : IDataStoreWithEntryId<TEntry>
+        public IEnumerable<TEntry> GetEnumerable()
         {
-            private int MaxItemCount { get; set; }
-            private TimeSpan? MaxDuration { get; set; }
-            private Action<TEntry, Guid> IdSetter { get; set; }
-
-            private List<TEntry> Items { get; set; } = new List<TEntry>();
-
-            public MemoryDataflowStreamStore(
-                int maxItemCount,
-                Action<TEntry, Guid> idSetter,
-                TimeSpan? maxDuration = null)
+            lock(Items)
             {
-                MaxItemCount = maxItemCount;
-                MaxDuration = maxDuration;
-                IdSetter = idSetter;
+                return Items.ToList();
             }
+        }
 
-            public IEnumerable<TEntry> GetEnumerable()
+        public TEntry InsertOrUpdateItem(TEntry item, Func<TEntry, TEntry> update = null)
+        {
+            lock(Items)
             {
-                lock(Items)
+                IdSetter(item, Guid.NewGuid());
+                Items.Insert(0, item);
+            }
+            Cleanup();
+            return item;
+        }
+
+        public void InsertOrUpdateItems(IEnumerable<TEntry> items)
+        {
+            foreach(var entry in items)
+            {
+                IdSetter(entry, Guid.NewGuid());
+                Items.Insert(0, entry);
+            }
+            Cleanup();
+        }
+
+        private void Cleanup()
+        {
+            lock(Items)
+            {
+                var itemsToRemove = Items.Count - MaxItemCount;
+                if (itemsToRemove > 0)
                 {
-                    return Items.ToList();
+                    Items = Items.Take(MaxItemCount).ToList();
                 }
-            }
 
-            public TEntry InsertOrUpdateItem(TEntry item, Func<TEntry, TEntry> update = null)
-            {
-                lock(Items)
+                if (MaxDuration != null)
                 {
-                    IdSetter(item, Guid.NewGuid());
-                    Items.Insert(0, item);
-                }
-                Cleanup();
-                return item;
-            }
-
-            public void InsertOrUpdateItems(IEnumerable<TEntry> items)
-            {
-                foreach(var entry in items)
-                {
-                    IdSetter(entry, Guid.NewGuid());
-                    Items.Insert(0, entry);
-                }
-                Cleanup();
-            }
-
-            private void Cleanup()
-            {
-                lock(Items)
-                {
-                    var itemsToRemove = Items.Count - MaxItemCount;
-                    if (itemsToRemove > 0)
+                    var threshold = DateTimeOffset.Now.Add(-MaxDuration.Value).ToUniversalTime();
+                    for(int i=0; i<Items.Count; i++)
                     {
-                        Items = Items.Take(MaxItemCount).ToList();
-                    }
-
-                    if (MaxDuration != null)
-                    {
-                        var threshold = DateTimeOffset.Now.Add(-MaxDuration.Value).ToUniversalTime();
-                        for(int i=0; i<Items.Count; i++)
+                        if (Items[i].InsertionTime?.ToUniversalTime() < threshold)
                         {
-                            if (Items[i].InsertionTime?.ToUniversalTime() < threshold)
-                            {
-                                Items.RemoveAt(i);
-                                i--;
-                            }
+                            Items.RemoveAt(i);
+                            i--;
                         }
                     }
                 }

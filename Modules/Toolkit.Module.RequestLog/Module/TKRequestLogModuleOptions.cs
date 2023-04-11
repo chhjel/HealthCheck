@@ -1,15 +1,14 @@
 using QoDL.Toolkit.RequestLog.Abstractions;
 
-namespace QoDL.Toolkit.Core.Modules.Settings
+namespace QoDL.Toolkit.Core.Modules.Settings;
+
+/// <summary>
+/// Options for <see cref="TKRequestLogModule"/>.
+/// </summary>
+public class TKRequestLogModuleOptions
 {
     /// <summary>
-    /// Options for <see cref="TKRequestLogModule"/>.
+    /// Service used to get and store requests.
     /// </summary>
-    public class TKRequestLogModuleOptions
-    {
-        /// <summary>
-        /// Service used to get and store requests.
-        /// </summary>
-        public IRequestLogService RequestLogService { get; set; }
-    }
+    public IRequestLogService RequestLogService { get; set; }
 }

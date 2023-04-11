@@ -5,8 +5,8 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace QoDL.Toolkit.Core.Util.Modules
-{
+namespace QoDL.Toolkit.Core.Util.Modules;
+
 	/// <summary>
 	/// A method on a module that can be invoked through actions.
 	/// </summary>
@@ -134,4 +134,3 @@ namespace QoDL.Toolkit.Core.Util.Modules
 			return false;
 		}
 	}
-}

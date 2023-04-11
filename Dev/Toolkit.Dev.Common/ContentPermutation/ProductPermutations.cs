@@ -1,8 +1,8 @@
 using QoDL.Toolkit.Core.Modules.ContentPermutation.Attributes;
 
-namespace QoDL.Toolkit.Dev.Common.ContentPermutation
-{
-    [TKContentPermutationType(MaxAllowedContentCount = 12, DefaultContentCount = 8)]
+namespace QoDL.Toolkit.Dev.Common.ContentPermutation;
+
+[TKContentPermutationType(MaxAllowedContentCount = 12, DefaultContentCount = 8)]
 	public class ProductPermutations
 	{
 		public ProductType Type { get; set; }
@@ -16,4 +16,3 @@ namespace QoDL.Toolkit.Dev.Common.ContentPermutation
 			Bundle
 		}
 	}
-}

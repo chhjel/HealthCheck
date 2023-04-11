@@ -3,14 +3,14 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace QoDL.Toolkit.Core.Util
-{
-    /// <summary>
-    /// Logs to a <see cref="StringBuilder"/> in memory.
-    /// <para>For use during tests to dump the log contents afterwards, use .ToString() to get the logged contents.</para>
-    /// <para>Auto-create an implementation using TKLogTypeBuilder from the QoDL.Toolkit.Utility.Reflection nuget package.</para>
-    /// </summary>
-    public abstract class TKMemoryLoggerBase
+namespace QoDL.Toolkit.Core.Util;
+
+/// <summary>
+/// Logs to a <see cref="StringBuilder"/> in memory.
+/// <para>For use during tests to dump the log contents afterwards, use .ToString() to get the logged contents.</para>
+/// <para>Auto-create an implementation using TKLogTypeBuilder from the QoDL.Toolkit.Utility.Reflection nuget package.</para>
+/// </summary>
+public abstract class TKMemoryLoggerBase
 	{
 		/// <summary>
 		/// Max number of times the log method can be called before it's ignored.
@@ -42,7 +42,7 @@ namespace QoDL.Toolkit.Core.Util
 		public void ___InitLogger(Type interfce, object forwardTo = null)
 		{
 			if (interfce != null && forwardTo != null && interfce.IsAssignableFrom(forwardTo.GetType()))
-            {
+        {
 				_forwardTo = forwardTo;
 			}
 		}
@@ -51,16 +51,16 @@ namespace QoDL.Toolkit.Core.Util
 		/// Invoked from IL.
 		/// </summary>
 		[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "A bit obscure naming on purpose to prevent collisions.")]
-        protected void ___LogToMemory(string methodName, object[] parameters)
+    protected void ___LogToMemory(string methodName, object[] parameters)
 		{
 			if (LogCountLimit != null)
-            {
+        {
 				if (_logCount >= LogCountLimit.Value)
-                {
+            {
 					return;
-                }
-				_logCount++;
             }
+				_logCount++;
+        }
 
 			var parameterStrings = parameters.Select(x =>
 			{
@@ -82,23 +82,23 @@ namespace QoDL.Toolkit.Core.Util
 
 			var exceptions = parameters.OfType<Exception>();
 			foreach (var exception in exceptions)
-            {
+        {
 				_builder.AppendLine(TKExceptionUtils.GetFullExceptionDetails(exception));
-            }
+        }
 
 			if (_forwardTo != null)
-            {
+        {
 				try
-                {
+            {
 					___TryForwardEvent(methodName, parameters);
-                }
-                catch (Exception) { /* Ignored */ }
             }
+            catch (Exception) { /* Ignored */ }
+        }
 		}
 
 		[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "A bit obscure naming on purpose to prevent collisions.")]
 		private void ___TryForwardEvent(string methodName, object[] parameters)
-        {
+    {
 			var forwardType = _forwardTo.GetType();
 			var method = forwardType.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
 				.FirstOrDefault(x => {
@@ -108,6 +108,5 @@ namespace QoDL.Toolkit.Core.Util
 					return true;
 				});
 			method.Invoke(_forwardTo, parameters);
-        }
+    }
 	}
-}

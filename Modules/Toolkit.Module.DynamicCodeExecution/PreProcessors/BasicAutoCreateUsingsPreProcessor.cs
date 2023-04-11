@@ -7,297 +7,296 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace QoDL.Toolkit.Module.DynamicCodeExecution.PreProcessors
+namespace QoDL.Toolkit.Module.DynamicCodeExecution.PreProcessors;
+
+/// <summary>
+/// Uses regex and reflection to detect missing using statements and prepends them.
+/// </summary>
+public class BasicAutoCreateUsingsPreProcessor : IDynamicCodePreProcessor
 {
+    /// <summary>
+    /// Id of the pre-processor used to disable it from the code.
+    /// </summary>
+    public string Id { get; set; } = "BasicAutoCreateUsings";
+
+    /// <summary>
+    /// Optional title returned in the options model.
+    /// </summary>
+    public string Name { get; set; } = "Attempt to auto-create missing using statements.";
+
+    /// <summary>
+    /// Optional description returned in the options model.
+    /// </summary>
+    public string Description { get; set; } = "Using regex/reflection and is not totally accurate.";
+
+    /// <summary>
+    /// Allow the user to disable the pre-processor from the code?
+    /// </summary>
+    public bool CanBeDisabled { get; set; } = true;
+
+    /// <summary>
+    /// List of namespaces to never auto-create.
+    /// </summary>
+    public List<NamespaceConfig> IgnoreNamespaces { get; set; } = new List<NamespaceConfig>();
+
+    /// <summary>
+    /// List of namespaces to check first.
+    /// </summary>
+    public List<NamespaceConfig> PrioritizeNamespaces { get; set; } = new List<NamespaceConfig>();
+
+    /// <summary>
+    /// List of assemblies to check types/namespaces in.
+    /// </summary>
+    public IEnumerable<Assembly> TargetAssemblies { get; set; }
+
+    /// <summary>
+    /// If true, also include any referenced assemblies of the target assemblies.
+    /// </summary>
+    public bool IncludeReferencedAssemblies { get; set; }
+
     /// <summary>
     /// Uses regex and reflection to detect missing using statements and prepends them.
     /// </summary>
-    public class BasicAutoCreateUsingsPreProcessor : IDynamicCodePreProcessor
+    public BasicAutoCreateUsingsPreProcessor(IEnumerable<Assembly> targetAssemblies)
+    {
+        TargetAssemblies = targetAssemblies;
+    }
+
+    /// <summary>
+    /// Uses regex and reflection to detect missing using statements and prepends them.
+    /// </summary>
+    public BasicAutoCreateUsingsPreProcessor(Assembly targetAssembly)
+    {
+        TargetAssemblies = new Assembly[] { targetAssembly };
+    }
+
+    /// <summary>
+    /// Namespace and recursive option
+    /// </summary>
+    public class NamespaceConfig
     {
         /// <summary>
-        /// Id of the pre-processor used to disable it from the code.
+        /// Target namespace
         /// </summary>
-        public string Id { get; set; } = "BasicAutoCreateUsings";
+        public string Namespace { get; set; }
 
         /// <summary>
-        /// Optional title returned in the options model.
+        /// Include child namespaces
         /// </summary>
-        public string Name { get; set; } = "Attempt to auto-create missing using statements.";
-
-        /// <summary>
-        /// Optional description returned in the options model.
-        /// </summary>
-        public string Description { get; set; } = "Using regex/reflection and is not totally accurate.";
-
-        /// <summary>
-        /// Allow the user to disable the pre-processor from the code?
-        /// </summary>
-        public bool CanBeDisabled { get; set; } = true;
-
-        /// <summary>
-        /// List of namespaces to never auto-create.
-        /// </summary>
-        public List<NamespaceConfig> IgnoreNamespaces { get; set; } = new List<NamespaceConfig>();
-
-        /// <summary>
-        /// List of namespaces to check first.
-        /// </summary>
-        public List<NamespaceConfig> PrioritizeNamespaces { get; set; } = new List<NamespaceConfig>();
-
-        /// <summary>
-        /// List of assemblies to check types/namespaces in.
-        /// </summary>
-        public IEnumerable<Assembly> TargetAssemblies { get; set; }
-
-        /// <summary>
-        /// If true, also include any referenced assemblies of the target assemblies.
-        /// </summary>
-        public bool IncludeReferencedAssemblies { get; set; }
-
-        /// <summary>
-        /// Uses regex and reflection to detect missing using statements and prepends them.
-        /// </summary>
-        public BasicAutoCreateUsingsPreProcessor(IEnumerable<Assembly> targetAssemblies)
-        {
-            TargetAssemblies = targetAssemblies;
-        }
-
-        /// <summary>
-        /// Uses regex and reflection to detect missing using statements and prepends them.
-        /// </summary>
-        public BasicAutoCreateUsingsPreProcessor(Assembly targetAssembly)
-        {
-            TargetAssemblies = new Assembly[] { targetAssembly };
-        }
+        public bool Recursive { get; set; }
 
         /// <summary>
         /// Namespace and recursive option
         /// </summary>
-        public class NamespaceConfig
+        public NamespaceConfig(string ns, bool recursive)
         {
-            /// <summary>
-            /// Target namespace
-            /// </summary>
-            public string Namespace { get; set; }
-
-            /// <summary>
-            /// Include child namespaces
-            /// </summary>
-            public bool Recursive { get; set; }
-
-            /// <summary>
-            /// Namespace and recursive option
-            /// </summary>
-            public NamespaceConfig(string ns, bool recursive)
-            {
-                Namespace = ns;
-                Recursive = recursive;
-            }
-
-            /// <summary>
-            /// Does the given namespace match this rule?
-            /// </summary>
-            /// <param name="ns">Given namespace</param>
-            public bool Matches(string ns)
-            {
-                ns ??= string.Empty;
-                return Recursive ? ns.StartsWith(Namespace) : ns == Namespace;
-            }
+            Namespace = ns;
+            Recursive = recursive;
         }
 
         /// <summary>
-        /// Uses regex and reflection to detect missing using statements and prepends them.
+        /// Does the given namespace match this rule?
         /// </summary>
-        public string PreProcess(CompilerParameters options, string code)
+        /// <param name="ns">Given namespace</param>
+        public bool Matches(string ns)
         {
-            if (code == null || code.Trim().Length == 0)
-                return code;
+            ns ??= string.Empty;
+            return Recursive ? ns.StartsWith(Namespace) : ns == Namespace;
+        }
+    }
 
-            var suggestedNamespaces = GetSuggestedNamespaces(code, GetTargetAssemblies());
-            if (suggestedNamespaces.Count > 0)
-            {
-                code = string.Join("\n", suggestedNamespaces.Select(x => $"using {x};")) + "\n" + code;
-
-                if (code.Contains("// Title: "))
-                {
-                    var lines = code
-                        .Replace("\r", "")
-                        .Split('\n');
-
-                    var newLines = lines.Where(x => x.StartsWith("// Title: "))
-                        .Concat(lines.Where(x => !x.StartsWith("// Title: ")));
-                    code = string.Join("\n", newLines);
-                }
-            }
+    /// <summary>
+    /// Uses regex and reflection to detect missing using statements and prepends them.
+    /// </summary>
+    public string PreProcess(CompilerParameters options, string code)
+    {
+        if (code == null || code.Trim().Length == 0)
             return code;
-        }
 
-        /// <summary>
-        /// Add a namespaces to ignore.
-        /// </summary>
-        /// <param name="ns">Target namespace</param>
-        /// <param name="recursive">Include all child namespaces</param>
-        public BasicAutoCreateUsingsPreProcessor AddIgnoredNamespace(string ns, bool recursive)
+        var suggestedNamespaces = GetSuggestedNamespaces(code, GetTargetAssemblies());
+        if (suggestedNamespaces.Count > 0)
         {
-            IgnoreNamespaces.Add(new NamespaceConfig(ns, recursive));
-            return this;
-        }
+            code = string.Join("\n", suggestedNamespaces.Select(x => $"using {x};")) + "\n" + code;
 
-        /// <summary>
-        /// Add a list of namespaces to ignore.
-        /// </summary>
-        /// <param name="nsList">Target namespaces</param>
-        /// <param name="recursive">Include all child namespaces</param>
-        public BasicAutoCreateUsingsPreProcessor AddIgnoredNamespaces(IEnumerable<string> nsList, bool recursive)
-        {
-            foreach (var ns in nsList)
+            if (code.Contains("// Title: "))
             {
-                AddIgnoredNamespace(ns, recursive);
+                var lines = code
+                    .Replace("\r", "")
+                    .Split('\n');
+
+                var newLines = lines.Where(x => x.StartsWith("// Title: "))
+                    .Concat(lines.Where(x => !x.StartsWith("// Title: ")));
+                code = string.Join("\n", newLines);
             }
-            return this;
         }
+        return code;
+    }
 
-        /// <summary>
-        /// Add a namespaces to check first.
-        /// </summary>
-        /// <param name="ns">Target namespace</param>
-        /// <param name="recursive">Include all child namespaces</param>
-        public BasicAutoCreateUsingsPreProcessor AddPrioritizedNamespace(string ns, bool recursive)
+    /// <summary>
+    /// Add a namespaces to ignore.
+    /// </summary>
+    /// <param name="ns">Target namespace</param>
+    /// <param name="recursive">Include all child namespaces</param>
+    public BasicAutoCreateUsingsPreProcessor AddIgnoredNamespace(string ns, bool recursive)
+    {
+        IgnoreNamespaces.Add(new NamespaceConfig(ns, recursive));
+        return this;
+    }
+
+    /// <summary>
+    /// Add a list of namespaces to ignore.
+    /// </summary>
+    /// <param name="nsList">Target namespaces</param>
+    /// <param name="recursive">Include all child namespaces</param>
+    public BasicAutoCreateUsingsPreProcessor AddIgnoredNamespaces(IEnumerable<string> nsList, bool recursive)
+    {
+        foreach (var ns in nsList)
         {
-            PrioritizeNamespaces.Add(new NamespaceConfig(ns, recursive));
-            return this;
+            AddIgnoredNamespace(ns, recursive);
         }
+        return this;
+    }
 
-        /// <summary>
-        /// Add a list of namespaces to check first.
-        /// </summary>
-        /// <param name="nsList">Target namespaces</param>
-        /// <param name="recursive">Include all child namespaces</param>
-        public BasicAutoCreateUsingsPreProcessor AddPrioritizedNamespaces(IEnumerable<string> nsList, bool recursive)
+    /// <summary>
+    /// Add a namespaces to check first.
+    /// </summary>
+    /// <param name="ns">Target namespace</param>
+    /// <param name="recursive">Include all child namespaces</param>
+    public BasicAutoCreateUsingsPreProcessor AddPrioritizedNamespace(string ns, bool recursive)
+    {
+        PrioritizeNamespaces.Add(new NamespaceConfig(ns, recursive));
+        return this;
+    }
+
+    /// <summary>
+    /// Add a list of namespaces to check first.
+    /// </summary>
+    /// <param name="nsList">Target namespaces</param>
+    /// <param name="recursive">Include all child namespaces</param>
+    public BasicAutoCreateUsingsPreProcessor AddPrioritizedNamespaces(IEnumerable<string> nsList, bool recursive)
+    {
+        foreach(var ns in nsList)
         {
-            foreach(var ns in nsList)
+            AddPrioritizedNamespace(ns, recursive);
+        }
+        return this;
+    }
+
+    private List<Assembly> GetTargetAssemblies()
+    {
+        var list = new List<Assembly>();
+        list.AddRange(TargetAssemblies);
+
+        if (IncludeReferencedAssemblies)
+        {
+            foreach(var item in TargetAssemblies)
             {
-                AddPrioritizedNamespace(ns, recursive);
+                list.AddRange(GetReferencedAssemblies(item));
             }
-            return this;
         }
 
-        private List<Assembly> GetTargetAssemblies()
-        {
-            var list = new List<Assembly>();
-            list.AddRange(TargetAssemblies);
+        return list
+            .Distinct()
+            .ToList();
+    }
 
-            if (IncludeReferencedAssemblies)
+    private List<string> GetSuggestedNamespaces(string code, IEnumerable<Assembly> assemblies)
+    {
+        var existingUsings = GetNamespacesInUsingsIn(code);
+
+        var parser = new CSharpParser();
+        var parseResult = parser.Parse(code);
+
+        var requiredNamespaces = new HashSet<string>();
+
+        var types = assemblies
+            .SelectMany(x => x.DefinedTypes)
+            .Where(x => IgnoreNamespaces == null || !IgnoreNamespaces.Any(n => n.Matches(x.Namespace)))
+            .ToList();
+
+        if (PrioritizeNamespaces != null)
+        {
+            var priList = PrioritizeNamespaces.AsEnumerable().Reverse();
+            foreach(var priNamespace in priList)
             {
-                foreach(var item in TargetAssemblies)
+                var prioritized = types.Where(x => priNamespace.Matches(x.Namespace)).ToArray();
+                foreach (var p in prioritized)
                 {
-                    list.AddRange(GetReferencedAssemblies(item));
+                    types.Remove(p);
                 }
+                types.InsertRange(0, prioritized);
             }
-
-            return list
-                .Distinct()
-                .ToList();
         }
 
-        private List<string> GetSuggestedNamespaces(string code, IEnumerable<Assembly> assemblies)
+        foreach (var type in parseResult.Types)
         {
-            var existingUsings = GetNamespacesInUsingsIn(code);
-
-            var parser = new CSharpParser();
-            var parseResult = parser.Parse(code);
-
-            var requiredNamespaces = new HashSet<string>();
-
-            var types = assemblies
-                .SelectMany(x => x.DefinedTypes)
-                .Where(x => IgnoreNamespaces == null || !IgnoreNamespaces.Any(n => n.Matches(x.Namespace)))
-                .ToList();
-
-            if (PrioritizeNamespaces != null)
+            TypeInfo matchingType = null;
+            if (type.Contains("<"))
             {
-                var priList = PrioritizeNamespaces.AsEnumerable().Reverse();
-                foreach(var priNamespace in priList)
-                {
-                    var prioritized = types.Where(x => priNamespace.Matches(x.Namespace)).ToArray();
-                    foreach (var p in prioritized)
-                    {
-                        types.Remove(p);
-                    }
-                    types.InsertRange(0, prioritized);
-                }
+                var typePrefix = type.Substring(0, type.IndexOf("<")) + "`";
+                matchingType = types.FirstOrDefault(x => x.Name.StartsWith(typePrefix));
+            }
+            else
+            {
+                matchingType = types.FirstOrDefault(x => x.Name == type);
+            }
+            if (matchingType == null)
+            {
+                continue;
             }
 
-            foreach (var type in parseResult.Types)
-            {
-                TypeInfo matchingType = null;
-                if (type.Contains("<"))
-                {
-                    var typePrefix = type.Substring(0, type.IndexOf("<")) + "`";
-                    matchingType = types.FirstOrDefault(x => x.Name.StartsWith(typePrefix));
-                }
-                else
-                {
-                    matchingType = types.FirstOrDefault(x => x.Name == type);
-                }
-                if (matchingType == null)
-                {
-                    continue;
-                }
-
-                requiredNamespaces.Add(matchingType.Namespace);
-            }
-
-            foreach (var method in parseResult.Methods)
-            {
-                var matchingType = types.FirstOrDefault(x => x.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static).Any(m => m.Name == method));
-                if (matchingType == null)
-                {
-                    continue;
-                }
-
-                requiredNamespaces.Add(matchingType.Namespace);
-            }
-
-            requiredNamespaces.RemoveWhere(x => existingUsings.Contains(x));
-            return requiredNamespaces
-                .Where(x => !string.IsNullOrWhiteSpace(x))
-                .Distinct()
-                .ToList();
+            requiredNamespaces.Add(matchingType.Namespace);
         }
 
-        private List<string> GetNamespacesInUsingsIn(string code)
+        foreach (var method in parseResult.Methods)
         {
-            return code
-                .Replace("\r", "")
-                .Split('\n')
-                .Where(x => x.Trim().StartsWith("using ") && x.Trim().EndsWith(";"))
-                .Select(x => x.Substring(6))
-                .Select(x => x.Replace(";", ""))
-                .Select(x => x.Trim())
-                .ToList();
-        }
-
-        private List<Assembly> GetReferencedAssemblies(Assembly assembly, bool applyPolicy = false)
-        {
-            var list = new HashSet<Assembly>();
-
-            foreach (var refAssemblyName in assembly.GetReferencedAssemblies())
+            var matchingType = types.FirstOrDefault(x => x.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static).Any(m => m.Name == method));
+            if (matchingType == null)
             {
-                var ass = applyPolicy
-                    ? GetAssemblyWithPolicy(refAssemblyName.FullName)
-                    : Assembly.Load(refAssemblyName.FullName);
-                list.Add(ass);
+                continue;
             }
 
-            return list.ToList();
+            requiredNamespaces.Add(matchingType.Namespace);
         }
 
-        private Assembly GetAssemblyWithPolicy(string assemblyName)
+        requiredNamespaces.RemoveWhere(x => existingUsings.Contains(x));
+        return requiredNamespaces
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Distinct()
+            .ToList();
+    }
+
+    private List<string> GetNamespacesInUsingsIn(string code)
+    {
+        return code
+            .Replace("\r", "")
+            .Split('\n')
+            .Where(x => x.Trim().StartsWith("using ") && x.Trim().EndsWith(";"))
+            .Select(x => x.Substring(6))
+            .Select(x => x.Replace(";", ""))
+            .Select(x => x.Trim())
+            .ToList();
+    }
+
+    private List<Assembly> GetReferencedAssemblies(Assembly assembly, bool applyPolicy = false)
+    {
+        var list = new HashSet<Assembly>();
+
+        foreach (var refAssemblyName in assembly.GetReferencedAssemblies())
         {
-            var newName = AppDomain.CurrentDomain?.ApplyPolicy(assemblyName);
-            return Assembly.Load(newName);
+            var ass = applyPolicy
+                ? GetAssemblyWithPolicy(refAssemblyName.FullName)
+                : Assembly.Load(refAssemblyName.FullName);
+            list.Add(ass);
         }
+
+        return list.ToList();
+    }
+
+    private Assembly GetAssemblyWithPolicy(string assemblyName)
+    {
+        var newName = AppDomain.CurrentDomain?.ApplyPolicy(assemblyName);
+        return Assembly.Load(newName);
     }
 }
 #endif

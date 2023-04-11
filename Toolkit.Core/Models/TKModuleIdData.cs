@@ -1,9 +1,9 @@
-namespace QoDL.Toolkit.Core.Models
-{
-    /// <summary>
-    /// Contains id and name.
-    /// </summary>
-    public class TKModuleIdData
+namespace QoDL.Toolkit.Core.Models;
+
+/// <summary>
+/// Contains id and name.
+/// </summary>
+public class TKModuleIdData
 	{
 		/// <summary>
 		/// Id of something.
@@ -19,5 +19,4 @@ namespace QoDL.Toolkit.Core.Models
 		/// Name and id.
 		/// </summary>
 		public override string ToString() => $"\"{Name}\" ({Id})";
-    }
 }

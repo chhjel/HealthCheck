@@ -1,7 +1,7 @@
-namespace QoDL.Toolkit.Core.Modules.MappedData.Models
-{
-    /// <summary></summary>
-    public class TKMappedReferencedTypeDefinitionViewModel
+namespace QoDL.Toolkit.Core.Modules.MappedData.Models;
+
+/// <summary></summary>
+public class TKMappedReferencedTypeDefinitionViewModel
 	{
 		/// <summary>
 		/// Internal id.
@@ -33,4 +33,3 @@ namespace QoDL.Toolkit.Core.Modules.MappedData.Models
 		/// </summary>
 		public string Remarks { get; set; }
 	}
-}

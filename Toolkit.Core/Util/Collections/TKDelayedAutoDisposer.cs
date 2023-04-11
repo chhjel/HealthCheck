@@ -1,86 +1,85 @@
 using System;
 using System.Threading.Tasks;
 
-namespace QoDL.Toolkit.Core.Util.Collections
+namespace QoDL.Toolkit.Core.Util.Collections;
+
+/// <summary>
+/// Disposes the set item after a given time and re-initializes it.
+/// </summary>
+public class TKDelayedAutoDisposer<T>
+    where T : IDisposable, new()
 {
+    /// <summary>
+    /// Retrieves value and ensures delayed disposal is running.
+    /// </summary>
+    public T Value
+    {
+        get
+        {
+            lock (_value)
+            {
+                EnsureTimerStarted();
+            }
+            return _value;
+        }
+    }
+
+    /// <summary>
+    /// How long to wait for disposal after value has been set.
+    /// </summary>
+    public TimeSpan Delay { get; set; }
+
+    private bool _isDelaying = false;
+    private T _value;
+
     /// <summary>
     /// Disposes the set item after a given time and re-initializes it.
     /// </summary>
-    public class TKDelayedAutoDisposer<T>
-        where T : IDisposable, new()
+    public TKDelayedAutoDisposer(TimeSpan delay)
     {
-        /// <summary>
-        /// Retrieves value and ensures delayed disposal is running.
-        /// </summary>
-        public T Value
-        {
-            get
-            {
-                lock (_value)
-                {
-                    EnsureTimerStarted();
-                }
-                return _value;
-            }
-        }
+        Delay = delay;
+        _value = new T();
+    }
 
-        /// <summary>
-        /// How long to wait for disposal after value has been set.
-        /// </summary>
-        public TimeSpan Delay { get; set; }
-
-        private bool _isDelaying = false;
-        private T _value;
-
-        /// <summary>
-        /// Disposes the set item after a given time and re-initializes it.
-        /// </summary>
-        public TKDelayedAutoDisposer(TimeSpan delay)
-        {
-            Delay = delay;
-            _value = new T();
-        }
-
-        /// <summary>
-        /// Deconstructor. Stores any buffered data before self destructing.
-        /// </summary>
-        ~TKDelayedAutoDisposer()
-        {
-            lock (_value)
-            {
-                if (!_isDelaying)
-                {
-                    DisposeAndResetValue();
-                }
-            }
-        }
-
-        private void EnsureTimerStarted()
+    /// <summary>
+    /// Deconstructor. Stores any buffered data before self destructing.
+    /// </summary>
+    ~TKDelayedAutoDisposer()
+    {
+        lock (_value)
         {
             if (!_isDelaying)
             {
-                _isDelaying = true;
-
-                Task.Run(async () =>
-                {
-                    await Task.Delay(Delay);
-                    _isDelaying = false;
-
-                    lock (_value)
-                    {
-                        DisposeAndResetValue();
-                    }
-                });
+                DisposeAndResetValue();
             }
         }
+    }
 
-        private void DisposeAndResetValue()
+    private void EnsureTimerStarted()
+    {
+        if (!_isDelaying)
         {
-            lock (_value)
+            _isDelaying = true;
+
+            Task.Run(async () =>
             {
-                _value?.Dispose();
-                _value = new T();
-            }
+                await Task.Delay(Delay);
+                _isDelaying = false;
+
+                lock (_value)
+                {
+                    DisposeAndResetValue();
+                }
+            });
+        }
+    }
+
+    private void DisposeAndResetValue()
+    {
+        lock (_value)
+        {
+            _value?.Dispose();
+            _value = new T();
         }
     }
 }

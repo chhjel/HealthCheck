@@ -6,189 +6,188 @@ using System.Linq;
 using System.Threading.Tasks;
 using static QoDL.Toolkit.Core.Modules.Dataflow.Models.DataFlowPropertyDisplayInfo;
 
-namespace QoDL.Toolkit.Core.Modules.Dataflow.Abstractions
+namespace QoDL.Toolkit.Core.Modules.Dataflow.Abstractions;
+
+/// <summary>
+/// Stream type that stores the last n items in memory.
+/// </summary>
+public abstract class DataflowStreamBase<TAccessRole, TEntry> : IDataflowStream<TAccessRole>
+    where TEntry : IDataflowEntryWithInsertionTime
 {
     /// <summary>
-    /// Stream type that stores the last n items in memory.
+    /// Optionally set roles that have access to this stream.
+    /// <para>Defaults to null, giving anyone with access to the dataflow page access.</para>
     /// </summary>
-    public abstract class DataflowStreamBase<TAccessRole, TEntry> : IDataflowStream<TAccessRole>
-        where TEntry : IDataflowEntryWithInsertionTime
+    public virtual Maybe<TAccessRole> RolesWithAccess { get; }
+
+    /// <summary>
+    /// Id of the stream. Defaults to full typename.
+    /// </summary>
+    public virtual string Id => GetType().FullName;
+
+    /// <summary>
+    /// Name of the stream.
+    /// </summary>
+    public abstract string Name { get; }
+
+    /// <summary>
+    /// Description of the stream.
+    /// </summary>
+    public abstract string Description { get; }
+
+    /// <summary>
+    /// Optionally group the stream within the given group name.
+    /// </summary>
+    public abstract string GroupName { get; }
+
+    /// <summary>
+    /// True if the stream allows to filter by date.
+    /// </summary>
+    public virtual bool SupportsFilterByDate => true;
+
+    /// <summary>
+    /// Optional name of a <see cref="DateTimeOffset"/> property that will be used for grouping in frontend.
+    /// <para>Defaults to 'InsertionTime' to match <see cref="IDataflowEntryWithInsertionTime.InsertionTime"/>.</para>
+    /// </summary>
+    public virtual string DateTimePropertyNameForUI { get; set; } = "InsertionTime";
+
+    /// <summary>
+    /// Return true to enable the stream in the UI.
+    /// <para>Defaults to true.</para>
+    /// </summary>
+    public Func<bool> IsVisible { get; set; } = () => true;
+
+    private bool IsVisibleSafe => IsVisible == null || IsVisible();
+
+    private readonly Dictionary<string, DataFlowPropertyDisplayInfo> PropertyInfos = new();
+    private readonly List<Func<IEnumerable<TEntry>, DataflowStreamFilter, IEnumerable<TEntry>>>
+        InternalPropertyFilters = new();
+
+    private int RegisterPropertyDisplayInfoInvokeCount = 0;
+
+    /// <summary>
+    /// Register display info about a property. UIOrder will be set to the invoke count of this method instance.
+    /// </summary>
+    public DataFlowPropertyDisplayInfo ConfigureProperty(string propertyName,
+        DataFlowPropertyUIHint? uiHint = null, DataFlowPropertyUIVisibilityOption? visibility = null)
     {
-        /// <summary>
-        /// Optionally set roles that have access to this stream.
-        /// <para>Defaults to null, giving anyone with access to the dataflow page access.</para>
-        /// </summary>
-        public virtual Maybe<TAccessRole> RolesWithAccess { get; }
-
-        /// <summary>
-        /// Id of the stream. Defaults to full typename.
-        /// </summary>
-        public virtual string Id => GetType().FullName;
-
-        /// <summary>
-        /// Name of the stream.
-        /// </summary>
-        public abstract string Name { get; }
-
-        /// <summary>
-        /// Description of the stream.
-        /// </summary>
-        public abstract string Description { get; }
-
-        /// <summary>
-        /// Optionally group the stream within the given group name.
-        /// </summary>
-        public abstract string GroupName { get; }
-
-        /// <summary>
-        /// True if the stream allows to filter by date.
-        /// </summary>
-        public virtual bool SupportsFilterByDate => true;
-
-        /// <summary>
-        /// Optional name of a <see cref="DateTimeOffset"/> property that will be used for grouping in frontend.
-        /// <para>Defaults to 'InsertionTime' to match <see cref="IDataflowEntryWithInsertionTime.InsertionTime"/>.</para>
-        /// </summary>
-        public virtual string DateTimePropertyNameForUI { get; set; } = "InsertionTime";
-
-        /// <summary>
-        /// Return true to enable the stream in the UI.
-        /// <para>Defaults to true.</para>
-        /// </summary>
-        public Func<bool> IsVisible { get; set; } = () => true;
-
-        private bool IsVisibleSafe => IsVisible == null || IsVisible();
-
-        private readonly Dictionary<string, DataFlowPropertyDisplayInfo> PropertyInfos = new();
-        private readonly List<Func<IEnumerable<TEntry>, DataflowStreamFilter, IEnumerable<TEntry>>>
-            InternalPropertyFilters = new();
-
-        private int RegisterPropertyDisplayInfoInvokeCount = 0;
-
-        /// <summary>
-        /// Register display info about a property. UIOrder will be set to the invoke count of this method instance.
-        /// </summary>
-        public DataFlowPropertyDisplayInfo ConfigureProperty(string propertyName,
-            DataFlowPropertyUIHint? uiHint = null, DataFlowPropertyUIVisibilityOption? visibility = null)
+        if (!PropertyInfos.ContainsKey(propertyName))
         {
-            if (!PropertyInfos.ContainsKey(propertyName))
-            {
-                PropertyInfos[propertyName] = new DataFlowPropertyDisplayInfo(propertyName).SetUIOrder(RegisterPropertyDisplayInfoInvokeCount++);
-            }
-
-            var info = PropertyInfos[propertyName];
-
-            if (uiHint != null)
-            {
-                info.SetUIHint(uiHint.Value);
-            }
-            if (visibility != null)
-            {
-                info.SetVisibility(visibility.Value);
-            }
-
-            return info;
+            PropertyInfos[propertyName] = new DataFlowPropertyDisplayInfo(propertyName).SetUIOrder(RegisterPropertyDisplayInfoInvokeCount++);
         }
 
-        /// <summary>
-        /// Register display info about a property. UIOrder will be set to the invoke count of this method instance.
-        /// </summary>
-        public DataFlowPropertyDisplayInfo ConfigureProperty(string propertyName, string displayName,
-            DataFlowPropertyUIHint? uiHint = null, DataFlowPropertyUIVisibilityOption? visibility = null)
-            => ConfigureProperty(propertyName, uiHint, visibility).SetDisplayName(displayName);
+        var info = PropertyInfos[propertyName];
 
-        /// <summary>
-        /// Register display info about a property.
-        /// </summary>
-        public void ConfigureProperty(DataFlowPropertyDisplayInfo info)
+        if (uiHint != null)
         {
-            if (info == null) return;
+            info.SetUIHint(uiHint.Value);
+        }
+        if (visibility != null)
+        {
+            info.SetVisibility(visibility.Value);
+        }
+
+        return info;
+    }
+
+    /// <summary>
+    /// Register display info about a property. UIOrder will be set to the invoke count of this method instance.
+    /// </summary>
+    public DataFlowPropertyDisplayInfo ConfigureProperty(string propertyName, string displayName,
+        DataFlowPropertyUIHint? uiHint = null, DataFlowPropertyUIVisibilityOption? visibility = null)
+        => ConfigureProperty(propertyName, uiHint, visibility).SetDisplayName(displayName);
+
+    /// <summary>
+    /// Register display info about a property.
+    /// </summary>
+    public void ConfigureProperty(DataFlowPropertyDisplayInfo info)
+    {
+        if (info == null) return;
+        PropertyInfos[info.PropertyName] = info;
+    }
+
+    /// <summary>
+    /// Register display info about multiple properties.
+    /// <para>UI order will be set according to the order of the items.</para>
+    /// </summary>
+    public void ConfigureProperties(params DataFlowPropertyDisplayInfo[] infos)
+    {
+        if (infos == null || !infos.Any()) return;
+        var order = 0;
+        foreach (var info in infos)
+        {
+            info.UIOrder = order++;
             PropertyInfos[info.PropertyName] = info;
         }
+    }
 
-        /// <summary>
-        /// Register display info about multiple properties.
-        /// <para>UI order will be set according to the order of the items.</para>
-        /// </summary>
-        public void ConfigureProperties(params DataFlowPropertyDisplayInfo[] infos)
+    /// <summary>
+    /// Get filtered stored entries.
+    /// </summary>
+    public async Task<IEnumerable<IDataflowEntry>> GetLatestStreamEntriesAsync(DataflowStreamFilter filter)
+    {
+        if (!IsVisibleSafe) return await Task.FromResult(Enumerable.Empty<IDataflowEntry>());
+
+        var items = await GetStreamEntries(filter);
+
+        if (filter.FromDate != null)
         {
-            if (infos == null || !infos.Any()) return;
-            var order = 0;
-            foreach (var info in infos)
-            {
-                info.UIOrder = order++;
-                PropertyInfos[info.PropertyName] = info;
-            }
+            items = items.Where(x => x.InsertionTime?.ToUniversalTime() >= filter.FromDate?.ToUniversalTime());
         }
 
-        /// <summary>
-        /// Get filtered stored entries.
-        /// </summary>
-        public async Task<IEnumerable<IDataflowEntry>> GetLatestStreamEntriesAsync(DataflowStreamFilter filter)
+        if (filter.ToDate != null)
         {
-            if (!IsVisibleSafe) return await Task.FromResult(Enumerable.Empty<IDataflowEntry>());
-
-            var items = await GetStreamEntries(filter);
-
-            if (filter.FromDate != null)
-            {
-                items = items.Where(x => x.InsertionTime?.ToUniversalTime() >= filter.FromDate?.ToUniversalTime());
-            }
-
-            if (filter.ToDate != null)
-            {
-                items = items.Where(x => x.InsertionTime?.ToUniversalTime() <= filter.ToDate?.ToUniversalTime());
-            }
-
-            items = items.OrderByDescending(x => x.InsertionTime);
-
-            items = await FilterEntries(filter, items);
-
-            return items
-                .Skip(filter.Skip)
-                .Take(filter.Take)
-                .Cast<IDataflowEntry>();
+            items = items.Where(x => x.InsertionTime?.ToUniversalTime() <= filter.ToDate?.ToUniversalTime());
         }
 
-        /// <summary>
-        /// Get entries. They will automatically be filtered on date and skipped/taken afterwards.
-        /// </summary>
-        protected abstract Task<IEnumerable<TEntry>> GetStreamEntries(DataflowStreamFilter filter);
+        items = items.OrderByDescending(x => x.InsertionTime);
 
-        /// <summary>
-        /// Optionally filter entries here.
-        /// </summary>
-        protected virtual async Task<IEnumerable<TEntry>> FilterEntries(DataflowStreamFilter filter, IEnumerable<TEntry> entries)
+        items = await FilterEntries(filter, items);
+
+        return items
+            .Skip(filter.Skip)
+            .Take(filter.Take)
+            .Cast<IDataflowEntry>();
+    }
+
+    /// <summary>
+    /// Get entries. They will automatically be filtered on date and skipped/taken afterwards.
+    /// </summary>
+    protected abstract Task<IEnumerable<TEntry>> GetStreamEntries(DataflowStreamFilter filter);
+
+    /// <summary>
+    /// Optionally filter entries here.
+    /// </summary>
+    protected virtual async Task<IEnumerable<TEntry>> FilterEntries(DataflowStreamFilter filter, IEnumerable<TEntry> entries)
+    {
+        foreach (var internalFilter in InternalPropertyFilters)
         {
-            foreach (var internalFilter in InternalPropertyFilters)
-            {
-                entries = internalFilter(entries, filter);
-            }
-            return await Task.FromResult(entries).ConfigureAwait(false);
+            entries = internalFilter(entries, filter);
         }
+        return await Task.FromResult(entries).ConfigureAwait(false);
+    }
 
-        /// <summary>
-        /// Get any registered property infos.
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<DataFlowPropertyDisplayInfo> GetEntryPropertiesInfo()
-            => PropertyInfos.Select(x => x.Value).ToList();
+    /// <summary>
+    /// Get any registered property infos.
+    /// </summary>
+    /// <returns></returns>
+    public IEnumerable<DataFlowPropertyDisplayInfo> GetEntryPropertiesInfo()
+        => PropertyInfos.Select(x => x.Value).ToList();
 
-        /// <summary>
-        /// Create filter for suitable property types automatically.
-        /// </summary>
-        public void AutoCreateFilters<TItem>(
-                IEnumerable<string> memberNames = null,
-                IEnumerable<string> excludedMemberNames = null)
+    /// <summary>
+    /// Create filter for suitable property types automatically.
+    /// </summary>
+    public void AutoCreateFilters<TItem>(
+            IEnumerable<string> memberNames = null,
+            IEnumerable<string> excludedMemberNames = null)
+    {
+        var filters = GenericDataflowStreamObject.CreateAutoFilters<TItem>(memberNames, excludedMemberNames)
+            .Where(x => x.Filter is Func<IEnumerable<TEntry>, DataflowStreamFilter, IEnumerable<TEntry>>);
+
+        foreach (var filter in filters)
         {
-            var filters = GenericDataflowStreamObject.CreateAutoFilters<TItem>(memberNames, excludedMemberNames)
-                .Where(x => x.Filter is Func<IEnumerable<TEntry>, DataflowStreamFilter, IEnumerable<TEntry>>);
-
-            foreach (var filter in filters)
-            {
-                ConfigureProperty(filter.MemberName).SetFilterable();
-                InternalPropertyFilters.Add((Func<IEnumerable<TEntry>, DataflowStreamFilter, IEnumerable<TEntry>>)filter.Filter);
-            }
+            ConfigureProperty(filter.MemberName).SetFilterable();
+            InternalPropertyFilters.Add((Func<IEnumerable<TEntry>, DataflowStreamFilter, IEnumerable<TEntry>>)filter.Filter);
         }
     }
 }

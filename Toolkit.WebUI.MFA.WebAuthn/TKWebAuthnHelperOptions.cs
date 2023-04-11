@@ -1,12 +1,12 @@
 using System;
 
-namespace QoDL.Toolkit.WebUI.MFA.WebAuthn
+namespace QoDL.Toolkit.WebUI.MFA.WebAuthn;
+
+/// <summary>
+/// Options for <see cref="TKWebAuthnHelper"/>.
+/// </summary>
+public class TKWebAuthnHelperOptions
 {
-    /// <summary>
-    /// Options for <see cref="TKWebAuthnHelper"/>.
-    /// </summary>
-    public class TKWebAuthnHelperOptions
-    {
 		/// <summary>
 		/// Domain of the server the site is running on. For localhost use 'localhost'.
 		/// </summary>
@@ -38,4 +38,3 @@ namespace QoDL.Toolkit.WebUI.MFA.WebAuthn
 			else if (string.IsNullOrWhiteSpace(Origin)) throw new ArgumentException($"{nameof(Origin)} must be set.");
 		}
 	}
-}

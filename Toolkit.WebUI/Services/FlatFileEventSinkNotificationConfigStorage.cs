@@ -7,162 +7,161 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace QoDL.Toolkit.WebUI.Services
+namespace QoDL.Toolkit.WebUI.Services;
+
+/// <summary>
+/// Stores and retrieves <see cref="EventSinkNotificationConfig"/>s.
+/// </summary>
+public class FlatFileEventSinkNotificationConfigStorage : IEventSinkNotificationConfigStorage
 {
+    private TKSimpleDataStoreWithId<EventSinkNotificationConfig, Guid> Store { get; set; }
+
+    private static readonly object _cacheUpdateLock = new();
+    private static Dictionary<string, IEnumerable<EventSinkNotificationConfig>> ConfigCache { get; set; } = new Dictionary<string, IEnumerable<EventSinkNotificationConfig>>();
+    private string CacheKey => Store.FilePath.ToLower();
+    private static Dictionary<string, EventSinkNotificationConfig> SaveBuffer { get; set; } = new Dictionary<string, EventSinkNotificationConfig>();
+    private static bool IsWriteQueued { get; set; }
+    private readonly float WriteDelay = 2f;
+
     /// <summary>
-    /// Stores and retrieves <see cref="EventSinkNotificationConfig"/>s.
+    /// Create a new <see cref="FlatFileEventSinkNotificationConfigStorage"/> with the given file path.
     /// </summary>
-    public class FlatFileEventSinkNotificationConfigStorage : IEventSinkNotificationConfigStorage
+    /// <param name="filepath">Filepath to where the data will be stored.</param>
+    public FlatFileEventSinkNotificationConfigStorage(string filepath)
     {
-        private TKSimpleDataStoreWithId<EventSinkNotificationConfig, Guid> Store { get; set; }
+        Store = new TKSimpleDataStoreWithId<EventSinkNotificationConfig, Guid>(
+            filepath,
+            serializer: new Func<EventSinkNotificationConfig, string>((e) => JsonConvert.SerializeObject(e)),
+            deserializer: new Func<string, EventSinkNotificationConfig>((row) => JsonConvert.DeserializeObject<EventSinkNotificationConfig>(row)),
+            idSelector: (e) => e.Id,
+            idSetter: (e, id) => e.Id = id,
+            nextIdFactory: (events, e) => (e.Id == Guid.Empty ? Guid.NewGuid() : e.Id)
+        );
+    }
 
-        private static readonly object _cacheUpdateLock = new();
-        private static Dictionary<string, IEnumerable<EventSinkNotificationConfig>> ConfigCache { get; set; } = new Dictionary<string, IEnumerable<EventSinkNotificationConfig>>();
-        private string CacheKey => Store.FilePath.ToLower();
-        private static Dictionary<string, EventSinkNotificationConfig> SaveBuffer { get; set; } = new Dictionary<string, EventSinkNotificationConfig>();
-        private static bool IsWriteQueued { get; set; }
-        private readonly float WriteDelay = 2f;
-
-        /// <summary>
-        /// Create a new <see cref="FlatFileEventSinkNotificationConfigStorage"/> with the given file path.
-        /// </summary>
-        /// <param name="filepath">Filepath to where the data will be stored.</param>
-        public FlatFileEventSinkNotificationConfigStorage(string filepath)
+    /// <summary>
+    /// Get all configs.
+    /// </summary>
+    public IEnumerable<EventSinkNotificationConfig> GetConfigs()
+    {
+        lock(_cacheUpdateLock)
         {
-            Store = new TKSimpleDataStoreWithId<EventSinkNotificationConfig, Guid>(
-                filepath,
-                serializer: new Func<EventSinkNotificationConfig, string>((e) => JsonConvert.SerializeObject(e)),
-                deserializer: new Func<string, EventSinkNotificationConfig>((row) => JsonConvert.DeserializeObject<EventSinkNotificationConfig>(row)),
-                idSelector: (e) => e.Id,
-                idSetter: (e, id) => e.Id = id,
-                nextIdFactory: (events, e) => (e.Id == Guid.Empty ? Guid.NewGuid() : e.Id)
-            );
-        }
-
-        /// <summary>
-        /// Get all configs.
-        /// </summary>
-        public IEnumerable<EventSinkNotificationConfig> GetConfigs()
-        {
-            lock(_cacheUpdateLock)
+            var key = CacheKey;
+            if (!ConfigCache.ContainsKey(key))
             {
-                var key = CacheKey;
-                if (!ConfigCache.ContainsKey(key))
-                {
-                    ConfigCache[key] = Store.GetEnumerable().ToList();
-                }
+                ConfigCache[key] = Store.GetEnumerable().ToList();
+            }
 
-                var cachedConfigs = ConfigCache[key];
-                
-                return SaveBuffer
-                    .Values
-                    .Union(cachedConfigs.Where(x => !SaveBuffer.Any(s => s.Value.Id == x.Id)))
-                    .ToArray();
+            var cachedConfigs = ConfigCache[key];
+            
+            return SaveBuffer
+                .Values
+                .Union(cachedConfigs.Where(x => !SaveBuffer.Any(s => s.Value.Id == x.Id)))
+                .ToArray();
+        }
+    }
+
+    /// <summary>
+    /// Inserts or updates the given config.
+    /// </summary>
+    public EventSinkNotificationConfig SaveConfig(EventSinkNotificationConfig config)
+    {
+        lock (_cacheUpdateLock)
+        {
+            var id = config.Id == Guid.Empty ? Guid.NewGuid() : config.Id;
+            config.Id = id;
+
+            SaveBuffer[id.ToString()] = config;
+
+            QueueWriteBufferToFile();
+
+            return config;
+        }
+    }
+
+    /// <summary>
+    /// Deletes the config with the given id.
+    /// </summary>
+    public void DeleteConfig(Guid configId)
+    {
+        lock (_cacheUpdateLock)
+        {
+            if (SaveBuffer.ContainsKey(configId.ToString()))
+            {
+                SaveBuffer.Remove(configId.ToString());
+            }
+
+            var cacheKey = CacheKey;
+            if (ConfigCache.ContainsKey(cacheKey))
+            {
+                ConfigCache[cacheKey] = ConfigCache[cacheKey]
+                    .Where(x => x?.Id != configId)
+                    .ToList();
             }
         }
+        Store.DeleteItem(configId);
+    }
 
-        /// <summary>
-        /// Inserts or updates the given config.
-        /// </summary>
-        public EventSinkNotificationConfig SaveConfig(EventSinkNotificationConfig config)
+    /// <summary>
+    /// Deconstructor. Stores any buffered data before self destructing.
+    /// </summary>
+    ~FlatFileEventSinkNotificationConfigStorage()
+    {
+        WriteBufferToFile();
+    }
+
+    private void QueueWriteBufferToFile()
+    {
+        lock (_cacheUpdateLock)
         {
-            lock (_cacheUpdateLock)
+            // Return if already queued a write
+            if (IsWriteQueued)
             {
-                var id = config.Id == Guid.Empty ? Guid.NewGuid() : config.Id;
-                config.Id = id;
-
-                SaveBuffer[id.ToString()] = config;
-
-                QueueWriteBufferToFile();
-
-                return config;
+                return;
             }
+            IsWriteQueued = true;
         }
 
-        /// <summary>
-        /// Deletes the config with the given id.
-        /// </summary>
-        public void DeleteConfig(Guid configId)
+        // Wait to write
+        Task.Run(async () =>
         {
-            lock (_cacheUpdateLock)
-            {
-                if (SaveBuffer.ContainsKey(configId.ToString()))
-                {
-                    SaveBuffer.Remove(configId.ToString());
-                }
-
-                var cacheKey = CacheKey;
-                if (ConfigCache.ContainsKey(cacheKey))
-                {
-                    ConfigCache[cacheKey] = ConfigCache[cacheKey]
-                        .Where(x => x?.Id != configId)
-                        .ToList();
-                }
-            }
-            Store.DeleteItem(configId);
-        }
-
-        /// <summary>
-        /// Deconstructor. Stores any buffered data before self destructing.
-        /// </summary>
-        ~FlatFileEventSinkNotificationConfigStorage()
-        {
+            await Task.Delay(TimeSpan.FromSeconds(WriteDelay));
             WriteBufferToFile();
-        }
+        });
+    }
 
-        private void QueueWriteBufferToFile()
+    internal void WriteBufferToFile()
+    {
+        try
         {
             lock (_cacheUpdateLock)
             {
-                // Return if already queued a write
-                if (IsWriteQueued)
+                if (SaveBuffer.Count == 0)
                 {
+                    IsWriteQueued = false;
                     return;
                 }
-                IsWriteQueued = true;
-            }
 
-            // Wait to write
-            Task.Run(async () =>
-            {
-                await Task.Delay(TimeSpan.FromSeconds(WriteDelay));
-                WriteBufferToFile();
-            });
-        }
-
-        internal void WriteBufferToFile()
-        {
-            try
-            {
-                lock (_cacheUpdateLock)
+                foreach (var config in SaveBuffer.Values)
                 {
-                    if (SaveBuffer.Count == 0)
+                    Store.InsertOrUpdateItem(config, (old) =>
                     {
-                        IsWriteQueued = false;
-                        return;
-                    }
-
-                    foreach (var config in SaveBuffer.Values)
-                    {
-                        Store.InsertOrUpdateItem(config, (old) =>
-                        {
-                            config.LatestResults = config
-                                ?.LatestResults
-                                ?.Union(old?.LatestResults ?? Enumerable.Empty<string>())
-                                ?.Take(10)
-                                ?.ToList()
-                                ?? new List<string>();
-                            return config;
-                        });
-                    }
-
-                    SaveBuffer.Clear();
-                    var key = CacheKey;
-                    ConfigCache.Remove(key);
+                        config.LatestResults = config
+                            ?.LatestResults
+                            ?.Union(old?.LatestResults ?? Enumerable.Empty<string>())
+                            ?.Take(10)
+                            ?.ToList()
+                            ?? new List<string>();
+                        return config;
+                    });
                 }
+
+                SaveBuffer.Clear();
+                var key = CacheKey;
+                ConfigCache.Remove(key);
             }
-            catch (Exception) { /* Ignore error here */ }
-            IsWriteQueued = false;
         }
+        catch (Exception) { /* Ignore error here */ }
+        IsWriteQueued = false;
     }
 }

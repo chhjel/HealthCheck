@@ -1,11 +1,11 @@
 using System;
 
-namespace QoDL.Toolkit.Core.Modules.MappedData.Attributes
-{
-    /// <summary>
-    /// Decorate a class with this for it to be discovered by TK as a type referenced from a mapping.
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Class, AllowMultiple = false)]
+namespace QoDL.Toolkit.Core.Modules.MappedData.Attributes;
+
+/// <summary>
+/// Decorate a class with this for it to be discovered by TK as a type referenced from a mapping.
+/// </summary>
+[AttributeUsage(AttributeTargets.Property | AttributeTargets.Class, AllowMultiple = false)]
 	public class TKMappedReferencedTypeAttribute : Attribute
 	{
 		/// <summary>
@@ -28,4 +28,3 @@ namespace QoDL.Toolkit.Core.Modules.MappedData.Attributes
 		/// </summary>
 		public string Remarks { get; set; }
 	}
-}

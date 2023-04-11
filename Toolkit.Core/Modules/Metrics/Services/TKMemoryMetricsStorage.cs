@@ -7,165 +7,164 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace QoDL.Toolkit.Core.Modules.Metrics.Services
+namespace QoDL.Toolkit.Core.Modules.Metrics.Services;
+
+/// <summary>
+/// Stores metrics data statically in memory.
+/// </summary>
+public class TKMemoryMetricsStorage : ITKMetricsStorage
 {
     /// <summary>
-    /// Stores metrics data statically in memory.
+    /// Safeguard in case dynamic keys are attempted used.
+    /// <para>Defaults to 1000</para>
     /// </summary>
-    public class TKMemoryMetricsStorage : ITKMetricsStorage
+    public int MaxDictionaryKeys { get; set; } = 1000;
+
+    private readonly CompiledMetricsData _data = new();
+
+    /// <inheritdoc />
+    public Task<CompiledMetricsData> GetCompiledMetricsDataAsync()
     {
-        /// <summary>
-        /// Safeguard in case dynamic keys are attempted used.
-        /// <para>Defaults to 1000</para>
-        /// </summary>
-        public int MaxDictionaryKeys { get; set; } = 1000;
-
-        private readonly CompiledMetricsData _data = new();
-
-        /// <inheritdoc />
-        public Task<CompiledMetricsData> GetCompiledMetricsDataAsync()
+        lock (_data)
         {
-            lock (_data)
-            {
-                return Task.FromResult(_data);
-            }
+            return Task.FromResult(_data);
         }
+    }
 
-        /// <inheritdoc />
-        public Task StoreMetricDataAsync(TKMetricsContext data)
-        {
-            StoreCounterData(data);
-            StoreValueData(data);
-            StoreNotes(data);
-            return Task.CompletedTask;
-        }
+    /// <inheritdoc />
+    public Task StoreMetricDataAsync(TKMetricsContext data)
+    {
+        StoreCounterData(data);
+        StoreValueData(data);
+        StoreNotes(data);
+        return Task.CompletedTask;
+    }
 
-        private void StoreNotes(TKMetricsContext data)
+    private void StoreNotes(TKMetricsContext data)
+    {
+        lock (_data.GlobalNotes)
         {
-            lock (_data.GlobalNotes)
+            var notes = data.Items.Where(x => 
+                x.Type == TKMetricsItem.MetricItemType.Note
+                && x.AddNoteToGlobals
+                && !string.IsNullOrWhiteSpace(x.Id)
+                && !string.IsNullOrWhiteSpace(x.Description));
+            foreach (var item in notes)
             {
-                var notes = data.Items.Where(x => 
-                    x.Type == TKMetricsItem.MetricItemType.Note
-                    && x.AddNoteToGlobals
-                    && !string.IsNullOrWhiteSpace(x.Id)
-                    && !string.IsNullOrWhiteSpace(x.Description));
-                foreach (var item in notes)
+                var hasKey = _data.GlobalNotes.ContainsKey(item.Id);
+                if (_data.GlobalNotes.Count >= MaxDictionaryKeys && !hasKey)
                 {
-                    var hasKey = _data.GlobalNotes.ContainsKey(item.Id);
-                    if (_data.GlobalNotes.Count >= MaxDictionaryKeys && !hasKey)
-                    {
-                        return;
-                    }
-
-                    if (!hasKey)
-                    {
-                        _data.GlobalNotes[item.Id] = new() { Id = item.Id, FirstStored = DateTimeOffset.Now };
-                    }
-
-                    _data.GlobalNotes[item.Id] = new CompiledMetricsNoteData
-                    {
-                        Id = item.Id,
-                        Note = item.Description,
-                        LastChanged = DateTimeOffset.Now
-                    };
-                }
-            }
-        }
-
-        private void StoreCounterData(TKMetricsContext data)
-        {
-            lock (_data.GlobalCounters)
-            {
-                foreach(var kvp in data.GlobalCounters)
-                {
-                    var hasKey = _data.GlobalCounters.ContainsKey(kvp.Key);
-                    if (_data.GlobalCounters.Count >= MaxDictionaryKeys && !hasKey)
-                    {
-                        return;
-                    }
-
-                    if (!hasKey)
-                    {
-                        _data.GlobalCounters[kvp.Key] = new() { Id = kvp.Key, FirstStored = DateTimeOffset.Now };
-                    }
-
-                    var oldValue = _data.GlobalCounters[kvp.Key].Value;
-                    var newValue = _data.GlobalCounters[kvp.Key].Value + kvp.Value;
-                    if (newValue < oldValue && kvp.Value > 0)
-                    {
-                        newValue = long.MaxValue;
-                    }
-                    _data.GlobalCounters[kvp.Key].Value = newValue;
-
-                    _data.GlobalCounters[kvp.Key].LastChanged = DateTimeOffset.Now;
-                }
-            }
-        }
-
-        private void StoreValueData(TKMetricsContext data)
-        {
-            lock (_data.GlobalValues)
-            {
-                foreach (var kvp in data.GlobalValues)
-                {
-                    var suffix = data.GlobalValueSuffixes.ContainsKey(kvp.Key) ? data.GlobalValueSuffixes[kvp.Key] : null;
-                    StoreGlobalValues(kvp.Key, kvp.Value, suffix);
+                    return;
                 }
 
-                foreach (var item in data.Items.Where(x => x.Type == TKMetricsItem.MetricItemType.Timing && x.AddTimingToGlobals))
+                if (!hasKey)
                 {
-                    StoreGlobalValues(item.Id, new List<long> { item.DurationMilliseconds }, item.ValueSuffix);
+                    _data.GlobalNotes[item.Id] = new() { Id = item.Id, FirstStored = DateTimeOffset.Now };
                 }
+
+                _data.GlobalNotes[item.Id] = new CompiledMetricsNoteData
+                {
+                    Id = item.Id,
+                    Note = item.Description,
+                    LastChanged = DateTimeOffset.Now
+                };
             }
         }
+    }
 
-        private void StoreGlobalValues(string id, IList<long> values, string suffix)
+    private void StoreCounterData(TKMetricsContext data)
+    {
+        lock (_data.GlobalCounters)
         {
-            if (!values?.Any() == true)
+            foreach(var kvp in data.GlobalCounters)
             {
-                return;
+                var hasKey = _data.GlobalCounters.ContainsKey(kvp.Key);
+                if (_data.GlobalCounters.Count >= MaxDictionaryKeys && !hasKey)
+                {
+                    return;
+                }
+
+                if (!hasKey)
+                {
+                    _data.GlobalCounters[kvp.Key] = new() { Id = kvp.Key, FirstStored = DateTimeOffset.Now };
+                }
+
+                var oldValue = _data.GlobalCounters[kvp.Key].Value;
+                var newValue = _data.GlobalCounters[kvp.Key].Value + kvp.Value;
+                if (newValue < oldValue && kvp.Value > 0)
+                {
+                    newValue = long.MaxValue;
+                }
+                _data.GlobalCounters[kvp.Key].Value = newValue;
+
+                _data.GlobalCounters[kvp.Key].LastChanged = DateTimeOffset.Now;
+            }
+        }
+    }
+
+    private void StoreValueData(TKMetricsContext data)
+    {
+        lock (_data.GlobalValues)
+        {
+            foreach (var kvp in data.GlobalValues)
+            {
+                var suffix = data.GlobalValueSuffixes.ContainsKey(kvp.Key) ? data.GlobalValueSuffixes[kvp.Key] : null;
+                StoreGlobalValues(kvp.Key, kvp.Value, suffix);
             }
 
-            var hasKey = _data.GlobalValues.ContainsKey(id);
-            if (_data.GlobalValues.Count >= MaxDictionaryKeys && !hasKey)
+            foreach (var item in data.Items.Where(x => x.Type == TKMetricsItem.MetricItemType.Timing && x.AddTimingToGlobals))
             {
-                return;
+                StoreGlobalValues(item.Id, new List<long> { item.DurationMilliseconds }, item.ValueSuffix);
             }
+        }
+    }
 
-            if (!hasKey)
-            {
-                _data.GlobalValues[id] = new() { Id = id, FirstStored = DateTimeOffset.Now };
-            }
+    private void StoreGlobalValues(string id, IList<long> values, string suffix)
+    {
+        if (!values?.Any() == true)
+        {
+            return;
+        }
 
-            var item = _data.GlobalValues[id];
-            item.LastChanged = DateTimeOffset.Now;
-            item.Suffix = suffix ?? item.Suffix;
+        var hasKey = _data.GlobalValues.ContainsKey(id);
+        if (_data.GlobalValues.Count >= MaxDictionaryKeys && !hasKey)
+        {
+            return;
+        }
 
-            var min = values.Min();
-            var max = values.Max();
+        if (!hasKey)
+        {
+            _data.GlobalValues[id] = new() { Id = id, FirstStored = DateTimeOffset.Now };
+        }
 
-            // First value
-            if (item.ValueCount == 0)
+        var item = _data.GlobalValues[id];
+        item.LastChanged = DateTimeOffset.Now;
+        item.Suffix = suffix ?? item.Suffix;
+
+        var min = values.Min();
+        var max = values.Max();
+
+        // First value
+        if (item.ValueCount == 0)
+        {
+            item.Min = min;
+            item.Max = max;
+            item.Average = values.AverageWithOverflowProtection();
+        }
+        // Not first value
+        else
+        {
+            if (min < item.Min)
             {
                 item.Min = min;
-                item.Max = max;
-                item.Average = values.AverageWithOverflowProtection();
             }
-            // Not first value
-            else
+            if (min > item.Max)
             {
-                if (min < item.Min)
-                {
-                    item.Min = min;
-                }
-                if (min > item.Max)
-                {
-                    item.Max = max;
-                }
-
-                item.Average = values.AddToAverageWithOverflowProtection(item.Average, item.ValueCount);
+                item.Max = max;
             }
-            item.ValueCount += values.Count;
+
+            item.Average = values.AddToAverageWithOverflowProtection(item.Average, item.ValueCount);
         }
+        item.ValueCount += values.Count;
     }
 }

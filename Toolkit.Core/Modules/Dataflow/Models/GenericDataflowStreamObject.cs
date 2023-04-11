@@ -7,248 +7,247 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Text;
 
-namespace QoDL.Toolkit.Core.Modules.Dataflow.Models
+namespace QoDL.Toolkit.Core.Modules.Dataflow.Models;
+
+/// <summary>
+/// An object that can be used instead of creating a custom type for dataflow streams.
+/// </summary>
+[Serializable]
+public class GenericDataflowStreamObject : Dictionary<string, object>,
+    IDataflowEntryWithInsertionTime
 {
     /// <summary>
     /// An object that can be used instead of creating a custom type for dataflow streams.
     /// </summary>
-    [Serializable]
-    public class GenericDataflowStreamObject : Dictionary<string, object>,
-        IDataflowEntryWithInsertionTime
+    public GenericDataflowStreamObject() {}
+
+    /// <summary>
+    /// Initializes a new instance of the object with serialized data.
+    /// </summary>
+    protected GenericDataflowStreamObject(SerializationInfo info, StreamingContext context) : base(info, context) { }
+
+    /// <summary>
+    /// Time of insertion.
+    /// </summary>
+    public DateTimeOffset? InsertionTime { 
+        get => this[nameof(InsertionTime)] as DateTimeOffset? ?? this[nameof(InsertionTime)] as DateTime?;
+        set => this[nameof(InsertionTime)] = value;
+    }
+
+    internal List<Func<IEnumerable<GenericDataflowStreamObject>, DataflowStreamFilter, IEnumerable<GenericDataflowStreamObject>>>
+        PropertyFilters = new();
+
+    /// <summary>
+    /// Get value of a field/property name that was stored.
+    /// </summary>
+    public T Get<T>(string memberName, T defaultValue = default)
     {
-        /// <summary>
-        /// An object that can be used instead of creating a custom type for dataflow streams.
-        /// </summary>
-        public GenericDataflowStreamObject() {}
-
-        /// <summary>
-        /// Initializes a new instance of the object with serialized data.
-        /// </summary>
-        protected GenericDataflowStreamObject(SerializationInfo info, StreamingContext context) : base(info, context) { }
-
-        /// <summary>
-        /// Time of insertion.
-        /// </summary>
-        public DateTimeOffset? InsertionTime { 
-            get => this[nameof(InsertionTime)] as DateTimeOffset? ?? this[nameof(InsertionTime)] as DateTime?;
-            set => this[nameof(InsertionTime)] = value;
+        if (!ContainsKey(memberName))
+        {
+            return defaultValue;
         }
 
-        internal List<Func<IEnumerable<GenericDataflowStreamObject>, DataflowStreamFilter, IEnumerable<GenericDataflowStreamObject>>>
-            PropertyFilters = new();
-
-        /// <summary>
-        /// Get value of a field/property name that was stored.
-        /// </summary>
-        public T Get<T>(string memberName, T defaultValue = default)
+        try
         {
-            if (!ContainsKey(memberName))
-            {
-                return defaultValue;
-            }
-
-            try
-            {
-                return (T)this[memberName];
-            }
-            catch(Exception) { return defaultValue; }
+            return (T)this[memberName];
         }
+        catch(Exception) { return defaultValue; }
+    }
 
-        /// <summary>
-        /// Creates an object that can be used instead of creating a custom type for dataflow streams.
-        /// </summary>
-        /// <param name="obj">Object to read property/field values from.</param>
-        /// <param name="memberNames">Name of properties and fields to include. If left null all public/private instance values will be used.</param>
-        /// <param name="excludedMemberNames">List of property/field names to exclude.</param>
-        public static GenericDataflowStreamObject Create<T>(
-            T obj,
-            IEnumerable<string> memberNames = null,
-            IEnumerable<string> excludedMemberNames = null)
+    /// <summary>
+    /// Creates an object that can be used instead of creating a custom type for dataflow streams.
+    /// </summary>
+    /// <param name="obj">Object to read property/field values from.</param>
+    /// <param name="memberNames">Name of properties and fields to include. If left null all public/private instance values will be used.</param>
+    /// <param name="excludedMemberNames">List of property/field names to exclude.</param>
+    public static GenericDataflowStreamObject Create<T>(
+        T obj,
+        IEnumerable<string> memberNames = null,
+        IEnumerable<string> excludedMemberNames = null)
+    {
+        var streamObj = new GenericDataflowStreamObject();
+        if (obj == null)
         {
-            var streamObj = new GenericDataflowStreamObject();
-            if (obj == null)
-            {
-                return streamObj;
-            }
-
-            var type = typeof(T);
-            memberNames = GatherMemberNames(memberNames, excludedMemberNames, type);
-
-            foreach (var memberName in memberNames)
-            {
-                try
-                {
-                    var value = GetPropValue(type, obj, memberName);
-                    streamObj.Add(memberName, value);
-                }
-                catch (Exception) { /* Ignore reflection errors */ }
-            }
-
             return streamObj;
         }
 
-        private static IEnumerable<string> GatherMemberNames(IEnumerable<string> memberNames, IEnumerable<string> excludedMemberNames, Type type)
+        var type = typeof(T);
+        memberNames = GatherMemberNames(memberNames, excludedMemberNames, type);
+
+        foreach (var memberName in memberNames)
         {
-            memberNames ??=
-                type.GetProperties(MemberBindingFlags)
-                    .Where(x => !x.IsSpecialName)
-                    .Select(x => x.Name)
-                .Union(type.GetFields(MemberBindingFlags)
-                    .Where(x => !x.IsSpecialName && x.GetCustomAttribute<CompilerGeneratedAttribute>() == null)
-                    .Select(x => x.Name))
-                .ToList();
-
-            excludedMemberNames ??= Enumerable.Empty<string>();
-            memberNames = memberNames.Where(x => !excludedMemberNames.Contains(x)).ToList();
-
-            return memberNames;
-        }
-
-        internal class AutoFilter<TEntry>
-        {
-            public string MemberName { get; set; }
-            public Func<IEnumerable<TEntry>, DataflowStreamFilter, IEnumerable<TEntry>> Filter { get; set; }
-        }
-        internal static List<AutoFilter<TEntry>>
-            CreateAutoFilters<TEntry>(
-                IEnumerable<string> memberNames = null,
-                IEnumerable<string> excludedMemberNames = null)
-        {
-            var itemType = typeof(TEntry);
-            memberNames = GatherMemberNames(memberNames, excludedMemberNames, itemType);
-
-            var filters = new List<AutoFilter<TEntry>>();
-            foreach (var memberName in memberNames)
+            try
             {
-                try
+                var value = GetPropValue(type, obj, memberName);
+                streamObj.Add(memberName, value);
+            }
+            catch (Exception) { /* Ignore reflection errors */ }
+        }
+
+        return streamObj;
+    }
+
+    private static IEnumerable<string> GatherMemberNames(IEnumerable<string> memberNames, IEnumerable<string> excludedMemberNames, Type type)
+    {
+        memberNames ??=
+            type.GetProperties(MemberBindingFlags)
+                .Where(x => !x.IsSpecialName)
+                .Select(x => x.Name)
+            .Union(type.GetFields(MemberBindingFlags)
+                .Where(x => !x.IsSpecialName && x.GetCustomAttribute<CompilerGeneratedAttribute>() == null)
+                .Select(x => x.Name))
+            .ToList();
+
+        excludedMemberNames ??= Enumerable.Empty<string>();
+        memberNames = memberNames.Where(x => !excludedMemberNames.Contains(x)).ToList();
+
+        return memberNames;
+    }
+
+    internal class AutoFilter<TEntry>
+    {
+        public string MemberName { get; set; }
+        public Func<IEnumerable<TEntry>, DataflowStreamFilter, IEnumerable<TEntry>> Filter { get; set; }
+    }
+    internal static List<AutoFilter<TEntry>>
+        CreateAutoFilters<TEntry>(
+            IEnumerable<string> memberNames = null,
+            IEnumerable<string> excludedMemberNames = null)
+    {
+        var itemType = typeof(TEntry);
+        memberNames = GatherMemberNames(memberNames, excludedMemberNames, itemType);
+
+        var filters = new List<AutoFilter<TEntry>>();
+        foreach (var memberName in memberNames)
+        {
+            try
+            {
+                Func<IEnumerable<TEntry>, DataflowStreamFilter, IEnumerable<TEntry>> filter = null;
+
+                if (typeof(TEntry) == typeof(GenericDataflowStreamObject))
                 {
-                    Func<IEnumerable<TEntry>, DataflowStreamFilter, IEnumerable<TEntry>> filter = null;
-
-                    if (typeof(TEntry) == typeof(GenericDataflowStreamObject))
+                    filter = (Func<IEnumerable<TEntry>, DataflowStreamFilter, IEnumerable<TEntry>>)
+                        new Func<IEnumerable<GenericDataflowStreamObject>, DataflowStreamFilter, IEnumerable<GenericDataflowStreamObject>>(
+                        (items, filter) => filter.FilterContains(items, memberName, x => x.Get<object>(memberName)?.ToString()));
+                }
+                else
+                {
+                    Func<TEntry, object> valueGetter = null;
+                    Type memberType = null;
+                    var prop = typeof(TEntry).GetProperty(memberName);
+                    if (prop != null)
                     {
-                        filter = (Func<IEnumerable<TEntry>, DataflowStreamFilter, IEnumerable<TEntry>>)
-                            new Func<IEnumerable<GenericDataflowStreamObject>, DataflowStreamFilter, IEnumerable<GenericDataflowStreamObject>>(
-                            (items, filter) => filter.FilterContains(items, memberName, x => x.Get<object>(memberName)?.ToString()));
+                        memberType = prop.PropertyType;
+                        valueGetter = (e) => prop.GetValue(e);
                     }
-                    else
+                    if (valueGetter == null)
                     {
-                        Func<TEntry, object> valueGetter = null;
-                        Type memberType = null;
-                        var prop = typeof(TEntry).GetProperty(memberName);
-                        if (prop != null)
+                        var field = typeof(TEntry).GetField(memberName);
+                        if (field != null)
                         {
-                            memberType = prop.PropertyType;
-                            valueGetter = (e) => prop.GetValue(e);
+                            memberType = field.FieldType;
+                            valueGetter = (e) => field.GetValue(e);
                         }
-                        if (valueGetter == null)
-                        {
-                            var field = typeof(TEntry).GetField(memberName);
-                            if (field != null)
+                    }
+
+                    var stringifiedGetter = CreateValueGetter(valueGetter, memberType);
+
+                    if (stringifiedGetter != null)
+                    {
+                        filter = new Func<IEnumerable<TEntry>, DataflowStreamFilter, IEnumerable<TEntry>>(
+                            (items, filter) =>
                             {
-                                memberType = field.FieldType;
-                                valueGetter = (e) => field.GetValue(e);
-                            }
-                        }
-
-                        var stringifiedGetter = CreateValueGetter(valueGetter, memberType);
-
-                        if (stringifiedGetter != null)
-                        {
-                            filter = new Func<IEnumerable<TEntry>, DataflowStreamFilter, IEnumerable<TEntry>>(
-                                (items, filter) =>
+                                try
                                 {
-                                    try
-                                    {
-                                        return filter.FilterContains(items, memberName, x => stringifiedGetter(x));
-                                    }
-                                    catch (Exception) { return items; }
-                                });
-                        }
-                    }
-
-                    if (filter != null)
-                    {
-                        filters.Add(new AutoFilter<TEntry>
-                        {
-                            MemberName = memberName,
-                            Filter = filter
-                        });
+                                    return filter.FilterContains(items, memberName, x => stringifiedGetter(x));
+                                }
+                                catch (Exception) { return items; }
+                            });
                     }
                 }
-                catch (Exception) { /* Ignore errors here */ }
-            }
-            return filters;
-        }
 
-        private static Func<TEntry, string> CreateValueGetter<TEntry>(Func<TEntry, object> objectGetter, Type memberType)
-        {
-            if (objectGetter == null || memberType == null)
-            {
-                return null;
-            }
-            // Lists && arrays
-            else if (memberType.IsGenericType 
-                && memberType.GenericTypeArguments.Length == 1
-                && memberType.GetInterfaces().Contains(typeof(System.Collections.IList)))
-            {
-                return (entry) =>
+                if (filter != null)
                 {
-                    var memberValue = objectGetter?.Invoke(entry);
-                    if (memberValue is not System.Collections.IList list)
+                    filters.Add(new AutoFilter<TEntry>
                     {
-                        return "";
-                    }
-
-                    var builder = new StringBuilder();
-                    foreach(var item in list)
-                    {
-                        builder.AppendLine(item?.ToString());
-                    }
-                    return builder.ToString();
-                };
+                        MemberName = memberName,
+                        Filter = filter
+                    });
+                }
             }
-            // Dictionaries
-            else if (memberType.IsGenericType
-                && memberType.GenericTypeArguments.Length == 2
-                && memberType.GetInterfaces().Contains(typeof(System.Collections.IDictionary)))
-            {
-                return (entry) =>
-                {
-                    var memberValue = objectGetter?.Invoke(entry);
-                    if (memberValue is not System.Collections.IDictionary dictionary)
-                    {
-                        return "";
-                    }
-
-                    var builder = new StringBuilder();
-                    foreach (var key in dictionary.Keys)
-                    {
-                        builder.AppendLine($"{key}:{dictionary[key]}");
-                    }
-                    return builder.ToString();
-                };
-            }
-
-            // Fallback to stringified member value
-            return (entry) => objectGetter?.Invoke(entry)?.ToString();
+            catch (Exception) { /* Ignore errors here */ }
         }
+        return filters;
+    }
 
-        private static readonly BindingFlags MemberBindingFlags =
-            BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy;
-
-        private static object GetPropValue(Type type, object obj, string memberName)
+    private static Func<TEntry, string> CreateValueGetter<TEntry>(Func<TEntry, object> objectGetter, Type memberType)
+    {
+        if (objectGetter == null || memberType == null)
         {
-
-            if (type.GetProperty(memberName, MemberBindingFlags) != null)
-            {
-                return type.GetProperty(memberName, MemberBindingFlags).GetValue(obj);
-            }
-            else if (type.GetField(memberName, MemberBindingFlags) != null)
-            {
-                return type.GetField(memberName, MemberBindingFlags).GetValue(obj);
-            }
-
-            throw new ArgumentException($"No property/field with the name '{memberName}' was found.");
+            return null;
         }
+        // Lists && arrays
+        else if (memberType.IsGenericType 
+            && memberType.GenericTypeArguments.Length == 1
+            && memberType.GetInterfaces().Contains(typeof(System.Collections.IList)))
+        {
+            return (entry) =>
+            {
+                var memberValue = objectGetter?.Invoke(entry);
+                if (memberValue is not System.Collections.IList list)
+                {
+                    return "";
+                }
+
+                var builder = new StringBuilder();
+                foreach(var item in list)
+                {
+                    builder.AppendLine(item?.ToString());
+                }
+                return builder.ToString();
+            };
+        }
+        // Dictionaries
+        else if (memberType.IsGenericType
+            && memberType.GenericTypeArguments.Length == 2
+            && memberType.GetInterfaces().Contains(typeof(System.Collections.IDictionary)))
+        {
+            return (entry) =>
+            {
+                var memberValue = objectGetter?.Invoke(entry);
+                if (memberValue is not System.Collections.IDictionary dictionary)
+                {
+                    return "";
+                }
+
+                var builder = new StringBuilder();
+                foreach (var key in dictionary.Keys)
+                {
+                    builder.AppendLine($"{key}:{dictionary[key]}");
+                }
+                return builder.ToString();
+            };
+        }
+
+        // Fallback to stringified member value
+        return (entry) => objectGetter?.Invoke(entry)?.ToString();
+    }
+
+    private static readonly BindingFlags MemberBindingFlags =
+        BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy;
+
+    private static object GetPropValue(Type type, object obj, string memberName)
+    {
+
+        if (type.GetProperty(memberName, MemberBindingFlags) != null)
+        {
+            return type.GetProperty(memberName, MemberBindingFlags).GetValue(obj);
+        }
+        else if (type.GetField(memberName, MemberBindingFlags) != null)
+        {
+            return type.GetField(memberName, MemberBindingFlags).GetValue(obj);
+        }
+
+        throw new ArgumentException($"No property/field with the name '{memberName}' was found.");
     }
 }

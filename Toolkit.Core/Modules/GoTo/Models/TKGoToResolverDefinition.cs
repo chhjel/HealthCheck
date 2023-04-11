@@ -1,12 +1,11 @@
-namespace QoDL.Toolkit.Core.Modules.GoTo.Models
+namespace QoDL.Toolkit.Core.Modules.GoTo.Models;
+
+/// <summary></summary>
+public class TKGoToResolverDefinition
 {
     /// <summary></summary>
-    public class TKGoToResolverDefinition
-    {
-        /// <summary></summary>
-        public string Id { get; set; }
+    public string Id { get; set; }
 
-        /// <summary></summary>
-        public string Name { get; set; }
-    }
+    /// <summary></summary>
+    public string Name { get; set; }
 }

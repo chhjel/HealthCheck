@@ -1,12 +1,12 @@
 using QoDL.Toolkit.Core.Util;
 using System.Net.Sockets;
 
-namespace QoDL.Toolkit.Core.Models
-{
-    /// <summary>
-    /// Contains parsed IP information using <see cref="TKIPAddressUtils.ParseIP"/>.
-    /// </summary>
-    public class TKIPData
+namespace QoDL.Toolkit.Core.Models;
+
+/// <summary>
+/// Contains parsed IP information using <see cref="TKIPAddressUtils.ParseIP"/>.
+/// </summary>
+public class TKIPData
 	{
 		/// <summary>
 		/// Type of address.
@@ -40,4 +40,3 @@ namespace QoDL.Toolkit.Core.Models
 			return $"{IP}{portPart}";
 		}
 	}
-}

@@ -1,20 +1,19 @@
 using System.Collections.Generic;
 
-namespace QoDL.Toolkit.Module.DynamicCodeExecution.Models
+namespace QoDL.Toolkit.Module.DynamicCodeExecution.Models;
+
+/// <summary>
+/// Model sent to the module from frontend.
+/// </summary>
+public class DynamicCodeExecutionSourceModel
 {
     /// <summary>
-    /// Model sent to the module from frontend.
+    /// The code to execute.
     /// </summary>
-    public class DynamicCodeExecutionSourceModel
-    {
-        /// <summary>
-        /// The code to execute.
-        /// </summary>
-        public string Code { get; set; }
+    public string Code { get; set; }
 
-        /// <summary>
-        /// List of pre-processors to disable.
-        /// </summary>
-        public List<string> DisabledPreProcessorIds { get; set; }
-    }
+    /// <summary>
+    /// List of pre-processors to disable.
+    /// </summary>
+    public List<string> DisabledPreProcessorIds { get; set; }
 }

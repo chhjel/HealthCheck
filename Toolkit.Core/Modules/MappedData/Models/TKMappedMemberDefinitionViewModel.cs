@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 
-namespace QoDL.Toolkit.Core.Modules.MappedData.Models
-{
-    /// <summary></summary>
-    public class TKMappedMemberDefinitionViewModel
+namespace QoDL.Toolkit.Core.Modules.MappedData.Models;
+
+/// <summary></summary>
+public class TKMappedMemberDefinitionViewModel
 	{
 		/// <summary></summary>
 		public string Id { get; set; }
@@ -38,4 +38,3 @@ namespace QoDL.Toolkit.Core.Modules.MappedData.Models
 		/// <summary></summary>
 		public List<TKMappedMemberReferenceDefinitionViewModel> MappedTo { get; set; }
 	}
-}

@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace QoDL.Toolkit.Dev.Common.ContentPermutation
-{
-    public class DevProductPermutationHandler : TKContentPermutationContentHandlerBase<ProductPermutations>
+namespace QoDL.Toolkit.Dev.Common.ContentPermutation;
+
+public class DevProductPermutationHandler : TKContentPermutationContentHandlerBase<ProductPermutations>
 	{
 		protected override TimeSpan? CacheDuration => TimeSpan.FromSeconds(10);
 
@@ -60,4 +60,3 @@ namespace QoDL.Toolkit.Dev.Common.ContentPermutation
 			public bool IsOnSale { get; set; }
 		}
 	}
-}

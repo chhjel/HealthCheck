@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace QoDL.Toolkit.Core.Util
-{
+namespace QoDL.Toolkit.Core.Util;
+
 	/// <summary>
 	/// Used to filter members recursively.
 	/// </summary>
@@ -15,10 +15,10 @@ namespace QoDL.Toolkit.Core.Util
 		/// </summary>
 		public IEnumerable<string> IgnoredMemberPathPrefixes { get; set; }
 
-        /// <summary>
-        /// Checks if a given property passes the filter.
-        /// </summary>
-        public bool AllowMember(MemberInfo member, string recursiveMemberPath)
+    /// <summary>
+    /// Checks if a given property passes the filter.
+    /// </summary>
+    public bool AllowMember(MemberInfo member, string recursiveMemberPath)
 		{
 			if (!base.AllowMember(member))
 			{
@@ -30,4 +30,3 @@ namespace QoDL.Toolkit.Core.Util
 			}
 		}
 	}
-}

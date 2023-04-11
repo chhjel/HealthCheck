@@ -1,15 +1,14 @@
 using System;
 
-namespace QoDL.Toolkit.Core.Modules.Dataflow.Abstractions
+namespace QoDL.Toolkit.Core.Modules.Dataflow.Abstractions;
+
+/// <summary>
+/// A <see cref="IDataflowEntry"/> with an <see cref="InsertionTime"/> property.
+/// </summary>
+public interface IDataflowEntryWithInsertionTime : IDataflowEntry
 {
     /// <summary>
-    /// A <see cref="IDataflowEntry"/> with an <see cref="InsertionTime"/> property.
+    /// Time of insertion.
     /// </summary>
-    public interface IDataflowEntryWithInsertionTime : IDataflowEntry
-    {
-        /// <summary>
-        /// Time of insertion.
-        /// </summary>
-        DateTimeOffset? InsertionTime { get; set; }
-    }
+    DateTimeOffset? InsertionTime { get; set; }
 }

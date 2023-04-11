@@ -1,15 +1,14 @@
 using System.Collections.Generic;
 
-namespace QoDL.Toolkit.Core.Abstractions
+namespace QoDL.Toolkit.Core.Abstractions;
+
+/// <summary>
+/// A generic object storage.
+/// </summary>
+public interface IDataStore<out TEntry>
 {
     /// <summary>
-    /// A generic object storage.
+    /// Get an enumerable of the stored objects.
     /// </summary>
-    public interface IDataStore<out TEntry>
-    {
-        /// <summary>
-        /// Get an enumerable of the stored objects.
-        /// </summary>
-        IEnumerable<TEntry> GetEnumerable();
-    }
+    IEnumerable<TEntry> GetEnumerable();
 }

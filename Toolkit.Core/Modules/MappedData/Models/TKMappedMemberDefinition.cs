@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace QoDL.Toolkit.Core.Modules.MappedData.Models
-{
-    /// <summary>
-    /// Definition of a class member that is mapped to another.
-    /// </summary>
-    public class TKMappedMemberDefinition
+namespace QoDL.Toolkit.Core.Modules.MappedData.Models;
+
+/// <summary>
+/// Definition of a class member that is mapped to another.
+/// </summary>
+public class TKMappedMemberDefinition
 	{
 		/// <summary>
 		/// Internal id of this definition.
@@ -66,4 +66,3 @@ namespace QoDL.Toolkit.Core.Modules.MappedData.Models
 		/// <summary></summary>
 		public override string ToString() => $"{Id}";
 	}
-}

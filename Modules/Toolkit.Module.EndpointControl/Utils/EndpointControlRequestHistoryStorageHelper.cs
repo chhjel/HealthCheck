@@ -1,9 +1,9 @@
 using QoDL.Toolkit.Module.EndpointControl.Models;
 
-namespace QoDL.Toolkit.Module.EndpointControl.Utils
-{
+namespace QoDL.Toolkit.Module.EndpointControl.Utils;
+
 	/// <summary></summary>
-    public class EndpointControlRequestHistoryStorageHelper
+public class EndpointControlRequestHistoryStorageHelper
 	{
 		/// <summary>
 		/// The max latest number of identities to store in memory.
@@ -41,7 +41,7 @@ namespace QoDL.Toolkit.Module.EndpointControl.Utils
 			}
 
 			lock (data.IdentityRequests)
-            {
+        {
 				lock (data.LatestRequestIdentities)
 				{
 					// Append request if identity already exists in memory
@@ -108,4 +108,3 @@ namespace QoDL.Toolkit.Module.EndpointControl.Utils
 			};
 		}
 	}
-}

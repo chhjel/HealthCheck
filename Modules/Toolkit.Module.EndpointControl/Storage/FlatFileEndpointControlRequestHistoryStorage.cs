@@ -10,12 +10,12 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace QoDL.Toolkit.Module.EndpointControl.Storage
-{
-    /// <summary>
-    /// Stores request data in json format on disk.
-    /// </summary>
-    public class FlatFileEndpointControlRequestHistoryStorage : IEndpointControlRequestHistoryStorage
+namespace QoDL.Toolkit.Module.EndpointControl.Storage;
+
+/// <summary>
+/// Stores request data in json format on disk.
+/// </summary>
+public class FlatFileEndpointControlRequestHistoryStorage : IEndpointControlRequestHistoryStorage
 	{
 		private readonly EndpointControlRequestHistoryStorageHelper _helper = new();
 		private LatestEndpointRequestsHistory _data => _helper.Data;
@@ -65,7 +65,7 @@ namespace QoDL.Toolkit.Module.EndpointControl.Storage
 		/// Stores request data in json format on disk.
 		/// </summary>
 		public FlatFileEndpointControlRequestHistoryStorage(string filePath)
-        {
+    {
 			FilePath = filePath;
 			LoadData();
 		}
@@ -155,7 +155,7 @@ namespace QoDL.Toolkit.Module.EndpointControl.Storage
 
 		private void SaveData()
 		{
-            try
+        try
 			{
 				var timer = new TKMetricsTimer($"{GetType().GetFriendlyTypeName()}().SaveData()");
 				LatestEndpointRequestsHistory dataCopy = null;
@@ -207,10 +207,10 @@ namespace QoDL.Toolkit.Module.EndpointControl.Storage
 		}
 
 		private LatestEndpointRequestsHistory CreateDataCopyForStorage()
+    {
+        return new LatestEndpointRequestsHistory()
         {
-            return new LatestEndpointRequestsHistory()
-            {
-                IdentityRequests = _data.IdentityRequests
+            IdentityRequests = _data.IdentityRequests
 					.Take(MaxStoredIdentityCount)
 					.ToDictionary(x => x.Key, x =>
 					{
@@ -221,25 +221,24 @@ namespace QoDL.Toolkit.Module.EndpointControl.Storage
 							LatestRequests = new Queue<EndpointRequestDetails>(x.Value.LatestRequests.Take(MaxStoredRequestCountPerIdentity)),
 						};
 					}),
-                LatestRequestIdentities = _data.LatestRequestIdentities.Take(MaxStoredIdentityCount).ToList(),
+            LatestRequestIdentities = _data.LatestRequestIdentities.Take(MaxStoredIdentityCount).ToList(),
 				LatestRequests = new Queue<EndpointRequestDetails>(_data.LatestRequests.TakeLastN(MaxStoredLatestRequestCount))
-            };
-        }
+        };
+    }
 
-        private void LoadData()
+    private void LoadData()
 		{
 			if (!File.Exists(FilePath))
-            {
+        {
 				_helper.Data = new LatestEndpointRequestsHistory();
 				return;
-            }
+        }
 
 			var timer = new TKMetricsTimer($"{GetType().GetFriendlyTypeName()}().LoadData()");
 			var fileReader = File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            using var streamReader = new StreamReader(fileReader);
-            using var jsonReader = new JsonTextReader(streamReader);
+        using var streamReader = new StreamReader(fileReader);
+        using var jsonReader = new JsonTextReader(streamReader);
 			_helper.Data = _serializer.Deserialize<LatestEndpointRequestsHistory>(jsonReader);
 			TKMetricsContext.AddGlobalTimingValue(timer);
 		}
-    }
 }

@@ -1,11 +1,11 @@
 using System;
 
-namespace QoDL.Toolkit.Module.EndpointControl.Models
-{
+namespace QoDL.Toolkit.Module.EndpointControl.Models;
+
 	/// <summary>
 	/// Historical request data.
 	/// </summary>
-    public class EndpointRequestDetails
+public class EndpointRequestDetails
 	{
 		/// <summary>
 		/// Usually IP or localhost.
@@ -42,4 +42,3 @@ namespace QoDL.Toolkit.Module.EndpointControl.Models
 		/// </summary>
 		public Guid? BlockingRuleId { get; set; }
 	}
-}

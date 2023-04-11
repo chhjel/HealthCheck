@@ -1,9 +1,9 @@
-namespace QoDL.Toolkit.Module.EndpointControl.Models
-{
-    /// <summary>
-    /// Definition of an endpoint.
-    /// </summary>
-    public class EndpointControlEndpointDefinition
+namespace QoDL.Toolkit.Module.EndpointControl.Models;
+
+/// <summary>
+/// Definition of an endpoint.
+/// </summary>
+public class EndpointControlEndpointDefinition
 	{
 		/// <summary>
 		/// Unique id of the endpoint.
@@ -25,5 +25,3 @@ namespace QoDL.Toolkit.Module.EndpointControl.Models
 		/// </summary>
 		public string HttpMethod { get; set; }
 	}
-
-}

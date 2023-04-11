@@ -5,11 +5,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace QoDL.Toolkit.Dev.Common.ContentPermutation
-{
-    public class DevOrderPermutationHandler : TKContentPermutationContentHandlerBase<OrderPermutations>
+namespace QoDL.Toolkit.Dev.Common.ContentPermutation;
+
+public class DevOrderPermutationHandler : TKContentPermutationContentHandlerBase<OrderPermutations>
 	{
-        private static readonly List<DevOrder> _all = TKPermutationUtils.CreatePermutationsOf<OrderPermutations>()
+    private static readonly List<DevOrder> _all = TKPermutationUtils.CreatePermutationsOf<OrderPermutations>()
 			.SelectMany((p, i) => Enumerable.Range(0, 10)
 				.Select(e => new DevOrder
 				{
@@ -22,7 +22,7 @@ namespace QoDL.Toolkit.Dev.Common.ContentPermutation
 			.ToList();
 
 		public override Task<List<TKPermutatedContentItemViewModel>> GetContentForAsync(TKGetContentPermutationContentOptions<OrderPermutations> options)
-        {
+    {
 			var permutation = options.Permutation;
 			var matches = _all
 				.Where(x => permutation.Status == x.Status && permutation.PayType == x.Payment)
@@ -41,4 +41,3 @@ namespace QoDL.Toolkit.Dev.Common.ContentPermutation
 			public OrderPermutations.OrderStatus Status { get; set; }
 		}
 	}
-}

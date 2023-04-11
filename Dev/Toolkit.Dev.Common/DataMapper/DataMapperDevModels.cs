@@ -2,8 +2,8 @@ using QoDL.Toolkit.Core.Modules.MappedData.Attributes;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace QoDL.Toolkit.Dev.Common.DataMapper
-{
+namespace QoDL.Toolkit.Dev.Common.DataMapper;
+
 	[TKMappedClass("", GroupName = "Test Group X", OverrideName = "Test #1", Remarks = "Some remarks here, maybe with <a href=\"#\">link</a>.", MappingFromMethodName = "Mapping.GetMapping", HtmlEncodeMappingComments = false)]
 	[TKMappedClass(@"
 Name <=> ExternalData.SomethingElse
@@ -136,4 +136,3 @@ WorkAddress {
 		public string SuperValue { get; set; }
 	}
 	// ########################################################
-}

@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace QoDL.Toolkit.Core.Util
-{
-    /// <summary>
-    /// Used to filter members.
-    /// </summary>
-    public class TKMemberFilter
+namespace QoDL.Toolkit.Core.Util;
+
+/// <summary>
+/// Used to filter members.
+/// </summary>
+public class TKMemberFilter
 	{
 		/// <summary>
 		/// Filter properties.
@@ -54,4 +54,3 @@ namespace QoDL.Toolkit.Core.Util
 			return true;
 		}
 	}
-}

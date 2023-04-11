@@ -1,25 +1,24 @@
 using System;
 
-namespace QoDL.Toolkit.Core.Abstractions
+namespace QoDL.Toolkit.Core.Abstractions;
+
+/// <summary>
+/// Caches things.
+/// </summary>
+public interface ITKCache
 {
     /// <summary>
-    /// Caches things.
+    /// Add or replace a cached value.
     /// </summary>
-    public interface ITKCache
-    {
-        /// <summary>
-        /// Add or replace a cached value.
-        /// </summary>
-        TItem Set<TItem>(string key, TItem value, TimeSpan absoluteExpirationRelativeToNow, bool allowDistribute = false);
+    TItem Set<TItem>(string key, TItem value, TimeSpan absoluteExpirationRelativeToNow, bool allowDistribute = false);
 
-        /// <summary>
-        /// Try to get a cached item.
-        /// </summary>
-        bool TryGetValue<TItem>(string key, out TItem value);
+    /// <summary>
+    /// Try to get a cached item.
+    /// </summary>
+    bool TryGetValue<TItem>(string key, out TItem value);
 
-        /// <summary>
-        /// Remove a cached item.
-        /// </summary>
-        void Remove(string key, bool allowDistribute = false);
-    }
+    /// <summary>
+    /// Remove a cached item.
+    /// </summary>
+    void Remove(string key, bool allowDistribute = false);
 }

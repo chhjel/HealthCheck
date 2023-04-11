@@ -1,23 +1,22 @@
-namespace QoDL.Toolkit.Core.Modules.Tests.Models
+namespace QoDL.Toolkit.Core.Modules.Tests.Models;
+
+/// <summary>
+/// Test result status.
+/// </summary>
+public enum TestResultStatus
 {
     /// <summary>
-    /// Test result status.
+    /// Test result was a success.
     /// </summary>
-    public enum TestResultStatus
-    {
-        /// <summary>
-        /// Test result was a success.
-        /// </summary>
-        Success = 0,
+    Success = 0,
 
-        /// <summary>
-        /// Result had some non-critical issues
-        /// </summary>
-        Warning,
+    /// <summary>
+    /// Result had some non-critical issues
+    /// </summary>
+    Warning,
 
-        /// <summary>
-        /// Test failed.
-        /// </summary>
-        Error
-    }
+    /// <summary>
+    /// Test failed.
+    /// </summary>
+    Error
 }

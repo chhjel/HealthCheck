@@ -9,8 +9,8 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 
-namespace QoDL.Toolkit.Module.DataExport.Exporters
-{
+namespace QoDL.Toolkit.Module.DataExport.Exporters;
+
 	/// <summary>
 	/// Outputs xml files.
 	/// </summary>
@@ -46,13 +46,13 @@ namespace QoDL.Toolkit.Module.DataExport.Exporters
 		public override byte[] GetContents()
 		{
 			var serializer = new DataContractSerializer(typeof(SerializableObjectDictionaryList));
-            using var memoryStream = new MemoryStream();
-            using var xmlWriter = new XmlTextWriter(memoryStream, Encoding.UTF8);
-            xmlWriter.Formatting = Prettify ? Formatting.Indented : Formatting.None;
-            serializer.WriteObject(xmlWriter, _builder);
-            xmlWriter.Flush();
-            return memoryStream.ToArray();
-        }
+        using var memoryStream = new MemoryStream();
+        using var xmlWriter = new XmlTextWriter(memoryStream, Encoding.UTF8);
+        xmlWriter.Formatting = Prettify ? Formatting.Indented : Formatting.None;
+        serializer.WriteObject(xmlWriter, _builder);
+        xmlWriter.Flush();
+        return memoryStream.ToArray();
+    }
 
 		[Serializable]
 		[XmlRoot(ElementName = "ExportedData")]
@@ -87,4 +87,3 @@ namespace QoDL.Toolkit.Module.DataExport.Exporters
 			}
 		}
 	}
-}

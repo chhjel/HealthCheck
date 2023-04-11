@@ -1,9 +1,8 @@
-namespace QoDL.Toolkit.RequestLog.Models
+namespace QoDL.Toolkit.RequestLog.Models;
+
+internal class ActionInfo
 {
-    internal class ActionInfo
-    {
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string Url { get; set; }
-    }
+    public string Name { get; set; }
+    public string Description { get; set; }
+    public string Url { get; set; }
 }

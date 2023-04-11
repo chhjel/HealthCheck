@@ -2,12 +2,12 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-namespace QoDL.Toolkit.Core.Util
-{
-    /// <summary>
-    /// Used to filter properties.
-    /// </summary>
-    public class TKPropertyFilter
+namespace QoDL.Toolkit.Core.Util;
+
+/// <summary>
+/// Used to filter properties.
+/// </summary>
+public class TKPropertyFilter
 	{
 		/// <summary>
 		/// If true, excludes generated, special, readonly, indexer etc properties.
@@ -32,4 +32,3 @@ namespace QoDL.Toolkit.Core.Util
 			return true;
 		}
 	}
-}

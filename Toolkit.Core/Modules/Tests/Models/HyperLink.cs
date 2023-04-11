@@ -1,32 +1,31 @@
-namespace QoDL.Toolkit.Core.Modules.Tests.Models
+namespace QoDL.Toolkit.Core.Modules.Tests.Models;
+
+/// <summary>
+/// An url and text.
+/// </summary>
+public class HyperLink
 {
     /// <summary>
-    /// An url and text.
+    /// Link text.
     /// </summary>
-    public class HyperLink
+    public string Text { get; set; }
+
+    /// <summary>
+    /// Url.
+    /// </summary>
+    public string Url { get; set; }
+
+    /// <summary>
+    /// Create a new link.
+    /// </summary>
+    public HyperLink(string text, string url)
     {
-        /// <summary>
-        /// Link text.
-        /// </summary>
-        public string Text { get; set; }
-
-        /// <summary>
-        /// Url.
-        /// </summary>
-        public string Url { get; set; }
-
-        /// <summary>
-        /// Create a new link.
-        /// </summary>
-        public HyperLink(string text, string url)
-        {
-            Text = text;
-            Url = url;
-        }
-
-        /// <summary>
-        /// Create a new link.
-        /// </summary>
-        public HyperLink() {}
+        Text = text;
+        Url = url;
     }
+
+    /// <summary>
+    /// Create a new link.
+    /// </summary>
+    public HyperLink() {}
 }

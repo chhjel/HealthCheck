@@ -5,12 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace QoDL.Toolkit.Module.DataExport.Exporters
-{
-    /// <summary>
-    /// Outputs a json hash using the first column as keys.
-    /// </summary>
-    public class TKDataExportExporterJsonHash : ITKDataExportExporter
+namespace QoDL.Toolkit.Module.DataExport.Exporters;
+
+/// <summary>
+/// Outputs a json hash using the first column as keys.
+/// </summary>
+public class TKDataExportExporterJsonHash : ITKDataExportExporter
 	{
 		/// <inheritdoc />
 		public string DisplayName { get; set; } = "JSON Hash";
@@ -49,5 +49,4 @@ namespace QoDL.Toolkit.Module.DataExport.Exporters
 
 		/// <inheritdoc />
 		public byte[] GetContents() => Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(_builder, Prettify ? Formatting.Indented : Formatting.None));
-    }
 }

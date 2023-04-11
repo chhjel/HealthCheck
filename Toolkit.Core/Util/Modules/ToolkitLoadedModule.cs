@@ -4,12 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace QoDL.Toolkit.Core.Util.Modules
-{
-    /// <summary>
-    /// A loaded module.
-    /// </summary>
-    public class ToolkitLoadedModule
+namespace QoDL.Toolkit.Core.Util.Modules;
+
+/// <summary>
+/// A loaded module.
+/// </summary>
+public class ToolkitLoadedModule
 	{
 		/// <summary>
 		/// Unique id of the module.
@@ -81,4 +81,3 @@ namespace QoDL.Toolkit.Core.Util.Modules
 		/// </summary>
 		public List<TKModuleIdData> AllModuleIds => Module?.AllIds;
 	}
-}

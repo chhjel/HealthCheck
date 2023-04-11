@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 
-namespace QoDL.Toolkit.Core.Modules.MappedData.Models
-{
-    /// <summary>
-    /// Container for definitions.
-    /// </summary>
-    public class TKMappedDataDefinitions
+namespace QoDL.Toolkit.Core.Modules.MappedData.Models;
+
+/// <summary>
+/// Container for definitions.
+/// </summary>
+public class TKMappedDataDefinitions
 	{
 		/// <summary>
 		/// Class defs.
@@ -17,4 +17,3 @@ namespace QoDL.Toolkit.Core.Modules.MappedData.Models
 		/// </summary>
 		public List<TKMappedReferencedTypeDefinition> ReferencedDefinitions = new();
 	}
-}

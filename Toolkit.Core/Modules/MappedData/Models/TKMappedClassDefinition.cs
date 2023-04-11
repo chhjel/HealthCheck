@@ -2,12 +2,12 @@ using QoDL.Toolkit.Core.Modules.MappedData.Attributes;
 using System;
 using System.Collections.Generic;
 
-namespace QoDL.Toolkit.Core.Modules.MappedData.Models
-{
-    /// <summary>
-    /// A definitions of a class being mapped to something.
-    /// </summary>
-    public class TKMappedClassDefinition
+namespace QoDL.Toolkit.Core.Modules.MappedData.Models;
+
+/// <summary>
+/// A definitions of a class being mapped to something.
+/// </summary>
+public class TKMappedClassDefinition
 	{
 		/// <summary>
 		/// Internally used id of this definition.
@@ -52,4 +52,3 @@ namespace QoDL.Toolkit.Core.Modules.MappedData.Models
 		/// <summary></summary>
 		public override string ToString() => $"[{Id}]";
 	}
-}

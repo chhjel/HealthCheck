@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 
-namespace QoDL.Toolkit.Module.EndpointControl.Models
-{
+namespace QoDL.Toolkit.Module.EndpointControl.Models;
+
 	/// <summary>
 	/// Model used by built in implementations to store request history.
 	/// </summary>
@@ -22,4 +22,3 @@ namespace QoDL.Toolkit.Module.EndpointControl.Models
 		/// </summary>
 		public Queue<EndpointRequestDetails> LatestRequests { get; set; } = new Queue<EndpointRequestDetails>();
 	}
-}

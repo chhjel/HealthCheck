@@ -1,11 +1,11 @@
 using System;
 
-namespace QoDL.Toolkit.Core.Modules.MappedData.Attributes
-{
-    /// <summary>
-    /// Decorate a class with this for it to be discovered by TK.
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+namespace QoDL.Toolkit.Core.Modules.MappedData.Attributes;
+
+/// <summary>
+/// Decorate a class with this for it to be discovered by TK.
+/// </summary>
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 	public class TKMappedClassAttribute : Attribute
 	{
 		/// <summary>
@@ -58,4 +58,3 @@ namespace QoDL.Toolkit.Core.Modules.MappedData.Attributes
 			Mapping = mapping;
 		}
 	}
-}

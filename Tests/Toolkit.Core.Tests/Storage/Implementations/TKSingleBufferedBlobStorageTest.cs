@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
 
-namespace QoDL.Toolkit.Core.Tests.Storage.Implementations
-{
-    public class TKSingleBufferedBlobStorageTest : TKSingleBufferedBlobStorageBase<TKSingleBufferedBlobStorageTest.TestData, TestItem>
+namespace QoDL.Toolkit.Core.Tests.Storage.Implementations;
+
+public class TKSingleBufferedBlobStorageTest : TKSingleBufferedBlobStorageBase<TKSingleBufferedBlobStorageTest.TestData, TestItem>
 	{
 		public ITestOutputHelper Output { get; }
 		public Func<TestData> Get { get; set; }
@@ -21,15 +21,15 @@ namespace QoDL.Toolkit.Core.Tests.Storage.Implementations
 		}
 
 		public void Add(TestItem item) => InsertItemBuffered(item, item.Id);
-        public void Update(TestItem item) => UpdateItemBuffered(item.Id, x => x.Value = item.Value, () => GetData().Items.FirstOrDefault(x=>x.Id == item.Id));
+    public void Update(TestItem item) => UpdateItemBuffered(item.Id, x => x.Value = item.Value, () => GetData().Items.FirstOrDefault(x=>x.Id == item.Id));
 		public TestData GetData() => GetBlobData();
 		public IEnumerable<TestItem> GetAllBufferedItems() => GetBufferedItems();
 
 		protected override TestData RetrieveBlobData() => Get();
-        protected override void StoreBlobData(TestData data) => Store(data);
+    protected override void StoreBlobData(TestData data) => Store(data);
 		protected override object GetItemId(TestItem item) => item.Id;
 
-        protected override TestData UpdateDataFromBuffer(TestData data, Queue<BufferQueueItem> bufferedItems)
+    protected override TestData UpdateDataFromBuffer(TestData data, Queue<BufferQueueItem> bufferedItems)
 		{
 			int updated = 0;
 			int added = 0;
@@ -54,7 +54,7 @@ namespace QoDL.Toolkit.Core.Tests.Storage.Implementations
 
 			Output.WriteLine($"UpdateDataFromBuffer - Buffer size: {bufferedItems.Count}, added: {added}, updated: {updated}");
 			return data;
-        }
+    }
 
 
 		public class TestData
@@ -62,4 +62,3 @@ namespace QoDL.Toolkit.Core.Tests.Storage.Implementations
 			public List<TestItem> Items { get; set; } = new List<TestItem>();
 		}
 	}
-}

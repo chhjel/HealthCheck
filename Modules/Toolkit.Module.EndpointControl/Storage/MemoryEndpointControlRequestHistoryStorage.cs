@@ -6,12 +6,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace QoDL.Toolkit.Module.EndpointControl.Storage
-{
-    /// <summary>
-    /// Stores request data in memory only.
-    /// </summary>
-    public class MemoryEndpointControlRequestHistoryStorage : IEndpointControlRequestHistoryStorage
+namespace QoDL.Toolkit.Module.EndpointControl.Storage;
+
+/// <summary>
+/// Stores request data in memory only.
+/// </summary>
+public class MemoryEndpointControlRequestHistoryStorage : IEndpointControlRequestHistoryStorage
 	{
 		private readonly EndpointControlRequestHistoryStorageHelper _helper = new();
 		private LatestEndpointRequestsHistory _data => _helper.Data;
@@ -56,5 +56,4 @@ namespace QoDL.Toolkit.Module.EndpointControl.Storage
 				return _data.LatestRequests.TakeLastN(maxCount).ToArray();
 			}
 		}
-    }
 }

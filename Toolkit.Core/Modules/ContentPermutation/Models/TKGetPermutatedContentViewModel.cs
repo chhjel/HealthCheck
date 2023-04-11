@@ -1,11 +1,10 @@
 using System.Collections.Generic;
 
-namespace QoDL.Toolkit.Core.Modules.ContentPermutation.Models
+namespace QoDL.Toolkit.Core.Modules.ContentPermutation.Models;
+
+/// <summary></summary>
+public class TKGetPermutatedContentViewModel
 {
     /// <summary></summary>
-    public class TKGetPermutatedContentViewModel
-    {
-        /// <summary></summary>
-        public List<TKPermutatedContentItemViewModel> Content { get; set; }
-    }
+    public List<TKPermutatedContentItemViewModel> Content { get; set; }
 }

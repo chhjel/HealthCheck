@@ -6,98 +6,97 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace QoDL.Toolkit.WebUI.Services
+namespace QoDL.Toolkit.WebUI.Services;
+
+/// <summary>
+/// Provides load/save capabilities to a flatfile.
+/// </summary>
+public class TKFlatFileStringDictionaryStorage : ITKStringDictionaryStorage
 {
+    /// <summary>
+    /// Path to the file where data will be stored.
+    /// </summary>
+    protected string FilePath { get; set; }
+
+    private readonly object _fileLock = new();
+    private readonly object _valueCacheLock = new();
+    private Dictionary<string, string> _valueCache;
+
     /// <summary>
     /// Provides load/save capabilities to a flatfile.
     /// </summary>
-    public class TKFlatFileStringDictionaryStorage : ITKStringDictionaryStorage
+    public TKFlatFileStringDictionaryStorage(string filePath)
     {
-        /// <summary>
-        /// Path to the file where data will be stored.
-        /// </summary>
-        protected string FilePath { get; set; }
+        FilePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
+    }
 
-        private readonly object _fileLock = new();
-        private readonly object _valueCacheLock = new();
-        private Dictionary<string, string> _valueCache;
+    /// <inheritdoc/>
+    public void SaveValues(Dictionary<string, string> values)
+    {
+        var timer = new TKMetricsTimer($"StringDictionaryStorage({Path.GetFileNameWithoutExtension(FilePath)}).SaveData()");
 
-        /// <summary>
-        /// Provides load/save capabilities to a flatfile.
-        /// </summary>
-        public TKFlatFileStringDictionaryStorage(string filePath)
+        lock (_valueCacheLock)
         {
-            FilePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
+            _valueCache = values ?? new Dictionary<string, string>();
         }
 
-        /// <inheritdoc/>
-        public void SaveValues(Dictionary<string, string> values)
+        var json = JsonConvert.SerializeObject(values, Formatting.Indented);
+        lock (_fileLock)
         {
-            var timer = new TKMetricsTimer($"StringDictionaryStorage({Path.GetFileNameWithoutExtension(FilePath)}).SaveData()");
-
-            lock (_valueCacheLock)
-            {
-                _valueCache = values ?? new Dictionary<string, string>();
-            }
-
-            var json = JsonConvert.SerializeObject(values, Formatting.Indented);
-            lock (_fileLock)
-            {
-                File.WriteAllText(FilePath, json);
-            }
-
-            TKMetricsContext.AddGlobalTimingValue(timer);
+            File.WriteAllText(FilePath, json);
         }
 
-        /// <inheritdoc/>
-        public Dictionary<string, string> GetValues()
+        TKMetricsContext.AddGlobalTimingValue(timer);
+    }
+
+    /// <inheritdoc/>
+    public Dictionary<string, string> GetValues()
+    {
+        lock (_valueCacheLock)
         {
-            lock (_valueCacheLock)
+            if (_valueCache != null)
             {
-                if (_valueCache != null)
-                {
-                    return _valueCache;
-                }
+                return _valueCache;
             }
-
-            var values = GetValuesInternal();
-
-            lock (_valueCacheLock)
-            {
-                _valueCache = values;
-            }
-
-            return values;
         }
 
-        private Dictionary<string, string> GetValuesInternal()
+        var values = GetValuesInternal();
+
+        lock (_valueCacheLock)
         {
-            var timer = new TKMetricsTimer($"StringDictionaryStorage({Path.GetFileNameWithoutExtension(FilePath)}).LoadData()");
-            string contents;
-            try
+            _valueCache = values;
+        }
+
+        return values;
+    }
+
+    private Dictionary<string, string> GetValuesInternal()
+    {
+        var timer = new TKMetricsTimer($"StringDictionaryStorage({Path.GetFileNameWithoutExtension(FilePath)}).LoadData()");
+        string contents;
+        try
+        {
+            if (File.Exists(FilePath))
             {
-                if (File.Exists(FilePath))
+                lock (_fileLock)
                 {
-                    lock (_fileLock)
-                    {
-                        contents = TKIOUtils.ReadFile(FilePath);
-                    }
-                    return JsonConvert.DeserializeObject<Dictionary<string, string>>(contents)
-                        ?? new Dictionary<string, string>();
+                    contents = TKIOUtils.ReadFile(FilePath);
                 }
-                else
-                {
-                    return new Dictionary<string, string>();
-                }
+                return JsonConvert.DeserializeObject<Dictionary<string, string>>(contents)
+                    ?? new Dictionary<string, string>();
             }
-            catch (Exception)
+            else
             {
                 return new Dictionary<string, string>();
             }
-            finally
-            {
-                TKMetricsContext.AddGlobalTimingValue(timer);
-            }
+        }
+        catch (Exception)
+        {
+            return new Dictionary<string, string>();
+        }
+        finally
+        {
+            TKMetricsContext.AddGlobalTimingValue(timer);
         }
     }
 }

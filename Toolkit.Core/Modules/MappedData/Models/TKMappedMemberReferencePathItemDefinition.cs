@@ -1,10 +1,10 @@
 using System;
 using System.Reflection;
 
-namespace QoDL.Toolkit.Core.Modules.MappedData.Models
-{
-    /// <summary></summary>
-    public class TKMappedMemberReferencePathItemDefinition
+namespace QoDL.Toolkit.Core.Modules.MappedData.Models;
+
+/// <summary></summary>
+public class TKMappedMemberReferencePathItemDefinition
 	{
 		/// <summary></summary>
 		public bool Success { get; set; }
@@ -24,5 +24,4 @@ namespace QoDL.Toolkit.Core.Modules.MappedData.Models
 		public Type PropertyType { get; set; }
 		/// <summary></summary>
 		public PropertyInfo PropertyInfo { get; set; }
-    }
 }

@@ -1,12 +1,12 @@
 using QoDL.Toolkit.Core.Modules.MappedData.Attributes;
 using System;
 
-namespace QoDL.Toolkit.Core.Modules.MappedData.Models
-{
-    /// <summary>
-    /// Definition of a class being referenced from mapping.
-    /// </summary>
-    public class TKMappedReferencedTypeDefinition
+namespace QoDL.Toolkit.Core.Modules.MappedData.Models;
+
+/// <summary>
+/// Definition of a class being referenced from mapping.
+/// </summary>
+public class TKMappedReferencedTypeDefinition
 	{
 		/// <summary>
 		/// Internal id.
@@ -42,5 +42,4 @@ namespace QoDL.Toolkit.Core.Modules.MappedData.Models
 		/// Attribute decorated on the class type.
 		/// </summary>
 		public TKMappedReferencedTypeAttribute Attribute { get; set; }
-    }
 }

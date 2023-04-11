@@ -1,36 +1,35 @@
 using System.Reflection;
 
-namespace QoDL.Toolkit.Module.RequestLog.Util
+namespace QoDL.Toolkit.Module.RequestLog.Util;
+
+/// <summary>
+/// Utilities related to the <see cref="Assembly"/>.
+/// </summary>
+internal static class AssemblyUtil
 {
     /// <summary>
-    /// Utilities related to the <see cref="Assembly"/>.
+    /// Attempts to retrieve the entry assembly in ASP.net applications.
     /// </summary>
-    internal static class AssemblyUtil
+    public static Assembly GetWebEntryAssembly()
     {
-        /// <summary>
-        /// Attempts to retrieve the entry assembly in ASP.net applications.
-        /// </summary>
-        public static Assembly GetWebEntryAssembly()
-        {
 #if NETFULL
-            if (System.Web.HttpContext.Current == null ||
-                System.Web.HttpContext.Current.ApplicationInstance == null)
-            {
-                return null;
-            }
-
-            var type = System.Web.HttpContext.Current.ApplicationInstance.GetType();
-            while (type != null && type.Namespace == "ASP")
-            {
-                type = type.BaseType;
-            }
-
-            return type?.Assembly;
-#elif NETCORE
-            return Assembly.GetEntryAssembly();
-#else
+        if (System.Web.HttpContext.Current == null ||
+            System.Web.HttpContext.Current.ApplicationInstance == null)
+        {
             return null;
-#endif
         }
+
+        var type = System.Web.HttpContext.Current.ApplicationInstance.GetType();
+        while (type != null && type.Namespace == "ASP")
+        {
+            type = type.BaseType;
+        }
+
+        return type?.Assembly;
+#elif NETCORE
+        return Assembly.GetEntryAssembly();
+#else
+        return null;
+#endif
     }
 }

@@ -5,21 +5,21 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace QoDL.Toolkit.Utility.Reflection.Logging
-{
-    /// <summary>
-    /// Generates logger implementations at runtime for given logging interfaces.
-    /// </summary>
-    public static class TKLogTypeBuilder
+namespace QoDL.Toolkit.Utility.Reflection.Logging;
+
+/// <summary>
+/// Generates logger implementations at runtime for given logging interfaces.
+/// </summary>
+public static class TKLogTypeBuilder
 	{
 		private static readonly Dictionary<Type, Type> _typeCache = new();
 
-        /// <summary>
-        /// Generates logger implementations at runtime for the given logging interface.
-        /// </summary>
-        /// <param name="logCountLimit">Optional max number of times the log method can be called before it's ignored.</param>
-        /// <param name="forwardTo">Optionally forward method calls to a given instance, e.g. the original logger.</param>
-        public static TInterface CreateMemoryLoggerFor<TInterface>(int logCountLimit = 100000, TInterface forwardTo = default)
+    /// <summary>
+    /// Generates logger implementations at runtime for the given logging interface.
+    /// </summary>
+    /// <param name="logCountLimit">Optional max number of times the log method can be called before it's ignored.</param>
+    /// <param name="forwardTo">Optionally forward method calls to a given instance, e.g. the original logger.</param>
+    public static TInterface CreateMemoryLoggerFor<TInterface>(int logCountLimit = 100000, TInterface forwardTo = default)
 			where TInterface : class
 			=> CreateMemoryLoggerFor(typeof(TInterface), logCountLimit, forwardTo) as TInterface;
 
@@ -124,4 +124,3 @@ namespace QoDL.Toolkit.Utility.Reflection.Logging
 			ilGen.Emit(OpCodes.Ret);
 		}
 	}
-}

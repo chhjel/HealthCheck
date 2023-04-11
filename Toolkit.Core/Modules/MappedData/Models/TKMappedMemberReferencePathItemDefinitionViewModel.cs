@@ -1,7 +1,7 @@
-namespace QoDL.Toolkit.Core.Modules.MappedData.Models
-{
-    /// <summary></summary>
-    public class TKMappedMemberReferencePathItemDefinitionViewModel
+namespace QoDL.Toolkit.Core.Modules.MappedData.Models;
+
+/// <summary></summary>
+public class TKMappedMemberReferencePathItemDefinitionViewModel
 	{
 		/// <summary></summary>
 		public bool Success { get; set; }
@@ -22,4 +22,3 @@ namespace QoDL.Toolkit.Core.Modules.MappedData.Models
 		/// <summary></summary>
 		public string HardCodedValue { get; set; }
 	}
-}

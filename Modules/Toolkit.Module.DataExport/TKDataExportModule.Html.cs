@@ -1,29 +1,29 @@
 using QoDL.Toolkit.Core.Abstractions.Modules;
 using QoDL.Toolkit.Core.Config;
 
-namespace QoDL.Toolkit.Module.DataExport
+namespace QoDL.Toolkit.Module.DataExport;
+
+public partial class TKDataExportModule
 {
-    public partial class TKDataExportModule
+    static readonly string[] _flyingTexts = new[] { "data", "more data", "bits", "bytes", "secrets", "0x90" };
+
+    private static string CreateExportLoadingDownloadHtml(ToolkitModuleContext context, string downloadUrl)
     {
-        static readonly string[] _flyingTexts = new[] { "data", "more data", "bits", "bytes", "secrets", "0x90" };
-
-        private static string CreateExportLoadingDownloadHtml(ToolkitModuleContext context, string downloadUrl)
+        var Q = "\"";
+        int flyingTextIndex = 0;
+        string createFlyingTextDiv(string text = null)
         {
-            var Q = "\"";
-            int flyingTextIndex = 0;
-            string createFlyingTextDiv(string text = null)
+            if (text == null)
             {
-                if (text == null)
-                {
-                    text = _flyingTexts[flyingTextIndex];
-                    flyingTextIndex++;
-                    if (flyingTextIndex >= _flyingTexts.Length) flyingTextIndex = 0;
-                }
-                return $"<span class=\"flying-text\">{text}</span>"; ;
+                text = _flyingTexts[flyingTextIndex];
+                flyingTextIndex++;
+                if (flyingTextIndex >= _flyingTexts.Length) flyingTextIndex = 0;
             }
+            return $"<span class=\"flying-text\">{text}</span>"; ;
+        }
 
-            var cssTagsHtml = TKAssetGlobalConfig.CreateCssTags(context.CssUrls);
-            return $@"
+        var cssTagsHtml = TKAssetGlobalConfig.CreateCssTags(context.CssUrls);
+        return $@"
 <!doctype html>
 <html>
 <head>
@@ -199,13 +199,13 @@ namespace QoDL.Toolkit.Module.DataExport
     </script>
 </body>
 </html>";
-        }
+    }
 
-        private static string CreateExportErrorHtml(ToolkitModuleContext context, string error)
-        {
-            var cssTagsHtml = TKAssetGlobalConfig.CreateCssTags(context.CssUrls);
-            var Q = "\"";
-            return $@"
+    private static string CreateExportErrorHtml(ToolkitModuleContext context, string error)
+    {
+        var cssTagsHtml = TKAssetGlobalConfig.CreateCssTags(context.CssUrls);
+        var Q = "\"";
+        return $@"
 <!doctype html>
 <html>
 <head>
@@ -239,6 +239,5 @@ namespace QoDL.Toolkit.Module.DataExport
     </div>
 </body>
 </html>";
-        }
     }
 }

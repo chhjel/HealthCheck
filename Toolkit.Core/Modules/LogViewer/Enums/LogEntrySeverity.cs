@@ -1,23 +1,22 @@
-namespace QoDL.Toolkit.Core.Modules.LogViewer.Enums
+namespace QoDL.Toolkit.Core.Modules.LogViewer.Enums;
+
+/// <summary>
+/// Severity of a log entry.
+/// </summary>
+public enum LogEntrySeverity
 {
     /// <summary>
-    /// Severity of a log entry.
+    /// Below warning-level.
     /// </summary>
-    public enum LogEntrySeverity
-    {
-        /// <summary>
-        /// Below warning-level.
-        /// </summary>
-        Info = 0,
+    Info = 0,
 
-        /// <summary>
-        /// Warning level.
-        /// </summary>
-        Warning,
+    /// <summary>
+    /// Warning level.
+    /// </summary>
+    Warning,
 
-        /// <summary>
-        /// Error-level or above.
-        /// </summary>
-        Error
-    }
+    /// <summary>
+    /// Error-level or above.
+    /// </summary>
+    Error
 }

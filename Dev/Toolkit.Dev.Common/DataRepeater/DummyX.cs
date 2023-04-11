@@ -1,8 +1,7 @@
-namespace QoDL.Toolkit.Dev.Common.DataRepeater
+namespace QoDL.Toolkit.Dev.Common.DataRepeater;
+
+public class DummyX
 {
-    public class DummyX
-    {
-        public string Id { get; set; }
-        public decimal Value { get; set; }
-    }
+    public string Id { get; set; }
+    public decimal Value { get; set; }
 }

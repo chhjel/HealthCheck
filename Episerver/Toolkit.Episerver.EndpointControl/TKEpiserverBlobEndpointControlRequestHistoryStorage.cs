@@ -10,12 +10,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace QoDL.Toolkit.Episerver.EndpointControl
-{
-    /// <summary>
-    /// Stores request data in episerver blobstorage.
-    /// </summary>
-    public class TKEpiserverBlobEndpointControlRequestHistoryStorage
+namespace QoDL.Toolkit.Episerver.EndpointControl;
+
+/// <summary>
+/// Stores request data in episerver blobstorage.
+/// </summary>
+public class TKEpiserverBlobEndpointControlRequestHistoryStorage
 		: TKSingleBufferedBlobStorageBase<LatestEndpointRequestsHistory, EndpointControlEndpointRequestData>, IEndpointControlRequestHistoryStorage
 	{
 		private readonly EndpointControlRequestHistoryStorageHelper _helper = new()
@@ -167,4 +167,3 @@ namespace QoDL.Toolkit.Episerver.EndpointControl
 			}
 		}
 	}
-}

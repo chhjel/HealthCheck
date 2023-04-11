@@ -6,47 +6,46 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using static QoDL.Toolkit.Dev.Common.Tests.OutParameterTests;
 
-namespace QoDL.Toolkit.Dev.Common.Tests
+namespace QoDL.Toolkit.Dev.Common.Tests;
+
+[RuntimeTestClass(
+    Name = "Special cases tests",
+    DefaultRolesWithAccess = RuntimeTestAccessRole.WebAdmins,
+    GroupName = RuntimeTestConstants.Group.TopGroup,
+    UIOrder = 50
+)]
+public class SpecialCasesTests
 {
-    [RuntimeTestClass(
-        Name = "Special cases tests",
-        DefaultRolesWithAccess = RuntimeTestAccessRole.WebAdmins,
-        GroupName = RuntimeTestConstants.Group.TopGroup,
-        UIOrder = 50
-    )]
-    public class SpecialCasesTests
+    public delegate void TestDelegate(string value);
+
+    // todo: json input & specify full typename to serialize to?
+    [RuntimeTest]
+    public TestResult TestWithInterfaces(IList<string> list, IDisposable disposable, IEnumerable<int> enumerable)
     {
-        public delegate void TestDelegate(string value);
+        return TestResult.CreateSuccess("Success hopefully.")
+            .AddSerializedData(list)
+            .AddSerializedData(disposable)
+            .AddSerializedData(enumerable);
+    }
 
-        // todo: json input & specify full typename to serialize to?
-        [RuntimeTest]
-        public TestResult TestWithInterfaces(IList<string> list, IDisposable disposable, IEnumerable<int> enumerable)
+    [RuntimeTest]
+    public TestResult TestWithDelegates(Action action, Func<string> func, TestDelegate deleg, Expression<Func<Action<bool>>> combination)
+    {
+        var items = new[]
         {
-            return TestResult.CreateSuccess("Success hopefully.")
-                .AddSerializedData(list)
-                .AddSerializedData(disposable)
-                .AddSerializedData(enumerable);
-        }
+            action?.ToString(),
+            func?.ToString(),
+            deleg?.ToString(),
+            combination?.ToString()
+        };
+        return TestResult.CreateSuccess("Success hopefully.")
+            .AddCodeData(string.Join("\n", items));
+    }
 
-        [RuntimeTest]
-        public TestResult TestWithDelegates(Action action, Func<string> func, TestDelegate deleg, Expression<Func<Action<bool>>> combination)
-        {
-            var items = new[]
-            {
-                action?.ToString(),
-                func?.ToString(),
-                deleg?.ToString(),
-                combination?.ToString()
-            };
-            return TestResult.CreateSuccess("Success hopefully.")
-                .AddCodeData(string.Join("\n", items));
-        }
-
-        [RuntimeTest]
-        public TestResult TestWithListOfComplexObjects(List<ComplexDumy> data)
-        {
-            return TestResult.CreateSuccess("Success hopefully.")
-                .AddSerializedData(data);
-        }
+    [RuntimeTest]
+    public TestResult TestWithListOfComplexObjects(List<ComplexDumy> data)
+    {
+        return TestResult.CreateSuccess("Success hopefully.")
+            .AddSerializedData(data);
     }
 }

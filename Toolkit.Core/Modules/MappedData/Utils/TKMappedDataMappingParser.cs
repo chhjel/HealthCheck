@@ -7,9 +7,9 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace QoDL.Toolkit.Core.Modules.MappedData.Utils
-{
-    internal static class TKMappedDataMappingParser
+namespace QoDL.Toolkit.Core.Modules.MappedData.Utils;
+
+internal static class TKMappedDataMappingParser
 	{
 		private static readonly Regex _propLineRegex = new(@"(?<name>\w+)\s*(?<arrow><=>)?\s*(?<mappedTo>\[?.+\]?)?");
 
@@ -63,9 +63,9 @@ namespace QoDL.Toolkit.Core.Modules.MappedData.Utils
 					var arrow = match.Groups["arrow"]?.Value;
 					var mappedToRaw = match.Groups["mappedTo"]?.Value;
 					if (mappedToRaw?.StartsWith("[") == true && mappedToRaw?.EndsWith("]") == true)
-                    {
+                {
 						mappedToRaw = mappedToRaw.Substring(1, mappedToRaw.Length - 2);
-                    }
+                }
 					var mappedToValues = mappedToRaw
 						?.Split(',')
 						?.Select(x => x.Trim())
@@ -73,7 +73,7 @@ namespace QoDL.Toolkit.Core.Modules.MappedData.Utils
 						?.ToList() ?? new List<string>();
 					var hasBrace = mappedToValues.Count > 0 && mappedToValues.Last().Trim().EndsWith("{");
 					if (hasBrace)
-                    {
+                {
 						mappedToValues[mappedToValues.Count - 1] = mappedToValues[mappedToValues.Count - 1].Trim().TrimEnd('{').Trim();
 						mappedToValues = mappedToValues.Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
 					}
@@ -286,5 +286,3 @@ namespace QoDL.Toolkit.Core.Modules.MappedData.Utils
 			}
 		}
 	}
-
-}

@@ -3,8 +3,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace QoDL.Toolkit.Core.Util
-{
+namespace QoDL.Toolkit.Core.Util;
+
 	internal static class SimpleStringifier
 	{
 		public static string Stringify(object data, int maxLevels = 10)
@@ -65,4 +65,3 @@ namespace QoDL.Toolkit.Core.Util
 			return builder;
 		}
 	}
-}

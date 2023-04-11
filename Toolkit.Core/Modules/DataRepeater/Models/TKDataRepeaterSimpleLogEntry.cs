@@ -1,20 +1,19 @@
 using System;
 
-namespace QoDL.Toolkit.Core.Modules.DataRepeater.Models
+namespace QoDL.Toolkit.Core.Modules.DataRepeater.Models;
+
+/// <summary>
+/// Simple log entry.
+/// </summary>
+public class TKDataRepeaterSimpleLogEntry
 {
     /// <summary>
-    /// Simple log entry.
+    /// Time of insertion.
     /// </summary>
-    public class TKDataRepeaterSimpleLogEntry
-    {
-        /// <summary>
-        /// Time of insertion.
-        /// </summary>
-        public DateTimeOffset Timestamp { get; set; }
+    public DateTimeOffset Timestamp { get; set; }
 
-        /// <summary>
-        /// Some details.
-        /// </summary>
-        public string Message { get; set; }
-    }
+    /// <summary>
+    /// Some details.
+    /// </summary>
+    public string Message { get; set; }
 }

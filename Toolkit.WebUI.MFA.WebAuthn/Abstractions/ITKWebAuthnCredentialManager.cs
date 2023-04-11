@@ -4,12 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace QoDL.Toolkit.WebUI.MFA.WebAuthn.Abstractions
-{
-    /// <summary>
-    /// Handles WebAuthn credential storage.
-    /// </summary>
-    public interface ITKWebAuthnCredentialManager
+namespace QoDL.Toolkit.WebUI.MFA.WebAuthn.Abstractions;
+
+/// <summary>
+/// Handles WebAuthn credential storage.
+/// </summary>
+public interface ITKWebAuthnCredentialManager
 	{
 		/// <summary></summary>
 		Fido2User GetOrAddUser(string username, Func<Fido2User> factory);
@@ -28,4 +28,3 @@ namespace QoDL.Toolkit.WebUI.MFA.WebAuthn.Abstractions
 		/// <summary></summary>
 		Task<List<TKWebAuthnStoredCredential>> GetCredentialsByUserHandleAsync(byte[] userHandle);
 	}
-}

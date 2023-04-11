@@ -1,25 +1,24 @@
 using System;
 
-namespace QoDL.Toolkit.Module.DynamicCodeExecution.Models
+namespace QoDL.Toolkit.Module.DynamicCodeExecution.Models;
+
+/// <summary>
+/// A script that was saved.
+/// </summary>
+public class DynamicCodeScript
 {
     /// <summary>
-    /// A script that was saved.
+    /// Unique id of this script.
     /// </summary>
-    public class DynamicCodeScript
-    {
-        /// <summary>
-        /// Unique id of this script.
-        /// </summary>
-        public Guid Id { get; set; }
+    public Guid Id { get; set; }
 
-        /// <summary>
-        /// Title of the script.
-        /// </summary>
-        public string Title { get; set; }
+    /// <summary>
+    /// Title of the script.
+    /// </summary>
+    public string Title { get; set; }
 
-        /// <summary>
-        /// Script content.
-        /// </summary>
-        public string Code { get; set; }
-    }
+    /// <summary>
+    /// Script content.
+    /// </summary>
+    public string Code { get; set; }
 }

@@ -6,12 +6,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace QoDL.Toolkit.Core.Modules.MappedData.Utils
-{
-    /// <summary>
-    /// Scans assemblies and creates definitions from classes decorated with <see cref="TKMappedClassAttribute"/>.
-    /// </summary>
-    public static class TKMappedDataDefinitionBuilder
+namespace QoDL.Toolkit.Core.Modules.MappedData.Utils;
+
+/// <summary>
+/// Scans assemblies and creates definitions from classes decorated with <see cref="TKMappedClassAttribute"/>.
+/// </summary>
+public static class TKMappedDataDefinitionBuilder
 	{
 		/// <summary>
 		/// Attempt to discover the used name from e.g. json attributes.
@@ -90,81 +90,81 @@ namespace QoDL.Toolkit.Core.Modules.MappedData.Utils
 		private static TKMappedClassDefinition CreateClassDefinition(Type type, TKMappedClassAttribute attribute, TKMappedDefinitionDiscoveryOptions options,
 			List<TKMappedReferencedTypeDefinition> refDefs,
 			TKMappedClassDefinition parent = null, int index = 0)
-        {
-            attribute ??= type.GetCustomAttribute<TKMappedClassAttribute>();
+    {
+        attribute ??= type.GetCustomAttribute<TKMappedClassAttribute>();
 
-            string mappingSrc = ExtractMappingSrc(type, attribute);
-            var mapping = TKMappedDataMappingParser.ParseMapping(type, mappingSrc, refDefs);
+        string mappingSrc = ExtractMappingSrc(type, attribute);
+        var mapping = TKMappedDataMappingParser.ParseMapping(type, mappingSrc, refDefs);
 
 			var memberDefinitions = new List<TKMappedMemberDefinition>();
 			var allMemberDefinitions = new List<TKMappedMemberDefinition>();
 			foreach (var member in type.GetProperties())
-            {
-                var memberMapping = mapping.Objects.FirstOrDefault(x => x.PropertyInfo == member);
-                if (memberMapping == null) continue;
-
-                var memberDef = CreateMemberDefinition(memberMapping, options, null, (d) => allMemberDefinitions.Add(d));
-				if (memberDef != null)
-				{
-					memberDefinitions.Add(memberDef);
-					allMemberDefinitions.Add(memberDef);
-				}
-            }
-
-            var mappingsWithoutProperties = mapping.Objects.Where(x => !x.IsValid && !memberDefinitions.Any(m => m.PropertyName == x.Name));
-            foreach (var mappingMember in mappingsWithoutProperties)
-            {
-                var memberDef = CreateMemberDefinition(mappingMember, options, null, (d) => allMemberDefinitions.Add(d));
-				if (memberDef != null)
-				{
-					memberDefinitions.Add(memberDef);
-					allMemberDefinitions.Add(memberDef);
-				}
-            }
-
-            return new TKMappedClassDefinition
-            {
-                Id = CreateMappedClassTypeId(type, parent, index),
-                ClassType = type,
-                GroupName = attribute?.GroupName ?? parent?.GroupName,
-                Attribute = attribute,
-                MemberDefinitions = memberDefinitions,
-				AllMemberDefinitions = allMemberDefinitions,
-                TypeName = type.Name,
-                DisplayName = attribute?.OverrideName ?? type.Name
-            };
-        }
-
-        private static string ExtractMappingSrc(Type type, TKMappedClassAttribute attribute)
         {
-            var mappingSrc = attribute.Mapping;
-            if (string.IsNullOrWhiteSpace(mappingSrc) && !string.IsNullOrWhiteSpace(attribute.MappingFromMethodName))
-            {
-                var methodName = attribute.MappingFromMethodName;
-                if (!methodName.Contains("."))
-                {
-                    var method = type.GetMethod(methodName);
-                    if (method == null) throw new TKException($"Mapping method '{methodName}' was not found in type '{type.Name}'.");
-                    mappingSrc = method.Invoke(null, new object[0]) as string;
-                }
-                else
-                {
-                    var className = methodName.Substring(0, methodName.IndexOf('.'));
-                    var classType = type.GetNestedType(className);
-                    if (classType == null) throw new TKException($"Could not find class type '{className}' within '{classType.Name}'.");
-                    var classInstance = Activator.CreateInstance(classType);
+            var memberMapping = mapping.Objects.FirstOrDefault(x => x.PropertyInfo == member);
+            if (memberMapping == null) continue;
 
-                    methodName = methodName.Substring(className.Length + 1);
-                    var method = classType.GetMethod(methodName);
-                    if (method == null) throw new TKException($"Mapping method '{methodName}' was not found in type '{classType.Name}'.");
-                    mappingSrc = method.Invoke(classInstance, new object[0]) as string;
-                }
-            }
-
-            return mappingSrc;
+            var memberDef = CreateMemberDefinition(memberMapping, options, null, (d) => allMemberDefinitions.Add(d));
+				if (memberDef != null)
+				{
+					memberDefinitions.Add(memberDef);
+					allMemberDefinitions.Add(memberDef);
+				}
         }
 
-        private static string CreateMappedClassTypeId(Type type, TKMappedClassDefinition parent, int index = 0)
+        var mappingsWithoutProperties = mapping.Objects.Where(x => !x.IsValid && !memberDefinitions.Any(m => m.PropertyName == x.Name));
+        foreach (var mappingMember in mappingsWithoutProperties)
+        {
+            var memberDef = CreateMemberDefinition(mappingMember, options, null, (d) => allMemberDefinitions.Add(d));
+				if (memberDef != null)
+				{
+					memberDefinitions.Add(memberDef);
+					allMemberDefinitions.Add(memberDef);
+				}
+        }
+
+        return new TKMappedClassDefinition
+        {
+            Id = CreateMappedClassTypeId(type, parent, index),
+            ClassType = type,
+            GroupName = attribute?.GroupName ?? parent?.GroupName,
+            Attribute = attribute,
+            MemberDefinitions = memberDefinitions,
+				AllMemberDefinitions = allMemberDefinitions,
+            TypeName = type.Name,
+            DisplayName = attribute?.OverrideName ?? type.Name
+        };
+    }
+
+    private static string ExtractMappingSrc(Type type, TKMappedClassAttribute attribute)
+    {
+        var mappingSrc = attribute.Mapping;
+        if (string.IsNullOrWhiteSpace(mappingSrc) && !string.IsNullOrWhiteSpace(attribute.MappingFromMethodName))
+        {
+            var methodName = attribute.MappingFromMethodName;
+            if (!methodName.Contains("."))
+            {
+                var method = type.GetMethod(methodName);
+                if (method == null) throw new TKException($"Mapping method '{methodName}' was not found in type '{type.Name}'.");
+                mappingSrc = method.Invoke(null, new object[0]) as string;
+            }
+            else
+            {
+                var className = methodName.Substring(0, methodName.IndexOf('.'));
+                var classType = type.GetNestedType(className);
+                if (classType == null) throw new TKException($"Could not find class type '{className}' within '{classType.Name}'.");
+                var classInstance = Activator.CreateInstance(classType);
+
+                methodName = methodName.Substring(className.Length + 1);
+                var method = classType.GetMethod(methodName);
+                if (method == null) throw new TKException($"Mapping method '{methodName}' was not found in type '{classType.Name}'.");
+                mappingSrc = method.Invoke(classInstance, new object[0]) as string;
+            }
+        }
+
+        return mappingSrc;
+    }
+
+    private static string CreateMappedClassTypeId(Type type, TKMappedClassDefinition parent, int index = 0)
 		{
 			var suffix = (index == 0) ? string.Empty : $"_{index}";
 			if (type == null) return null;
@@ -209,9 +209,9 @@ namespace QoDL.Toolkit.Core.Modules.MappedData.Utils
 					items = new List<TKMappedMemberReferencePathItemDefinition> {
 						new TKMappedMemberReferencePathItemDefinition { HardCodedValue = item.HardCodedValue.TrimStart('"').TrimEnd('"') }
 					};
-                }
+            }
 				else
-                {
+            {
 					items = item.Chain.Items.Select(x =>
 					{
 						var indexer = string.Empty;
@@ -250,4 +250,3 @@ namespace QoDL.Toolkit.Core.Modules.MappedData.Utils
 			return def;
 		}
 	}
-}
