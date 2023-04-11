@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Toolkit.DevTest.NetCore_6._0</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Fido2.Models" Version="2.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Toolkit.Core\QoDL.Toolkit.Core.csproj" />
+    <ProjectReference Include="..\..\Toolkit.WebUI.Assets\QoDL.Toolkit.WebUI.Assets.csproj" />
+    <ProjectReference Include="..\..\Toolkit.WebUI.MFA.TOTP\QoDL.Toolkit.WebUI.MFA.TOTP.csproj" />
+    <ProjectReference Include="..\..\Toolkit.WebUI.MFA.WebAuthn\QoDL.Toolkit.WebUI.MFA.WebAuthn.csproj" />
+    <ProjectReference Include="..\..\Toolkit.WebUI\QoDL.Toolkit.WebUI.csproj" />
+    <ProjectReference Include="..\..\Modules\Toolkit.Module.DataExport.Exporter.Excel\QoDL.Toolkit.Module.DataExport.Exporter.Excel.csproj" />
+    <ProjectReference Include="..\..\Modules\Toolkit.Module.DataExport.SQLExecutor\QoDL.Toolkit.Module.DataExport.SQLExecutor.csproj" />
+    <ProjectReference Include="..\..\Modules\Toolkit.Module.DataExport\QoDL.Toolkit.Module.DataExport.csproj" />
+    <ProjectReference Include="..\..\Modules\Toolkit.Module.DynamicCodeExecution\QoDL.Toolkit.Module.DynamicCodeExecution.csproj" />
+    <ProjectReference Include="..\..\Modules\Toolkit.Module.EndpointControl\QoDL.Toolkit.Module.EndpointControl.csproj" />
+    <ProjectReference Include="..\Toolkit.Dev.Common\QoDL.Toolkit.Dev.Common.csproj" />
+    <ProjectReference Include="..\Toolkit.Module.DevModule\QoDL.Toolkit.Module.DevModule.csproj" />
+  </ItemGroup>
+
+</Project>

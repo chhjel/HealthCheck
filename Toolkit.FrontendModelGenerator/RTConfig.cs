@@ -62,7 +62,7 @@ namespace QoDL.Toolkit.FrontendModelGenerator
         private static void IncludeAssembly(ConfigurationBuilder builder, Assembly assembly)
         {
             var types = assembly.GetExportedTypes()
-                .Where(x => x.Namespace.StartsWith("Toolkit") && !x.IsGenericType)
+                .Where(x => x.Namespace.StartsWith("QoDL.Toolkit") && !x.IsGenericType)
                 .ToArray();
 
             builder.ExportAsEnums(types.Where(x => x.IsEnum 

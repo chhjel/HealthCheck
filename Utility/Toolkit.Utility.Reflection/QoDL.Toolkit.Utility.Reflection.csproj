@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net461;net472</TargetFrameworks> 
+    <Configurations>Debug;Release</Configurations>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.0.1</Version>
+    <Authors>ChristianW</Authors>
+    <Company>ChristianW</Company>
+    <Description>Utilities depending on Reflection.Emit namespace to e.g. create a memory logger implementation for any interface at runtime use during TK tests to dump the log contents afterwards.</Description>
+    <Copyright>ChristianW</Copyright>
+    <LangVersion>latest</LangVersion>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\Toolkit.Utility.Reflection.xml</DocumentationFile>
+    <OutputPath>bin\$(Configuration)\$(TargetFrameworkVersion)\</OutputPath>
+    <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-Toolkit</PackageProjectUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Toolkit.Core\QoDL.Toolkit.Core.csproj" />
+  </ItemGroup>
+    
+  <!-- .NET STANDARD ######################### -->
+  <!-- Compiler flags -->
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
+    <DefineConstants>NETSTANDARD;NETSTANDARD2_0</DefineConstants>
+  </PropertyGroup>
+  <!-- References -->
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <PackageReference Include="System.Reflection.Emit" Version="4.6.0" />
+  </ItemGroup>
+  <!-- ####################################### -->
+
+  <!-- .NET FRAMEWORK ######################## -->
+  <!-- Compiler flags -->
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net461'">
+    <DefineConstants>NETFULL;NET461</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net472'">
+    <DefineConstants>NETFULL;NET472</DefineConstants>
+  </PropertyGroup>
+  <!-- ####################################### -->
+
+</Project>

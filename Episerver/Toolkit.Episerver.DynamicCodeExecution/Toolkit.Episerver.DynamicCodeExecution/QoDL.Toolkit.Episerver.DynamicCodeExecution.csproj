@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.1;netcoreapp3.1;net461;net472;net6.0</TargetFrameworks>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.0.1</Version>
+    <Authors>ChristianW</Authors>
+    <Company>ChristianW</Company>
+    <Description>Episerver related implementations for the DynamicCodeExecution module.</Description>
+    <Copyright>ChristianW</Copyright>
+    <LangVersion>latest</LangVersion>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\Toolkit.Episerver.DynamicCodeExecution.xml</DocumentationFile>
+    <OutputPath>bin\$(Configuration)\$(TargetFrameworkVersion)\</OutputPath>
+    <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-Toolkit</PackageProjectUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Toolkit.Core\QoDL.Toolkit.Core.csproj" />
+    <ProjectReference Include="..\..\..\Modules\Toolkit.Module.DynamicCodeExecution\QoDL.Toolkit.Module.DynamicCodeExecution.csproj" />
+    <ProjectReference Include="..\..\Toolkit.Episerver\QoDL.Toolkit.Episerver.csproj" />
+  </ItemGroup>
+
+</Project>

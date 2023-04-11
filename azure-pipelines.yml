@@ -171,7 +171,7 @@ jobs:
       command: 'push'
       packagesToPush: '**/Release/*.nupkg;!**/*.symbols.nupkg'
       nuGetFeedType: 'external'
-      publishFeedCredentials: 'Nuget.org - ChristianWj'
+      publishFeedCredentials: 'Nuget.org - ChristianHj'
 
   - task: Npm@1
     displayName: Set package.json version number
@@ -195,7 +195,7 @@ jobs:
     condition: and(succeeded(), eq(variables['BuildParameters.Publish'], 'true'))
     inputs:
       gitHubConnection: 'github.com_chhjel'
-      repositoryName: 'chhjel/Toolkit'
+      repositoryName: 'chhjel/HealthCheck'
       action: 'create'
       target: '$(Build.SourceVersion)'
       tagSource: 'userSpecifiedTag'
