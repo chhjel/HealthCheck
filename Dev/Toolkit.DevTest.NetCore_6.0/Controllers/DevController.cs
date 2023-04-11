@@ -589,7 +589,7 @@ public class DevController : ToolkitControllerBase<RuntimeTestAccessRole>
 
     private ActionResult LoadFile(string filename, string contentType = "text/plain")
     {
-        var filepath = GetFilePath($@"..\..\QoDL.Toolkit.Frontend\dist\{filename}");
+        var filepath = GetFilePath($@"..\..\Toolkit.Frontend\dist\{filename}");
         if (!System.IO.File.Exists(filepath)) return NotFound();
         return new FileStreamResult(new FileStream(filepath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), new MediaTypeHeaderValue(contentType))
         {

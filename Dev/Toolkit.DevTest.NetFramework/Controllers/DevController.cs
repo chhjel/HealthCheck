@@ -458,7 +458,7 @@ public class DevController : ToolkitControllerBase<RuntimeTestAccessRole>
     private ActionResult LoadFile(string filename, string contentType = "text/plain")
     {
         TKMetricsContext.IncrementGlobalCounter(Path.GetFileName(filename) + ".Load()", 1);
-        var filepath = Path.GetFullPath($@"{HostingEnvironment.MapPath("~")}..\..\QoDL.Toolkit.Frontend\dist\{filename}");
+        var filepath = Path.GetFullPath($@"{HostingEnvironment.MapPath("~")}..\..\Toolkit.Frontend\dist\{filename}");
         if (!System.IO.File.Exists(filepath)) return Content("");
         return new FileStreamResult(System.IO.File.Open(filepath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), contentType);
     }
