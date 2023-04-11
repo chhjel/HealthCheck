@@ -6,7 +6,7 @@
             <template #footer>
                 <btn-component color="secondary" @click="closeDialog">Close</btn-component>
             </template>
-            <health-check-profile-component />
+            <toolkit-profile-component />
         </dialog-component>
     </div>
 </template>

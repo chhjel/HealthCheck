@@ -39,7 +39,7 @@
                 v-if="noModuleAccess"
                 v-show="noModuleAccess" />
             
-            <health-check-profile-dialog-component v-if="showIntegratedProfile" v-model:value="integratedProfileDialogVisible" />
+            <toolkit-profile-dialog-component v-if="showIntegratedProfile" v-model:value="integratedProfileDialogVisible" />
             <access-token-killswitch-dialog v-if="showTokenKillswitch" v-model:value="tokenKillswitchDialogVisible" />
         </div>
         
