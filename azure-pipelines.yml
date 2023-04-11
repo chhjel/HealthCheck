@@ -94,24 +94,24 @@ jobs:
   - task: ReplaceInFilesTextByText@1
     displayName: Replace version in code 1
     inputs:
-      parameterSearchText: 'https://unpkg.com/christianh-healthcheck@2/'
-      parameterReplaceText: 'https://unpkg.com/christianh-healthcheck@$(BuildParameters.AssemblyVersion)/'
+      parameterSearchText: 'https://unpkg.com/christianw-toolkit@2/'
+      parameterReplaceText: 'https://unpkg.com/christianw-toolkit@$(BuildParameters.AssemblyVersion)/'
       parameterTypeOfSearch: 'filesList'
       parameterFilesList: |
-        /HealthCheck.Core/Config/HCAssetGlobalConfig.cs
-        /HealthCheck.WebUI/Models/HCPageOptions.cs
-        /HealthCheck.WebUI/Models/HCFrontEndOptions.cs
-        /HealthCheck.Core/Modules/Metrics/Context/HCMetricsUtil.cs
-        /HealthCheck.Core/Modules/ReleaseNotes/Util/HCReleaseNotesUtil.cs
+        /Toolkit.Core/Config/TKAssetGlobalConfig.cs
+        /Toolkit.WebUI/Models/TKPageOptions.cs
+        /Toolkit.WebUI/Models/TKFrontEndOptions.cs
+        /Toolkit.Core/Modules/Metrics/Context/TKMetricsUtil.cs
+        /Toolkit.Core/Modules/ReleaseNotes/Util/TKReleaseNotesUtil.cs
 
   - task: ReplaceInFilesTextByText@1
     displayName: Replace version in code 2
     inputs:
-      parameterSearchText: '[HCVERSION]'
+      parameterSearchText: '[TKVERSION]'
       parameterReplaceText: '$(BuildParameters.AssemblyVersion)'
       parameterTypeOfSearch: 'filesList'
       parameterFilesList: |
-        /HealthCheck.WebUI.Assets/ConfigInitializer.cs
+        /Toolkit.WebUI.Assets/ConfigInitializer.cs
 
   - task: VSBuild@1
     displayName: Build solution
@@ -126,24 +126,24 @@ jobs:
     inputs:
       versionSpec: '16.x'
 
-  - script: cd HealthCheck.Frontend/ && yarn
+  - script: cd Toolkit.Frontend/ && yarn
     displayName: 'Yarn install'
-  - script: cd HealthCheck.Frontend/ && yarn build
+  - script: cd Toolkit.Frontend/ && yarn build
     displayName: 'Yarn build'
   
   - task: ArchiveFiles@2
-    displayName: Pack down frontend files for use in HealthCheck.WebUI.Assets
+    displayName: Pack down frontend files for use in Toolkit.WebUI.Assets
     inputs:
-      rootFolderOrFile: 'HealthCheck.Frontend/dist' 
+      rootFolderOrFile: 'Toolkit.Frontend/dist' 
       includeRootFolder: false 
       archiveType: 'zip'
-      archiveFile: 'HealthCheck.WebUI.Assets/assets.zip' 
+      archiveFile: 'Toolkit.WebUI.Assets/assets.zip' 
       replaceExistingArchive: true
 
   - task: VSBuild@1
-    displayName: Build HealthCheck.WebUI.Assets to pack down frontend
+    displayName: Build Toolkit.WebUI.Assets to pack down frontend
     inputs:
-      solution: 'HealthCheck.WebUI.Assets/HealthCheck.WebUI.Assets.csproj'
+      solution: 'Toolkit.WebUI.Assets/Toolkit.WebUI.Assets.csproj'
       msbuildArgs: /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)\\" /p:Version=$(BuildParameters.AssemblyVersion)
       platform: $(BuildParameters.BuildPlatform)
       configuration: $(BuildParameters.BuildConfiguration)
@@ -171,14 +171,14 @@ jobs:
       command: 'push'
       packagesToPush: '**/Release/*.nupkg;!**/*.symbols.nupkg'
       nuGetFeedType: 'external'
-      publishFeedCredentials: 'Nuget.org - ChristianHj'
+      publishFeedCredentials: 'Nuget.org - ChristianWj'
 
   - task: Npm@1
     displayName: Set package.json version number
     condition: and(succeeded(), eq(variables['BuildParameters.Publish'], 'true'))
     inputs:
       command: 'custom'
-      workingDir: 'HealthCheck.Frontend/dist'
+      workingDir: 'Toolkit.Frontend/dist'
       customCommand: 'version $(BuildParameters.AssemblyVersion)'
 
   - task: Npm@1
@@ -186,16 +186,16 @@ jobs:
     condition: and(succeeded(), eq(variables['BuildParameters.Publish'], 'true'))
     inputs:
       command: 'publish'
-      workingDir: 'HealthCheck.Frontend/dist/'
+      workingDir: 'Toolkit.Frontend/dist/'
       verbose: true
-      publishEndpoint: 'npmjs - ChristianH'
+      publishEndpoint: 'npmjs - ChristianW'
 
   - task: GitHubRelease@1
     displayName: Create GitHub release
     condition: and(succeeded(), eq(variables['BuildParameters.Publish'], 'true'))
     inputs:
       gitHubConnection: 'github.com_chhjel'
-      repositoryName: 'chhjel/HealthCheck'
+      repositoryName: 'chhjel/Toolkit'
       action: 'create'
       target: '$(Build.SourceVersion)'
       tagSource: 'userSpecifiedTag'

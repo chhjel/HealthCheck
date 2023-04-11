@@ -1,7 +1,7 @@
-# HealthCheck
+# Toolkit
 
-[![Nuget](https://img.shields.io/nuget/v/HealthCheck.WebUI?label=HealthCheck.WebUI&logo=nuget)](https://www.nuget.org/packages/HealthCheck.WebUI)
-[![npm](https://img.shields.io/npm/v/christianh-healthcheck?label=christianh-healthcheck&logo=npm)](https://www.npmjs.com/package/christianh-healthcheck)
+[![Nuget](https://img.shields.io/nuget/v/Toolkit.WebUI?label=Toolkit.WebUI&logo=nuget)](https://www.nuget.org/packages/Toolkit.WebUI)
+[![npm](https://img.shields.io/npm/v/christianw-toolkit?label=christianw-toolkit&logo=npm)](https://www.npmjs.com/package/christianw-toolkit)
 
 ## What is it
 
@@ -22,7 +22,7 @@ Available modules:
 * GoTo module where content can be located in a bit more simplified interface.
 * Mapped Data module to show how models are mapped.
 * Event notifications module for notifying through custom implementations when custom events occur.
-* Settings module for custom settings related to healthcheck.
+* Settings module for custom settings related to toolkit.
 * IDE where C# scripts can be stored and executed in the context of the web application.
 * Access token module where tokens with limited access and lifespan can be created to access other modules.
 * Downloads module where files can be made available for download, optionally protected by password, expiration date and download count limit.
@@ -34,7 +34,7 @@ Available modules:
 
 ## Getting started
 
-1. Install the HealthCheck.WebUI nuget package.
+1. Install the Toolkit.WebUI nuget package.
 2. Create a custom flags enum with any desired access roles, e.g:
 
     ```csharp
@@ -48,40 +48,40 @@ Available modules:
     }
     ```
 
-3. Create a controller and inherit `HealthCheckControllerBase<AccessRoles>`, where AccessRoles is your enum from the step above.
+3. Create a controller and inherit `ToolkitControllerBase<AccessRoles>`, where AccessRoles is your enum from the step above.
 
 4. Invoke `UseModule(..)` to enable any desired modules.
 
 5. For .NET Core configure HttpContextAccessor and your instance resolver:
 
 * `services.AddHttpContextAccessor()`
-* `HCIoCSetup.ConfigureForServiceProvider(app.Services);`
-* or `HCGlobalConfig.DefaultInstanceResolver = (type, scopeContainer) => app.ApplicationServices.GetService(type);`
-* or `HCGlobalConfig.DefaultInstanceResolver = (type, scopeContainer) => app.Services.GetService(type);`
+* `TKIoCSetup.ConfigureForServiceProvider(app.Services);`
+* or `TKGlobalConfig.DefaultInstanceResolver = (type, scopeContainer) => app.ApplicationServices.GetService(type);`
+* or `TKGlobalConfig.DefaultInstanceResolver = (type, scopeContainer) => app.Services.GetService(type);`
 
 <details><summary>Example controller</summary>
 <p>
 
 ```csharp
-public class MyController : HealthCheckControllerBase<AccessRoles>
+public class MyController : ToolkitControllerBase<AccessRoles>
 {
     // Enable any modules by invoking the UseModule(..) method.
     public MyController()
     {
         // UseModule(<module>, <optionally override name>)
-        UseModule(new HCTestsModule(new HCTestsModuleOptions() {
+        UseModule(new TKTestsModule(new TKTestsModuleOptions() {
             AssembliesContainingTests = new[] { typeof(MyController).Assembly }
         }));
     }
 
     // Set any options that will be passed to the front-end here,
     // including the path to this controller.
-    protected override HCFrontEndOptions GetFrontEndOptions()
-        => new HCFrontEndOptions("/HealthCheck")
+    protected override TKFrontEndOptions GetFrontEndOptions()
+        => new TKFrontEndOptions("/Toolkit")
         {
-            ApplicationTitle = "HealthCheck",
+            ApplicationTitle = "Toolkit",
             // See own section below on how to avoid using cdn for js assets if needed.
-            EditorConfig = new HCFrontEndOptions.EditorWorkerConfig
+            EditorConfig = new TKFrontEndOptions.EditorWorkerConfig
             {
                 EditorWorkerUrl = "/scripts/editor.worker.js",
                 JsonWorkerUrl = "/scripts/json.worker.js"
@@ -90,14 +90,14 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
         };
 
     // Set any options for the view here.
-    protected override HCPageOptions GetPageOptions()
-        => new HCPageOptions()
+    protected override TKPageOptions GetPageOptions()
+        => new TKPageOptions()
         {
-            PageTitle = "HealthCheck",
+            PageTitle = "Toolkit",
             // See own section below on how to avoid using cdn for js assets if needed.
             JavaScriptUrls = new List<string> {
-                "/scripts/healthcheck.js",
-                "/scripts/healthcheck.vendor.js"
+                "/scripts/toolkit.js",
+                "/scripts/toolkit.vendor.js"
             },
             //...
         };
@@ -128,24 +128,24 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
 
         // #1: Give a given role access to a given module,
         // without setting any module access options:
-        config.GiveRolesAccessToModule<HCTestsModule>(AccessRoles.SystemAdmins);
+        config.GiveRolesAccessToModule<TKTestsModule>(AccessRoles.SystemAdmins);
 
         // #2: Give a given role access to a given module,
         // with the given access options:
-        config.GiveRolesAccessToModule(AccessRoles.SystemAdmins, HCTestsModule.AccessOption.ViewInvalidTests);
+        config.GiveRolesAccessToModule(AccessRoles.SystemAdmins, TKTestsModule.AccessOption.ViewInvalidTests);
         // Optionally limit access to the given categories
-        config.GiveRolesAccessToModule(AccessRoles.SystemAdmins, HCTestsModule.AccessOption.ViewInvalidTests, new[] { "CategoryX" });
+        config.GiveRolesAccessToModule(AccessRoles.SystemAdmins, TKTestsModule.AccessOption.ViewInvalidTests, new[] { "CategoryX" });
 
         // #3: Give a given role full access to a given module,
         // including all module access options:
-        config.GiveRolesAccessToModuleWithFullAccess<HCTestsModule>(AccessRoles.WebAdmins);
+        config.GiveRolesAccessToModuleWithFullAccess<TKTestsModule>(AccessRoles.WebAdmins);
 
         // Other access options are available on the config object:
         config.ShowFailedModuleLoadStackTrace = new Maybe<AccessRole>(AccessRoles.WebAdmins);
         config.PingAccess = new Maybe<AccessRole>(AccessRoles.WebAdmins);
         config.RedirectTargetOnNoAccess = "/no-access";
         // To redirect after login and persist state something like this can be used:
-        config.RedirectTargetOnNoAccessUsingRequest = (r, q) => $"/login?returnUrl={HttpUtility.UrlEncode($"/healthcheck?{q}")}";
+        config.RedirectTargetOnNoAccessUsingRequest = (r, q) => $"/login?returnUrl={HttpUtility.UrlEncode($"/toolkit?{q}")}";
         //..
 
         // Properties CurrentRequestAccessRoles and CurrentRequestInformation
@@ -162,24 +162,24 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
 
 By default frontend scripts with versions matching the nuget package version are fetched from unpkg.com. Alternatively use one of the following methods to bundle the frontend with the project:
 
-#### Using the HealthCheck.WebUI.Assets nuget package
+#### Using the Toolkit.WebUI.Assets nuget package
 
-The fastest and easiest way is to add the `HealthCheck.WebUI.Assets` nuget package. The package contains all frontend assets, will load them into memory and configure the ui to use them. Requires a few extra mb of memory but makes it easy to update. Does not include the summary scripts for metrics and release notes (see below).
+The fastest and easiest way is to add the `Toolkit.WebUI.Assets` nuget package. The package contains all frontend assets, will load them into memory and configure the ui to use them. Requires a few extra mb of memory but makes it easy to update. Does not include the summary scripts for metrics and release notes (see below).
 
 #### Manual configuration
 
-Optionally manually download the frontend files from https://www.npmjs.com/package/christianh-healthcheck and include in project. Then configure `JavaScriptUrls` to include healthecheck.js, and `EditorWorkerUrl` + `JsonWorkerUrl` to include their scripts in the frontend and page option models. Requires the files to be manually updated when updating to a new version of the nuget package.
+Optionally manually download the frontend files from https://www.npmjs.com/package/christianw-toolkit and include in project. Then configure `JavaScriptUrls` to include healthecheck.js, and `EditorWorkerUrl` + `JsonWorkerUrl` to include their scripts in the frontend and page option models. Requires the files to be manually updated when updating to a new version of the nuget package.
 
 #### NB: Summary scripts
 
 If metrics or release notes summary is to be bundled with the project, they will have to be configured manually. See example below.
 
 ```csharp
-// Example using HealthCheck.WebUI.Assets nuget package that enables the GetAsset endpoint.
-var hcController = "/url_to_your_hc_controller";
+// Example using Toolkit.WebUI.Assets nuget package that enables the GetAsset endpoint.
+var tkController = "/url_to_your_tk_controller";
 var assemblyVersion = "your_version";
-HCAssetGlobalConfig.DefaultMetricsSummaryJavascriptUrl = $"{hcController}/GetAsset?n=metrics.js&v={assemblyVersion}";
-HCAssetGlobalConfig.DefaultReleaseNotesSummaryJavascriptUrl = $"{hcController}/GetAsset?n=releaseNotesSummary.js&v={assemblyVersion}";
+TKAssetGlobalConfig.DefaultMetricsSummaryJavascriptUrl = $"{tkController}/GetAsset?n=metrics.js&v={assemblyVersion}";
+TKAssetGlobalConfig.DefaultReleaseNotesSummaryJavascriptUrl = $"{tkController}/GetAsset?n=releaseNotesSummary.js&v={assemblyVersion}";
 ```
 
 </p>
@@ -200,14 +200,14 @@ By default test definitions are cached statically, if this is not desired call `
 ### Setup
 
 ```csharp
-UseModule(new HCTestsModule(new HCTestsModuleOptions() {
+UseModule(new TKTestsModule(new TKTestsModuleOptions() {
         AssembliesContainingTests = new[] { typeof(MyController).Assembly },
         // Optionally support custom reference parameter types
         // ReferenceParameterFactories = ...
     }))
     // Optionally configure group order
     .ConfigureGroups((options) => options
-        .ConfigureGroup(MyHCConstants.Group.StatusChecks, uiOrder: 100)
+        .ConfigureGroup(MyTKConstants.Group.StatusChecks, uiOrder: 100)
         .ConfigureGroup(...)
     );;
 ```
@@ -238,7 +238,7 @@ public class MyClass
 
 [RuntimeTest("Get data from somewhere", "Retrieves data from service X and shows the response data.")]
 [RuntimeTestParameter(target: "id", name: "Data id", description: "Id of the thing to get")]
-[RuntimeTestParameter(target: "orgName", name: "Organization name", description: "Name of the organization the data belongs to", uIHints: HCUIHint.NotNull)]
+[RuntimeTestParameter(target: "orgName", name: "Organization name", description: "Name of the organization the data belongs to", uIHints: TKUIHint.NotNull)]
 public async Task<TestResult> GetDataFromServiceX(int id = 42, string orgName = "Test Organization")
 {
     var data = await dataService.GetData(id, orgName);
@@ -268,7 +268,7 @@ Supported parameter types:
 * `TimeSpan`, `TimeSpan?`
 * `Enum`, `Enum?` (-> select)
 * `Enum` with `[Flags]` (-> multiselect)
-* `Guid`, `Guid?` (combine with HCUIHint.AllowRandom to allow new guid generation)
+* `Guid`, `Guid?` (combine with TKUIHint.AllowRandom to allow new guid generation)
 * `byte[]`, `HttpPostedFileBase` (.NET Framework), `IFormFile` (.NET Core) (-> file upload)
 * `List<T>` where `<T>` is any of the above types (w/ option for readable list for setting order only)
 * `CancellationToken` to make the method cancellable, see below.
@@ -281,7 +281,7 @@ If the first parameter is of the type `CancellationToken` a cancel button will b
 
 #### Custom types
 
-Custom parameter types for `[RuntimeTest]`-methods can be used by providing parameter factories to `ReferenceParameterFactories` in `HCTestsModuleOptions`.
+Custom parameter types for `[RuntimeTest]`-methods can be used by providing parameter factories to `ReferenceParameterFactories` in `TKTestsModuleOptions`.
 
 <details><summary>Example</summary>
 <p>
@@ -361,8 +361,8 @@ public static ProxyRuntimeTestConfig SomeServiceProxyTest()
         // Optionally add a custom context for more flexibility
         .SetCustomContext(
             // Create any object as a context object that will be used in the resultAction below
-            // Using logger auto-creation logic from the HealthCheck.Utility.Reflection nuget package here.
-            contextFactory: () => new { MemoryLogger = HCLogTypeBuilder.CreateMemoryLoggerFor<ISomeLogger>() },
+            // Using logger auto-creation logic from the Toolkit.Utility.Reflection nuget package here.
+            contextFactory: () => new { MemoryLogger = TKLogTypeBuilder.CreateMemoryLoggerFor<ISomeLogger>() },
             
             // Optionally override service activation to inject e.g. a memory logger and dump the log along with the test result.
             // instanceFactory: (context) => new SomeService(context.MemoryLogger),
@@ -404,7 +404,7 @@ The `TestResult` class has a few static factory methods for quick creation of a 
 |AddDataTable|Creates a sortable, filterable datatable from the given list of objects. Top-level properties will be used.|
 |AddTimingData|Creates timing metric display.|
 |AddTimelineData|Creates a timeline from the given steps. Each step can show a dialog with more info/links.|
-|AddFileDownload|Creates a download button that can download e.g. larger files by id. Requires `HCTestsModuleOptions.FileDownloadHandler` to be implemented, see further below.|
+|AddFileDownload|Creates a download button that can download e.g. larger files by id. Requires `TKTestsModuleOptions.FileDownloadHandler` to be implemented, see further below.|
 |AddExceptionData|Creates a summary of a given exception to display.|
 
 ##### Cosmetics
@@ -431,12 +431,12 @@ If you want to display validation errors on input fields, you can use the follow
 Example:
 
 ```csharp
-UseModule(new HCTestsModule(new HCTestsModuleOptions()
+UseModule(new TKTestsModule(new TKTestsModuleOptions()
 {
     AssembliesContainingTests = assemblies,
     FileDownloadHandler = (type, id) =>
     {
-        if (type == "blob") return HealthCheckFileDownloadResult.CreateFromStream("myfile.pdf", CreateFileDownloadBlobStream(id));
+        if (type == "blob") return ToolkitFileDownloadResult.CreateFromStream("myfile.pdf", CreateFileDownloadBlobStream(id));
         else return null;
     }
     ...
@@ -444,11 +444,11 @@ UseModule(new HCTestsModule(new HCTestsModuleOptions()
 
 #### Result modification through exceptions
 
-When an exception is thrown during a test, the final result can be modified through the exception if it implements `IHCExceptionWithTestResultData`.
+When an exception is thrown during a test, the final result can be modified through the exception if it implements `ITKExceptionWithTestResultData`.
 
 ```csharp
 [Serializable]
-public class MyCustomException : Exception, IHCExceptionWithTestResultData
+public class MyCustomException : Exception, ITKExceptionWithTestResultData
 {
     public Action<TestResult> ResultModifier { get; } = x => x.AddHtmlData("<b>Success!</b>");
 ...
@@ -530,8 +530,8 @@ var results = await runner.ExecuteTests(testDiscovererService,
 Inject a memory logger into the instances being tested and include the output in the result.
 
 ```csharp
-    // Optionally include the nuget package HealthCheck.Utility.Reflection to create a memory logger for any interface at runtime e.g:
-    var memoryLogger = HCLogTypeBuilder.CreateMemoryLoggerFor<ILogger>();
+    // Optionally include the nuget package Toolkit.Utility.Reflection to create a memory logger for any interface at runtime e.g:
+    var memoryLogger = TKLogTypeBuilder.CreateMemoryLoggerFor<ILogger>();
 
     // GetInstance<T> attempts to create a new instance of the given type by calling the
     // types' constructor with parameters retrieved from the IoC container, except for the values given to the GetInstance method.
@@ -548,11 +548,11 @@ Inject a memory logger into the instances being tested and include the output in
 
 #### Test context
 
-When a test is executed a context object is created for the current request that can be accessed through static methods on `HCTestContext`. This can be used in e.g. proxy tests to include some extra logging or timings. The context methods only have any effect when the request executed a test.
+When a test is executed a context object is created for the current request that can be accessed through static methods on `TKTestContext`. This can be used in e.g. proxy tests to include some extra logging or timings. The context methods only have any effect when the request executed a test.
 
-* `HCTestContext.Log("Start of test")` Add some log data to the result.
-* `HCTestContext.StartTiming("Parsing data")` Start timing with the given description. Can be stopped with `HCTestContext.EndTiming` or continues until the end of the test method is reached.
-* `HCTestContext.WithCurrentResult(x => x.AddTextData("Something")); Access the `TestResult` object for the running test if any.
+* `TKTestContext.Log("Start of test")` Add some log data to the result.
+* `TKTestContext.StartTiming("Parsing data")` Start timing with the given description. Can be stopped with `TKTestContext.EndTiming` or continues until the end of the test method is reached.
+* `TKTestContext.WithCurrentResult(x => x.AddTextData("Something")); Access the `TestResult` object for the running test if any.
 
 ---------
 
@@ -563,13 +563,13 @@ If the audit log module is used, actions by other modules will be logged and can
 ### Setup
 
 ```csharp
-UseModule(new HCAuditLogModule(new HCAuditLogModuleOptions() {
+UseModule(new TKAuditLogModule(new TKAuditLogModuleOptions() {
     AuditEventService = IAuditEventStorage implementation,
     // Optional strip sensitive information in parts of audit event data
     SensitiveDataStripper = (value) => {
-        value = HCSensitiveDataUtils.MaskNorwegianNINs(value);
+        value = TKSensitiveDataUtils.MaskNorwegianNINs(value);
         // MaskAllEmails defaults to masking partially, e.g: ***my@****in.com
-        value = HCSensitiveDataUtils.MaskAllEmails(value);
+        value = TKSensitiveDataUtils.MaskAllEmails(value);
         return value;
     }
 }));
@@ -594,7 +594,7 @@ UI for searching through logfiles.
 ### Setup
 
 ```csharp
-UseModule(new HCLogViewerModule(new HCLogViewerModuleOptions() { LogSearcherService = ILogSearcherService implementation() }));
+UseModule(new TKLogViewerModule(new TKLogViewerModuleOptions() { LogSearcherService = ILogSearcherService implementation() }));
 ```
 
 ```csharp
@@ -627,7 +627,7 @@ Site events are grouped on `SiteEvent.EventTypeId` and extend their duration whe
 ### Setup
 
 ```csharp
-UseModule(new HCSiteEventsModule(new HCSiteEventsModuleOptions() { SiteEventService = ISiteEventService implementation }));
+UseModule(new TKSiteEventsModule(new TKSiteEventsModuleOptions() { SiteEventService = ISiteEventService implementation }));
 ```
 
 ```csharp
@@ -677,23 +677,23 @@ public TestResult CheckIntegrationX()
 
 #### Example usage from static utility or service directly
 
-The included class `HCSiteEventUtils` can optionally be used to quickly register events. (If nothing happens when calling the methods, verify that `HCGlobalConfig.DefaultInstanceResolver` is configured to your resolver.)
+The included class `TKSiteEventUtils` can optionally be used to quickly register events. (If nothing happens when calling the methods, verify that `TKGlobalConfig.DefaultInstanceResolver` is configured to your resolver.)
 
 <details><summary>Example</summary>
 <p>
 
 ```csharp
 // When something fails you can register an event 
-HCSiteEventUtils.TryRegisterNewEvent(SiteEventSeverity.Error, "api_x_error", "Oh no! API X is broken!", "How could this happen to us!?",
+TKSiteEventUtils.TryRegisterNewEvent(SiteEventSeverity.Error, "api_x_error", "Oh no! API X is broken!", "How could this happen to us!?",
     developerDetails: "Error code X, reason Y etc.",
     config: x => x.AddRelatedLink("Status page", "https://status.otherapi.com"));
 }
 
 // When the event has been resolved you can mark it as resolved using the same id:
-HCSiteEventUtils.TryRegisterResolvedEvent("api_x_error", "Seems it fixed itself somehow.");
+TKSiteEventUtils.TryRegisterResolvedEvent("api_x_error", "Seems it fixed itself somehow.");
 
 // The following could be executed from a scheduled job to resolve events you deem no longer failing based on some criteria.
-var unresolvedEvents = HCSiteEventUtils.TryGetAllUnresolvedEvents();
+var unresolvedEvents = TKSiteEventUtils.TryGetAllUnresolvedEvents();
 foreach (var unresolvedEvent in unresolvedEvents)
 {
     // Basic check, it would probably be better to store somewhere statically when the event ids last worked,
@@ -701,7 +701,7 @@ foreach (var unresolvedEvent in unresolvedEvents)
     var timeSince = DateTimeOffset.Now - (unresolvedEvent.Timestamp + TimeSpan.FromMinutes(unresolvedEvent.Duration));
     if (timeSince > TimeSpan.FromMinutes(15))
     {
-        HCSiteEventUtils.TryMarkEventAsResolved(unresolvedEvent.Id, "Seems to be fixed now.");
+        TKSiteEventUtils.TryMarkEventAsResolved(unresolvedEvent.Id, "Seems to be fixed now.");
     }
 }
 ```
@@ -718,14 +718,14 @@ Shows the last n requests per endpoint, including stack trace of any unhandled e
 
 For requests to be logged and viewable a few things needs to be configured:
 
-* [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.RequestLog?label=HealthCheck.Module.RequestLog&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.RequestLog) nuget package must be added.
+* [![Nuget](https://img.shields.io/nuget/v/Toolkit.Module.RequestLog?label=Toolkit.Module.RequestLog&logo=nuget)](https://www.nuget.org/packages/Toolkit.Module.RequestLog) nuget package must be added.
 * A set of action filters will need to be registered.
 * Optionally run a utility method on startup to generate definitions from all controller actions.
 
 ### Setup
 
 ```csharp
-UseModule(new HCRequestLogModule(new HCRequestLogModuleOptions() { RequestLogService = IRequestLogStorage implementation }));
+UseModule(new TKRequestLogModule(new TKRequestLogModuleOptions() { RequestLogService = IRequestLogStorage implementation }));
 ```
 
 <details><summary>View full setup details</summary>
@@ -786,14 +786,14 @@ Optionally decorate methods or classes with the `RequestLogInfoAttribute` attrib
 
 ## Module: Dynamic Code Execution
 
-Provides a monaco-editor IDE where C# scripts can be stored and executed in the context of the web application to extract data, debug issues or other things. Requires an additional nuget package installed [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.DynamicCodeExecution?label=HealthCheck.Module.DynamicCodeExecution&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.DynamicCodeExecution)
+Provides a monaco-editor IDE where C# scripts can be stored and executed in the context of the web application to extract data, debug issues or other things. Requires an additional nuget package installed [![Nuget](https://img.shields.io/nuget/v/Toolkit.Module.DynamicCodeExecution?label=Toolkit.Module.DynamicCodeExecution&logo=nuget)](https://www.nuget.org/packages/Toolkit.Module.DynamicCodeExecution)
 
 Should be heavily locked down if used other places than localhost, optimally behind MFA.
 
 ### Setup
 
 ```csharp
-UseModule(new HCDynamicCodeExecutionModule(new HCDynamicCodeExecutionModuleOptions() {
+UseModule(new TKDynamicCodeExecutionModule(new TKDynamicCodeExecutionModuleOptions() {
     // Provide the entry assembly of the web application
     TargetAssembly = typeof(MyType).Assembly,
 
@@ -821,22 +821,22 @@ UseModule(new HCDynamicCodeExecutionModule(new HCDynamicCodeExecutionModuleOptio
 
 The module allows for storing e.g. incoming/outgoing api requests that failed. The data is listed with simple filtering, can be repaired and be retried processed again.
 
-A default implementation `HCDataRepeaterService` is provided that picks up any registered `IHCDataRepeaterStream` streams.
+A default implementation `TKDataRepeaterService` is provided that picks up any registered `ITKDataRepeaterStream` streams.
 
 ### Setup
 
 ```csharp
 // Register your streams and service
-services.AddSingleton<IHCDataRepeaterStream, MyStreamA>();
-services.AddSingleton<IHCDataRepeaterStream, MyStreamB>();
-services.AddSingleton<IHCDataRepeaterService, HCDataRepeaterService>();
+services.AddSingleton<ITKDataRepeaterStream, MyStreamA>();
+services.AddSingleton<ITKDataRepeaterStream, MyStreamB>();
+services.AddSingleton<ITKDataRepeaterService, TKDataRepeaterService>();
 ```
 
 ```csharp
-// Use module in hc controller
-UseModule(new HCDataRepeaterModule(new HCDataRepeaterModuleOptions
+// Use module in tk controller
+UseModule(new TKDataRepeaterModule(new TKDataRepeaterModuleOptions
 {
-    Service = IHCDataRepeaterService implementation
+    Service = ITKDataRepeaterService implementation
 }));
 ```
 
@@ -851,12 +851,12 @@ await myStream.AddItemAsync(streamItem);
 var streamItem = TestOrderStreamItem.CreateFrom(myModel, myModel.ExternalId, "From \"Jimmy Smithy\" - 1234$")
     .AddTags("Capture failed")
     .SetError("Capture failed because of server downtime.", exception);
-HCDataRepeaterUtils.AddStreamItem<ExampleDataRepeaterStream>(item); // or AddStreamItemAsync<T>
+TKDataRepeaterUtils.AddStreamItem<ExampleDataRepeaterStream>(item); // or AddStreamItemAsync<T>
 
-// HCDataRepeaterUtils contains various other shortcuts for setting item properties by the custom id used. E.g. external id above.
+// TKDataRepeaterUtils contains various other shortcuts for setting item properties by the custom id used. E.g. external id above.
 // Modify stored items when their statuses changes, e.g. something that failed now works again.
-HCDataRepeaterUtils.SetAllowItemRetryAsync<ExampleDataRepeaterStream>(itemId, true);
-HCDataRepeaterUtils.AddItemTagAsync<ExampleDataRepeaterStream>(itemId, "Tag X");
+TKDataRepeaterUtils.SetAllowItemRetryAsync<ExampleDataRepeaterStream>(itemId, true);
+TKDataRepeaterUtils.AddItemTagAsync<ExampleDataRepeaterStream>(itemId, "Tag X");
 
 // Extension methods exist for streams with shortcuts to item modification methods with only item id and not the guid id. E.g:
 await myStream.AddItemTagAsync(itemId, "Tag X");
@@ -871,8 +871,8 @@ public class MyModelFromEgApi
     public string ExternalId { get; set; }
     public decimal Amount { get; set; }
 }
-public class MyStreamItem : HCDefaultDataRepeaterStreamItem<MyModelFromEgApi, MyStreamItem> { }
-public class ExampleDataRepeaterStream : HCDataRepeaterStreamBase<MyStreamItem>
+public class MyStreamItem : TKDefaultDataRepeaterStreamItem<MyModelFromEgApi, MyStreamItem> { }
+public class ExampleDataRepeaterStream : TKDataRepeaterStreamBase<MyStreamItem>
 {
     public override string StreamDisplayName => "Order Captures";
     public override string StreamGroupName => "Orders";
@@ -882,31 +882,31 @@ public class ExampleDataRepeaterStream : HCDataRepeaterStreamBase<MyStreamItem>
     public override string RetryDescription => "Attempts to perform the capture action again.";
     public override List<string> InitiallySelectedTags => new List<string> { "Failed" };
     public override List<string> FilterableTags => new List<string> { "Failed", "Retried", "Fixed" };
-    public override List<IHCDataRepeaterStreamItemAction> Actions => new List<IHCDataRepeaterStreamItemAction>
+    public override List<ITKDataRepeaterStreamItemAction> Actions => new List<ITKDataRepeaterStreamItemAction>
     {
         new ExampleDataRepeaterStreamItemActionToggleAllow()
     };
-    public override List<IHCDataRepeaterStreamItemBatchAction> BatchActions => new List<IHCDataRepeaterStreamItemBatchAction>()
+    public override List<ITKDataRepeaterStreamItemBatchAction> BatchActions => new List<ITKDataRepeaterStreamItemBatchAction>()
     {
         new ExampleDataRepeaterStreamBatchActionRenameTag()
     };
     // override AllowedAccessRoles or Categories for more granular access control.
 
     public TestOrderDataRepeaterStream()
-        : base(/* IHCDataRepeaterStreamItemStorage implementation here, HCFlatFileDataRepeaterStreamItemStorage<TItem> exists for flatfile or check below for epi */)
+        : base(/* ITKDataRepeaterStreamItemStorage implementation here, TKFlatFileDataRepeaterStreamItemStorage<TItem> exists for flatfile or check below for epi */)
     {
     }
 
     // Resolve optional extra details for the a given item.
-    protected override Task<HCDataRepeaterStreamItemDetails> GetItemDetailsAsync(MyStreamItem item)
+    protected override Task<TKDataRepeaterStreamItemDetails> GetItemDetailsAsync(MyStreamItem item)
     {
-        var details = new HCDataRepeaterStreamItemDetails
+        var details = new TKDataRepeaterStreamItemDetails
         {
             DescriptionHtml = "<p>Description here with support for <a href=\"#etc\">html.</a></p>",
-            Links = new List<HCDataRepeaterStreamItemHyperLink>
+            Links = new List<TKDataRepeaterStreamItemHyperLink>
             {
-                new HCDataRepeaterStreamItemHyperLink("Some link", "/etc1"),
-                new HCDataRepeaterStreamItemHyperLink("Details page", "/etc2")
+                new TKDataRepeaterStreamItemHyperLink("Some link", "/etc1"),
+                new TKDataRepeaterStreamItemHyperLink("Details page", "/etc2")
             }
         };
         return Task.FromResult(details);
@@ -914,9 +914,9 @@ public class ExampleDataRepeaterStream : HCDataRepeaterStreamBase<MyStreamItem>
 
     // Analyze is called when adding items through the default service and base stream, and optionally manually from the interface.
     // Use to categorize using tags, skip inserting if not needed etc.
-    protected override Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(MyStreamItem item, bool isManualAnalysis = false)
+    protected override Task<TKDataRepeaterItemAnalysisResult> AnalyzeItemAsync(MyStreamItem item, bool isManualAnalysis = false)
     {
-        var result = new HCDataRepeaterItemAnalysisResult();
+        var result = new TKDataRepeaterItemAnalysisResult();
         // item.AllowRetry = false;
         // result.TagsThatShouldExist.Add("etc");
         // result.TagsThatShouldNotExist.Add("etc");
@@ -924,13 +924,13 @@ public class ExampleDataRepeaterStream : HCDataRepeaterStreamBase<MyStreamItem>
         return Task.FromResult(result);
     }
 
-    protected override Task<HCDataRepeaterRetryResult> RetryItemAsync(MyStreamItem item)
+    protected override Task<TKDataRepeaterRetryResult> RetryItemAsync(MyStreamItem item)
     {
         // Retry whatever failed initially here.
         // ...
 
         // And return the result of the attempted retry.
-        var result = new HCDataRepeaterRetryResult
+        var result = new TKDataRepeaterRetryResult
         {
             Success = true,
             Message = $"Success! New {item.Data.ExternalId} amount is ${item.Data.Amount}",
@@ -953,7 +953,7 @@ public class ExampleDataRepeaterStream : HCDataRepeaterStreamBase<MyStreamItem>
 
 ```csharp
 // Simple example action that forces AllowRetry on or off.
-public class ExampleDataRepeaterStreamItemActionToggleAllow : HCDataRepeaterStreamItemActionBase<ExampleDataRepeaterStreamItemActionToggleAllow.Parameters>
+public class ExampleDataRepeaterStreamItemActionToggleAllow : TKDataRepeaterStreamItemActionBase<ExampleDataRepeaterStreamItemActionToggleAllow.Parameters>
 {
     public override string DisplayName => "Set allow retry";
     public override string Description => "Forces AllowRetry property to the given value.";
@@ -961,11 +961,11 @@ public class ExampleDataRepeaterStreamItemActionToggleAllow : HCDataRepeaterStre
     // override AllowedAccessRoles or Categories for more granular access control.
 
     // Optionally override to disable disallowed actions
-    // public override Task<HCDataRepeaterStreamItemActionAllowedResult> ActionIsAllowedForAsync(IHCDataRepeaterStreamItem item)
+    // public override Task<TKDataRepeaterStreamItemActionAllowedResult> ActionIsAllowedForAsync(ITKDataRepeaterStreamItem item)
 
-    protected override Task<HCDataRepeaterStreamItemActionResult> PerformActionAsync(IHCDataRepeaterStream stream, IHCDataRepeaterStreamItem item, Parameters parameters)
+    protected override Task<TKDataRepeaterStreamItemActionResult> PerformActionAsync(ITKDataRepeaterStream stream, ITKDataRepeaterStreamItem item, Parameters parameters)
     {
-        var result = new HCDataRepeaterStreamItemActionResult
+        var result = new TKDataRepeaterStreamItemActionResult
         {
             Success = true,
             AllowRetry = parameters.Allowed,
@@ -976,7 +976,7 @@ public class ExampleDataRepeaterStreamItemActionToggleAllow : HCDataRepeaterStre
 
     public class Parameters
     {
-        [HCCustomProperty]
+        [TKCustomProperty]
         public bool Allowed { get; set; }
     }
 }
@@ -990,20 +990,20 @@ public class ExampleDataRepeaterStreamItemActionToggleAllow : HCDataRepeaterStre
 
 ```csharp
 // Simple example action that modifies stream item data
-public class ExampleDataRepeaterStreamItemActionModify : HCDataRepeaterStreamItemActionBase<ExampleDataRepeaterStreamItemActionModify.Parameters>
+public class ExampleDataRepeaterStreamItemActionModify : TKDataRepeaterStreamItemActionBase<ExampleDataRepeaterStreamItemActionModify.Parameters>
 {
     public override string DisplayName => "Modify data example";
     public override string Description => "Example that modifies item data";
     public override string ExecuteButtonLabel => "Update";
 
-    protected override Task<HCDataRepeaterStreamItemActionResult> PerformActionAsync(IHCDataRepeaterStream stream, IHCDataRepeaterStreamItem item, Parameters parameters)
+    protected override Task<TKDataRepeaterStreamItemActionResult> PerformActionAsync(ITKDataRepeaterStream stream, ITKDataRepeaterStreamItem item, Parameters parameters)
     {
-        var result = HCDataRepeaterStreamItemActionResult.CreateSuccess("Data updated.");
+        var result = TKDataRepeaterStreamItemActionResult.CreateSuccess("Data updated.");
 
         // To perform item modifications from an action, use the SetStreamItemModification<TStreamItem>:
         result.SetStreamItemModification<MyStreamItem>(streamItem =>
         {
-            streamItem.ForcedStatus = HCDataRepeaterStreamItemStatus.Error;
+            streamItem.ForcedStatus = TKDataRepeaterStreamItemStatus.Error;
 
             // To update the Data property use ModifyData:
             streamItem.ModifyData(d => d.Something = "Updated");
@@ -1024,35 +1024,35 @@ public class ExampleDataRepeaterStreamItemActionModify : HCDataRepeaterStreamIte
 
 ```csharp
 // Example action that renames tags.
-public class ExampleDataRepeaterStreamBatchActionRenameTag : HCDataRepeaterStreamItemBatchActionBase<ExampleDataRepeaterStreamBatchActionRenameTag.Parameters>
+public class ExampleDataRepeaterStreamBatchActionRenameTag : TKDataRepeaterStreamItemBatchActionBase<ExampleDataRepeaterStreamBatchActionRenameTag.Parameters>
 {
     public override string DisplayName => "Rename tag";
     public override string Description => "Renames a tag on all items.";
     public override string ExecuteButtonLabel => "Rename";
 
-    protected override Task<HCDataRepeaterStreamItemBatchActionResult> PerformBatchActionAsync(IHCDataRepeaterStreamItem item, Parameters parameters, HCDataRepeaterStreamBatchActionResult batchResult)
+    protected override Task<TKDataRepeaterStreamItemBatchActionResult> PerformBatchActionAsync(ITKDataRepeaterStreamItem item, Parameters parameters, TKDataRepeaterStreamBatchActionResult batchResult)
     {
         if (!item.Tags.Contains(parameters.TagToRename))
         {
-            return Task.FromResult(HCDataRepeaterStreamItemBatchActionResult.CreateNotAttemptedUpdated());
+            return Task.FromResult(TKDataRepeaterStreamItemBatchActionResult.CreateNotAttemptedUpdated());
         }
 
         item.Tags.Remove(parameters.TagToRename);
         item.Tags.Add(parameters.NewTagName);
 
         var shouldStopJob = batchResult.AttemptedUpdatedCount + 1 >= parameters.MaxItemsToUpdate;
-        return Task.FromResult(HCDataRepeaterStreamItemBatchActionResult.CreateSuccess(shouldStopJob));
+        return Task.FromResult(TKDataRepeaterStreamItemBatchActionResult.CreateSuccess(shouldStopJob));
     }
 
     public class Parameters
     {
-        [HCCustomProperty(UIHints = HCUIHint.NotNull)]
+        [TKCustomProperty(UIHints = TKUIHint.NotNull)]
         public string TagToRename { get; set; }
 
-        [HCCustomProperty(UIHints = HCUIHint.NotNull)]
+        [TKCustomProperty(UIHints = TKUIHint.NotNull)]
         public string NewTagName { get; set; }
 
-        [HCCustomProperty(UIHints = HCUIHint.NotNull)]
+        [TKCustomProperty(UIHints = TKUIHint.NotNull)]
         public int MaxItemsToUpdate { get; set; }
     }
 }
@@ -1065,16 +1065,16 @@ public class ExampleDataRepeaterStreamBatchActionRenameTag : HCDataRepeaterStrea
 
 ## Module: DataExport
 
-Requires an additional nuget package installed [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.DataExport?label=HealthCheck.Module.DataExport&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.DataExport).
+Requires an additional nuget package installed [![Nuget](https://img.shields.io/nuget/v/Toolkit.Module.DataExport?label=Toolkit.Module.DataExport&logo=nuget)](https://www.nuget.org/packages/Toolkit.Module.DataExport).
 
 The module allows for filtering and exporting data. The type of data source you have available determines how to filter it.
 
 * IQueryable: Lets the user enter a linq query to filter on.
 * IEnumerable&lt;T&gt;: Lets the user filter the data either using an entered linq query or custom parameter inputs depending on your stream implementation.
 
-A default implementation `HCDataExportService` is provided that picks up any registered `IHCDataExportStream` streams.
+A default implementation `TKDataExportService` is provided that picks up any registered `ITKDataExportStream` streams.
 
-If you dare allow raw SQL queries, you can inherit a stream from `HCSqlExportStreamBase<HCSqlExportStreamParameters>`. The stream requires a registered `IHCSqlExportStreamQueryExecutor`, `HCDataExportExportSqlQueryExecutor` in the [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.DataExport.SQLExecutor?label=HealthCheck.Module.DataExport.SQLExecutor&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.DataExport.SQLExecutor) nuget package can be used unless you want to create your own implementation.
+If you dare allow raw SQL queries, you can inherit a stream from `TKSqlExportStreamBase<TKSqlExportStreamParameters>`. The stream requires a registered `ITKSqlExportStreamQueryExecutor`, `TKDataExportExportSqlQueryExecutor` in the [![Nuget](https://img.shields.io/nuget/v/Toolkit.Module.DataExport.SQLExecutor?label=Toolkit.Module.DataExport.SQLExecutor&logo=nuget)](https://www.nuget.org/packages/Toolkit.Module.DataExport.SQLExecutor) nuget package can be used unless you want to create your own implementation.
 
 If the request only has access to load presets + export, a simplified version of the interface will be displayed where the only actions available is to select a stream, preset and export format.
 
@@ -1082,16 +1082,16 @@ If the request only has access to load presets + export, a simplified version of
 
 ```csharp
 // Register your streams and service
-services.AddSingleton<IHCDataExportStream, MyDataExportStreamA>();
-services.AddSingleton<IHCDataExportStream, MyDataExportStreamB>();
-services.AddSingleton<IHCDataExportService, HCDataExportService>();
+services.AddSingleton<ITKDataExportStream, MyDataExportStreamA>();
+services.AddSingleton<ITKDataExportStream, MyDataExportStreamB>();
+services.AddSingleton<ITKDataExportService, TKDataExportService>();
 // Optionally register a preset storage if you want preset save/load functionality enabled
-services.AddSingleton<IHCDataExportPresetStorage>(x => new HCFlatFileDataExportPresetStorage(@"your\location\HCDataExportPresets.json"));
+services.AddSingleton<ITKDataExportPresetStorage>(x => new TKFlatFileDataExportPresetStorage(@"your\location\TKDataExportPresets.json"));
 ```
 
 ```csharp
-// Use module in hc controller
-UseModule(new HCDataExportModule(new HCDataExportModuleOptions
+// Use module in tk controller
+UseModule(new TKDataExportModule(new TKDataExportModuleOptions
     {
         Service = dataExportService,
         // Optionally provide preset storage if needed
@@ -1099,8 +1099,8 @@ UseModule(new HCDataExportModule(new HCDataExportModuleOptions
         // Exporters = ..
     })
     // By default CSV (semicolon + comma), TSV, XML and JSON exporters are configured.
-    // Excel exporter can be found in the nuget package HealthCheck.Module.DataExport.Exporter.Excel
-    .AddExporter(new HCDataExportExporterXlsx())
+    // Excel exporter can be found in the nuget package Toolkit.Module.DataExport.Exporter.Excel
+    .AddExporter(new TKDataExportExporterXlsx())
 );
 ```
 
@@ -1108,7 +1108,7 @@ UseModule(new HCDataExportModule(new HCDataExportModuleOptions
 <p>
 
 ```csharp
-public class MyDataExportStreamA : HCDataExportStreamBase<MyModel>
+public class MyDataExportStreamA : TKDataExportStreamBase<MyModel>
 {
     public override string StreamDisplayName => "My stream A";
     public override string StreamDescription => "Some optional description of the stream.";
@@ -1118,9 +1118,9 @@ public class MyDataExportStreamA : HCDataExportStreamBase<MyModel>
     // - Queryable uses GetQueryableItemsAsync()
     // - Enumerable uses GetEnumerableItemsAsync(int pageIndex, int pageSize, Func<MyModel, bool> predicate)
     // - EnumerableWithCustomFilter GetEnumerableWithCustomFilterAsync(..)
-    public override IHCDataExportStream.QueryMethod Method => IHCDataExportStream.QueryMethod.Queryable;
+    public override ITKDataExportStream.QueryMethod Method => ITKDataExportStream.QueryMethod.Queryable;
     // Optionally set any allowed column formatters. Defaults to allowing all built-in implementations.
-    // public override IEnumerable<IHCDataExportValueFormatter> ValueFormatters => new[] { new HCDataExportDateTimeValueFormatter() };
+    // public override IEnumerable<ITKDataExportValueFormatter> ValueFormatters => new[] { new TKDataExportDateTimeValueFormatter() };
     
     // Optional stream group name
     // public override string StreamGroupName => null;
@@ -1129,7 +1129,7 @@ public class MyDataExportStreamA : HCDataExportStreamBase<MyModel>
     // Optional stream categories
     // public override List<string> Categories => null;
     // Optionally ignore members on model:
-    // public override HCMemberFilterRecursive IncludedMemberFilter { get; } = new HCMemberFilterRecursive { ... }
+    // public override TKMemberFilterRecursive IncludedMemberFilter { get; } = new TKMemberFilterRecursive { ... }
 
     // Get queryable
     protected override Task<IQueryable<MyModel>> GetQueryableItemsAsync()
@@ -1144,7 +1144,7 @@ public class MyDataExportStreamA : HCDataExportStreamBase<MyModel>
 <p>
 
 ```csharp
-public class MyDataExportStreamB : HCDataExportStreamBase<MyModel, MyDataExportStreamB.Parameters>
+public class MyDataExportStreamB : TKDataExportStreamBase<MyModel, MyDataExportStreamB.Parameters>
 {
     public override string StreamDisplayName => "My stream B";
     public override string StreamDescription => "Some optional description of the stream.";
@@ -1152,7 +1152,7 @@ public class MyDataExportStreamB : HCDataExportStreamBase<MyModel, MyDataExportS
     // Optionally override SupportsQuery to true if you want a predicate available in addition to custom inputs.
     // public override bool SupportsQuery() => true;
     
-    protected override Task<TypedEnumerableResult> GetEnumerableItemsAsync(HCDataExportFilterDataTyped<MyModel, MyDataExportStreamB.Parameters> filter)
+    protected override Task<TypedEnumerableResult> GetEnumerableItemsAsync(TKDataExportFilterDataTyped<MyModel, MyDataExportStreamB.Parameters> filter)
     {
         var matches = await _something.GetDataAsync(filter.Parameters.StringParameter, filter.Parameters.SomeValue, filter.Parameters.AnotherValue);
 
@@ -1172,8 +1172,8 @@ public class MyDataExportStreamB : HCDataExportStreamBase<MyModel, MyDataExportS
     {
         public string StringParameter { get; set; }
         public int? SomeValue { get; set; }
-        // Optionally configure inputs using the HCCustomProperty attribute.
-        [HCCustomProperty]
+        // Optionally configure inputs using the TKCustomProperty attribute.
+        [TKCustomProperty]
         public DateTime AnotherValue { get; set; }
     }
 }
@@ -1192,14 +1192,14 @@ The Content Permutation module helps find different content to e.g. test. Create
 
 ```csharp
 // Register your handlers and service
-services.AddSingleton<IHCContentPermutationContentHandler, MyExampleAPermutationHandler>();
-services.AddSingleton<IHCContentPermutationContentHandler, MyExampleBPermutationHandler>();
-services.AddSingleton<IHCContentPermutationContentDiscoveryService, HCContentPermutationContentDiscoveryService>();
+services.AddSingleton<ITKContentPermutationContentHandler, MyExampleAPermutationHandler>();
+services.AddSingleton<ITKContentPermutationContentHandler, MyExampleBPermutationHandler>();
+services.AddSingleton<ITKContentPermutationContentDiscoveryService, TKContentPermutationContentDiscoveryService>();
 ```
 
 ```csharp
-// Use module in hc controller
-UseModule(new HCContentPermutationModule(new HCContentPermutationModuleOptions
+// Use module in tk controller
+UseModule(new TKContentPermutationModule(new TKContentPermutationModuleOptions
 {
     AssembliesContainingPermutationTypes = new[] { /* your assembly here */ },
     Service = permutationContentDiscoveryService
@@ -1213,20 +1213,20 @@ UseModule(new HCContentPermutationModule(new HCContentPermutationModuleOptions
 // Define your model to generate permutations from.
 // Be carefull not to use too many properties or you will be stuck for a while :-)
 // Currently only bool and enum types are supported.
-[HCContentPermutationType(Name = "Example", Description = "Example description here.")]
+[TKContentPermutationType(Name = "Example", Description = "Example description here.")]
 public class ExampleAPermutations
 {
     public ExampleStatusEnum Status { get; set; }
 
-    // Optionally decorate properties with HCCustomProperty to override name and add descriptions.
-    [HCCustomProperty(Name = "Is exported", Description = "Some description here.")]
+    // Optionally decorate properties with TKCustomProperty to override name and add descriptions.
+    [TKCustomProperty(Name = "Is exported", Description = "Some description here.")]
     public bool IsExported { get; set; }
 }
 
-// Then create a handler to fetch content by inheriting from HCContentPermutationContentHandlerBase<YourModelClass>
-public class MyExampleAPermutationHandler : HCContentPermutationContentHandlerBase<ExampleAPermutations>
+// Then create a handler to fetch content by inheriting from TKContentPermutationContentHandlerBase<YourModelClass>
+public class MyExampleAPermutationHandler : TKContentPermutationContentHandlerBase<ExampleAPermutations>
 {
-    public override Task<List<HCPermutatedContentItemViewModel>> GetContentForAsync(HCGetContentPermutationContentOptions<ExampleAPermutations> options)
+    public override Task<List<TKPermutatedContentItemViewModel>> GetContentForAsync(TKGetContentPermutationContentOptions<ExampleAPermutations> options)
     {
         // options.Permutations is an instance of the selected permutation in the UI.
         var permutation = options.Permutation;
@@ -1244,7 +1244,7 @@ public class MyExampleAPermutationHandler : HCContentPermutationContentHandlerBa
 
         var models = matchingContent
             // Convert to viewmodels, optionally include urls, image url etc.
-            .Select(x => new HCPermutatedContentItemViewModel(x.Details, x.PublicUrl))
+            .Select(x => new TKPermutatedContentItemViewModel(x.Details, x.PublicUrl))
             .ToList();
         return Task.FromResult(models);
     }
@@ -1260,26 +1260,26 @@ public class MyExampleAPermutationHandler : HCContentPermutationContentHandlerBa
 
 The Comparison module is a simplified interface where content can be searched and compared against each other for debugging purposes.
 
-The built in differ `HCComparisonDifferSerializedJson` can be used to compare serialized versions of content.
+The built in differ `TKComparisonDifferSerializedJson` can be used to compare serialized versions of content.
 
 ### Setup
 
 ```csharp
 // Register your handlers, differs and service
 // - Handlers allow comparing new types
-services.AddSingleton<IHCComparisonTypeHandler, MyExampleAComparisonTypeHandler>();
-services.AddSingleton<IHCComparisonTypeHandler, MyExampleBComparisonTypeHandler>();
+services.AddSingleton<ITKComparisonTypeHandler, MyExampleAComparisonTypeHandler>();
+services.AddSingleton<ITKComparisonTypeHandler, MyExampleBComparisonTypeHandler>();
 // - Differs compare instances of content in different ways
-services.AddSingleton<IHCComparisonDiffer, MyCustomDiffer>();
-services.AddSingleton<IHCComparisonDiffer, HCComparisonDifferSerializedJson>();
+services.AddSingleton<ITKComparisonDiffer, MyCustomDiffer>();
+services.AddSingleton<ITKComparisonDiffer, TKComparisonDifferSerializedJson>();
 // - The service handles the boring parts
-services.AddSingleton<IHCComparisonService, HCComparisonService>();
+services.AddSingleton<ITKComparisonService, TKComparisonService>();
 
 ```
 
 ```csharp
-// Use module in hc controller
-UseModule(new HCComparisonModule(new HCComparisonModuleOptions
+// Use module in tk controller
+UseModule(new TKComparisonModule(new TKComparisonModuleOptions
 {
     Service = comparisonService
 }));
@@ -1289,17 +1289,17 @@ UseModule(new HCComparisonModule(new HCComparisonModuleOptions
 <p>
 
 ```csharp
-public class MyExampleAComparisonTypeHandler  : HCComparisonTypeHandlerBase<MyContentType>
+public class MyExampleAComparisonTypeHandler  : TKComparisonTypeHandlerBase<MyContentType>
 {
     public override string Description => "Some description for this type.";
 
     // Find instances to select in the UI based in input search string
-    public override Task<List<HCComparisonInstanceSelection>> GetFilteredOptionsAsync(HCComparisonTypeFilter filter)
+    public override Task<List<TKComparisonInstanceSelection>> GetFilteredOptionsAsync(TKComparisonTypeFilter filter)
     {
         var items = MyEnumerable()
             .Where(x => x.Id.ToString().Contains(filter.Input))
             .Take(10)
-            .Select(x => new HCComparisonInstanceSelection
+            .Select(x => new TKComparisonInstanceSelection
             {
                 Id = x.Id.ToString(),
                 Name = x.Name,
@@ -1325,16 +1325,16 @@ public class MyExampleAComparisonTypeHandler  : HCComparisonTypeHandlerBase<MyCo
 <p>
 
 ```csharp
-// Either extend HCComparisonDifferBase with your content type to allow the differ to be used on, or implement IHCComparisonDiffer directly for more control.
-public class MyCustomDiffer : HCComparisonDifferBase<MyContentType>
+// Either extend TKComparisonDifferBase with your content type to allow the differ to be used on, or implement ITKComparisonDiffer directly for more control.
+public class MyCustomDiffer : TKComparisonDifferBase<MyContentType>
 {
     public override string Name => "Investigate possible conflicts";
 
-    public override Task<HCComparisonDifferOutput> CompareInstancesAsync(MyContentType left, MyContentType right, string leftName, string rightName)
+    public override Task<TKComparisonDifferOutput> CompareInstancesAsync(MyContentType left, MyContentType right, string leftName, string rightName)
     {
-        // Use the methods on HCComparisonDifferOutput to create the output to display for the diff.
+        // Use the methods on TKComparisonDifferOutput to create the output to display for the diff.
         return Task.FromResult(
-            new HCComparisonDifferOutput()
+            new TKComparisonDifferOutput()
                 .AddNote("A note", "Note title")
                 .AddSideNotes("Left side note", "Right side note", "Side notes title")
                 .AddHtml($"Some custom <b>HTML</b>.", "Html title")
@@ -1357,13 +1357,13 @@ Simple module to display mapping of data.
 
 ```csharp
 // Register service
-services.AddSingleton<IHCMappedDataService, HCMappedDataService>();
+services.AddSingleton<ITKMappedDataService, TKMappedDataService>();
 
 ```
 
 ```csharp
-// Use module in hc controller
-UseModule(new HCMappedDataModule(new HCMappedDataModuleOptions
+// Use module in tk controller
+UseModule(new TKMappedDataModule(new TKMappedDataModuleOptions
 {
     Service = mappeddataService,
     IncludedAssemblies = new[] { typeof(YourModel).Assembly }
@@ -1381,7 +1381,7 @@ UseModule(new HCMappedDataModule(new HCMappedDataModuleOptions
 * Override names etc using available attribute properties.
 
 ```csharp
-[HCMappedClass(@"
+[TKMappedClass(@"
 ExternalId <=> MyRemoteModel.Id
 // Name is joined from first and last name.
 FullName <=> [MyRemoteModel.FirstName, ""Middle"", MyRemoteModel.LastName]
@@ -1402,7 +1402,7 @@ public class MyLocalModel
     public MyAddressModel Address { get; set; }
 }
 
-[HCMappedReferencedType]
+[TKMappedReferencedType]
 public class MyRemoteModel { ... }
 ```
 
@@ -1411,7 +1411,7 @@ public class MyRemoteModel { ... }
 
 ### Utils
 
-* Optionally use `HCMappedDataUtils.SetExampleFor(myInstance);` to display example values in the UI. Only supported for classes decorated with `HCMappedClass`.
+* Optionally use `TKMappedDataUtils.SetExampleFor(myInstance);` to display example values in the UI. Only supported for classes decorated with `TKMappedClass`.
 
 ---------
 
@@ -1423,16 +1423,16 @@ A very simplified search that allows only a single result per type. Use to quick
 
 ```csharp
 // Register your resolvers
-services.AddSingleton<IHCGoToResolver, MyAGotoResolver>();
-services.AddSingleton<IHCGoToResolver, MyBGotoResolver>();
+services.AddSingleton<ITKGoToResolver, MyAGotoResolver>();
+services.AddSingleton<ITKGoToResolver, MyBGotoResolver>();
 // And the built in service
-services.AddSingleton<IHCGoToService, HCGoToService>();
+services.AddSingleton<ITKGoToService, TKGoToService>();
 
 ```
 
 ```csharp
-// Use module in hc controller
-UseModule(new HCGoToModule(new HCGoToModuleOptions
+// Use module in tk controller
+UseModule(new TKGoToModule(new TKGoToModuleOptions
 {
     Service = goToService
 }));
@@ -1442,21 +1442,21 @@ UseModule(new HCGoToModule(new HCGoToModuleOptions
 <p>
 
 ```csharp
-public class CustomerGotoResolver : IHCGoToResolver
+public class CustomerGotoResolver : ITKGoToResolver
 {
     public string Name => "Customer";
 
-    public async Task<HCGoToResolvedData> TryResolveAsync(string input)
+    public async Task<TKGoToResolvedData> TryResolveAsync(string input)
     {
         var match = await _myCustomerService.GetCustomerById(input);
         if (match == null) return null;
-        return new HCGoToResolvedData
+        return new TKGoToResolvedData
         {
             Name = match.Name,
             Description = match.Description,
             ResolvedFrom = nameof(MyCustomer.Id),
-            Urls = new List<HCGoToResolvedUrl> {
-                new HCGoToResolvedUrl("Customer Profile", $"/some-url")
+            Urls = new List<TKGoToResolvedUrl> {
+                new TKGoToResolvedUrl("Customer Profile", $"/some-url")
             }
         };
     }
@@ -1490,7 +1490,7 @@ A default implementation `DefaultDataflowService` is provided where custom data 
 
 ```csharp
 
-UseModule(new HCDataflowModule<RuntimeTestAccessRole>(new HCDataflowModuleOptions<RuntimeTestAccessRole>() {
+UseModule(new TKDataflowModule<RuntimeTestAccessRole>(new TKDataflowModuleOptions<RuntimeTestAccessRole>() {
     DataflowService = IDataflowService implementation
 }));
 ```
@@ -1593,7 +1593,7 @@ A default abstract stream `FlatFileStoredDataflowStream<TEntry, TEntryId>` is pr
 <p>
 
 ```csharp
-    public class ExampleSearch : IHCDataflowUnifiedSearch<YourAccessRolesEnum>
+    public class ExampleSearch : ITKDataflowUnifiedSearch<YourAccessRolesEnum>
     {
         public Maybe<YourAccessRolesEnum> RolesWithAccess => null;
         public string Name => "Example Search";
@@ -1618,10 +1618,10 @@ A default abstract stream `FlatFileStoredDataflowStream<TEntry, TEntryId>` is pr
             return filter;
         }
 
-        public HCDataflowUnifiedSearchResultItem CreateResultItem(Type streamType, IDataflowEntry entry)
+        public TKDataflowUnifiedSearchResultItem CreateResultItem(Type streamType, IDataflowEntry entry)
         {
             var item = entry as MyStreamItem;
-            var result = new HCDataflowUnifiedSearchResultItem
+            var result = new TKDataflowUnifiedSearchResultItem
             {
                 Title = item.Title,
                 Body = item.Text
@@ -1645,15 +1645,15 @@ Allows custom settings to be configured.
 ### Setup
 
 ```csharp
-UseModule(new HCSettingsModule(new HCSettingsModuleOptions() {
-    SettingsService = IHCSettingsService implementation,
+UseModule(new TKSettingsModule(new TKSettingsModuleOptions() {
+    SettingsService = ITKSettingsService implementation,
     ModelType = typeof(YourSettingsModel)
 }));
 ```
 
 ```csharp
 // Built in implementation examples
-SettingsService = new HCDefaultSettingsService(new HCFlatFileStringDictionaryStorage(@"D:\settings.json"));
+SettingsService = new TKDefaultSettingsService(new TKFlatFileStringDictionaryStorage(@"D:\settings.json"));
 ```
 
 <details><summary>Example</summary>
@@ -1665,16 +1665,16 @@ public class YourSettingsModel
 {
     public string PropertyX { get; set; }
 
-    [HCSetting(GroupName = "Service X")]
+    [TKSetting(GroupName = "Service X")]
     public bool Enabled { get; set; }
 
-    [HCSetting(GroupName = "Service X")]
+    [TKSetting(GroupName = "Service X")]
     public int ThreadLimit { get; set; } = 2;
 
-    [HCSetting(GroupName = "Service X", Description = "Some description here")]
+    [TKSetting(GroupName = "Service X", Description = "Some description here")]
     public int NumberOfThings { get; set; } = 321;
 
-    [HCSetting(GroupName = "Service X", Description = "When to start")]
+    [TKSetting(GroupName = "Service X", Description = "When to start")]
     public DateTime StartAt { get; set; };
 }
 ```
@@ -1691,12 +1691,12 @@ service.GetSettings<YourSettingsModel>().Enabled
 
 ## Module: Access Tokens
 
-Allows access tokens to be generated with limited access and duration. Tokens are stored hashed and salted in the given `IAccessManagerTokenStorage` implementation. The data being hashed includes given roles, module options, categories and expiration to prevent tampering. Tokens can be used in e.g. querystring to share quick and easy access to limited parts of the healthcheck functionality.
+Allows access tokens to be generated with limited access and duration. Tokens are stored hashed and salted in the given `IAccessManagerTokenStorage` implementation. The data being hashed includes given roles, module options, categories and expiration to prevent tampering. Tokens can be used in e.g. querystring to share quick and easy access to limited parts of the toolkit functionality.
 
 ### Setup
 
 ```csharp
-UseModule(new HCAccessTokensModule(new HCAccessTokensModuleOptions()
+UseModule(new TKAccessTokensModule(new TKAccessTokensModuleOptions()
 {
     TokenStorage = IAccessManagerTokenStorage implementation
 }));
@@ -1714,14 +1714,14 @@ new FlatFileAccessManagerTokenStorage(@"e:\config\access-tokens.json")
 
 ## Module: Event Notifications
 
-Enables notifications of custom events. Rules for notifications can be edited in a UI and events are easily triggered from code. Notifications are delivered through implementations of `IEventNotifier`. Built-in implementations: `DefaultEventDataSink`, `HCWebHookEventNotifier`, `HCMailEventNotifierBase`.
+Enables notifications of custom events. Rules for notifications can be edited in a UI and events are easily triggered from code. Notifications are delivered through implementations of `IEventNotifier`. Built-in implementations: `DefaultEventDataSink`, `TKWebHookEventNotifier`, `TKMailEventNotifierBase`.
 
 Events can be filtered on their id, stringified payload or properties on their payload, and limits and distinctions can be set.
 
 ### Setup
 
 ```csharp
-UseModule(new HCEventNotificationsModule(new HCEventNotificationsModuleOptions() {
+UseModule(new TKEventNotificationsModule(new TKEventNotificationsModuleOptions() {
     EventSink = IEventDataSink implementation
 }));
 ```
@@ -1813,14 +1813,14 @@ Store sent messages and view the latest ones sent from the system, optionally al
 
 The following storage implementations are included, both contains options for max counts and time to live and should not be used with more than max a few hundred items per inbox max:
 
-* `HCMemoryMessageStore`: keeps the latest messages in memory without storing anything.
-* `HCFlatFileMessageStore`: keeps the latest messages in memory and saves data delayed to a flatfile.
+* `TKMemoryMessageStore`: keeps the latest messages in memory without storing anything.
+* `TKFlatFileMessageStore`: keeps the latest messages in memory and saves data delayed to a flatfile.
 
 ### Setup
 
 ```csharp
-UseModule(new HCMessagesModule(new HCMessagesModuleOptions()
-    { MessageStorage = IHCMessageStorage implementation }
+UseModule(new TKMessagesModule(new TKMessagesModuleOptions()
+    { MessageStorage = ITKMessageStorage implementation }
     // Define any inboxes you want to be visible in the UI
     .DefineInbox("mail", "Mail", "All outgoing mail.")
     .DefineInbox("sms", "SMS", "All outgoing sms.")
@@ -1829,16 +1829,16 @@ UseModule(new HCMessagesModule(new HCMessagesModuleOptions()
 
 ```csharp
 // Built in implementation examples:
-... new HCMemoryMessageStore();
+... new TKMemoryMessageStore();
 // Flatfile storages should be registered as singletons
-... new HCFlatFileMessageStore(@"e:\etc\hc_messages");
+... new TKFlatFileMessageStore(@"e:\etc\tk_messages");
 ```
 
 ### Usage in code
 
 ```csharp
 // Create message item to store
-var message = new HCDefaultMessageItem("RE: Hi there",
+var message = new TKDefaultMessageItem("RE: Hi there",
     "from@somwhere.com", "to@somewhere.com",
     "<b>Some mail</b> content here.",
     isHtml: true);
@@ -1854,9 +1854,9 @@ _messageStore.StoreMessage(inboxId: "mail", message);
 
 ## Module: Endpoint Control
 
-Requires an additional nuget package installed [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.EndpointControl?label=HealthCheck.Module.EndpointControl&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.EndpointControl).
+Requires an additional nuget package installed [![Nuget](https://img.shields.io/nuget/v/Toolkit.Module.EndpointControl?label=Toolkit.Module.EndpointControl&logo=nuget)](https://www.nuget.org/packages/Toolkit.Module.EndpointControl).
 
-Decorate mvc and webapi actions with `HCControlledEndpointAttribute` or `HCControlledApiEndpointAttribute` to allow for a bit of spam control by setting conditional rules at runtime using the interface. The module can also show the latest requests sent to decorated endpoints, including a few graphs.
+Decorate mvc and webapi actions with `TKControlledEndpointAttribute` or `TKControlledApiEndpointAttribute` to allow for a bit of spam control by setting conditional rules at runtime using the interface. The module can also show the latest requests sent to decorated endpoints, including a few graphs.
 
 Also allows for optionally handling blocked requests in code manually, and only count requests that reach a certain step in the code. See usage example below.
 
@@ -1867,7 +1867,7 @@ The default response when request is blocked is a 409 with either a text for GET
 ### Setup
 
 ```csharp
-UseModule(new HCEndpointControlModule(new HCEndpointControlModuleOptions()
+UseModule(new TKEndpointControlModule(new TKEndpointControlModuleOptions()
 {
     EndpointControlService = IEndpointControlService implementation,
     RuleStorage = IEndpointControlRuleStorage implementation,
@@ -1896,7 +1896,7 @@ UseModule(new HCEndpointControlModule(new HCEndpointControlModuleOptions()
 ```csharp
 [HttpPost]
 // Just decorate with this attribute.
-[HCControlledEndpoint]
+[TKControlledEndpoint]
 public ActionResult Submit(MyModel model)
 {
     // ...
@@ -1913,7 +1913,7 @@ public ActionResult Submit(MyModel model)
 [HttpPost]
 // Set CustomBlockedHandling to not block the request automatically,
 // check on EndpointControlUtils.CurrentRequestWasDecidedBlocked() manually.
-[HCControlledEndpoint(CustomBlockedHandling = true)]
+[TKControlledEndpoint(CustomBlockedHandling = true)]
 public ActionResult Submit(MyModel model)
 {
     if (EndpointControlUtils.CurrentRequestWasDecidedBlocked())
@@ -1934,7 +1934,7 @@ public ActionResult Submit(MyModel model)
 [HttpPost]
 // Set ManuallyCounted to not store/count the request automatically,
 // invoke EndpointControlUtils.CountCurrentRequest() manually to store it.
-[HCControlledEndpoint(ManuallyCounted = true)]
+[TKControlledEndpoint(ManuallyCounted = true)]
 public ActionResult Submit(MyModel model)
 {
     if (!ModelState.IsValid)
@@ -1968,12 +1968,12 @@ Built in custom types:
 
 ## Module: Downloads
 
-The downloads module allow files to be made available for download, optionally protected by password, expiration date and download count limit. Downloads are tracked in the audit log. Built-in implementations: `FlatFileSecureFileDownloadDefinitionStorage` for download definition storage, and 3 file storage implementations: `FolderFileStorage`, `UrlFileStorage` and `HCEpiserverBlobFileStorage` (in epi package).
+The downloads module allow files to be made available for download, optionally protected by password, expiration date and download count limit. Downloads are tracked in the audit log. Built-in implementations: `FlatFileSecureFileDownloadDefinitionStorage` for download definition storage, and 3 file storage implementations: `FolderFileStorage`, `UrlFileStorage` and `TKEpiserverBlobFileStorage` (in epi package).
 
 ### Setup
 
 ```csharp
-UseModule(new HCSecureFileDownloadModule(new HCSecureFileDownloadModuleOptions()
+UseModule(new TKSecureFileDownloadModule(new TKSecureFileDownloadModuleOptions()
 {
     DefinitionStorage = ISecureFileDownloadDefinitionStorage implementation,
     FileStorages = new ISecureFileDownloadFileStorage[]
@@ -1997,23 +1997,23 @@ var downloadDefinitionStorage = new FlatFileSecureFileDownloadDefinitionStorage(
 
 ## Module: Metrics
 
-Very simple module that outputs some metrics you can track manually through `HCMetricsContext` statically, to e.g. verify that some methods are not called too often, or to include extra details on every page (timings, errors, notes, etc).
+Very simple module that outputs some metrics you can track manually through `TKMetricsContext` statically, to e.g. verify that some methods are not called too often, or to include extra details on every page (timings, errors, notes, etc).
 
 ### Setup
 
-`HCMetricsUtil.AllowTrackRequestMetrics` must be configured on startup to select what when tracking is allowed. By default `false` is returned and no context will be created, causing any attempt to track metrics to be ignored.
+`TKMetricsUtil.AllowTrackRequestMetrics` must be configured on startup to select what when tracking is allowed. By default `false` is returned and no context will be created, causing any attempt to track metrics to be ignored.
 
 ```csharp
-HCMetricsUtil.AllowTrackRequestMetrics = (r) =>  r.Url?.Contains("some=key") || !r.HasRequestContext;
+TKMetricsUtil.AllowTrackRequestMetrics = (r) =>  r.Url?.Contains("some=key") || !r.HasRequestContext;
 ```
 
-To enable the module to view globally tracked metrics register `<IHCMetricsStorage, HCMemoryMetricsStorage>` as a singleton to store data in memory and enable the module:
+To enable the module to view globally tracked metrics register `<ITKMetricsStorage, TKMemoryMetricsStorage>` as a singleton to store data in memory and enable the module:
 
 ```csharp
-UseModule(new HCMetricsModule(new HCMetricsModuleOptions()
+UseModule(new TKMetricsModule(new TKMetricsModuleOptions()
 {
-    // Register HCMemoryMetricsStorage as a singleton and pass to storage here
-    Storage = IHCMetricsStorage instance
+    // Register TKMemoryMetricsStorage as a singleton and pass to storage here
+    Storage = ITKMetricsStorage instance
 }));
 ```
 
@@ -2022,31 +2022,31 @@ To include metrics data on every page when any metrics are available use `Create
 ```csharp
 @if (allowMetrics)
 {
-    // If no data has been logged through `HCMetricsContext` for the current request null will be returned.
-    @Html.Raw(HealthCheck.Core.Modules.Metrics.Context.HCMetricsUtil.CreateContextSummaryHtml())
+    // If no data has been logged through `TKMetricsContext` for the current request null will be returned.
+    @Html.Raw(Toolkit.Core.Modules.Metrics.Context.TKMetricsUtil.CreateContextSummaryHtml())
 }
 ```
 
 ### Usage
 
-Call static shortcuts on `HCMetricsContext` to track details for the current request.
+Call static shortcuts on `TKMetricsContext` to track details for the current request.
 
 * Global methods `IncrementGlobalCounter` and `AddGlobalValue` stores data for display in the module, non-global methods only stores data temporarily to be shown using `CreateContextSummaryHtml`.
-* Data is stored to the registered `IHCMetricsStorage` instance when the context object for the request is disposed, so expect some delays before data shows up in the module interface if used.
+* Data is stored to the registered `ITKMetricsStorage` instance when the context object for the request is disposed, so expect some delays before data shows up in the module interface if used.
 
 ```csharp
-HCMetricsContext.StartTiming("LoadData()");
+TKMetricsContext.StartTiming("LoadData()");
 // .. do something to be timed here
-HCMetricsContext.EndTiming();
+TKMetricsContext.EndTiming();
 
 // Count something
-HCMetricsContext.IncrementGlobalCounter("GetRequestInformation()", 1);
+TKMetricsContext.IncrementGlobalCounter("GetRequestInformation()", 1);
 
 // Add a value that will be stored with counter, min, max and average values
-HCMetricsContext.AddGlobalValue("Some value", 42);
+TKMetricsContext.AddGlobalValue("Some value", 42);
 
 // Include some error details
-HCMetricsContext.AddError("etc", ex);
+TKMetricsContext.AddError("etc", ex);
 ```
 
 ---------
@@ -2060,7 +2060,7 @@ The default implementations searches through any given assemblies for methods de
 ### Setup
 
 ```csharp
-UseModule(new HCDocumentationModule(new HCDocumentationModuleOptions()
+UseModule(new TKDocumentationModule(new TKDocumentationModuleOptions()
 {
     SequenceDiagramService = ISequenceDiagramService implementation,
     FlowChartsService = IFlowChartsService implementation
@@ -2088,9 +2088,9 @@ Simple module that shows release notes e.g. generated during the build process. 
 ### Setup
 
 ```csharp
-UseModule(new HCReleaseNotesModule(new HCReleaseNotesModuleOptions {
-    // Note: inject HCJsonFileReleaseNotesProvider as a singleton
-    ReleaseNotesProvider = new HCJsonFileReleaseNotesProvider(HostingEnvironment.MapPath(@"~\App_Data\ReleaseNotes.json"))
+UseModule(new TKReleaseNotesModule(new TKReleaseNotesModuleOptions {
+    // Note: inject TKJsonFileReleaseNotesProvider as a singleton
+    ReleaseNotesProvider = new TKJsonFileReleaseNotesProvider(HostingEnvironment.MapPath(@"~\App_Data\ReleaseNotes.json"))
     {
         IssueUrlFactory = (id) => $"https://www.yourjira.com/etc/{id}",
         IssueLinkTitleFactory = (id) => $"Jira {id}",
@@ -2105,7 +2105,7 @@ To include a floating release notes button on every page when any notes are avai
 @if (showReleaseNotes)
 {
     // If there's nothing to display it outputs a html comment with the reason why.
-    @Html.Raw(HealthCheck.Core.Modules.ReleaseNotes.Util.HCReleaseNotesUtil.CreateReleaseNotesSummaryHtml(/* optionally pass true here to include dev details */))
+    @Html.Raw(Toolkit.Core.Modules.ReleaseNotes.Util.TKReleaseNotesUtil.CreateReleaseNotesSummaryHtml(/* optionally pass true here to include dev details */))
 }
 ```
 
@@ -2116,16 +2116,16 @@ To include a floating release notes button on every page when any notes are avai
 
 An integrated login dialog is included, but custom authentication logic must be provided. To enable the dialog two steps are required.
 
-1. The main controller uses readonly session behaviour that can cause some login logic dependent on sessions to fail, so a new controller is required that handles the login request. Inherit from `HealthCheckLoginControllerBase` and implement `HandleLoginRequest`.
+1. The main controller uses readonly session behaviour that can cause some login logic dependent on sessions to fail, so a new controller is required that handles the login request. Inherit from `ToolkitLoginControllerBase` and implement `HandleLoginRequest`.
 
     ```csharp
-    public class HCLoginController : HealthCheckLoginControllerBase
+    public class TKLoginController : ToolkitLoginControllerBase
     {
-        protected override HCIntegratedLoginResult HandleLoginRequest(HCIntegratedLoginRequest request)
+        protected override TKIntegratedLoginResult HandleLoginRequest(TKIntegratedLoginRequest request)
         {
             var success = _myAccessService.AuthenticateUser(request.Username, request.Password);
             // also validate request.TwoFactorCode if enabled
-            return HCIntegratedLoginResult.CreateResult(success, "Wrong username or password, try again or give up.");
+            return TKIntegratedLoginResult.CreateResult(success, "Wrong username or password, try again or give up.");
         }
     }
     ```
@@ -2135,9 +2135,9 @@ An integrated login dialog is included, but custom authentication logic must be 
     ```csharp
     protected override void ConfigureAccess(HttpRequestBase request,AccessConfig<RuntimeTestAccessRole> config) {
         ...
-        config.IntegratedLoginConfig = new HCIntegratedLoginConfig("/hclogin/login")
+        config.IntegratedLoginConfig = new TKIntegratedLoginConfig("/tklogin/login")
             // Optionally require 2FA input using OTP, TOTP or WebAuthn
-            .EnableOneTimePasswordWithCodeRequest("/hclogin/Request2FACode")
+            .EnableOneTimePasswordWithCodeRequest("/tklogin/Request2FACode")
             .EnableTOTP() // <-- requires separate nuget package below
             .EnableWebAuthn();
     }
@@ -2147,53 +2147,53 @@ Any requests to the index action of the main controller that does not have acces
 
 ### MFA: TOTP
 
-To add TOTP MFA you can add the [![Nuget](https://img.shields.io/nuget/v/HealthCheck.WebUI.MFA.TOTP?label=HealthCheck.WebUI.MFA.TOTP&logo=nuget)](https://www.nuget.org/packages/HealthCheck.WebUI.MFA.TOTP) package. If you already have code for validation of TOTP codes in your project this package is not needed.
+To add TOTP MFA you can add the [![Nuget](https://img.shields.io/nuget/v/Toolkit.WebUI.MFA.TOTP?label=Toolkit.WebUI.MFA.TOTP&logo=nuget)](https://www.nuget.org/packages/Toolkit.WebUI.MFA.TOTP) package. If you already have code for validation of TOTP codes in your project this package is not needed.
 
-* For it to work you need to store a 2FA secret per user to validate the codes against. The secret must be a base32 string and can be generated using e.g. `HCMfaTotpUtil.GenerateOTPSecret()`.
-* Validate codes using the `HCMfaTotpUtil.ValidateTotpCode(userSecret, code)` method.
+* For it to work you need to store a 2FA secret per user to validate the codes against. The secret must be a base32 string and can be generated using e.g. `TKMfaTotpUtil.GenerateOTPSecret()`.
+* Validate codes using the `TKMfaTotpUtil.ValidateTotpCode(userSecret, code)` method.
 * Enable on IntegratedLoginConfig easily by using the extension method `.EnableTOTP()`
 * Bitwarden and most authenticator apps supports TOTP and can be used to generate codes from the generated secret.
 
 ### MFA: WebAuthn/FIDO2
 
-To add WebAuthn MFA you can add the [![Nuget](https://img.shields.io/nuget/v/HealthCheck.WebUI.MFA.WebAuthn?label=HealthCheck.WebUI.MFA.WebAuthn&logo=nuget)](https://www.nuget.org/packages/HealthCheck.WebUI.MFA.WebAuthn) package.
+To add WebAuthn MFA you can add the [![Nuget](https://img.shields.io/nuget/v/Toolkit.WebUI.MFA.WebAuthn?label=Toolkit.WebUI.MFA.WebAuthn&logo=nuget)](https://www.nuget.org/packages/Toolkit.WebUI.MFA.WebAuthn) package.
 
-You can use the included `HCWebAuthnHelper` to register FIDO2 keys and create data secrets to store on your user objects.
+You can use the included `TKWebAuthnHelper` to register FIDO2 keys and create data secrets to store on your user objects.
 
 * Enable on IntegratedLoginConfig easily by using the method `.EnableWebAuthn()`
 
 <details><summary>Example setup</summary>
 <p>
 
-1. Create your implementation of `IHCWebAuthnCredentialManager` that will store and retrieve WebAuthn credential data.
+1. Create your implementation of `ITKWebAuthnCredentialManager` that will store and retrieve WebAuthn credential data.
 
-2. In the healthcheck controller specify desired WebAuthn mode for the login page.
+2. In the toolkit controller specify desired WebAuthn mode for the login page.
 
     ```csharp
-        config.IntegratedLoginConfig = new HCIntegratedLoginConfig
+        config.IntegratedLoginConfig = new TKIntegratedLoginConfig
         {
             // ...
-            WebAuthnMode = HCIntegratedLoginConfig.HCLoginWebAuthnMode.Required
+            WebAuthnMode = TKIntegratedLoginConfig.TKLoginWebAuthnMode.Required
         };
     ```
 
-3. In the login controller add a factory method to create the `HCWebAuthnHelper`.
+3. In the login controller add a factory method to create the `TKWebAuthnHelper`.
 
     ```csharp
-    private HCWebAuthnHelper CreateWebAuthnHelper()
-        => new HCWebAuthnHelper(new HCWebAuthnHelperOptions
+    private TKWebAuthnHelper CreateWebAuthnHelper()
+        => new TKWebAuthnHelper(new TKWebAuthnHelperOptions
         {
             ServerDomain = "localhost",
             ServerName = "My fancy site",
             Origin = Request.Headers["Origin"]
-        }, new HCMemoryWebAuthnCredentialManager() /* Add your own implementation here that actually stores data */ );
-    private HCWebAuthnHelper GetWebAuthnHelper()
+        }, new TKMemoryWebAuthnCredentialManager() /* Add your own implementation here that actually stores data */ );
+    private TKWebAuthnHelper GetWebAuthnHelper()
     ```
 
 4. Override `CreateWebAuthnAssertionOptionsJson` in the login controller with e.g. the following:
 
     ```csharp
-    protected override string CreateWebAuthnAssertionOptionsJson(HCIntegratedLoginCreateWebAuthnAssertionOptionsRequest request)
+    protected override string CreateWebAuthnAssertionOptionsJson(TKIntegratedLoginCreateWebAuthnAssertionOptionsRequest request)
     {
         var webauthn = GetWebAuthnHelper();
         var options = webauthn.CreateAssertionOptions(request.Username);
@@ -2204,14 +2204,14 @@ You can use the included `HCWebAuthnHelper` to register FIDO2 keys and create da
 5. Verify the new data in `HandleLoginRequest`.
 
     ```csharp
-    protected override HCIntegratedLoginResult HandleLoginRequest(HCIntegratedLoginRequest request)
+    protected override TKIntegratedLoginResult HandleLoginRequest(TKIntegratedLoginRequest request)
     {
         //... username/pass validation etc
 
         // Verify WebAuthn payload
         if (request.WebAuthnPayload?.Id == null)
         {
-            return HCIntegratedLoginResult.CreateError("Invalid FIDO key assertion data.");
+            return TKIntegratedLoginResult.CreateError("Invalid FIDO key assertion data.");
         }
 
         var webauthn = GetWebAuthnHelper();
@@ -2220,10 +2220,10 @@ You can use the included `HCWebAuthnHelper` to register FIDO2 keys and create da
         var webAuthnResult = AsyncUtils.RunSync(() => webauthn.VerifyAssertion(options, request.WebAuthnPayload));
         if (!webAuthnResult.Success)
         {
-            return HCIntegratedLoginResult.CreateError(webAuthnResult.Error);
+            return TKIntegratedLoginResult.CreateError(webAuthnResult.Error);
         }
 
-        return HCIntegratedLoginResult.CreateSuccess();
+        return TKIntegratedLoginResult.CreateSuccess();
     }
     ```
 
@@ -2238,40 +2238,40 @@ Example logic using built in helper methods for creating 2FA codes in session:
 
 
 ```csharp
-    protected override HCIntegratedLogin2FACodeRequestResult Handle2FACodeRequest(HCIntegratedLoginRequest2FACodeRequest request)
+    protected override TKIntegratedLogin2FACodeRequestResult Handle2FACodeRequest(TKIntegratedLoginRequest2FACodeRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.Username))
         {
-            return HCIntegratedLogin2FACodeRequestResult.CreateError("You must enter your username first.");
+            return TKIntegratedLogin2FACodeRequestResult.CreateError("You must enter your username first.");
         }
 
         var code = CreateSession2FACode(request.Username);
         // E.g. send code by mail or sms to user here
 
-        return HCIntegratedLogin2FACodeRequestResult.CreateSuccess($"Code has been sent.", codeExpiresIn: TimeSpan.FromMinutes(5));
+        return TKIntegratedLogin2FACodeRequestResult.CreateSuccess($"Code has been sent.", codeExpiresIn: TimeSpan.FromMinutes(5));
     }
 ```
 
 ```csharp
-    protected override HCIntegratedLoginResult HandleLoginRequest(HCIntegratedLoginRequest request)
+    protected override TKIntegratedLoginResult HandleLoginRequest(TKIntegratedLoginRequest request)
     {
         if (!_myAccessService.AuthenticateUser(request.Username, request.Password))
         {
-            return HCIntegratedLoginResult.CreateError("Wrong username or password.");
+            return TKIntegratedLoginResult.CreateError("Wrong username or password.");
         }
         else if (!ValidateSession2FACode(request.Username, request.TwoFactorCode))
         {
-            return HCIntegratedLoginResult.CreateError("Two-factor code was wrong, try again.");
+            return TKIntegratedLoginResult.CreateError("Two-factor code was wrong, try again.");
         }
 
-        return HCIntegratedLogin2FACodeRequestResult.CreateSuccess(
+        return TKIntegratedLogin2FACodeRequestResult.CreateSuccess(
             message: "<b>Success!</b> Your code has been sent.",
             showAsHtml: true,
             codeExpiresIn: TimeSpan.FromMinutes(5)
         );
 
         // Or the simple way without any extra details
-        // return HCIntegratedLoginResult.CreateSuccess();
+        // return TKIntegratedLoginResult.CreateSuccess();
     }
 ```
 
@@ -2279,10 +2279,10 @@ Example logic using built in helper methods for creating 2FA codes in session:
 
 ## Integrated Profile
 
-Set `IntegratedProfileConfig` to show a profile button that displays the username, resolved healthcheck roles, and optionally add/remove/elevate access for TOTP and WebAuthn.
+Set `IntegratedProfileConfig` to show a profile button that displays the username, resolved toolkit roles, and optionally add/remove/elevate access for TOTP and WebAuthn.
 
 ```csharp
-    config.IntegratedProfileConfig = new HCIntegratedProfileConfig
+    config.IntegratedProfileConfig = new TKIntegratedProfileConfig
     {
         Username = CurrentRequestInformation.UserName,
         // BodyHtml = "Here is some custom content.<ul><li><a href=\"https://www.google.com\">A link here</a></li></ul>",
@@ -2302,13 +2302,13 @@ The built in flatfile storage classes should work fine for most use cases when a
 
 ### Episerver / Optimizely
 
-For Episerver/Optimizely projects storage implementations can optionally be used from [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Episerver?label=HealthCheck.Episerver&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Episerver) and the other episerver packages for specific modules. If used they should be registered as singletons for optimal performance.
+For Episerver/Optimizely projects storage implementations can optionally be used from [![Nuget](https://img.shields.io/nuget/v/Toolkit.Episerver?label=Toolkit.Episerver&logo=nuget)](https://www.nuget.org/packages/Toolkit.Episerver) and the other episerver packages for specific modules. If used they should be registered as singletons for optimal performance.
 
-Cache can optionally be set to null in constructor if not wanted, or the included memory cache `HCSimpleMemoryCache` can be used as a singleton.  For load balanced environments `HCSimpleMemoryCacheForEpiLoadBalanced` can optionally be used (not much tested yet).
+Cache can optionally be set to null in constructor if not wanted, or the included memory cache `TKSimpleMemoryCache` can be used as a singleton.  For load balanced environments `TKSimpleMemoryCacheForEpiLoadBalanced` can optionally be used (not much tested yet).
 
 #### Load balanced environments
 
-The storage implementations are not optimized for load balanced environments, if desired the `HCSimpleMemoryCacheForEpiLoadBalanced` cache can be used.
+The storage implementations are not optimized for load balanced environments, if desired the `TKSimpleMemoryCacheForEpiLoadBalanced` cache can be used.
 
 
 <details><summary>Example IoC setup</summary>
@@ -2316,24 +2316,24 @@ The storage implementations are not optimized for load balanced environments, if
 
 ```csharp
     // Cache required by most of the epi blob implementations below
-    context.Services.AddSingleton<IHCCache, HCSimpleMemoryCache>();
-    // Alternative (not much tested yet): context.Services.AddSingleton<IHCCache, HCSimpleMemoryCacheForEpiLoadBalanced>();
+    context.Services.AddSingleton<ITKCache, TKSimpleMemoryCache>();
+    // Alternative (not much tested yet): context.Services.AddSingleton<ITKCache, TKSimpleMemoryCacheForEpiLoadBalanced>();
 
     // Audit log (defaults to storing the last 10000 events/30 days)
-    context.Services.AddSingleton<IAuditEventStorage, HCEpiserverBlobAuditEventStorage>();
+    context.Services.AddSingleton<IAuditEventStorage, TKEpiserverBlobAuditEventStorage>();
     // Messages
-    context.Services.AddSingleton<IHCMessageStorage, HCEpiserverBlobMessagesStore<HCDefaultMessageItem>>();
+    context.Services.AddSingleton<ITKMessageStorage, TKEpiserverBlobMessagesStore<TKDefaultMessageItem>>();
     // AccessTokens
-    context.Services.AddSingleton<IAccessManagerTokenStorage, HCEpiserverBlobAccessTokenStorage>();
+    context.Services.AddSingleton<IAccessManagerTokenStorage, TKEpiserverBlobAccessTokenStorage>();
     // Settings
-    context.Services.AddSingleton<IHCStringDictionaryStorage, HCEpiserverBlobStringDictionaryStorage>();
-    context.Services.AddSingleton<IHCSettingsService, HCDefaultSettingsService>();
+    context.Services.AddSingleton<ITKStringDictionaryStorage, TKEpiserverBlobStringDictionaryStorage>();
+    context.Services.AddSingleton<ITKSettingsService, TKDefaultSettingsService>();
     // DynamicCodeExecution
-    context.Services.AddSingleton<IDynamicCodeScriptStorage, HCEpiserverBlobDynamicCodeScriptStorage>();
+    context.Services.AddSingleton<IDynamicCodeScriptStorage, TKEpiserverBlobDynamicCodeScriptStorage>();
     // Endpoint control
-    context.Services.AddSingleton<IEndpointControlRuleStorage, HCEpiserverBlobEndpointControlRuleStorage>();
-    context.Services.AddSingleton<IEndpointControlEndpointDefinitionStorage, HCEpiserverBlobEndpointControlEndpointDefinitionStorage>();
-    context.Services.AddSingleton<IEndpointControlRequestHistoryStorage, HCEpiserverBlobEndpointControlRequestHistoryStorage>();
+    context.Services.AddSingleton<IEndpointControlRuleStorage, TKEpiserverBlobEndpointControlRuleStorage>();
+    context.Services.AddSingleton<IEndpointControlEndpointDefinitionStorage, TKEpiserverBlobEndpointControlEndpointDefinitionStorage>();
+    context.Services.AddSingleton<IEndpointControlRequestHistoryStorage, TKEpiserverBlobEndpointControlRequestHistoryStorage>();
     context.Services.AddSingleton<IEndpointControlService, DefaultEndpointControlService>();
     // Dataflow
     context.Services.AddSingleton<TestDataStream>();
@@ -2345,29 +2345,29 @@ The storage implementations are not optimized for load balanced environments, if
     });
     context.Services.AddSingleton<IDataflowService<AccessRoles>, DefaultDataflowService<AccessRoles>>();
     // Site events (defaults to storing the last 1000 events/30 days)
-    context.Services.AddSingleton<ISiteEventStorage, HCEpiserverBlobSiteEventStorage>();
+    context.Services.AddSingleton<ISiteEventStorage, TKEpiserverBlobSiteEventStorage>();
 
     // DataExport
-    context.Services.AddSingleton<IHCDataExportPresetStorage, HCEpiserverBlobDataExportPresetStorage>();
+    context.Services.AddSingleton<ITKDataExportPresetStorage, TKEpiserverBlobDataExportPresetStorage>();
 
     // DataRepeater
     // Example setup:
     /// public class SomeExistingModel {}
-    /// public class MyStreamItemA : HCDefaultDataRepeaterStreamItem<SomeExistingModel, MyStreamItemA> {}
-    /// public class MyStreamStorageA : HCEpiserverBlobDataRepeaterStreamItemStorage<MyStreamItemA>, IMyStreamStorageA
+    /// public class MyStreamItemA : TKDefaultDataRepeaterStreamItem<SomeExistingModel, MyStreamItemA> {}
+    /// public class MyStreamStorageA : TKEpiserverBlobDataRepeaterStreamItemStorage<MyStreamItemA>, IMyStreamStorageA
     // {
     //     protected override Guid ContainerId => Guid.Parse("c0254918-1234-1234-1234-062ed6a11aaa"); // <-- set a unique guid per stream
-    //     public MyStreamStorageA(IBlobFactory blobFactory, Core.Abstractions.IHCCache cache) : base(blobFactory, cache) {}
+    //     public MyStreamStorageA(IBlobFactory blobFactory, Core.Abstractions.ITKCache cache) : base(blobFactory, cache) {}
     // }
-    // public class MyStreamA : HCDataRepeaterStreamBase<MyStreamItemA> {
+    // public class MyStreamA : TKDataRepeaterStreamBase<MyStreamItemA> {
     //     public MyStreamA(MyStreamStorageA storage) : base(storage) { }
     // }
     context.Services.AddSingleton<MyStreamStorageA>();
-    context.Services.AddSingleton<IHCDataRepeaterStream, MyStreamA>();
-    // services.AddSingleton<IHCDataRepeaterStream, MyStreamB>(); etc
+    context.Services.AddSingleton<ITKDataRepeaterStream, MyStreamA>();
+    // services.AddSingleton<ITKDataRepeaterStream, MyStreamB>(); etc
 
     // File download
-    context.Services.AddSingleton<ISecureFileDownloadFileStorage, HCEpiserverBlobFileStorage>();
+    context.Services.AddSingleton<ISecureFileDownloadFileStorage, TKEpiserverBlobFileStorage>();
 ```
 
 </p>
@@ -2377,24 +2377,24 @@ The storage implementations are not optimized for load balanced environments, if
 
 ## Utils
 
-Various utility classes can be found below the `HealthCheck.Core.Util` namespace.
+Various utility classes can be found below the `Toolkit.Core.Util` namespace.
 
-* `HCSensitiveDataUtils` - Util methods for stripping numbers of given lengths, emails etc from texts.
-* `HCIPAddressUtils` - Parse strings to IP address models.
-* `HCExceptionUtils` - Get a summary of exceptions to include in test results.
-* `HCConnectivityUtils` - Ping or send webrequests to check if a host is alive and return `TestResult` objects.
-* `HCTimeUtils` - Prettify durations.
-* `HCIoCUtils` -  Get instances of types with partial IoC etc.
-* `HCAsyncUtils` - Invoke async through reflection, run async synchronous.
-* `HCRequestData` - Quickly get/set some data in request items.
-* Memory loggers for any interface can be created at runtime by using `HCLogTypeBuilder.CreateMemoryLoggerFor<TInterface>` included in the nuget package `HealthCheck.Utility.Reflection`.
-* `HealthCheck.Core.Config.HCGlobalConfig` contains some global static options that can be configured at startup:
+* `TKSensitiveDataUtils` - Util methods for stripping numbers of given lengths, emails etc from texts.
+* `TKIPAddressUtils` - Parse strings to IP address models.
+* `TKExceptionUtils` - Get a summary of exceptions to include in test results.
+* `TKConnectivityUtils` - Ping or send webrequests to check if a host is alive and return `TestResult` objects.
+* `TKTimeUtils` - Prettify durations.
+* `TKIoCUtils` -  Get instances of types with partial IoC etc.
+* `TKAsyncUtils` - Invoke async through reflection, run async synchronous.
+* `TKRequestData` - Quickly get/set some data in request items.
+* Memory loggers for any interface can be created at runtime by using `TKLogTypeBuilder.CreateMemoryLoggerFor<TInterface>` included in the nuget package `Toolkit.Utility.Reflection`.
+* `Toolkit.Core.Config.TKGlobalConfig` contains some global static options that can be configured at startup:
   * Dependency resolver override (must be configured for .NET Core).
   * Types and namespaces ignored in data serialization.
   * Current request IP resolver logic override.
-* `HCSelfUptimeChecker` - Can be used to trigger actions when the site is back up after a certain amount of downtime.
-* `HCEpiserverUtils` - Some utils using epi implementations, e.g. uptime checking using dds storage.
+* `TKSelfUptimeChecker` - Can be used to trigger actions when the site is back up after a certain amount of downtime.
+* `TKEpiserverUtils` - Some utils using epi implementations, e.g. uptime checking using dds storage.
 
 ## Troubleshooting errors
 
-If something doesn't work as expected it might be a silenced internal exception. To handle such exceptions subscribe to `HCGlobalConfig.OnExceptionEvent` and handle as needed.
+If something doesn't work as expected it might be a silenced internal exception. To handle such exceptions subscribe to `TKGlobalConfig.OnExceptionEvent` and handle as needed.

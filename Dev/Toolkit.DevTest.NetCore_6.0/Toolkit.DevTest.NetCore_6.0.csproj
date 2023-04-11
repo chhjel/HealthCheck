@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Toolkit.DevTest.NetCore_6._0</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Fido2.Models" Version="2.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Toolkit.Core\Toolkit.Core.csproj" />
+    <ProjectReference Include="..\..\Toolkit.WebUI.Assets\Toolkit.WebUI.Assets.csproj" />
+    <ProjectReference Include="..\..\Toolkit.WebUI.MFA.TOTP\Toolkit.WebUI.MFA.TOTP.csproj" />
+    <ProjectReference Include="..\..\Toolkit.WebUI.MFA.WebAuthn\Toolkit.WebUI.MFA.WebAuthn.csproj" />
+    <ProjectReference Include="..\..\Toolkit.WebUI\Toolkit.WebUI.csproj" />
+    <ProjectReference Include="..\..\Modules\Toolkit.Module.DataExport.Exporter.Excel\Toolkit.Module.DataExport.Exporter.Excel.csproj" />
+    <ProjectReference Include="..\..\Modules\Toolkit.Module.DataExport.SQLExecutor\Toolkit.Module.DataExport.SQLExecutor.csproj" />
+    <ProjectReference Include="..\..\Modules\Toolkit.Module.DataExport\Toolkit.Module.DataExport.csproj" />
+    <ProjectReference Include="..\..\Modules\Toolkit.Module.DynamicCodeExecution\Toolkit.Module.DynamicCodeExecution.csproj" />
+    <ProjectReference Include="..\..\Modules\Toolkit.Module.EndpointControl\Toolkit.Module.EndpointControl.csproj" />
+    <ProjectReference Include="..\Toolkit.Dev.Common\Toolkit.Dev.Common.csproj" />
+    <ProjectReference Include="..\Toolkit.Module.DevModule\Toolkit.Module.DevModule.csproj" />
+  </ItemGroup>
+
+</Project>

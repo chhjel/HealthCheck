@@ -259,12 +259,14 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
-Dev/HealthCheck\.DevTest/App_Data/
+Dev/Toolkit\.DevTest/App_Data/
 
-Dev/HealthCheck.DevTest.NetFramework/App_Data/
+Dev/Toolkit.DevTest.NetFramework/App_Data/
 
-Dev/HealthCheck.DevTest.NetCore_3.1/App_Data/
+Dev/Toolkit.DevTest.NetCore_3.1/App_Data/
 
-HealthCheck.Frontend/dist/
+Toolkit.Frontend/dist/
 
-Dev/HealthCheck.DevTest.NetCore_6.0/App_Data/
+Dev/Toolkit.DevTest.NetCore_6.0/App_Data/
+
+Toolkit.Frontend/.vscode/
