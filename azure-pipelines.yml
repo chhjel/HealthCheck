@@ -188,7 +188,7 @@ jobs:
       command: 'publish'
       workingDir: 'Toolkit.Frontend/dist/'
       verbose: true
-      publishEndpoint: 'npmjs - ChristianW'
+      publishEndpoint: 'npmjs - ChristianH'
 
   - task: GitHubRelease@1
     displayName: Create GitHub release
