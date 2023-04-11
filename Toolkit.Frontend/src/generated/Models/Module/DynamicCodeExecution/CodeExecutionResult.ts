@@ -2,7 +2,7 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-import { StatusTypes } from '../../../../Enums/Toolkit/Module/DynamicCodeExecution/StatusTypes';
+import { StatusTypes } from '../../../Enums/Module/DynamicCodeExecution/StatusTypes';
 import { CodeError } from './CodeError';
 import { DataDump } from './DataDump';
 import { DiffModel } from './DiffModel';

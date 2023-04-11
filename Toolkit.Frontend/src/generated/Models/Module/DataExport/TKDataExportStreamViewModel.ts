@@ -3,7 +3,7 @@
 //     the code is regenerated.
 
 import { TKDataExportStreamItemDefinitionViewModel } from './TKDataExportStreamItemDefinitionViewModel';
-import { TKBackendInputConfig } from '../../../Core/TKBackendInputConfig';
+import { TKBackendInputConfig } from '../../Core/TKBackendInputConfig';
 import { TKDataExportValueFormatterViewModel } from './TKDataExportValueFormatterViewModel';
 
 export interface TKDataExportStreamViewModel

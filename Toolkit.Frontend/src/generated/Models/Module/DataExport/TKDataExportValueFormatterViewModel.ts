@@ -2,7 +2,7 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-import { TKBackendInputConfig } from '../../../Core/TKBackendInputConfig';
+import { TKBackendInputConfig } from '../../Core/TKBackendInputConfig';
 
 export interface TKDataExportValueFormatterViewModel
 {

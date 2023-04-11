@@ -2,7 +2,7 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-import { EndpointControlFilterMode } from '../../../../Enums/Toolkit/Module/EndpointControl/EndpointControlFilterMode';
+import { EndpointControlFilterMode } from '../../../Enums/Module/EndpointControl/EndpointControlFilterMode';
 
 export interface EndpointControlPropertyFilter
 {

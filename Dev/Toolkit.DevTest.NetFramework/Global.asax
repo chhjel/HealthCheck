@@ -1,1 +1,1 @@
-<%@ Application Codebehind="Global.asax.cs" Inherits="Toolkit.DevTest.WebApiApplication" Language="C#" %>
+<%@ Application Codebehind="Global.asax.cs" Inherits="QoDL.Toolkit.DevTest.WebApiApplication" Language="C#" %>

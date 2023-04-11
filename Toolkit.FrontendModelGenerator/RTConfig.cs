@@ -62,7 +62,7 @@ namespace QoDL.Toolkit.FrontendModelGenerator
         private static void IncludeAssembly(ConfigurationBuilder builder, Assembly assembly)
         {
             var types = assembly.GetExportedTypes()
-                .Where(x => x.Namespace.StartsWith("QoDL.Toolkit") && !x.IsGenericType)
+                .Where(x => (x.Namespace.StartsWith("QoDL.Toolkit")) && !x.IsGenericType)
                 .ToArray();
 
             builder.ExportAsEnums(types.Where(x => x.IsEnum 
@@ -100,6 +100,6 @@ namespace QoDL.Toolkit.FrontendModelGenerator
         }
 
         private static string CreateNamespace(string prefix, Assembly assembly)
-            => $"{prefix}{(assembly?.GetName()?.Name?.Replace("QoDL.Toolkit.", "") ?? "Other")}";
+            => $"{prefix}{(assembly?.GetName()?.Name?.Replace("QoDL.Toolkit.", "")?.Replace("Toolkit.", "") ?? "Other")}";
     }
 }
