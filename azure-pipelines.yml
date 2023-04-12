@@ -21,14 +21,16 @@ variables:
   value: $[eq(variables['BuildParameters.CleanSourceBranch'], variables['BuildParameters.ExperimentalBranchName'])]
 - name: BuildParameters.IsPr
   value: $[eq(variables['Build.Reason'], 'PullRequest')]
+- name: BuildParameters.BuildReasonRevisionNumberCounterSeed
+  value: $[format('{0}-5', variables['BuildParameters.CleanSourceBranch'])]
 - name: BuildParameters.BuildReasonRevisionNumber
-  value: $[counter(variables['BuildParameters.CleanSourceBranch'], 0)]
+  value: $[counter(variables['BuildParameters.BuildReasonRevisionNumberCounterSeed'], 0)]
 - name: BuildParameters.AssemblyVersion
-  value: '4.0.$(BuildParameters.BuildReasonRevisionNumber)'
+  value: '5.0.$(BuildParameters.BuildReasonRevisionNumber)'
 - name: BuildParameters.Publish
   value: $[or(eq(variables['BuildParameters.IsMain'], 'true'), eq(variables['BuildParameters.IsExperimental'], 'true'))]
 
-name: 4.0.$(Rev:r)-$(Build.Reason)_$(SourceBranchName)
+name: 5.0.$(Rev:r)-$(Build.Reason)_$(SourceBranchName)
 
 # Trigger section does not support variables
 trigger:
