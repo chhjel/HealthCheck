@@ -143,7 +143,7 @@ jobs:
   - task: VSBuild@1
     displayName: Build Toolkit.WebUI.Assets to pack down frontend
     inputs:
-      solution: 'Toolkit.WebUI.Assets/Toolkit.WebUI.Assets.csproj'
+      solution: 'Toolkit.WebUI.Assets/QoDL.Toolkit.WebUI.Assets.csproj'
       msbuildArgs: /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)\\" /p:Version=$(BuildParameters.AssemblyVersion)
       platform: $(BuildParameters.BuildPlatform)
       configuration: $(BuildParameters.BuildConfiguration)
