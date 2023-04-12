@@ -42,7 +42,7 @@ public class ToolkitLinkTagModel
                 { "href", Href }
             };
 
-        var attributesString = HtmlBuilder.BuildAttributes(attributes)
+        var attributesString = TKHtmlBuilder.BuildAttributes(attributes)
             .EnsureEndsWithIfNotNullOrEmpty(" ");
         return $"<link {attributesString}/>";
     }

@@ -212,7 +212,7 @@ public class TKTestsModule : ToolkitModuleBase<TKTestsModule.AccessOption>
             context,
             testFilter: (test) =>
                 test.Categories.Contains(data.TestCategory)
-                && EnumUtils.EnumFlagHasAnyFlagsSet(context.CurrentRequestRoles, test.RolesWithAccess),
+                && TKEnumUtils.EnumFlagHasAnyFlagsSet(context.CurrentRequestRoles, test.RolesWithAccess),
             testCategory: data.TestCategory
         );
         return result;

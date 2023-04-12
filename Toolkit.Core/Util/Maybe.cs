@@ -1,7 +1,7 @@
 namespace QoDL.Toolkit.Core.Util;
 
 /// <summary>
-/// Almost the same as Nullable.
+/// Nullable reference type before it was implemented.
 /// </summary>
 public class Maybe<T>
 {

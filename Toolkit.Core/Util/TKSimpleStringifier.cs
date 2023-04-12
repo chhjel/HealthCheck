@@ -5,7 +5,7 @@ using System.Text;
 
 namespace QoDL.Toolkit.Core.Util;
 
-	internal static class SimpleStringifier
+internal static class TKSimpleStringifier
 	{
 		public static string Stringify(object data, int maxLevels = 10)
 		{

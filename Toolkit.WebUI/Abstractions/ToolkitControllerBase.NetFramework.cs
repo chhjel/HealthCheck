@@ -140,7 +140,7 @@ public abstract class ToolkitControllerBase<TAccessRole>: Controller
         }
         if (frontEndOptions?.IntegratedProfileConfig?.Hide == false)
         {
-            frontEndOptions.UserRoles = EnumUtils.TryGetEnumFlaggedValueNames(CurrentRequestAccessRoles.Value);
+            frontEndOptions.UserRoles = TKEnumUtils.TryGetEnumFlaggedValueNames(CurrentRequestAccessRoles.Value);
             if (frontEndOptions.IntegratedProfileConfig.ShowToolkitCategories)
             {
                 frontEndOptions.UserModuleCategories = Helper.GetUserModuleCategories(CurrentRequestAccessRoles);

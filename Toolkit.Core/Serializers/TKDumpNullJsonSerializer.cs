@@ -7,7 +7,7 @@ namespace QoDL.Toolkit.Core.Serializers;
 /// <summary>
 /// Returns empty strings and nulls.
 /// </summary>
-public class DumpNullJsonSerializer : IJsonSerializer
+public class TKDumpNullJsonSerializer : IJsonSerializer
 {
     /// <inheritdoc />
     public string LastError { get; set; }

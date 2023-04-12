@@ -109,7 +109,7 @@ public class ToolkitModuleContext
     /// Check if the current request has access to the given module access option.
     /// </summary>
     public bool HasAccess<TAccess>(TAccess access, bool defaultValue = false) where TAccess : Enum
-        => EnumUtils.IsFlagSet(CurrentRequestModuleAccessOptions, access, defaultValue);
+        => TKEnumUtils.IsFlagSet(CurrentRequestModuleAccessOptions, access, defaultValue);
 
     /// <summary>
     /// Default value if pageAccess is null, false if no roles were given.
@@ -127,7 +127,7 @@ public class ToolkitModuleContext
             return false;
         }
 
-        return EnumUtils.EnumFlagHasAnyFlagsSet(CurrentRequestRoles, rolesEnum);
+        return TKEnumUtils.EnumFlagHasAnyFlagsSet(CurrentRequestRoles, rolesEnum);
     }
 
     /// <summary>
@@ -146,7 +146,7 @@ public class ToolkitModuleContext
             return false;
         }
 
-        return EnumUtils.EnumFlagHasAnyFlagsSet(CurrentRequestRoles, roles.Value);
+        return TKEnumUtils.EnumFlagHasAnyFlagsSet(CurrentRequestRoles, roles.Value);
     }
 
     internal bool HasAnyOfRoles(object roles)
@@ -156,7 +156,7 @@ public class ToolkitModuleContext
             return false;
         }
 
-        return EnumUtils.EnumFlagHasAnyFlagsSet(CurrentRequestRoles, roles);
+        return TKEnumUtils.EnumFlagHasAnyFlagsSet(CurrentRequestRoles, roles);
     }
 
     /// <summary>
@@ -195,7 +195,7 @@ public class ToolkitModuleContext
             Timestamp = DateTimeOffset.Now,
             UserId = UserId,
             UserName = UserName,
-            UserAccessRoles = EnumUtils.TryGetEnumFlaggedValueNames(CurrentRequestRoles)
+            UserAccessRoles = TKEnumUtils.TryGetEnumFlaggedValueNames(CurrentRequestRoles)
         }, maskSensitiveData);
     }
 

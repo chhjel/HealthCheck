@@ -34,7 +34,7 @@ namespace QoDL.Toolkit.Core.Util.Modules;
 				{
 					loadedModule.LoadErrors.Add($"Given access options type does not match the module access options type.");
 				}
-				else if (!EnumUtils.IsTypeEnumFlag(loadedModule.AccessOptionsType))
+				else if (!TKEnumUtils.IsTypeEnumFlag(loadedModule.AccessOptionsType))
 				{
 					loadedModule.LoadErrors.Add($"Access options type should be decorated with [Flags].");
 				}

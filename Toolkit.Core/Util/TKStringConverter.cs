@@ -133,7 +133,7 @@ public class TKStringConverter
 
         if (inputType.IsEnum)
         {
-            if (input == "" && EnumUtils.IsTypeEnumFlag(inputType))
+            if (input == "" && TKEnumUtils.IsTypeEnumFlag(inputType))
             {
                 return default;
             }

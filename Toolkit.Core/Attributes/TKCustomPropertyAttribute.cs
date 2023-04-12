@@ -107,7 +107,7 @@ public class TKCustomPropertyAttribute : Attribute
             CodeLanguage = attr?.CodeLanguage,
             DefaultValue = defaultValue,
             Flags = new(),
-            UIHints = EnumUtils.GetFlaggedEnumValues<TKUIHint>(attr?.UIHints) ?? new(),
+            UIHints = TKEnumUtils.GetFlaggedEnumValues<TKUIHint>(attr?.UIHints) ?? new(),
             ParameterIndex = null,
             PossibleValues = possibleValues,
             ExtraValues = attr?.GetExtraValues() ?? new Dictionary<string, string>(),
@@ -135,7 +135,7 @@ public class TKCustomPropertyAttribute : Attribute
         // Enums
         if (enumType != null)
         {
-            var isFlags = EnumUtils.IsTypeEnumFlag(enumType);
+            var isFlags = TKEnumUtils.IsTypeEnumFlag(enumType);
             var list = new List<object>();
             foreach (var value in Enum.GetValues(enumType))
             {
@@ -171,18 +171,18 @@ public class TKCustomPropertyAttribute : Attribute
         var typeName = type.GetFriendlyTypeName(_inputTypeAliases);
         if (type.IsEnum)
         {
-            typeName = EnumUtils.IsTypeEnumFlag(type) ? "FlaggedEnum" : "Enum";
+            typeName = TKEnumUtils.IsTypeEnumFlag(type) ? "FlaggedEnum" : "Enum";
         }
         else if (type.IsNullable() && type.GenericTypeArguments[0].IsEnum)
         {
             var enumType = type.GenericTypeArguments[0];
-            typeName = EnumUtils.IsTypeEnumFlag(enumType) ? "Nullable<FlaggedEnum>" : "Nullable<Enum>";
+            typeName = TKEnumUtils.IsTypeEnumFlag(enumType) ? "Nullable<FlaggedEnum>" : "Nullable<Enum>";
         }
         else if (type.IsGenericType
             && type.GetGenericTypeDefinition() == typeof(List<>)
             && type.GetGenericArguments()[0].IsEnum)
         {
-            var innerType = EnumUtils.IsTypeEnumFlag(type.GetGenericArguments()[0]) ? "FlaggedEnum" : "Enum";
+            var innerType = TKEnumUtils.IsTypeEnumFlag(type.GetGenericArguments()[0]) ? "FlaggedEnum" : "Enum";
             typeName = $"List<{innerType}>";
         }
         else if (type.IsArray && type.GetElementType().IsNullable())

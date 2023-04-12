@@ -194,7 +194,7 @@ public class TKAccessTokensModule : ToolkitModuleBase<TKAccessTokensModule.Acces
         if (Options.TokenStorage == null) return null;
 
         // Filter out any roles not within access of current request
-        var requestRoles = EnumUtils.GetFlaggedEnumValues(context.CurrentRequestRoles).Select(x => x.ToString());
+        var requestRoles = TKEnumUtils.GetFlaggedEnumValues(context.CurrentRequestRoles).Select(x => x.ToString());
         data.Roles = data.Roles.Where(x => requestRoles.Contains(x)).ToList();
 
         // Filter out any modules and options not within access of current request
@@ -249,7 +249,7 @@ public class TKAccessTokensModule : ToolkitModuleBase<TKAccessTokensModule.Acces
     [ToolkitModuleMethod(AccessOption.CreateNewToken)]
     public object GetAccessData(ToolkitModuleContext context)
     {
-        var allRoles = EnumUtils.GetFlaggedEnumValues(context.CurrentRequestRoles)
+        var allRoles = TKEnumUtils.GetFlaggedEnumValues(context.CurrentRequestRoles)
             .Where(x => (int)Convert.ChangeType(x, typeof(int)) > 0)
             .Select(x => new Role()
             {

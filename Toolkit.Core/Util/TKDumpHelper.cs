@@ -20,7 +20,7 @@ public static class TKDumpHelper
     /// <param name="title">Title of the dump</param>
     public static DataDump Dump<T>(this T obj, IJsonSerializer serializer, string title = null)
     {
-        serializer ??= new DumpNullJsonSerializer();
+        serializer ??= new TKDumpNullJsonSerializer();
         var data = CreateDumpData(obj, serializer);
         return CreateDump<T>(obj?.GetType(), title, data);
     }

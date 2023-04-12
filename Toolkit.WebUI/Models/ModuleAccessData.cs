@@ -29,7 +29,7 @@ internal class ModuleAccessData<TAccessRole>
         }
         else
         {
-            return EnumUtils.GetFlaggedEnumValues(AccessOptions);
+            return TKEnumUtils.GetFlaggedEnumValues(AccessOptions);
         }
     }
 }

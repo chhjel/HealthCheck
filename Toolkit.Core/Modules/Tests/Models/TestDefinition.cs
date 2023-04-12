@@ -213,7 +213,7 @@ public class TestDefinition
             var referenceFactory = TryFindParameterFactory(referenceChoicesFactoryMethodName, parameter);
             var isCustomReferenceType = referenceFactory != null;
 
-            var uiHints = EnumUtils.GetFlaggedEnumValues<TKUIHint>(parameterAttribute?.UIHints) ?? new();
+            var uiHints = TKEnumUtils.GetFlaggedEnumValues<TKUIHint>(parameterAttribute?.UIHints) ?? new();
             // Ensure FullWidth if CodeArea
             if (uiHints.Contains(TKUIHint.CodeArea) && !uiHints.Contains(TKUIHint.FullWidth)) uiHints.Add(TKUIHint.FullWidth);
             // Ensure NotNull if CodeArea

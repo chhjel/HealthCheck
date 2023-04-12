@@ -5,7 +5,7 @@ using System.Web;
 
 namespace QoDL.Toolkit.Core.Util;
 
-internal static class HtmlBuilder
+internal static class TKHtmlBuilder
 {
     internal static string BuildAttributes(Dictionary<string, string> values)
     {

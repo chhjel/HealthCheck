@@ -121,7 +121,7 @@ internal class ToolkitControllerHelper<TAccessRole>
 
         return RoleModuleAccessLevels.Any(x => 
             x.AccessOptionsType == module.AccessOptionsType
-            && EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, x.Roles));
+            && TKEnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, x.Roles));
     }
 
     private bool RequestHasAccessToModuleMethod(Maybe<TAccessRole> accessRoles,
@@ -135,10 +135,10 @@ internal class ToolkitControllerHelper<TAccessRole>
 
         var accessOptionsType = requiredAccessOptions.GetType();
 
-        return EnumUtils.GetFlaggedEnumValues(requiredAccessOptions).All(opt =>
+        return TKEnumUtils.GetFlaggedEnumValues(requiredAccessOptions).All(opt =>
             RoleModuleAccessLevels.Any(x =>
                 x.AccessOptionsType == accessOptionsType
-                && EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, x.Roles)
+                && TKEnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, x.Roles)
                 && x.GetAllSelectedAccessOptions().Contains(opt))
         );
     }
@@ -153,10 +153,10 @@ internal class ToolkitControllerHelper<TAccessRole>
 
         var accessOptionsType = requiredAccessOptions.GetType();
 
-        return EnumUtils.GetFlaggedEnumValues(requiredAccessOptions).All(opt =>
+        return TKEnumUtils.GetFlaggedEnumValues(requiredAccessOptions).All(opt =>
             RoleModuleAccessLevels.Any(x =>
                 x.AccessOptionsType == accessOptionsType
-                && EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, x.Roles)
+                && TKEnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, x.Roles)
                 && x.GetAllSelectedAccessOptions().Contains(opt))
         );
     }
@@ -168,7 +168,7 @@ internal class ToolkitControllerHelper<TAccessRole>
         {
             var accessOptionsType = ToolkitModuleLoader.GetModuleAccessOptionsType(moduleType);
             var entriesForCurrentRole = RoleModuleAccessLevels
-                .Where(x => EnumUtils.EnumFlagHasAnyFlagsSet(currentRequestAccessRoles.Value, x.Roles)
+                .Where(x => TKEnumUtils.EnumFlagHasAnyFlagsSet(currentRequestAccessRoles.Value, x.Roles)
                             && x.AccessOptionsType == accessOptionsType);
             var values = entriesForCurrentRole.SelectMany(x => x.GetAllSelectedAccessOptions()).ToList();
             var joinedValue = 0;
@@ -441,7 +441,7 @@ internal class ToolkitControllerHelper<TAccessRole>
         {
             var accessOptions = RoleModuleAccessLevels
                 .Where(x => x.AccessOptionsType == module.AccessOptionsType
-                            && EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, x.Roles))
+                            && TKEnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, x.Roles))
                 .SelectMany(x => x.GetAllSelectedAccessOptions())
                 .Distinct()
                 .Select(x => x?.ToString())
@@ -890,7 +890,7 @@ internal class ToolkitControllerHelper<TAccessRole>
             return false;
         }
 
-        return EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, pageAccess.Value);
+        return TKEnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, pageAccess.Value);
     }
 #endregion
 

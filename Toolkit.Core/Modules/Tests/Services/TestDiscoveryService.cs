@@ -268,7 +268,7 @@ public class TestDiscoveryService
         }
         
         // Check for invalid setup
-        if (!EnumUtils.IsEnumFlagOfType(rolesToCheckAgainst, new[] { typeof(int), typeof(byte) }))
+        if (!TKEnumUtils.IsEnumFlagOfType(rolesToCheckAgainst, new[] { typeof(int), typeof(byte) }))
         {
             throw new TKInvalidAccessRolesDefinitionException($"Access role set on test '{test.Name}' is either missing a [Flags] attribute or does not have the underlying type int or byte.");
         }
@@ -278,6 +278,6 @@ public class TestDiscoveryService
                 $"({rolesToCheckAgainst.GetType().Name} and {roles.GetType().Name})");
         }
 
-        return EnumUtils.EnumFlagHasAnyFlagsSet(roles, rolesToCheckAgainst);
+        return TKEnumUtils.EnumFlagHasAnyFlagsSet(roles, rolesToCheckAgainst);
     }
 }

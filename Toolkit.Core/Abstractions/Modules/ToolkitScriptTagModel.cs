@@ -46,7 +46,7 @@ public class ToolkitScriptTagModel
                 { "src", Src }
             };
 
-        var attributesString = HtmlBuilder.BuildAttributes(attributes)
+        var attributesString = TKHtmlBuilder.BuildAttributes(attributes)
             .EnsureEndsWithIfNotNullOrEmpty(" ");
         return $"<script {attributesString}/>";
     }

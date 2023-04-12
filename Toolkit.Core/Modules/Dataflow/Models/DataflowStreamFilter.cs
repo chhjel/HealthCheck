@@ -78,6 +78,6 @@ public class DataflowStreamFilter
     /// </summary>
     public string CreateAuditSummary()
     {
-        return SimpleStringifier.Stringify(this);
+        return TKSimpleStringifier.Stringify(this);
     }
 }

@@ -7,7 +7,7 @@ namespace QoDL.Toolkit.Core.Util;
 /// <summary>
 /// Enum related utility methods.
 /// </summary>
-public static class EnumUtils
+public static class TKEnumUtils
 {
     /// <summary>
     /// Attempts to get the name of all the flagged enum values. Should never fail and returns an empty list if anything goes wrong.
