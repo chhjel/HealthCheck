@@ -1,0 +1,77 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <!-- <TargetFrameworks>netstandard2.0;net461;net472</TargetFrameworks> -->
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.0.1</Version>
+    <Authors>ChristianW</Authors>
+    <Company>ChristianW</Company>
+    <Description>Core logic &amp; services.</Description>
+    <Copyright>ChristianW</Copyright>
+    <LangVersion>latest</LangVersion>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\Toolkit.Core.xml</DocumentationFile>
+    <OutputPath>bin\$(Configuration)\$(TargetFrameworkVersion)\</OutputPath>
+    <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-Toolkit</PackageProjectUrl>
+  </PropertyGroup>
+
+  <!-- .NET STANDARD ######################### -->
+  <!-- Compiler flags -->
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
+    <DefineConstants>NETSTANDARD;NETSTANDARD2_0</DefineConstants>
+  </PropertyGroup>
+  <!-- ####################################### -->
+  
+  <!-- .NET FRAMEWORK ######################## -->
+  <!-- Compiler flags -->
+  <!-- <PropertyGroup Condition=" '$(TargetFramework)' == 'net461'">
+    <DefineConstants>NETFULL;NET461</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net472'">
+    <DefineConstants>NETFULL;NET472</DefineConstants>
+  </PropertyGroup> -->
+  <!-- References -->
+  <!-- <ItemGroup Condition=" '$(TargetFramework)' == 'net461' or '$(TargetFramework)' == 'net472' ">
+    <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.0.0" />
+    <Reference Include="System.Web" />
+  </ItemGroup> -->
+  <!-- ####################################### -->
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>Toolkit.Core.Tests</_Parameter1>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>QoDL.Toolkit.Core.Tests</_Parameter1>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>Toolkit.WebUI</_Parameter1>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>QoDL.Toolkit.WebUI</_Parameter1>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>Toolkit.Module.DataExport</_Parameter1>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>QoDL.Toolkit.Module.DataExport</_Parameter1>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>Toolkit.Episerver</_Parameter1>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>QoDL.Toolkit.Episerver</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="LogViewer\**" />
+    <Compile Remove="Modules\LogViewer\Services\Storage\**" />
+    <EmbeddedResource Remove="LogViewer\**" />
+    <EmbeddedResource Remove="Modules\LogViewer\Services\Storage\**" />
+    <None Remove="LogViewer\**" />
+    <None Remove="Modules\LogViewer\Services\Storage\**" />
+  </ItemGroup>
+
+</Project>

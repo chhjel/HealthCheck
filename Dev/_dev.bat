@@ -5,9 +5,9 @@ cls
 cd ..
 
 :: Start Visual Studio
-start HealthCheck.sln
+start Toolkit.sln
 
-cd HealthCheck.Frontend
+cd Toolkit.Frontend
 
 :: Start terminal
 start "" "C:\Program Files\Git\git-bash.exe"
@@ -16,5 +16,5 @@ start "" "C:\Program Files\Git\git-bash.exe"
 code .
 
 :: Start ngrok
-start D:\Programs\Ngrok\ngrok.exe http https://localhost:7241/ --host-header=localhost
+::start D:\Programs\Ngrok\ngrok.exe http https://localhost:7241/ --host-header=localhost
 

@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net461;net472</TargetFrameworks>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.0.1</Version>
+    <Authors>ChristianW</Authors>
+    <Company>ChristianW</Company>
+    <Description>Logs requests and errors.</Description>
+    <Copyright>ChristianW</Copyright>
+    <LangVersion>latest</LangVersion>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\Toolkit.Module.RequestLog.xml</DocumentationFile>
+    <OutputPath>bin\$(Configuration)\$(TargetFrameworkVersion)\</OutputPath>
+    <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-Toolkit</PackageProjectUrl>
+    <AssemblyName>Toolkit.Module.RequestLog</AssemblyName>
+  </PropertyGroup>
+  
+  <!-- .NET FRAMEWORK ######################## -->
+  <!-- Compiler flags -->
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net461'">
+    <DefineConstants>NETFULL;NET461</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net472'">
+    <DefineConstants>NETFULL;NET472</DefineConstants>
+  </PropertyGroup>
+  <!-- References -->
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' or '$(TargetFramework)' == 'net472' ">
+    <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.0.0" />
+    <PackageReference Include="Microsoft.AspNet.Razor" Version="3.0.0" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.0.0" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Core" Version="5.0.0" />
+    <PackageReference Include="Microsoft.AspNet.WebPages" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Web.Infrastructure" Version="1.0.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+    <Reference Include="System.Web" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  <!-- ####################################### -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Toolkit.Core\QoDL.Toolkit.Core.csproj" />
+    <ProjectReference Include="..\..\Toolkit.Web.Core\QoDL.Toolkit.Web.Core.csproj" />
+    <ProjectReference Include="..\..\Toolkit.WebApi.Core\QoDL.Toolkit.WebApi.Core.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Reinforced.Typings" Version="1.5.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Toolkit.WebUI\QoDL.Toolkit.WebUI.csproj" />
+    <ProjectReference Include="..\Modules\Toolkit.Module.DataExport\QoDL.Toolkit.Module.DataExport.csproj" />
+    <ProjectReference Include="..\Modules\Toolkit.Module.DynamicCodeExecution\QoDL.Toolkit.Module.DynamicCodeExecution.csproj" />
+    <ProjectReference Include="..\Modules\Toolkit.Module.EndpointControl\QoDL.Toolkit.Module.EndpointControl.csproj" />
+  </ItemGroup>
+
+</Project>

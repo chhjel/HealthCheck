@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Modules\Toolkit.Module.DataExport\QoDL.Toolkit.Module.DataExport.csproj" />
+    <ProjectReference Include="..\..\Modules\Toolkit.Module.EndpointControl\QoDL.Toolkit.Module.EndpointControl.csproj" />
+    <ProjectReference Include="..\..\Toolkit.Core\QoDL.Toolkit.Core.csproj" />
+    <ProjectReference Include="..\..\Toolkit.WebUI\QoDL.Toolkit.WebUI.csproj" />
+    <ProjectReference Include="..\..\Utility\Toolkit.Utility.Reflection\QoDL.Toolkit.Utility.Reflection.csproj" />
+  </ItemGroup>
+
+</Project>
