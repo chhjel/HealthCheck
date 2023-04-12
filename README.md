@@ -1,6 +1,6 @@
 # Toolkit
 
-[![Nuget](https://img.shields.io/nuget/v/Toolkit.WebUI?label=Toolkit.WebUI&logo=nuget)](https://www.nuget.org/packages/Toolkit.WebUI)
+[![Nuget](https://img.shields.io/nuget/v/QoDL.Toolkit.WebUI?label=QoDL.Toolkit.WebUI&logo=nuget)](https://www.nuget.org/packages/QoDL.Toolkit.WebUI)
 [![npm](https://img.shields.io/npm/v/christianw-toolkit?label=christianw-toolkit&logo=npm)](https://www.npmjs.com/package/christianw-toolkit)
 
 ## What is it
@@ -22,7 +22,7 @@ Available modules:
 * GoTo module where content can be located in a bit more simplified interface.
 * Mapped Data module to show how models are mapped.
 * Event notifications module for notifying through custom implementations when custom events occur.
-* Settings module for custom settings related to toolkit.
+* Settings module where custom settings can be changed at runtime.
 * IDE where C# scripts can be stored and executed in the context of the web application.
 * Access token module where tokens with limited access and lifespan can be created to access other modules.
 * Downloads module where files can be made available for download, optionally protected by password, expiration date and download count limit.
@@ -34,7 +34,7 @@ Available modules:
 
 ## Getting started
 
-1. Install the Toolkit.WebUI nuget package.
+1. Install the QoDL.Toolkit.WebUI nuget package.
 2. Create a custom flags enum with any desired access roles, e.g:
 
     ```csharp
@@ -162,9 +162,9 @@ public class MyController : ToolkitControllerBase<AccessRoles>
 
 By default frontend scripts with versions matching the nuget package version are fetched from unpkg.com. Alternatively use one of the following methods to bundle the frontend with the project:
 
-#### Using the Toolkit.WebUI.Assets nuget package
+#### Using the QoDL.Toolkit.WebUI.Assets nuget package
 
-The fastest and easiest way is to add the `Toolkit.WebUI.Assets` nuget package. The package contains all frontend assets, will load them into memory and configure the ui to use them. Requires a few extra mb of memory but makes it easy to update. Does not include the summary scripts for metrics and release notes (see below).
+The fastest and easiest way is to add the `QoDL.Toolkit.WebUI.Assets` nuget package. The package contains all frontend assets, will load them into memory and configure the ui to use them. Requires a few extra mb of memory but makes it easy to update. Does not include the summary scripts for metrics and release notes (see below).
 
 #### Manual configuration
 
@@ -175,7 +175,7 @@ Optionally manually download the frontend files from https://www.npmjs.com/packa
 If metrics or release notes summary is to be bundled with the project, they will have to be configured manually. See example below.
 
 ```csharp
-// Example using Toolkit.WebUI.Assets nuget package that enables the GetAsset endpoint.
+// Example using QoDL.Toolkit.WebUI.Assets nuget package that enables the GetAsset endpoint.
 var tkController = "/url_to_your_tk_controller";
 var assemblyVersion = "your_version";
 TKAssetGlobalConfig.DefaultMetricsSummaryJavascriptUrl = $"{tkController}/GetAsset?n=metrics.js&v={assemblyVersion}";
@@ -361,7 +361,7 @@ public static ProxyRuntimeTestConfig SomeServiceProxyTest()
         // Optionally add a custom context for more flexibility
         .SetCustomContext(
             // Create any object as a context object that will be used in the resultAction below
-            // Using logger auto-creation logic from the Toolkit.Utility.Reflection nuget package here.
+            // Using logger auto-creation logic from the QoDL.Toolkit.Utility.Reflection nuget package here.
             contextFactory: () => new { MemoryLogger = TKLogTypeBuilder.CreateMemoryLoggerFor<ISomeLogger>() },
             
             // Optionally override service activation to inject e.g. a memory logger and dump the log along with the test result.
@@ -530,7 +530,7 @@ var results = await runner.ExecuteTests(testDiscovererService,
 Inject a memory logger into the instances being tested and include the output in the result.
 
 ```csharp
-    // Optionally include the nuget package Toolkit.Utility.Reflection to create a memory logger for any interface at runtime e.g:
+    // Optionally include the nuget package QoDL.Toolkit.Utility.Reflection to create a memory logger for any interface at runtime e.g:
     var memoryLogger = TKLogTypeBuilder.CreateMemoryLoggerFor<ILogger>();
 
     // GetInstance<T> attempts to create a new instance of the given type by calling the
@@ -718,7 +718,7 @@ Shows the last n requests per endpoint, including stack trace of any unhandled e
 
 For requests to be logged and viewable a few things needs to be configured:
 
-* [![Nuget](https://img.shields.io/nuget/v/Toolkit.Module.RequestLog?label=Toolkit.Module.RequestLog&logo=nuget)](https://www.nuget.org/packages/Toolkit.Module.RequestLog) nuget package must be added.
+* [![Nuget](https://img.shields.io/nuget/v/QoDL.Toolkit.Module.RequestLog?label=QoDL.Toolkit.Module.RequestLog&logo=nuget)](https://www.nuget.org/packages/QoDL.Toolkit.Module.RequestLog) nuget package must be added.
 * A set of action filters will need to be registered.
 * Optionally run a utility method on startup to generate definitions from all controller actions.
 
@@ -786,7 +786,7 @@ Optionally decorate methods or classes with the `RequestLogInfoAttribute` attrib
 
 ## Module: Dynamic Code Execution
 
-Provides a monaco-editor IDE where C# scripts can be stored and executed in the context of the web application to extract data, debug issues or other things. Requires an additional nuget package installed [![Nuget](https://img.shields.io/nuget/v/Toolkit.Module.DynamicCodeExecution?label=Toolkit.Module.DynamicCodeExecution&logo=nuget)](https://www.nuget.org/packages/Toolkit.Module.DynamicCodeExecution)
+Provides a monaco-editor IDE where C# scripts can be stored and executed in the context of the web application to extract data, debug issues or other things. Requires an additional nuget package installed [![Nuget](https://img.shields.io/nuget/v/QoDL.Toolkit.Module.DynamicCodeExecution?label=QoDL.Toolkit.Module.DynamicCodeExecution&logo=nuget)](https://www.nuget.org/packages/QoDL.Toolkit.Module.DynamicCodeExecution)
 
 Should be heavily locked down if used other places than localhost, optimally behind MFA.
 
@@ -1065,7 +1065,7 @@ public class ExampleDataRepeaterStreamBatchActionRenameTag : TKDataRepeaterStrea
 
 ## Module: DataExport
 
-Requires an additional nuget package installed [![Nuget](https://img.shields.io/nuget/v/Toolkit.Module.DataExport?label=Toolkit.Module.DataExport&logo=nuget)](https://www.nuget.org/packages/Toolkit.Module.DataExport).
+Requires an additional nuget package installed [![Nuget](https://img.shields.io/nuget/v/QoDL.Toolkit.Module.DataExport?label=QoDL.Toolkit.Module.DataExport&logo=nuget)](https://www.nuget.org/packages/QoDL.Toolkit.Module.DataExport).
 
 The module allows for filtering and exporting data. The type of data source you have available determines how to filter it.
 
@@ -1074,7 +1074,7 @@ The module allows for filtering and exporting data. The type of data source you 
 
 A default implementation `TKDataExportService` is provided that picks up any registered `ITKDataExportStream` streams.
 
-If you dare allow raw SQL queries, you can inherit a stream from `TKSqlExportStreamBase<TKSqlExportStreamParameters>`. The stream requires a registered `ITKSqlExportStreamQueryExecutor`, `TKDataExportExportSqlQueryExecutor` in the [![Nuget](https://img.shields.io/nuget/v/Toolkit.Module.DataExport.SQLExecutor?label=Toolkit.Module.DataExport.SQLExecutor&logo=nuget)](https://www.nuget.org/packages/Toolkit.Module.DataExport.SQLExecutor) nuget package can be used unless you want to create your own implementation.
+If you dare allow raw SQL queries, you can inherit a stream from `TKSqlExportStreamBase<TKSqlExportStreamParameters>`. The stream requires a registered `ITKSqlExportStreamQueryExecutor`, `TKDataExportExportSqlQueryExecutor` in the [![Nuget](https://img.shields.io/nuget/v/QoDL.Toolkit.Module.DataExport.SQLExecutor?label=QoDL.Toolkit.Module.DataExport.SQLExecutor&logo=nuget)](https://www.nuget.org/packages/QoDL.Toolkit.Module.DataExport.SQLExecutor) nuget package can be used unless you want to create your own implementation.
 
 If the request only has access to load presets + export, a simplified version of the interface will be displayed where the only actions available is to select a stream, preset and export format.
 
@@ -1099,7 +1099,7 @@ UseModule(new TKDataExportModule(new TKDataExportModuleOptions
         // Exporters = ..
     })
     // By default CSV (semicolon + comma), TSV, XML and JSON exporters are configured.
-    // Excel exporter can be found in the nuget package Toolkit.Module.DataExport.Exporter.Excel
+    // Excel exporter can be found in the nuget package QoDL.Toolkit.Module.DataExport.Exporter.Excel
     .AddExporter(new TKDataExportExporterXlsx())
 );
 ```
@@ -1854,7 +1854,7 @@ _messageStore.StoreMessage(inboxId: "mail", message);
 
 ## Module: Endpoint Control
 
-Requires an additional nuget package installed [![Nuget](https://img.shields.io/nuget/v/Toolkit.Module.EndpointControl?label=Toolkit.Module.EndpointControl&logo=nuget)](https://www.nuget.org/packages/Toolkit.Module.EndpointControl).
+Requires an additional nuget package installed [![Nuget](https://img.shields.io/nuget/v/QoDL.Toolkit.Module.EndpointControl?label=QoDL.Toolkit.Module.EndpointControl&logo=nuget)](https://www.nuget.org/packages/QoDL.Toolkit.Module.EndpointControl).
 
 Decorate mvc and webapi actions with `TKControlledEndpointAttribute` or `TKControlledApiEndpointAttribute` to allow for a bit of spam control by setting conditional rules at runtime using the interface. The module can also show the latest requests sent to decorated endpoints, including a few graphs.
 
@@ -2023,7 +2023,7 @@ To include metrics data on every page when any metrics are available use `Create
 @if (allowMetrics)
 {
     // If no data has been logged through `TKMetricsContext` for the current request null will be returned.
-    @Html.Raw(Toolkit.Core.Modules.Metrics.Context.TKMetricsUtil.CreateContextSummaryHtml())
+    @Html.Raw(QoDL.Toolkit.Core.Modules.Metrics.Context.TKMetricsUtil.CreateContextSummaryHtml())
 }
 ```
 
@@ -2105,7 +2105,7 @@ To include a floating release notes button on every page when any notes are avai
 @if (showReleaseNotes)
 {
     // If there's nothing to display it outputs a html comment with the reason why.
-    @Html.Raw(Toolkit.Core.Modules.ReleaseNotes.Util.TKReleaseNotesUtil.CreateReleaseNotesSummaryHtml(/* optionally pass true here to include dev details */))
+    @Html.Raw(QoDL.Toolkit.Core.Modules.ReleaseNotes.Util.TKReleaseNotesUtil.CreateReleaseNotesSummaryHtml(/* optionally pass true here to include dev details */))
 }
 ```
 
@@ -2147,7 +2147,7 @@ Any requests to the index action of the main controller that does not have acces
 
 ### MFA: TOTP
 
-To add TOTP MFA you can add the [![Nuget](https://img.shields.io/nuget/v/Toolkit.WebUI.MFA.TOTP?label=Toolkit.WebUI.MFA.TOTP&logo=nuget)](https://www.nuget.org/packages/Toolkit.WebUI.MFA.TOTP) package. If you already have code for validation of TOTP codes in your project this package is not needed.
+To add TOTP MFA you can add the [![Nuget](https://img.shields.io/nuget/v/QoDL.Toolkit.WebUI.MFA.TOTP?label=QoDL.Toolkit.WebUI.MFA.TOTP&logo=nuget)](https://www.nuget.org/packages/QoDL.Toolkit.WebUI.MFA.TOTP) package. If you already have code for validation of TOTP codes in your project this package is not needed.
 
 * For it to work you need to store a 2FA secret per user to validate the codes against. The secret must be a base32 string and can be generated using e.g. `TKMfaTotpUtil.GenerateOTPSecret()`.
 * Validate codes using the `TKMfaTotpUtil.ValidateTotpCode(userSecret, code)` method.
@@ -2156,7 +2156,7 @@ To add TOTP MFA you can add the [![Nuget](https://img.shields.io/nuget/v/Toolkit
 
 ### MFA: WebAuthn/FIDO2
 
-To add WebAuthn MFA you can add the [![Nuget](https://img.shields.io/nuget/v/Toolkit.WebUI.MFA.WebAuthn?label=Toolkit.WebUI.MFA.WebAuthn&logo=nuget)](https://www.nuget.org/packages/Toolkit.WebUI.MFA.WebAuthn) package.
+To add WebAuthn MFA you can add the [![Nuget](https://img.shields.io/nuget/v/QoDL.Toolkit.WebUI.MFA.WebAuthn?label=QoDL.Toolkit.WebUI.MFA.WebAuthn&logo=nuget)](https://www.nuget.org/packages/QoDL.Toolkit.WebUI.MFA.WebAuthn) package.
 
 You can use the included `TKWebAuthnHelper` to register FIDO2 keys and create data secrets to store on your user objects.
 
@@ -2302,7 +2302,7 @@ The built in flatfile storage classes should work fine for most use cases when a
 
 ### Episerver / Optimizely
 
-For Episerver/Optimizely projects storage implementations can optionally be used from [![Nuget](https://img.shields.io/nuget/v/Toolkit.Episerver?label=Toolkit.Episerver&logo=nuget)](https://www.nuget.org/packages/Toolkit.Episerver) and the other episerver packages for specific modules. If used they should be registered as singletons for optimal performance.
+For Episerver/Optimizely projects storage implementations can optionally be used from [![Nuget](https://img.shields.io/nuget/v/QoDL.Toolkit.Episerver?label=QoDL.Toolkit.Episerver&logo=nuget)](https://www.nuget.org/packages/QoDL.Toolkit.Episerver) and the other episerver packages for specific modules. If used they should be registered as singletons for optimal performance.
 
 Cache can optionally be set to null in constructor if not wanted, or the included memory cache `TKSimpleMemoryCache` can be used as a singleton.  For load balanced environments `TKSimpleMemoryCacheForEpiLoadBalanced` can optionally be used (not much tested yet).
 
@@ -2377,7 +2377,7 @@ The storage implementations are not optimized for load balanced environments, if
 
 ## Utils
 
-Various utility classes can be found below the `Toolkit.Core.Util` namespace.
+Various utility classes can be found below the `QoDL.Toolkit.Core.Util` namespace.
 
 * `TKSensitiveDataUtils` - Util methods for stripping numbers of given lengths, emails etc from texts.
 * `TKIPAddressUtils` - Parse strings to IP address models.
@@ -2387,8 +2387,8 @@ Various utility classes can be found below the `Toolkit.Core.Util` namespace.
 * `TKIoCUtils` -  Get instances of types with partial IoC etc.
 * `TKAsyncUtils` - Invoke async through reflection, run async synchronous.
 * `TKRequestData` - Quickly get/set some data in request items.
-* Memory loggers for any interface can be created at runtime by using `TKLogTypeBuilder.CreateMemoryLoggerFor<TInterface>` included in the nuget package `Toolkit.Utility.Reflection`.
-* `Toolkit.Core.Config.TKGlobalConfig` contains some global static options that can be configured at startup:
+* Memory loggers for any interface can be created at runtime by using `TKLogTypeBuilder.CreateMemoryLoggerFor<TInterface>` included in the nuget package `QoDL.Toolkit.Utility.Reflection`.
+* `QoDL.Toolkit.Core.Config.TKGlobalConfig` contains some global static options that can be configured at startup:
   * Dependency resolver override (must be configured for .NET Core).
   * Types and namespaces ignored in data serialization.
   * Current request IP resolver logic override.
