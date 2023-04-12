@@ -72,7 +72,7 @@ public abstract class StoredDataflowStream<TAccessRole, TEntry> : DataflowStream
         if (!AllowInsertSafe || entries == null) return;
 
         var entriesList = entries.ToList();
-        for (var i=0; i< entriesList.Count; i++)
+        for (var i = 0; i < entriesList.Count; i++)
         {
             entriesList[i].InsertionTime = timestamp ?? DateTimeOffset.Now;
         }

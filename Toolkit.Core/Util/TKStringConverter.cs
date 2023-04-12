@@ -205,7 +205,7 @@ public class TKStringConverter
             if (inputType == typeof(DateTimeOffset[])) return (T)Convert.ChangeType(new[] { parseDateOffset(startStr), parseDateOffset(endStr) }, typeof(T));
             else return (T)Convert.ChangeType(new[] { parseDateOffsetNullable(startStr), parseDateOffsetNullable(endStr) }, typeof(T));
         }
-        
+
         // 2022-08-07T09:45:24 - 2022-08-07T09:45:24
 
         // Fallback to TryParse or throw

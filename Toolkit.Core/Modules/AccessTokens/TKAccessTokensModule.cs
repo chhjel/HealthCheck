@@ -106,7 +106,8 @@ public class TKAccessTokensModule : ToolkitModuleBase<TKAccessTokensModule.Acces
 
             return tokenFromStore;
         }
-        catch (Exception) {
+        catch (Exception)
+        {
             return null;
         }
     }
@@ -145,7 +146,7 @@ public class TKAccessTokensModule : ToolkitModuleBase<TKAccessTokensModule.Acces
 
                 string createdSummary = $"Created {TKTimeUtils.PrettifyDurationSince(x.CreatedAt, TimeSpan.FromMinutes(1), "less than a minute")} ago";
 
-                foreach(var module in x.Modules)
+                foreach (var module in x.Modules)
                 {
                     module.Categories ??= new List<string>();
                 }
@@ -259,7 +260,8 @@ public class TKAccessTokensModule : ToolkitModuleBase<TKAccessTokensModule.Acces
 
         var moduleOptions = context.LoadedModules
             .Where(x => context.CurrentRequestModulesAccess.Any(m => m.ModuleId == x.Module.GetType().Name))
-            .Select(x => {
+            .Select(x =>
+            {
                 var moduleAccess = context.CurrentRequestModulesAccess
                     .FirstOrDefault(m => m.ModuleId == x.Module.GetType().Name);
                 var requestModuleOptions = moduleAccess.AccessOptions;

@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using QoDL.Toolkit.Core.Abstractions.Modules;
 using QoDL.Toolkit.Core.Config;
 using QoDL.Toolkit.Core.Exceptions;
@@ -14,13 +16,11 @@ using QoDL.Toolkit.Core.Util.Modules;
 using QoDL.Toolkit.WebUI.Exceptions;
 using QoDL.Toolkit.WebUI.Models;
 using QoDL.Toolkit.WebUI.Serializers;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Text;
+using System.Threading.Tasks;
 
 #if NETFULL
 using System.IO;
@@ -119,7 +119,7 @@ internal class ToolkitControllerHelper<TAccessRole>
             return false;
         }
 
-        return RoleModuleAccessLevels.Any(x => 
+        return RoleModuleAccessLevels.Any(x =>
             x.AccessOptionsType == module.AccessOptionsType
             && TKEnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, x.Roles));
     }
@@ -172,7 +172,7 @@ internal class ToolkitControllerHelper<TAccessRole>
                             && x.AccessOptionsType == accessOptionsType);
             var values = entriesForCurrentRole.SelectMany(x => x.GetAllSelectedAccessOptions()).ToList();
             var joinedValue = 0;
-            foreach(var value in values)
+            foreach (var value in values)
             {
                 joinedValue |= (int)value;
             }
@@ -192,7 +192,7 @@ internal class ToolkitControllerHelper<TAccessRole>
     private IEnumerable<ToolkitInvokableActionWithModule> GetInvokableActionsRequestHasAccessTo(RequestInformation<TAccessRole> requestInfo)
     {
         var accessRoles = requestInfo.AccessRole;
-        
+
         var modules = LoadedModules;
         if (modules == null || !modules.Any())
         {
@@ -200,10 +200,10 @@ internal class ToolkitControllerHelper<TAccessRole>
         }
 
         var methods = new List<ToolkitInvokableActionWithModule>();
-        foreach(var module in modules)
+        foreach (var module in modules)
         {
             var actions = module.CustomActions;
-            foreach(var action in actions)
+            foreach (var action in actions)
             {
                 if (RequestHasAccessToModuleAction(accessRoles, action))
                 {
@@ -385,7 +385,7 @@ internal class ToolkitControllerHelper<TAccessRole>
         var jsUrls = pageOptions?.JavaScriptUrls ?? new List<string>();
         if (jsUrls.Count == 0) jsUrls = TKAssetGlobalConfig.DefaultJavaScriptUrls ?? new List<string>();
         jsUrls = jsUrls.Select(x => x.Replace("[base]", endpointBase.TrimEnd('/'))).ToList();
-        
+
         var cssUrls = pageOptions?.CssUrls ?? new List<string>();
         if (cssUrls.Count == 0) cssUrls = TKAssetGlobalConfig.DefaultCssUrls ?? new List<string>();
         cssUrls = cssUrls.Select(x => x.Replace("[base]", endpointBase.TrimEnd('/'))).ToList();
@@ -461,7 +461,8 @@ internal class ToolkitControllerHelper<TAccessRole>
         var configs = new List<ToolkitModuleConfigWrapper>();
         foreach (var module in availableModules)
         {
-            configs.Add(new ToolkitModuleConfigWrapper {
+            configs.Add(new ToolkitModuleConfigWrapper
+            {
                 Id = module.Id,
                 Name = module.Name,
                 Config = module.Config,
@@ -501,13 +502,13 @@ internal class ToolkitControllerHelper<TAccessRole>
     /// <summary>
     /// Get the first registered module of the given type.
     /// </summary>
-    public TModule GetModule<TModule>() where TModule: class
+    public TModule GetModule<TModule>() where TModule : class
         => RegisteredModules.FirstOrDefault(x => x.Module is TModule)?.Module as TModule;
     #endregion
 
     internal bool ApplyTokenAccessIfDetected(RequestInformation<TAccessRole> currentRequestInformation)
     {
-        foreach(var module in RegisteredModules)
+        foreach (var module in RegisteredModules)
         {
             if (module.Module is TKAccessTokensModule acModule)
             {
@@ -627,7 +628,8 @@ internal class ToolkitControllerHelper<TAccessRole>
 
         var allowStacktrace = AccessRolesHasAccessTo(accessRoles, AccessConfig.ShowFailedModuleLoadStackTrace, defaultValue: false);
         var moduleConfigs = GetModuleConfigs(accessRoles);
-        var moduleConfigData = moduleConfigs.Select(x => new {
+        var moduleConfigData = moduleConfigs.Select(x => new
+        {
             x.Id,
             x.Name,
             x.LoadedSuccessfully,
@@ -892,9 +894,9 @@ internal class ToolkitControllerHelper<TAccessRole>
 
         return TKEnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, pageAccess.Value);
     }
-#endregion
+    #endregion
 
-#region Init module extras
+    #region Init module extras
     private static void InitStringConverter(TKStringConverter converter)
     {
         converter.RegisterConverter<byte[]>(
@@ -1008,5 +1010,5 @@ internal class ToolkitControllerHelper<TAccessRole>
         );
     }
 #endif
-#endregion
+    #endregion
 }

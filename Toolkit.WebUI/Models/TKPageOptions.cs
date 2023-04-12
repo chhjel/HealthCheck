@@ -49,7 +49,7 @@ public class TKPageOptions
     /// </summary>
     public void Validate()
     {
-        if ((JavaScriptUrls == null || JavaScriptUrls.Count == 0) 
+        if ((JavaScriptUrls == null || JavaScriptUrls.Count == 0)
             && (TKAssetGlobalConfig.DefaultJavaScriptUrls == null || TKAssetGlobalConfig.DefaultJavaScriptUrls.Count == 0))
             throw new ConfigValidationException($"Both {nameof(JavaScriptUrls)} and TKAssetGlobalConfig.DefaultJavaScriptUrls is empty.");
     }

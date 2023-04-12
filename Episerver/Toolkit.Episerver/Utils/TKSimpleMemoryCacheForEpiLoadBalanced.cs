@@ -66,7 +66,7 @@ public class TKSimpleMemoryCacheForEpiLoadBalanced : TKSimpleMemoryCacheLoadBala
 
         HasReceivedAnyEvents = true;
 
-        var value = parameter.Substring(_messageParameterPrefix.Length);
+        var value = parameter[_messageParameterPrefix.Length..];
         if (string.IsNullOrEmpty(value))
         {
             ClearAll(allowDistribute: false);

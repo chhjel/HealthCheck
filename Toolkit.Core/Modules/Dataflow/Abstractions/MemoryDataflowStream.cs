@@ -43,7 +43,7 @@ public abstract class MemoryDataflowStream<TAccessRole, TEntry>
 
         public IEnumerable<TEntry> GetEnumerable()
         {
-            lock(Items)
+            lock (Items)
             {
                 return Items.ToList();
             }
@@ -51,7 +51,7 @@ public abstract class MemoryDataflowStream<TAccessRole, TEntry>
 
         public TEntry InsertOrUpdateItem(TEntry item, Func<TEntry, TEntry> update = null)
         {
-            lock(Items)
+            lock (Items)
             {
                 IdSetter(item, Guid.NewGuid());
                 Items.Insert(0, item);
@@ -62,7 +62,7 @@ public abstract class MemoryDataflowStream<TAccessRole, TEntry>
 
         public void InsertOrUpdateItems(IEnumerable<TEntry> items)
         {
-            foreach(var entry in items)
+            foreach (var entry in items)
             {
                 IdSetter(entry, Guid.NewGuid());
                 Items.Insert(0, entry);
@@ -72,7 +72,7 @@ public abstract class MemoryDataflowStream<TAccessRole, TEntry>
 
         private void Cleanup()
         {
-            lock(Items)
+            lock (Items)
             {
                 var itemsToRemove = Items.Count - MaxItemCount;
                 if (itemsToRemove > 0)
@@ -83,7 +83,7 @@ public abstract class MemoryDataflowStream<TAccessRole, TEntry>
                 if (MaxDuration != null)
                 {
                     var threshold = DateTimeOffset.Now.Add(-MaxDuration.Value).ToUniversalTime();
-                    for(int i=0; i<Items.Count; i++)
+                    for (int i = 0; i < Items.Count; i++)
                     {
                         if (Items[i].InsertionTime?.ToUniversalTime() < threshold)
                         {

@@ -87,7 +87,7 @@ public static class TKDataRepeaterUtils
             var streams = service?.GetStreams();
             return streams?.FirstOrDefault(x => x.GetType() == typeof(TStream));
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             TKGlobalConfig.OnExceptionEvent?.Invoke(typeof(TKDataRepeaterUtils), nameof(GetStream), ex);
             return null;

@@ -11,7 +11,7 @@ public class SetRuleEnabledRequestModel
     /// Target rule id.
     /// </summary>
     public Guid RuleId { get; set; }
-    
+
     /// <summary>
     /// Target new state.
     /// </summary>

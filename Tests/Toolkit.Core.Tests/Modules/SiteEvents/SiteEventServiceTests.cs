@@ -55,7 +55,7 @@ public class SiteEventServiceTests
         var storage = new MemorySiteEventStorage();
         var service = new SiteEventService(storage);
         var tasks = new List<Task>();
-        for(int i=0;i<5000;i++)
+        for (int i = 0; i < 5000; i++)
         {
             var eventX = new SiteEvent(SiteEventSeverity.Error, "typeIdX", "TitleB", "DescriptionB");
             tasks.Add(service.StoreEvent(eventX));
@@ -90,7 +90,7 @@ public class SiteEventServiceTests
         var service = new SiteEventService(storage);
         var eventA = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 5)
         {
-             Timestamp = DateTimeOffset.Now.AddMinutes(-3)
+            Timestamp = DateTimeOffset.Now.AddMinutes(-3)
         };
         var eventB = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleB", "DescriptionB", duration: 5);
         await service.StoreEvent(eventA);
@@ -277,7 +277,8 @@ public class SiteEventServiceTests
             allowEventMerge: true,
             maxMinutesSinceLastEventEnd: 15,
             lastEventDurationMultiplier: 2f,
-            eventMerger: (oldEvent, newEvent) => {
+            eventMerger: (oldEvent, newEvent) =>
+            {
                 oldEvent.Description = NewDescription;
                 oldEvent.Duration += newEvent.Duration;
             }

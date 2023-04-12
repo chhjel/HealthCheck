@@ -2,8 +2,8 @@ using QoDL.Toolkit.Core.Abstractions.Modules;
 using QoDL.Toolkit.Core.Config;
 using QoDL.Toolkit.Core.Modules.Tests;
 using QoDL.Toolkit.Core.Util.Modules;
-using System.Linq;
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace QoDL.Toolkit.DevTest._TestImplementation.Modules;

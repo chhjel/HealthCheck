@@ -254,7 +254,7 @@ public class TestResult
     /// <param name="onlyIfNotNullOrEmpty">Only include the result if the data is not null or empty.</param>
     public TestResult AddExceptionData(Exception exception, string title = null, bool onlyIfNotNullOrEmpty = true)
         => AddTextData(
-            (exception != null) ? TKExceptionUtils.GetFullExceptionDetails(exception) : null, 
+            (exception != null) ? TKExceptionUtils.GetFullExceptionDetails(exception) : null,
             title ?? exception?.GetType()?.Name,
             onlyIfNotNullOrEmpty);
 
@@ -355,7 +355,7 @@ public class TestResult
     /// <param name="title">Title of the result data if any.</param>
     /// <param name="onlyIfNotNullOrEmpty">Only include the result if the data is not null or empty.</param>
     public TestResult AddTimingData(TKTestTiming timing, string title = null, bool onlyIfNotNullOrEmpty = true)
-        => AddTimingData(new [] { timing }, title, onlyIfNotNullOrEmpty);
+        => AddTimingData(new[] { timing }, title, onlyIfNotNullOrEmpty);
 
     /// <summary>
     /// Include the given timing data in the result data.
@@ -466,7 +466,7 @@ public class TestResult
         var jsonBuilder = new StringBuilder();
         jsonBuilder.AppendLine("[");
         var stepList = steps.ToList();
-        for(int i=0; i < stepList.Count; i++)
+        for (int i = 0; i < stepList.Count; i++)
         {
             var isLast = i == stepList.Count - 1;
             var step = stepList[i];

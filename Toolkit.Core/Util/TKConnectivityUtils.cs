@@ -28,7 +28,8 @@ public static class TKConnectivityUtils
             if (result.Status == IPStatus.Success)
             {
                 return TKConnectivityCheckResult.CreateSuccess(action, $"Roundtrip time was {result.RoundtripTime}ms.");
-            } else
+            }
+            else
             {
                 return TKConnectivityCheckResult.CreateError(action, $"Failed with a status of '{result.Status}'.");
             }
@@ -78,7 +79,7 @@ public static class TKConnectivityUtils
             int statusCode = (int)webResponse.StatusCode;
             return TKConnectivityCheckResult.CreateSuccess(action, $"Statuscode '{statusCode}' was returned.");
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             return TKConnectivityCheckResult.CreateError(action, ex);
         }

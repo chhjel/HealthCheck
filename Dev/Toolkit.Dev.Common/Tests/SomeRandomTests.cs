@@ -188,7 +188,7 @@ public class SomeRandomTests
 
     [RuntimeTest]
     public TestResult TestWithDefaultValues(int number = 123, string text = "some text", bool toggle = true,
-        EnumTestType enumParam = EnumTestType.SecondValue, 
+        EnumTestType enumParam = EnumTestType.SecondValue,
         EnumFlagsTestType enumFlagsParam = EnumFlagsTestType.B | EnumFlagsTestType.D)
     //List<string> stringList, List<DateTime> dateList, List<bool> boolList, List<EnumTestType> enumList
     {
@@ -197,7 +197,7 @@ public class SomeRandomTests
     }
 
     [RuntimeTest]
-    [RuntimeTestParameter("stringList", "A read only string list", "Fancy description 1", 
+    [RuntimeTestParameter("stringList", "A read only string list", "Fancy description 1",
         uiHints: TKUIHint.ReadOnlyList, DefaultValueFactoryMethod = nameof(ReadOnlyListTest_Default))]
     [RuntimeTestParameter("enumList", "A read only enum list", "Fancy description 2",
         uiHints: TKUIHint.ReadOnlyList, DefaultValueFactoryMethod = nameof(ReadOnlyListEnumTest_Default))]
@@ -244,7 +244,7 @@ public class SomeRandomTests
     [RuntimeTest(description: "Should run for about 10 seconds.")]
     public async Task<TestResult> CancellableTest2(CancellationToken cancellationToken)
     {
-        for(int i = 0; i < 5; i++)
+        for (int i = 0; i < 5; i++)
         {
             await Task.Delay(TimeSpan.FromSeconds(2));
             if (cancellationToken.IsCancellationRequested)
@@ -348,7 +348,8 @@ public class SomeRandomTests
         {
             int.Parse("something unparsable");
             throw new NotImplementedException();
-        } catch(Exception ex)
+        }
+        catch (Exception ex)
         {
             return TestResult.CreateWarning("Some warning here")
                 .SetSiteEvent(new SiteEvent(SiteEventSeverity.Warning,
@@ -364,7 +365,8 @@ public class SomeRandomTests
         if (random.Next(100) > 80)
         {
             return TestResult.CreateResolvedSiteEvent("OK", "IntegrationXLatency", "Problem now resolved!");
-        } else
+        }
+        else
         {
             return TestResult.CreateWarning("Not resolved yet");
         }

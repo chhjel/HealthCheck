@@ -97,7 +97,7 @@ public class TKEpiserverBlobDynamicCodeScriptStorage
 
         scriptToSave.Title = script.Title;
         scriptToSave.Code = script.Code;
-        
+
         SaveBlobData(data);
         return await Task.FromResult(scriptToSave);
     }

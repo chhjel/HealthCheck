@@ -63,7 +63,8 @@ public class TKTestContext
     /// Add timing data with a given duration.
     /// </summary>
     public static void AddTiming(string description, TimeSpan duration)
-        => WithCurrentContext(c => {
+        => WithCurrentContext(c =>
+        {
             lock (c._timingsLock)
             {
                 c.Timings.Add(new TKTestTiming(description, duration, DateTimeOffset.Now - c.TestExecutionStartTime - duration));
@@ -88,7 +89,7 @@ public class TKTestContext
     public static void StartTiming(string description)
         => WithCurrentContext(c =>
         {
-            lock(c._timingsLock)
+            lock (c._timingsLock)
             {
                 c.Timings.Add(new TKTestTiming(Guid.NewGuid().ToString(), description, (DateTimeOffset.Now - c.TestExecutionStartTime)));
             }
@@ -101,7 +102,7 @@ public class TKTestContext
     public static void EndTiming(string id = null)
         => WithCurrentContext(c =>
         {
-            lock(c._timingsLock)
+            lock (c._timingsLock)
             {
                 var timing = c.Timings.LastOrDefault(x => id == null || x.Id == id);
                 timing?.EndTimer();
@@ -133,7 +134,7 @@ public class TKTestContext
 
             action(context);
         }
-        catch(Exception)
+        catch (Exception)
         {
             /* ignored */
         }

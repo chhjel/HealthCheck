@@ -64,7 +64,7 @@ public static class TKVersionUtils
                 actionOnNewVersion.Invoke(currentVersion);
             }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             TKGlobalConfig.OnExceptionEvent?.Invoke(typeof(TKVersionUtils), nameof(ExecuteIfNewlyDeployedVersion), ex);
         }

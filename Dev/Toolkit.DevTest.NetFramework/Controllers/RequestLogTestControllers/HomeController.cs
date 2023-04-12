@@ -27,7 +27,7 @@ public class HomeController : Controller
                 {
                     _ = int.Parse("err pls");
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     TKMetricsContext.AddError("Login error", ex);
                     TKMetricsContext.AddError("Another error");

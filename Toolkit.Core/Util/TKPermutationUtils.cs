@@ -27,7 +27,7 @@ public static class TKPermutationUtils
     /// <para>Be sure to not use too many properties if you want to keep performance up.</para>
     /// </summary>
     public static List<object> CreatePermutationsOf(Type type)
-{
+    {
         // Build available actions from supported property types
         var propertyPermutations = new List<PossiblePropertyPermutation>();
         foreach (var prop in type.GetProperties())

@@ -1,8 +1,8 @@
+using Newtonsoft.Json;
 using QoDL.Toolkit.Core.Modules.DataRepeater.Abstractions;
 using QoDL.Toolkit.Core.Modules.DataRepeater.Extensions;
 using QoDL.Toolkit.Core.Modules.DataRepeater.Models;
 using QoDL.Toolkit.Core.Util;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;

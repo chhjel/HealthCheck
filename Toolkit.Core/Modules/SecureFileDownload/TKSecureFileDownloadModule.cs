@@ -50,7 +50,7 @@ public class TKSecureFileDownloadModule : ToolkitModuleBase<TKSecureFileDownload
             ?.Where(x => x.Count() > 1)
             ?.Select(x => x.Key)
             ?? Enumerable.Empty<string>();
-        foreach(var dupeId in duplicateStorageIds)
+        foreach (var dupeId in duplicateStorageIds)
         {
             issues.Add($"Options.{nameof(Options.FileStorages)} contains multiple implementations with the same id '{dupeId}'.");
         }
@@ -63,7 +63,7 @@ public class TKSecureFileDownloadModule : ToolkitModuleBase<TKSecureFileDownload
     public override object GetFrontendOptionsObject(ToolkitModuleContext context)
     {
         var model = new SecureFileDownloadFrontendOptionsModel();
-        foreach(var storage in Options.FileStorages)
+        foreach (var storage in Options.FileStorages)
         {
             model.StorageInfos.Add(new SecureFileDownloadStorageInfo()
             {
@@ -82,7 +82,7 @@ public class TKSecureFileDownloadModule : ToolkitModuleBase<TKSecureFileDownload
     /// Get config for this module.
     /// </summary>
     public override IToolkitModuleConfig GetModuleConfig(ToolkitModuleContext context) => new TKSecureFileDownloadModuleConfig();
-    
+
     /// <summary>
     /// Different access options for this module.
     /// </summary>
@@ -314,7 +314,7 @@ public class TKSecureFileDownloadModule : ToolkitModuleBase<TKSecureFileDownload
         {
             return null;
         }
-        
+
         // lazy brute force delay
         await Task.Delay(3000).ConfigureAwait(false);
 

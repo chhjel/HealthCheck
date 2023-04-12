@@ -9,5 +9,5 @@ public class TKDataRepeaterResultWithItem<TData>
     public TKDataRepeaterStreamItemViewModel Item { get; set; }
 
     /// <summary></summary>
-    public TData Data {  get; set; }
+    public TData Data { get; set; }
 }

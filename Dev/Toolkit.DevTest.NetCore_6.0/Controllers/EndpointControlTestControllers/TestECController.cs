@@ -1,6 +1,6 @@
+using Microsoft.AspNetCore.Mvc;
 using QoDL.Toolkit.Module.EndpointControl.Attributes;
 using QoDL.Toolkit.Module.EndpointControl.Utils;
-using Microsoft.AspNetCore.Mvc;
 
 namespace QoDL.Toolkit.DevTest.NetCore_6._0.Controllers.EndpointControlTestControllers;
 

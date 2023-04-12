@@ -167,7 +167,7 @@ namespace QoDL.Toolkit.Episerver.Tests.Storage
 
             var service = new SiteEventService(storage);
 
-            await service.StoreEvent(createEvent(1, "Event Old", DateTimeOffset.Now.AddMinutes(-(service.DefaultMergeOptions.MaxMinutesSinceLastEventEnd+2))));
+            await service.StoreEvent(createEvent(1, "Event Old", DateTimeOffset.Now.AddMinutes(-(service.DefaultMergeOptions.MaxMinutesSinceLastEventEnd + 2))));
             storage.ForceBufferCallback();
 
             await service.StoreEvent(createEvent(1, "Event New", DateTimeOffset.Now));
@@ -265,7 +265,7 @@ namespace QoDL.Toolkit.Episerver.Tests.Storage
             var tasks = new List<Task>();
             for (int i = 0; i < 5000; i++)
             {
-                var eventX = new SiteEvent(SiteEventSeverity.Error, "typeId_"+i, "TitleB", "DescriptionB");
+                var eventX = new SiteEvent(SiteEventSeverity.Error, "typeId_" + i, "TitleB", "DescriptionB");
                 tasks.Add(storage.StoreEvent(eventX));
             }
 

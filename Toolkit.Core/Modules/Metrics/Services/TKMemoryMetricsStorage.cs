@@ -44,7 +44,7 @@ public class TKMemoryMetricsStorage : ITKMetricsStorage
     {
         lock (_data.GlobalNotes)
         {
-            var notes = data.Items.Where(x => 
+            var notes = data.Items.Where(x =>
                 x.Type == TKMetricsItem.MetricItemType.Note
                 && x.AddNoteToGlobals
                 && !string.IsNullOrWhiteSpace(x.Id)
@@ -76,7 +76,7 @@ public class TKMemoryMetricsStorage : ITKMetricsStorage
     {
         lock (_data.GlobalCounters)
         {
-            foreach(var kvp in data.GlobalCounters)
+            foreach (var kvp in data.GlobalCounters)
             {
                 var hasKey = _data.GlobalCounters.ContainsKey(kvp.Key);
                 if (_data.GlobalCounters.Count >= MaxDictionaryKeys && !hasKey)

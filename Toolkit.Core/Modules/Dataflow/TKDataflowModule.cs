@@ -42,7 +42,7 @@ public class TKDataflowModule<TAccessRole> : ToolkitModuleBase<TKDataflowModule<
     /// Get config for this module.
     /// </summary>
     public override IToolkitModuleConfig GetModuleConfig(ToolkitModuleContext context) => new TKDataflowModuleConfig();
-    
+
     /// <summary>
     /// Different access options for this module.
     /// </summary>

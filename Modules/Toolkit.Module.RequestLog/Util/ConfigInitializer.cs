@@ -1,9 +1,9 @@
 using QoDL.Toolkit.Core.Abstractions;
 using QoDL.Toolkit.Core.Config;
 using QoDL.Toolkit.Core.Enums;
-using System;
 using QoDL.Toolkit.Core.Util;
 using QoDL.Toolkit.RequestLog.Abstractions;
+using System;
 using System.Collections.Generic;
 #if NETFULL
 using QoDL.Toolkit.RequestLog.Services;

@@ -63,7 +63,7 @@ public class TKControlledEndpointAttribute : ActionFilterAttribute
             }
         }
     }
-    
+
     /// <summary>
     /// Return false to deny execution.
     /// </summary>

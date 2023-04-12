@@ -229,7 +229,7 @@ public class TKDataRepeaterService : ITKDataRepeaterService
         {
             result = await stream.RetryItemAsync(item);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             item.LastRetryWasSuccessful = false;
             item.AddLogMessage($"Retry was attempted. Failed with exception: {ex.Message}");
@@ -281,7 +281,7 @@ public class TKDataRepeaterService : ITKDataRepeaterService
         var allowedResult = await action.ActionIsAllowedForAsync(item);
         if (allowedResult?.Allowed != true)
         {
-            return TKDataRepeaterStreamItemActionResult.CreateError(string.IsNullOrWhiteSpace(allowedResult.Reason) 
+            return TKDataRepeaterStreamItemActionResult.CreateError(string.IsNullOrWhiteSpace(allowedResult.Reason)
                 ? $"Item '{item.ItemId}' does not allow for the action to be executed."
                 : allowedResult.Reason);
         }

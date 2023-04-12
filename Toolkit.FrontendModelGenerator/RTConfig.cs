@@ -65,7 +65,7 @@ namespace QoDL.Toolkit.FrontendModelGenerator
                 .Where(x => (x.Namespace.StartsWith("QoDL.Toolkit")) && !x.IsGenericType)
                 .ToArray();
 
-            builder.ExportAsEnums(types.Where(x => x.IsEnum 
+            builder.ExportAsEnums(types.Where(x => x.IsEnum
                 && (x.Namespace.Contains(".Models") || x.Namespace.Contains(".Enums"))),
                 (config) => ConfigureEnums(config, assembly));
             builder.ExportAsInterfaces(types.Where(x => !x.IsEnum && x.Namespace.Contains(".Models")),

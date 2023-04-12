@@ -24,7 +24,7 @@ public class TestDefinitionTests
         var discoverer = CreateTestDiscoveryService();
         var tests = discoverer.DiscoverTestDefinitions().SelectMany(x => x.Tests);
 
-        foreach(var test in tests)
+        foreach (var test in tests)
         {
             Output.WriteLine(test.Id);
         }
@@ -72,7 +72,7 @@ public class TestDefinitionTests
 
         var instance = Activator.CreateInstance(test.ParentClass.ClassType);
         var result = await test.ExecuteTest(instance, null);
-        var tagArray = (object[]) result.Tag;
+        var tagArray = (object[])result.Tag;
         Assert.Equal("wut", tagArray[0]);
         Assert.Equal(true, tagArray[1]);
         Assert.Equal(123, tagArray[2]);

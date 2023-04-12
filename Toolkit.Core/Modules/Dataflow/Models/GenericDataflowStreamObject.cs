@@ -19,7 +19,7 @@ public class GenericDataflowStreamObject : Dictionary<string, object>,
     /// <summary>
     /// An object that can be used instead of creating a custom type for dataflow streams.
     /// </summary>
-    public GenericDataflowStreamObject() {}
+    public GenericDataflowStreamObject() { }
 
     /// <summary>
     /// Initializes a new instance of the object with serialized data.
@@ -29,7 +29,8 @@ public class GenericDataflowStreamObject : Dictionary<string, object>,
     /// <summary>
     /// Time of insertion.
     /// </summary>
-    public DateTimeOffset? InsertionTime { 
+    public DateTimeOffset? InsertionTime
+    {
         get => this[nameof(InsertionTime)] as DateTimeOffset? ?? this[nameof(InsertionTime)] as DateTime?;
         set => this[nameof(InsertionTime)] = value;
     }
@@ -51,7 +52,7 @@ public class GenericDataflowStreamObject : Dictionary<string, object>,
         {
             return (T)this[memberName];
         }
-        catch(Exception) { return defaultValue; }
+        catch (Exception) { return defaultValue; }
     }
 
     /// <summary>
@@ -187,7 +188,7 @@ public class GenericDataflowStreamObject : Dictionary<string, object>,
             return null;
         }
         // Lists && arrays
-        else if (memberType.IsGenericType 
+        else if (memberType.IsGenericType
             && memberType.GenericTypeArguments.Length == 1
             && memberType.GetInterfaces().Contains(typeof(System.Collections.IList)))
         {
@@ -200,7 +201,7 @@ public class GenericDataflowStreamObject : Dictionary<string, object>,
                 }
 
                 var builder = new StringBuilder();
-                foreach(var item in list)
+                foreach (var item in list)
                 {
                     builder.AppendLine(item?.ToString());
                 }

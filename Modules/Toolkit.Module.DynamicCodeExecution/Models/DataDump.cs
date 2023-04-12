@@ -27,8 +27,8 @@ public class DataDump
     /// <summary>
     /// Return the dump in the response or not?
     /// </summary>
-    #if NETFULL
+#if NETFULL
     [JsonIgnore]
-    #endif
+#endif
     public bool Display { get; set; }
 }

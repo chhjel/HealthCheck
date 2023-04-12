@@ -40,7 +40,7 @@ public class TKGoToModule : ToolkitModuleBase<TKGoToModule.AccessOption>
     /// Get config for this module.
     /// </summary>
     public override IToolkitModuleConfig GetModuleConfig(ToolkitModuleContext context) => new TKGoToModuleConfig();
-    
+
     /// <summary>
     /// Different access options for this module.
     /// </summary>

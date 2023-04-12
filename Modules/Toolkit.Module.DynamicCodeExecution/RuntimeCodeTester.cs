@@ -114,7 +114,7 @@ internal class RuntimeCodeTester
             return source;
         }
 
-        foreach(var processor in Config.PreProcessors.Where(p => p != null && (!p.CanBeDisabled || !disabledPreProcessorIds.Contains(p.Id))))
+        foreach (var processor in Config.PreProcessors.Where(p => p != null && (!p.CanBeDisabled || !disabledPreProcessorIds.Contains(p.Id))))
         {
             try
             {
@@ -226,7 +226,7 @@ internal class RuntimeCodeTester
     {
         options.ReferencedAssemblies.Add(currentAssembly.Location);
 
-        foreach(var refAssemblyName in currentAssembly.GetReferencedAssemblies())
+        foreach (var refAssemblyName in currentAssembly.GetReferencedAssemblies())
         {
             AddAssemblyWithPolicy(refAssemblyName.FullName, options);
         }

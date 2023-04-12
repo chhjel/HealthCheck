@@ -90,7 +90,7 @@ public class TKDelayedBufferQueue<T>
     {
         lock (BufferQueue)
         {
-            foreach(var item in items)
+            foreach (var item in items)
             {
                 BufferQueue.Enqueue(item);
             }

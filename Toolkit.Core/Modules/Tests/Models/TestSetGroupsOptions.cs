@@ -32,5 +32,5 @@ public class TestSetGroupsOptions
     public List<TestSetGroupOptions> GetOptions()
     {
         return Options.Keys.Select(x => Options[x]).ToList();
-    } 
+    }
 }

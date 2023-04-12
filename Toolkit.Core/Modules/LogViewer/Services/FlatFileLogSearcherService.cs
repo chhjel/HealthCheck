@@ -79,7 +79,7 @@ public class FlatFileLogSearcherService : ILogSearcherService
             HighestDate = internalResult.HighestDate,
             LowestDate = internalResult.LowestDate,
             Items = internalResult.MatchingEntries.Select(x => entryViewModelFactory(x)).ToList(),
-            GroupedEntries = internalResult.GroupedEntries.Select(x => 
+            GroupedEntries = internalResult.GroupedEntries.Select(x =>
                 new KeyValuePair<string, List<LogEntrySearchResultItem>>(
                     x.Key,
                     x.Value.Select(e => entryViewModelFactory(e)).ToList()
@@ -91,7 +91,7 @@ public class FlatFileLogSearcherService : ILogSearcherService
             ParsedExcludedLogPathQuery = parsedExcludedLogPathQuery
         };
     }
-    
+
     private LogEntrySearchResult SearchInternal(LogSearchFilter filter, CancellationToken cancellationToken)
     {
         var columnRegex = string.IsNullOrWhiteSpace(filter.ColumnRegexPattern)
@@ -107,7 +107,7 @@ public class FlatFileLogSearcherService : ILogSearcherService
         var searcherOptions = new LogSearcherOptions(entryParser);
 
         var logFolders = Options.LogFolders.Where(x => Directory.Exists(x.Directory));
-        foreach(var folder in logFolders)
+        foreach (var folder in logFolders)
         {
             searcherOptions.IncludeLogFilesInDirectory(folder.Directory, folder.FileFilter, folder.Recursive);
         }

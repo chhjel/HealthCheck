@@ -9,7 +9,7 @@ namespace QoDL.Toolkit.Module.DevModule
     /// </summary>
     public class TestModuleB : ToolkitModuleBase<TestModuleB.TestModuleBAccessOption>
     {
-        public override object GetFrontendOptionsObject(ToolkitModuleContext context) 
+        public override object GetFrontendOptionsObject(ToolkitModuleContext context)
             => new { PropX = "asdasd asd", PropY = 135135, Now = DateTime.Now, AccessInput = context.CurrentRequestModuleAccessOptions.ToString() };
         public override IToolkitModuleConfig GetModuleConfig(ToolkitModuleContext context) => null;
 

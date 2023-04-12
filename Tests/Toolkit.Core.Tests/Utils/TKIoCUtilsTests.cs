@@ -1,6 +1,6 @@
+using Microsoft.Extensions.DependencyInjection;
 using QoDL.Toolkit.Core.Util;
 using QoDL.Toolkit.Web.Core.Utils;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using Xunit;
 using Xunit.Abstractions;

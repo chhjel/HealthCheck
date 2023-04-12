@@ -51,7 +51,7 @@ public class TKDelayedBufferDictionary<TId, T>
     /// <param name="queueSizeLimit">The max duration to wait before the callback will be invoked, the queue cleared and duration reset. Default: 1000.</param>
     public TKDelayedBufferDictionary(
         Func<T, TId> idGetter,
-        Action<Dictionary<TId, T>> callback = null,TimeSpan? delay = null, int? queueSizeLimit = null)
+        Action<Dictionary<TId, T>> callback = null, TimeSpan? delay = null, int? queueSizeLimit = null)
     {
         IdGetter = idGetter;
         Callback = callback;
@@ -104,7 +104,7 @@ public class TKDelayedBufferDictionary<TId, T>
     {
         lock (BufferQueue)
         {
-            foreach(var item in items)
+            foreach (var item in items)
             {
                 BufferQueue[IdGetter(item)] = item;
             }

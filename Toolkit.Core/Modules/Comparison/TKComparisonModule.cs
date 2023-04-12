@@ -40,7 +40,7 @@ public class TKComparisonModule : ToolkitModuleBase<TKComparisonModule.AccessOpt
     /// Get config for this module.
     /// </summary>
     public override IToolkitModuleConfig GetModuleConfig(ToolkitModuleContext context) => new TKComparisonModuleConfig();
-    
+
     /// <summary>
     /// Different access options for this module.
     /// </summary>
