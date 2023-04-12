@@ -1,5 +1,5 @@
-using QoDL.Toolkit.Core.Modules.Documentation.Abstractions;
 using System.Collections.Generic;
+using QoDL.Toolkit.Core.Modules.Documentation.Abstractions;
 
 namespace QoDL.Toolkit.Core.Modules.Documentation.Models.SequenceDiagrams;
 

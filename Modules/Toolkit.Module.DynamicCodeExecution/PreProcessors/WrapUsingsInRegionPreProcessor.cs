@@ -83,7 +83,7 @@ public class WrapUsingsInRegionPreProcessor : IDynamicCodePreProcessor
             lines.InsertRange(regionLineIndex + 1, regionContent);
             lines.Insert(regionLineIndex + 2 + regionContent.Count, "");
             var isLineBelowEndRegion = false;
-            for (int i = 0; i < lines.Count; i++)
+            for(int i = 0; i < lines.Count; i++)
             {
                 // Ensure empty line below #endregion
                 if (isLineBelowEndRegion)
@@ -94,18 +94,18 @@ public class WrapUsingsInRegionPreProcessor : IDynamicCodePreProcessor
                     }
                     break;
                 }
-                else if (lines[i].Trim() == "#endregion")
+                else if(lines[i].Trim() == "#endregion")
                 {
                     isLineBelowEndRegion = true;
                 }
-                else if (lines[i].Trim().Length == 0)
+                else if(lines[i].Trim().Length == 0)
                 {
                     lines.RemoveAt(i);
                     i--;
                 }
             }
         }
-
+        
         lines.InsertRange(0, topComments);
 
         return string.Join("\n", lines);
@@ -114,7 +114,7 @@ public class WrapUsingsInRegionPreProcessor : IDynamicCodePreProcessor
     private List<string> ExtractAllUsingLines(List<string> lines)
     {
         var extractedLines = new List<string>();
-        for (int i = 0; i < lines.Count; i++)
+        for(int i=0;i<lines.Count;i++)
         {
             var remove = false;
             var line = lines[i];
@@ -129,7 +129,7 @@ public class WrapUsingsInRegionPreProcessor : IDynamicCodePreProcessor
                 extractedLines.Add(line);
                 remove = true;
             }
-            else if (RemoveEmptyLines)
+            else if(RemoveEmptyLines)
             {
                 remove = true;
             }

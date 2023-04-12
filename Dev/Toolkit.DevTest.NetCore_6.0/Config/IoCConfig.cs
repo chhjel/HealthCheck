@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
 using QoDL.Toolkit.Core.Abstractions;
 using QoDL.Toolkit.Core.Modules.AccessTokens.Abstractions;
 using QoDL.Toolkit.Core.Modules.AuditLog.Abstractions;
@@ -60,6 +58,8 @@ using QoDL.Toolkit.Module.EndpointControl.Results;
 using QoDL.Toolkit.Module.EndpointControl.Services;
 using QoDL.Toolkit.Module.EndpointControl.Storage;
 using QoDL.Toolkit.WebUI.Services;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.IO;
 

@@ -12,7 +12,7 @@ public class TestOrderDataRepeaterStreamItemActionRemoveAllTags : TKDataRepeater
     public override string Description => "Removes all tags from the item.";
 
     public override string ExecuteButtonLabel => "Remove tags";
-
+    
     public override object AllowedAccessRoles => RuntimeTestAccessRole.SystemAdmins;
 
     public override List<string> Categories => new() { "Secret actions" };

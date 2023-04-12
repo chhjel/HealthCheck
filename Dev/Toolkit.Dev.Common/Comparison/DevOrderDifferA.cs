@@ -14,7 +14,7 @@ public class DevOrderDifferA : TKComparisonDifferBase<DevOrderComparisonTypeHand
     {
         if (left.Id == 2) int.Parse("abc");
 
-        Dictionary<string, string> createDict(DevOrderComparisonTypeHandler.CmpOrder data)
+        Dictionary<string, string>  createDict(DevOrderComparisonTypeHandler.CmpOrder data)
         {
             return new Dictionary<string, string>
             {

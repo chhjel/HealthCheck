@@ -9,7 +9,7 @@ namespace QoDL.Toolkit.Core.Util.Storage;
 /// Base implementation for storing a single object in a blob container with cache.
 /// </summary>
 public abstract class TKSingleBlobStorageBase<TData>
-    where TData : new()
+    where TData: new()
 {
     /// <summary>
     /// How long to cache data in memory for before fetching again from blob storage.
@@ -94,7 +94,7 @@ public abstract class TKSingleBlobStorageBase<TData>
             TKMetricsContext.AddGlobalTimingValue(timer);
             return data;
         }
-        catch (Exception)
+        catch(Exception)
         {
             return new TData();
         }

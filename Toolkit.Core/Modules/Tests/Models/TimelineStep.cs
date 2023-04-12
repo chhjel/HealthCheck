@@ -119,7 +119,7 @@ public class TimelineStep
     /// </summary>
     public TimelineStep AddUrls(IEnumerable<string> urls)
     {
-        foreach (var url in urls)
+        foreach(var url in urls)
         {
             AddUrl(url);
         }

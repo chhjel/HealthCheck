@@ -60,7 +60,7 @@ public interface ITKDataExportStream
     /// Max depth to search for members recursively.
     /// <para>Defaults to 4 if not specified.</para>
     /// </summary>
-    int? MaxMemberDiscoveryDepth { get; }
+    int? MaxMemberDiscoveryDepth { get;  }
 
     /// <summary>
     /// If set to true, any property name can be entered and not only the ones from the model.

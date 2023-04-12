@@ -63,30 +63,8 @@ public partial class TKDataExportModule : ToolkitModuleBase<TKDataExportModule.A
     /// <summary>
     /// Get config for this module.
     /// </summary>
-
-    /* Unmerged change from project 'QoDL.Toolkit.Module.DataExport (netcoreapp3.1)'
-    Before:
-        public override IToolkitModuleConfig GetModuleConfig(ToolkitModuleContext context) => new TKDataExportModuleConfig();
-
-        /// <summary>
-    After:
-        public override IToolkitModuleConfig GetModuleConfig(ToolkitModuleContext context) => new TKDataExportModuleConfig();
-
-        /// <summary>
-    */
-
-    /* Unmerged change from project 'QoDL.Toolkit.Module.DataExport (net6.0)'
-    Before:
-        public override IToolkitModuleConfig GetModuleConfig(ToolkitModuleContext context) => new TKDataExportModuleConfig();
-
-        /// <summary>
-    After:
-        public override IToolkitModuleConfig GetModuleConfig(ToolkitModuleContext context) => new TKDataExportModuleConfig();
-
-        /// <summary>
-    */
     public override IToolkitModuleConfig GetModuleConfig(ToolkitModuleContext context) => new TKDataExportModuleConfig();
-
+    
     /// <summary>
     /// Different access options for this module.
     /// </summary>
@@ -322,7 +300,7 @@ public partial class TKDataExportModule : ToolkitModuleBase<TKDataExportModule.A
         var showLoadingDownloadPage = url?.EndsWith("?dl=1") == false;
         if (showLoadingDownloadPage)
         {
-            url = url["/DEExport/".Length..];
+            url = url.Substring("/DEExport/".Length);
             url += url.Contains('?') ? "&dl=1" : "?dl=1";
             return CreateExportLoadingDownloadHtml(context, $"{url}?dl=1");
         }
@@ -351,7 +329,7 @@ public partial class TKDataExportModule : ToolkitModuleBase<TKDataExportModule.A
         var streamName = data.Query.StreamId;
         if (streamName.Contains('.'))
         {
-            streamName = streamName[(streamName.LastIndexOf(".") + 1)..];
+            streamName = streamName.Substring(streamName.LastIndexOf(".") + 1);
         }
 
         // Create filename

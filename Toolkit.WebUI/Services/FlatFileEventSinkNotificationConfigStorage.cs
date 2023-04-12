@@ -1,7 +1,7 @@
-using Newtonsoft.Json;
 using QoDL.Toolkit.Core.Modules.EventNotifications.Abstractions;
 using QoDL.Toolkit.Core.Modules.EventNotifications.Models;
 using QoDL.Toolkit.Core.Util;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,7 +44,7 @@ public class FlatFileEventSinkNotificationConfigStorage : IEventSinkNotification
     /// </summary>
     public IEnumerable<EventSinkNotificationConfig> GetConfigs()
     {
-        lock (_cacheUpdateLock)
+        lock(_cacheUpdateLock)
         {
             var key = CacheKey;
             if (!ConfigCache.ContainsKey(key))
@@ -53,7 +53,7 @@ public class FlatFileEventSinkNotificationConfigStorage : IEventSinkNotification
             }
 
             var cachedConfigs = ConfigCache[key];
-
+            
             return SaveBuffer
                 .Values
                 .Union(cachedConfigs.Where(x => !SaveBuffer.Any(s => s.Value.Id == x.Id)))

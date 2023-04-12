@@ -105,7 +105,7 @@ public class SiteEventMergeOptions
         // Add any new related links
         if (newEvent.RelatedLinks != null && newEvent.RelatedLinks.Count > 0)
         {
-            foreach (var link in newEvent.RelatedLinks.Where(newLink => !existingEvent.RelatedLinks.Any(existingLink => existingLink.Url == newLink.Url)))
+            foreach(var link in newEvent.RelatedLinks.Where(newLink => !existingEvent.RelatedLinks.Any(existingLink => existingLink.Url == newLink.Url)))
             {
                 existingEvent.RelatedLinks.Add(link);
             }

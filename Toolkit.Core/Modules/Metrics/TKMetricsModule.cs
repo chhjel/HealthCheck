@@ -40,7 +40,7 @@ public class TKMetricsModule : ToolkitModuleBase<TKMetricsModule.AccessOption>
     /// Get config for this module.
     /// </summary>
     public override IToolkitModuleConfig GetModuleConfig(ToolkitModuleContext context) => new TKMetricsModuleConfig();
-
+    
     /// <summary>
     /// Different access options for this module.
     /// </summary>

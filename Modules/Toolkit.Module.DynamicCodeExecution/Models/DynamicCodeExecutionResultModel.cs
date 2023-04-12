@@ -9,7 +9,7 @@ public class DynamicCodeExecutionResultModel
     /// True if the user was allowed to execute code.
     /// </summary>
     public bool Success { get; set; }
-
+    
     /// <summary>
     /// Message telling the user if it was allowed to execute code or not.
     /// </summary>

@@ -137,7 +137,7 @@ public static class StringExtensions
     public static string EnsureDotAtEndIfNotNullOrEmpty(this string text, bool trim = true)
     {
         if (string.IsNullOrWhiteSpace(text)) return text;
-
+        
         if (trim)
         {
             text = text?.Trim();

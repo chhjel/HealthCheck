@@ -16,7 +16,7 @@ public static class TKGlobalConfig
     /// <summary>
     /// Determines how new instances of types are created in most Toolkit related code.
     /// <para>For .NET Framework this defaults to <c>DependencyResolver.Current.GetService</c> if the WebUI nuget is used.</para>
-    /// <para>Fallback is <c>Activator.CreateInstance</c></para>
+		/// <para>Fallback is <c>Activator.CreateInstance</c></para>
     /// </summary>
     public static InstanceResolverDelegate DefaultInstanceResolver { get; set; }
 
@@ -109,13 +109,13 @@ public static class TKGlobalConfig
     internal static IJsonSerializer Serializer { get; set; }
 
     internal static T GetService<T>()
-        where T : class
+        where T: class
         => GetDefaultInstanceResolver()(typeof(T)) as T;
 
     static TKGlobalConfig()
     {
         // Invoke ITKExtModuleInitializer where available
-        var typeNames = new[]
+        var typeNames = new []
         {
             "QoDL.Toolkit.WebUI.Config.ConfigInitializer, QoDL.Toolkit.WebUI",
             "QoDL.Toolkit.WebUI.Assets.ConfigInitializer, QoDL.Toolkit.WebUI.Assets",
@@ -124,7 +124,7 @@ public static class TKGlobalConfig
             "QoDL.Toolkit.Module.RequestLog.Util.ConfigInitializer, QoDL.Toolkit.Module.RequestLog"
         };
 
-        foreach (var typeName in typeNames)
+        foreach(var typeName in typeNames)
         {
             var type = Type.GetType(typeName);
             if (type != null)
@@ -191,8 +191,7 @@ public static class TKGlobalConfig
         {
             return Activator.CreateInstance(type);
         }
-        catch (Exception)
-        {
+        catch (Exception) {
             return null;
         }
     }

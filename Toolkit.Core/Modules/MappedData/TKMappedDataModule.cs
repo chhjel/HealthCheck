@@ -45,7 +45,7 @@ public class TKMappedDataModule : ToolkitModuleBase<TKMappedDataModule.AccessOpt
     /// Get config for this module.
     /// </summary>
     public override IToolkitModuleConfig GetModuleConfig(ToolkitModuleContext context) => new TKMappedDataModuleConfig();
-
+    
     /// <summary>
     /// Different access options for this module.
     /// </summary>
@@ -93,7 +93,7 @@ public class TKMappedDataModule : ToolkitModuleBase<TKMappedDataModule.AccessOpt
                         {
                             if (type != null) val = TransformExampleValue(type, val);
                         }
-                        catch (Exception) { }
+                        catch (Exception) {}
 
                         return (value: val?.ToString(), prop: x.FullPropertyPath);
                     })
@@ -212,7 +212,7 @@ public class TKMappedDataModule : ToolkitModuleBase<TKMappedDataModule.AccessOpt
             HardCodedValue = d.HardCodedValue,
             DeclaringTypeName = d.DeclaringType?.GetFriendlyTypeName(),
             PropertyName = d.PropertyName,
-            PropertyTypeName = d.PropertyType?.GetFriendlyTypeName(),
+            PropertyTypeName =  d.PropertyType?.GetFriendlyTypeName(),
             FullPropertyTypeName = d?.PropertyType == null ? null : $"{d?.PropertyType?.Namespace}.{d?.PropertyType?.GetFriendlyTypeName()}",
         };
     }

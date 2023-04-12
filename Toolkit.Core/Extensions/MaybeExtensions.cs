@@ -10,7 +10,7 @@ public static class MaybeExtensions
     /// <summary>
     /// Check if either the maybe is null, the maybe has no value set, or the value of the maybe is null.
     /// </summary>
-    public static bool HasNothing<T>(this Maybe<T> maybe)
+    public static bool HasNothing<T>(this Maybe<T> maybe) 
         => maybe == null || !maybe.HasValue || maybe.Value == null;
 
     /// <summary>

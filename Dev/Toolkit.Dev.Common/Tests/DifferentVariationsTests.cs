@@ -238,7 +238,7 @@ public class DifferentVariationsTests
 
     [RuntimeTest]
     public TestResult TestWithDefaultValues(int number = 123, string text = "some text", bool toggle = true,
-        EnumTestType enumParam = EnumTestType.SecondValue,
+        EnumTestType enumParam = EnumTestType.SecondValue, 
         EnumFlagsTestType enumFlagsParam = EnumFlagsTestType.B | EnumFlagsTestType.D)
     //List<string> stringList, List<DateTime> dateList, List<bool> boolList, List<EnumTestType> enumList
     {
@@ -247,7 +247,7 @@ public class DifferentVariationsTests
     }
 
     [RuntimeTest]
-    [RuntimeTestParameter("stringList", "A read only string list", "Fancy description 1",
+    [RuntimeTestParameter("stringList", "A read only string list", "Fancy description 1", 
         uiHints: TKUIHint.ReadOnlyList, DefaultValueFactoryMethod = nameof(ReadOnlyListTest_Default))]
     [RuntimeTestParameter("enumList", "A read only enum list", "Fancy description 2",
         uiHints: TKUIHint.ReadOnlyList, DefaultValueFactoryMethod = nameof(ReadOnlyListEnumTest_Default))]
@@ -294,7 +294,7 @@ public class DifferentVariationsTests
     [RuntimeTest(description: "Should run for about 10 seconds.")]
     public async Task<TestResult> CancellableTest2(CancellationToken cancellationToken)
     {
-        for (int i = 0; i < 5; i++)
+        for(int i = 0; i < 5; i++)
         {
             await Task.Delay(TimeSpan.FromSeconds(2));
             if (cancellationToken.IsCancellationRequested)

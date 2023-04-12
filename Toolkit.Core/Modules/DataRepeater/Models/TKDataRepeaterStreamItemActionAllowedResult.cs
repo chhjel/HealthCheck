@@ -18,7 +18,7 @@ public class TKDataRepeaterStreamItemActionAllowedResult
     public string Reason { get; set; }
 
     /// <summary></summary>
-    public static TKDataRepeaterStreamItemActionAllowedResult CreateAllowed() => new() { Allowed = true };
+    public static TKDataRepeaterStreamItemActionAllowedResult CreateAllowed() => new() { Allowed = true};
 
     /// <summary></summary>
     public static TKDataRepeaterStreamItemActionAllowedResult CreateNotAllowed(string reason) => new() { Reason = reason };

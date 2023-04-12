@@ -15,7 +15,7 @@ public class DataFlowPropertyDisplayInfo
     /// Name of the property to target.
     /// </summary>
     public string PropertyName { get; set; }
-
+    
     /// <summary>
     /// Name of the property to display.
     /// </summary>

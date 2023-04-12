@@ -127,7 +127,7 @@ public class TKCustomPropertyAttribute : Attribute
         {
             enumType = parameterType;
         }
-        else if (parameterType.IsNullable() && parameterType.GenericTypeArguments[0].IsEnum)
+        else if(parameterType.IsNullable() && parameterType.GenericTypeArguments[0].IsEnum)
         {
             enumType = parameterType.GenericTypeArguments[0];
         }

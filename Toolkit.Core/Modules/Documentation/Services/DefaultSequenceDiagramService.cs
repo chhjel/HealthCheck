@@ -68,7 +68,7 @@ public class DefaultSequenceDiagramService : ISequenceDiagramService
 
                     if (fromAtr.OptionalGroupName != toAtr.OptionalGroupName && fromAtr.OptionalGroupName != null)
                     {
-                        for (int j = i - 2; j >= 0; j--)
+                        for (int j = i-2; j >= 0; j--)
                         {
                             fromAtr = attributes[j];
                             if (fromAtr.OptionalGroupName == toAtr.OptionalGroupName || fromAtr.OptionalGroupName == null)

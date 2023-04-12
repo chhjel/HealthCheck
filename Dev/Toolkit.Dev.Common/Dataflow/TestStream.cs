@@ -23,7 +23,7 @@ public class TestStream : FlatFileStoredDataflowStream<RuntimeTestAccessRole, Te
             idSelector: (e) => e.Code,
             idSetter: (e, id) => e.Code = id,
             maxEntryAge: TimeSpan.FromDays(1)
-        //isEnabled: () => someConfigService.EnableMyStream
+            //isEnabled: () => someConfigService.EnableMyStream
         )
     {
         Suffix = suffix;
@@ -41,7 +41,7 @@ public class TestStream : FlatFileStoredDataflowStream<RuntimeTestAccessRole, Te
         ConfigureProperty(nameof(TestEntry.TestDate)).SetUIHint(DataFlowPropertyUIHint.DateTime).PrettifyDisplayName();
         ConfigureProperty(nameof(TestEntry.TestDateOffset)).SetUIHint(DataFlowPropertyUIHint.DateTime).PrettifyDisplayName();
 
-        AutoCreateFilters<TestEntry>(excludedMemberNames: new[] { nameof(TestEntry.Icon) });
+        AutoCreateFilters<TestEntry>(excludedMemberNames: new [] { nameof(TestEntry.Icon) });
     }
 }
 

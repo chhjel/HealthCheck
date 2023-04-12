@@ -49,7 +49,7 @@ public class TKLazyFlatFileFactory
         foreach (var kvp in instances)
         {
             var type = kvp.Key;
-            foreach (var instance in kvp.Value)
+            foreach(var instance in kvp.Value)
             {
                 if (condition?.Invoke(type, instance) != false)
                 {
@@ -141,7 +141,7 @@ public class TKLazyFlatFileFactory
             var items = extInstanceFactory?.Invoke(CreatePath);
             if (items?.Any() == true)
             {
-                foreach (var item in items)
+                foreach(var item in items)
                 {
                     AddItem(instances, item.Key, item.Value);
                 }

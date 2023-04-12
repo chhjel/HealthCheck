@@ -1,7 +1,7 @@
 using EPiServer.Events.Clients;
-using Moq;
 using QoDL.Toolkit.Episerver.Tests.Helpers;
 using QoDL.Toolkit.Episerver.Utils;
+using Moq;
 using System;
 using System.Collections.Generic;
 using Xunit;

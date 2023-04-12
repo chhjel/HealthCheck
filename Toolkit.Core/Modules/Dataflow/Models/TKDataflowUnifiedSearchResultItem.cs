@@ -32,7 +32,7 @@ public class TKDataflowUnifiedSearchResultItem
     /// <summary>
     /// Attempts to create reasonable html from the given objects properties.
     /// <para>Shortcut to <c>PopupBody = TKObjectUtils.TryCreateHtmlSummaryFromProperties(..)</c></para>
-    /// <para>To ignore properties apply <see cref="TKExcludeFromHtmlSummaryAttribute"/> to them.</para>
+		/// <para>To ignore properties apply <see cref="TKExcludeFromHtmlSummaryAttribute"/> to them.</para>
     /// </summary>
     public TKDataflowUnifiedSearchResultItem TryCreatePopupBodyFrom(object obj, bool spacifyPropertyNames = true, bool tryParseUrls = true)
     {

@@ -20,7 +20,7 @@ public class GetEventNotificationConfigsViewModel
     /// All defined configs.
     /// </summary>
     public IEnumerable<EventSinkNotificationConfig> Configs { get; set; }
-
+    
     /// <summary>
     /// All known event definitions.
     /// </summary>

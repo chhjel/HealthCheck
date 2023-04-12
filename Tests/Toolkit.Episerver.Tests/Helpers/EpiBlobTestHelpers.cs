@@ -1,9 +1,9 @@
 using EPiServer.Events.Clients;
 using EPiServer.Events.Providers.Internal;
 using EPiServer.Framework.Blobs;
-using Moq;
 using QoDL.Toolkit.Core.Abstractions;
 using QoDL.Toolkit.Core.Util;
+using Moq;
 using System;
 using System.Collections.Generic;
 

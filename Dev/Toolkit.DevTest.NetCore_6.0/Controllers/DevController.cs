@@ -1,10 +1,4 @@
 using Fido2NetLib;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Net.Http.Headers;
-using Newtonsoft.Json;
 using QoDL.Toolkit.Core.Abstractions;
 using QoDL.Toolkit.Core.Models;
 using QoDL.Toolkit.Core.Modules.AccessTokens;
@@ -70,6 +64,12 @@ using QoDL.Toolkit.WebUI.MFA.TOTP;
 using QoDL.Toolkit.WebUI.MFA.WebAuthn;
 using QoDL.Toolkit.WebUI.MFA.WebAuthn.Storage;
 using QoDL.Toolkit.WebUI.Models;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -180,10 +180,10 @@ public class DevController : ToolkitControllerBase<RuntimeTestAccessRole>
             .DefineInbox("sms", "SMS", "All sent sms ends up here.")
         ));
         UseModule(new TKDataExportModule(new TKDataExportModuleOptions
-        {
-            Service = dataExportService,
-            PresetStorage = dataExportPresetStorage
-        }
+            {
+                Service = dataExportService,
+                PresetStorage = dataExportPresetStorage
+            }
             .AddExporter(new TKDataExportExporterXlsx())
         ));
         UseModule(new TKDataRepeaterModule(new TKDataRepeaterModuleOptions
@@ -232,11 +232,9 @@ public class DevController : ToolkitControllerBase<RuntimeTestAccessRole>
             })
         }));
         UseModule(new TKDataflowModule<RuntimeTestAccessRole>(new TKDataflowModuleOptions<RuntimeTestAccessRole>() { DataflowService = dataflowService }));
-        UseModule(new TKAuditLogModule(new TKAuditLogModuleOptions()
-        {
+        UseModule(new TKAuditLogModule(new TKAuditLogModuleOptions() {
             AuditEventService = auditEventStorage,
-            SensitiveDataStripper = (value) =>
-            {
+            SensitiveDataStripper = (value) => {
                 value = TKSensitiveDataUtils.MaskNorwegianNINs(value);
                 value = TKSensitiveDataUtils.MaskAllEmails(value);
                 return value;
@@ -293,7 +291,7 @@ public class DevController : ToolkitControllerBase<RuntimeTestAccessRole>
             )
         };
     }
-
+    
     #region Overrides
     protected override TKFrontEndOptions GetFrontEndOptions()
         => new(EndpointBase)
@@ -387,7 +385,7 @@ public class DevController : ToolkitControllerBase<RuntimeTestAccessRole>
                     return TKGenericResult<TKResultPageAction>.CreateError("Invalid code");
                 }
                 Request.HttpContext.Session.SetString("_dev_2fa_validated", "true");
-
+                
                 return TKGenericResult<TKResultPageAction>.CreateSuccess(TKResultPageAction.CreateRefresh());
             },
             // TOTP: Add
@@ -421,7 +419,7 @@ public class DevController : ToolkitControllerBase<RuntimeTestAccessRole>
                 Request.HttpContext.Session.Remove("_dev_2fa_validated");
                 return TKGenericResult.CreateSuccess();
             },
-
+            
             // WebAuthn: Elevate
             ShowWebAuthnElevation = !string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(webAuthnKey))
                 && string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString("_dev_webAuthn_validated")),
@@ -536,7 +534,7 @@ public class DevController : ToolkitControllerBase<RuntimeTestAccessRole>
             Config.IoCConfig.TestStreamB.InsertEntries(Enumerable.Range(1, 5000).Select(i => new TestEntry { Code = $"200{i}-B", Name = $"Entry B{i} [{DateTimeOffset.Now}]" }));
             Config.IoCConfig.TestStreamC.InsertEntries(Enumerable.Range(1, 5000).Select(i => new TestEntry { Code = $"300{i}-C", Name = $"Entry C{i} [{DateTimeOffset.Now}]" }));
         }
-
+        
         if (ForceLogout)
         {
             return new RequestInformation<RuntimeTestAccessRole>(roles, "force_logout_test", "No user");

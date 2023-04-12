@@ -1,7 +1,7 @@
-using Newtonsoft.Json;
 using QoDL.Toolkit.Core.Modules.AuditLog.Abstractions;
 using QoDL.Toolkit.Core.Modules.AuditLog.Models;
 using QoDL.Toolkit.Core.Util;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,7 +59,7 @@ public class FlatFileAuditEventStorage : IAuditEventStorage
 
         if (_blobStorage != null && contents?.Any() == true)
         {
-            foreach (var kvp in contents)
+            foreach(var kvp in contents)
             {
                 var id = await _blobStorage.StoreBlob(kvp.Value);
                 auditEvent.BlobIds.Add(new KeyValuePair<string, Guid>(kvp.Key, id));

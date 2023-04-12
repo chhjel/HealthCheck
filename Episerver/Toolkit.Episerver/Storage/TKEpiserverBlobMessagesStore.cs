@@ -15,7 +15,7 @@ namespace QoDL.Toolkit.Episerver.Storage;
 /// </summary>
 public class TKEpiserverBlobMessagesStore<TMessageModel>
     : TKSingleBufferedMultiListBlobStorageBase<TKEpiserverBlobMessagesStore<TMessageModel>.TKMessagesBlobData, TMessageModel, string>, ITKMessageStorage
-    where TMessageModel : class, ITKMessageItem
+    where TMessageModel: class, ITKMessageItem
 {
     /// <summary>
     /// Container id used if not overridden.

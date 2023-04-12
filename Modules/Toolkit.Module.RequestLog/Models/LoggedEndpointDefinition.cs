@@ -12,7 +12,7 @@ public class LoggedEndpointDefinition
     /// Entry id.
     /// </summary>
     public Guid Id { get; set; }
-
+    
     /// <summary>
     /// Id of the endpoint.
     /// </summary>

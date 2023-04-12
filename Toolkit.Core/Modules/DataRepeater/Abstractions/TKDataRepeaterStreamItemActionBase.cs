@@ -10,7 +10,7 @@ namespace QoDL.Toolkit.Core.Modules.DataRepeater.Abstractions;
 /// <para>Base class with stronger typing.</para>
 /// </summary>
 public abstract class TKDataRepeaterStreamItemActionBase<TParameters> : ITKDataRepeaterStreamItemAction
-    where TParameters : class, new()
+    where TParameters: class, new()
 {
     /// <inheritdoc />
     public Type ParametersType => typeof(TParameters);

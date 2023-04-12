@@ -74,7 +74,7 @@ public class TKOptimizelyJobsSource : ITKJobsSource
                     ? "Default Optimizely Jobs"
                     : null,
                 SupportsStart = true,
-                SupportsStop = job?.IsStoppable == true,
+                SupportsStop= job?.IsStoppable == true,
                 CustomParametersType = jobAttr?.CustomParametersType,
                 CustomParameters = TKCustomPropertyAttribute.CreateInputConfigs(jobAttr?.CustomParametersType)
             });
@@ -92,8 +92,7 @@ public class TKOptimizelyJobsSource : ITKJobsSource
 
         var logItems = await _jobLogRepo.GetAsync(job.ID, pageIndex * pageSize, pageSize);
         var items = logItems.PagedResult
-            .Select(x =>
-            {
+            .Select(x => {
                 return new TKJobLogItem()
                 {
                     Status = Create(x.Status),

@@ -1,10 +1,10 @@
-using Newtonsoft.Json;
 using QoDL.Toolkit.Core.Attributes;
 using QoDL.Toolkit.Core.Extensions;
 using QoDL.Toolkit.Core.Modules.Jobs;
 using QoDL.Toolkit.Core.Modules.Jobs.Abstractions;
 using QoDL.Toolkit.Core.Modules.Jobs.Models;
 using QoDL.Toolkit.Core.Modules.Tests.Utils.HtmlPresets;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -70,7 +70,7 @@ public class DummyJobsSource : ITKJobsSource
         status.StartedAt = DateTimeOffset.Now;
         status.IsRunning = true;
         status.Summary = "Job started";
-
+         
         await Task.Delay(TimeSpan.FromSeconds(_jobStatuses.Values.ToList().IndexOf(status) + 1));
         status.EndedAt = DateTimeOffset.Now;
         status.IsRunning = false;
@@ -100,11 +100,10 @@ public class DummyJobsSource : ITKJobsSource
         var data = JsonConvert.SerializeObject(status);
 
         var multiplier = jobId.EndsWith("_8") ? 500 : 1;
-        for (int i = 0; i < multiplier; i++)
-        {
+        for (int i = 0; i < multiplier; i++) {
             var stat = TKJobHistoryStatus.Success;
             if (i > 0) stat = (TKJobHistoryStatus)(i % 3);
-
+                
             var isHtml = false;
             if (jobId == "8")
             {
@@ -118,7 +117,7 @@ public class DummyJobsSource : ITKJobsSource
         return new TKJobStartResult { Success = true, Message = "Job was started." };
     }
 
-    public class DummyJob { }
+    public class DummyJob {}
 
     public async Task<TKJobStopResult> StopJobAsync(string jobId)
     {
@@ -176,6 +175,6 @@ public class DummyJobsSource : ITKJobsSource
         public bool? SomeBool { get; set; }
         public DateTimeOffset? WhenAt { get; set; }
         [TKCustomProperty(UIHints = Core.Models.TKUIHint.CodeArea)]
-        public string SomeCode { get; set; }
+        public string SomeCode{ get; set; }
     }
 }

@@ -81,7 +81,7 @@ public class TKEpiserverBlobDataExportPresetStorage
         {
             preset.Id = Guid.NewGuid();
         }
-
+        
         var existingIndex = data.Presets?.FindIndex(x => x.Id == preset.Id) ?? -1;
         if (existingIndex == -1)
         {

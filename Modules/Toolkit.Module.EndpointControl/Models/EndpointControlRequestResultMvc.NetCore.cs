@@ -1,6 +1,6 @@
 #if NETCORE
-using Microsoft.AspNetCore.Mvc;
 using QoDL.Toolkit.Module.EndpointControl.Abstractions;
+using Microsoft.AspNetCore.Mvc;
 
 namespace QoDL.Toolkit.Module.EndpointControl.Models;
 

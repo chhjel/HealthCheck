@@ -21,13 +21,13 @@ public class TestApiController : TestApiControllerBase
     }
 
     // POST: api/student
-    public void Post([FromBody] string value)
+    public void Post([FromBody]string value)
     {
         // Method intentionally left empty.
     }
 
     // PUT: api/student/5
-    public void Put(int id, [FromBody] string value)
+    public void Put(int id, [FromBody]string value)
     {
         // Method intentionally left empty.
     }

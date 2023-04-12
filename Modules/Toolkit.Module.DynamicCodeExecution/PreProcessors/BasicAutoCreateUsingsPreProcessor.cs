@@ -175,7 +175,7 @@ public class BasicAutoCreateUsingsPreProcessor : IDynamicCodePreProcessor
     /// <param name="recursive">Include all child namespaces</param>
     public BasicAutoCreateUsingsPreProcessor AddPrioritizedNamespaces(IEnumerable<string> nsList, bool recursive)
     {
-        foreach (var ns in nsList)
+        foreach(var ns in nsList)
         {
             AddPrioritizedNamespace(ns, recursive);
         }
@@ -189,7 +189,7 @@ public class BasicAutoCreateUsingsPreProcessor : IDynamicCodePreProcessor
 
         if (IncludeReferencedAssemblies)
         {
-            foreach (var item in TargetAssemblies)
+            foreach(var item in TargetAssemblies)
             {
                 list.AddRange(GetReferencedAssemblies(item));
             }
@@ -217,7 +217,7 @@ public class BasicAutoCreateUsingsPreProcessor : IDynamicCodePreProcessor
         if (PrioritizeNamespaces != null)
         {
             var priList = PrioritizeNamespaces.AsEnumerable().Reverse();
-            foreach (var priNamespace in priList)
+            foreach(var priNamespace in priList)
             {
                 var prioritized = types.Where(x => priNamespace.Matches(x.Namespace)).ToArray();
                 foreach (var p in prioritized)

@@ -90,7 +90,7 @@ internal class ConfigInitializer : ITKExtModuleInitializer
                         }
                         else if (entry.Name == "google_fonts.css")
                         {
-                            foreach (var match in _cssUrlRegex.Matches(content).Cast<Match>())
+                            foreach(var match in _cssUrlRegex.Matches(content).Cast<Match>())
                             {
                                 var prefix = match.Groups["prefix"].Value;
                                 var url = match.Groups["url"].Value;
@@ -110,7 +110,7 @@ internal class ConfigInitializer : ITKExtModuleInitializer
 
                         TKAssetGlobalConfig.AssetCache[entry.Name] = content;
                     }
-                    else if (entry.Name.EndsWith(".woff2"))
+                    else if(entry.Name.EndsWith(".woff2"))
                     {
                         var content = readContentBytes(entry);
                         TKAssetGlobalConfig.BinaryAssetCache[entry.Name] = content;
@@ -131,8 +131,7 @@ internal class ConfigInitializer : ITKExtModuleInitializer
                 entryStream.CopyTo(memoryStream);
                 return memoryStream.ToArray();
             }
-        }
-        catch (Exception ex)
+        } catch(Exception ex)
         {
             TKGlobalConfig.OnExceptionEvent?.Invoke(typeof(ConfigInitializer), nameof(LoadAssetData), ex);
         }

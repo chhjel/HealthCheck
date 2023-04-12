@@ -144,7 +144,7 @@ public class TestDefinition
         Description = testAttribute.Description.EnsureDotAtEndIfNotNullOrEmpty();
         AllowParallelExecution = testAttribute.AllowParallelExecution == null ? default(bool?) : (bool)testAttribute.AllowParallelExecution;
         AllowManualExecution = (testAttribute.AllowManualExecution is bool allowManualExecution ? allowManualExecution : parentClass.DefaultAllowManualExecution);
-        RolesWithAccess = testAttribute.RolesWithAccess ?? parentClass.DefaultRolesWithAccess;
+        RolesWithAccess =  testAttribute.RolesWithAccess ?? parentClass.DefaultRolesWithAccess;
         RunButtonText = testAttribute.RunButtonText;
         RunningButtonText = testAttribute.RunningButtonText;
         HideInputFromAuditLog = testAttribute.HideInputFromAuditLog;
@@ -154,7 +154,7 @@ public class TestDefinition
         IsCancellable = (methodParams.FirstOrDefault()?.ParameterType == typeof(CancellationToken));
 
         Categories = (testAttribute.Categories ?? new string[0])
-            .Union((testAttribute.Category == null ? new string[0] : new[] { testAttribute.Category }))
+            .Union((testAttribute.Category == null ? new string[0] : new []{ testAttribute.Category }))
             .Distinct()
             .ToList();
 
@@ -196,7 +196,7 @@ public class TestDefinition
         }
 
         Parameters = new TestParameter[methodParameters.Length];
-        for (int i = 0; i < methodParameters.Length; i++)
+        for(int i = 0; i < methodParameters.Length; i++)
         {
             var parameter = methodParameters[i];
             var type = parameter.ParameterType;
@@ -330,7 +330,7 @@ public class TestDefinition
     {
         var classType = Method.DeclaringType;
         return classType.GetMethods(BindingFlags.Public | BindingFlags.Static)
-            .FirstOrDefault(x => x.Name == parameterAttribute.DefaultValueFactoryMethod
+            .FirstOrDefault(x => x.Name == parameterAttribute.DefaultValueFactoryMethod 
                 && (x.GetParameters().Length == 0 || (x.GetParameters().Length == 1 && x.GetParameters()[0].ParameterType == typeof(string)))
                 && (x.ReturnType == parameterInfo.ParameterType
                     || IsDefaultTestParameterWrapperWithType(x.ReturnType, parameterInfo.ParameterType))
@@ -428,7 +428,7 @@ public class TestDefinition
             return postProcessResult(result);
         }
         // Async any
-        else if (allowAnyResultType &&
+        else if (allowAnyResultType && 
             ((returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>))
             || returnType == typeof(Task)))
         {

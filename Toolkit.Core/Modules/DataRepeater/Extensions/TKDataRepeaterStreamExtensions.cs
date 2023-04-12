@@ -84,7 +84,7 @@ public static class TKDataRepeaterStreamExtensions
         await stream.Storage.RemoveItemTagsAsync(item.Id, tags).ConfigureAwait(false);
         return true;
     }
-
+    
     /// <summary>
     /// Add/remove the given tags on the item matching the given item id, and optionally remove all others.
     /// </summary>

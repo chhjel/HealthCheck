@@ -13,7 +13,7 @@ public interface IEventDataSink
     /// Get all enabled notifiers for this sink.
     /// </summary>
     IEnumerable<IEventNotifier> GetNotifiers();
-
+    
     /// <summary>
     /// Get all configs.
     /// </summary>

@@ -56,8 +56,7 @@ public class DefaultEventDataSink : IEventDataSink
     /// </summary>
     public IEnumerable<KnownEventDefinition> GetKnownEventDefinitions()
     {
-        lock (_cacheUpdateLock)
-        {
+        lock (_cacheUpdateLock) {
             return KnownEventDefinitionsListCache;
         }
     }
@@ -81,7 +80,7 @@ public class DefaultEventDataSink : IEventDataSink
     /// </summary>
     public DefaultEventDataSink AddPlaceholders(Dictionary<string, Func<string>> placeholderFactories)
     {
-        foreach (var kvp in placeholderFactories)
+        foreach(var kvp in placeholderFactories)
         {
             AddPlaceholder(kvp.Key, kvp.Value);
         }
@@ -337,7 +336,7 @@ public class DefaultEventDataSink : IEventDataSink
 
     private void EnsureDefinition(string eventId, Dictionary<string, string> payloadProperties, bool payloadIsComplex)
     {
-        lock (_cacheUpdateLock)
+        lock(_cacheUpdateLock)
         {
             var idIsKnown = KnownEventDefinitionsCache.ContainsKey(eventId);
             var countLimitIsReached = KnownEventDefinitionsCacheSize > EventDefinitionSizeLimit;

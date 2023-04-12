@@ -41,7 +41,7 @@ public class TKMessagesModule : ToolkitModuleBase<TKMessagesModule.AccessOption>
     /// Get config for this module.
     /// </summary>
     public override IToolkitModuleConfig GetModuleConfig(ToolkitModuleContext context) => new TKMessagesModuleConfig();
-
+    
     /// <summary>
     /// Different access options for this module.
     /// </summary>
@@ -62,7 +62,7 @@ public class TKMessagesModule : ToolkitModuleBase<TKMessagesModule.AccessOption>
     [ToolkitModuleMethod(AccessOption.DeleteMessages)]
     public object DeleteMessage(TKDeleteMessageRequestModel model)
     {
-        var result = Options.MessageStorage.DeleteMessage(model.InboxId, model.MessageId);
+        var result =  Options.MessageStorage.DeleteMessage(model.InboxId, model.MessageId);
         return new { Success = result };
     }
 
@@ -72,7 +72,7 @@ public class TKMessagesModule : ToolkitModuleBase<TKMessagesModule.AccessOption>
     [ToolkitModuleMethod(AccessOption.DeleteMessages)]
     public object DeleteInbox(string id)
     {
-        var result = Options.MessageStorage.DeleteInbox(id);
+        var result =  Options.MessageStorage.DeleteInbox(id);
         return new { Success = result };
     }
 

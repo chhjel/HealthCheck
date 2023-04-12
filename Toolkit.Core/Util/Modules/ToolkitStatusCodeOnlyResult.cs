@@ -6,7 +6,7 @@ namespace QoDL.Toolkit.Core.Util.Modules;
 /// Can be returned from module actions to return a status code with empty reslt.
 /// </summary>
 public class ToolkitStatusCodeOnlyResult
-{
+	{
     /// <summary>
     /// Status code to return.
     /// </summary>

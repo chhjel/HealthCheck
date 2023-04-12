@@ -77,7 +77,7 @@ public class TKMemoryMessageStore : ITKMessageStorage
     public TKDataWithTotalCount<IEnumerable<ITKMessageItem>> GetLatestMessages(string inboxId, int pageSize, int pageIndex)
     {
         TKDataWithTotalCount<IEnumerable<ITKMessageItem>> result;
-
+        
         lock (_inboxesById)
         {
             if (!_inboxesById.ContainsKey(inboxId))
@@ -125,8 +125,7 @@ public class TKMemoryMessageStore : ITKMessageStorage
     {
         lock (_inboxesById)
         {
-            if (!_inboxesById.ContainsKey(inboxId))
-            {
+            if (!_inboxesById.ContainsKey(inboxId)) {
                 return false;
             }
             var inbox = _inboxesById[inboxId];
@@ -140,7 +139,7 @@ public class TKMemoryMessageStore : ITKMessageStorage
     /// </summary>
     public bool DeleteInbox(string inboxId)
     {
-        lock (_inboxesById)
+        lock(_inboxesById)
         {
             if (!_inboxesById.ContainsKey(inboxId))
             {
@@ -180,7 +179,7 @@ public class TKMemoryMessageStore : ITKMessageStorage
                 }
             }
 
-            foreach (var inbox in _inboxes)
+            foreach(var inbox in _inboxes)
             {
                 if (inbox.Items.Count > MaxLatestMessageCountPerInbox)
                 {

@@ -29,12 +29,12 @@ public interface IDynamicCodePreProcessor
     /// </summary>
     bool CanBeDisabled { get; set; }
 
-#if NETFULL
+    #if NETFULL
     /// <summary>
     /// Processes source code before it is executed.
     /// </summary>
     /// <param name="options">Compiler options that will be used.</param>
     /// <param name="code">The source code to be executed.</param>
     string PreProcess(CompilerParameters options, string code);
-#endif
+    #endif
 }

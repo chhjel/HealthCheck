@@ -36,7 +36,7 @@ public class AnyTypeTests
         public DateTime DateProperty { get; set; }
         public TestClassA RecursiveProperty { get; set; }
 
-        public string Test()
+        public string Test() 
             => PublicStringField + PublicStringProperty + PrivateStringField + PrivateStringProperty + IntProperty + DateProperty + RecursiveProperty;
     }
 }

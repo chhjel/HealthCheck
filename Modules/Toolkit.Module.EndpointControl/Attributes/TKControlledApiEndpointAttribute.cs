@@ -25,7 +25,7 @@ public class TKControlledApiEndpointAttribute : ActionFilterAttribute
     {
         Name = name;
     }
-
+    
     /// <summary>
     /// Optional name of this endpoint.
     /// </summary>
@@ -67,7 +67,7 @@ public class TKControlledApiEndpointAttribute : ActionFilterAttribute
     protected virtual EndpointControlHandledRequestResult AllowExecute(HttpActionContext actionContext)
     {
         var requestData = GetEndpointRequestData(actionContext);
-
+        
         var handledResult = EndpointControlServices.EndpointControlService?.HandleRequest(requestData, storeData: !ManuallyCounted);
         var allowed = handledResult?.WasDecidedToAllowRequest != false;
 

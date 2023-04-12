@@ -50,7 +50,7 @@ public class TKLogViewerModule : ToolkitModuleBase<TKLogViewerModule.AccessOptio
     /// Get config for this module.
     /// </summary>
     public override IToolkitModuleConfig GetModuleConfig(ToolkitModuleContext context) => new TKLogViewerModuleConfig();
-
+    
     /// <summary>
     /// Different access options for this module.
     /// </summary>

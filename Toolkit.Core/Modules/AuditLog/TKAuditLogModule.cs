@@ -57,7 +57,7 @@ public class TKAuditLogModule : ToolkitModuleBase<TKAuditLogModule.AccessOption>
     /// Get config for this module.
     /// </summary>
     public override IToolkitModuleConfig GetModuleConfig(ToolkitModuleContext context) => new TKAuditLogModuleConfig();
-
+    
     /// <summary>
     /// Different access options for this module.
     /// </summary>

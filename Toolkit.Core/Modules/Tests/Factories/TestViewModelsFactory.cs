@@ -139,7 +139,7 @@ public class TestViewModelsFactory
 
     private ReferenceValueFactoryConfigViewModel CreateReferenceValueFactoryConfig(RuntimeTestReferenceParameterFactory referenceFactory)
     {
-        if (string.IsNullOrWhiteSpace(referenceFactory?.Title)
+        if (string.IsNullOrWhiteSpace(referenceFactory?.Title) 
             && string.IsNullOrWhiteSpace(referenceFactory?.Description)
             && string.IsNullOrWhiteSpace(referenceFactory?.SearchButtonText))
         {
@@ -150,7 +150,7 @@ public class TestViewModelsFactory
         {
             Title = referenceFactory.Title,
             Description = referenceFactory.Description,
-            SearchButtonText = referenceFactory.SearchButtonText
+            SearchButtonText = referenceFactory.SearchButtonText                
         };
     }
 
@@ -163,7 +163,7 @@ public class TestViewModelsFactory
         var parameters = testDefinitions.SelectMany(x => x.Tests.SelectMany(t => t.Parameters));
         var relevantParameters = parameters
             .Where(x => !x.IsOut
-                && !x.IsCustomReferenceType
+                && !x.IsCustomReferenceType 
                 && !TestsModuleUtils.IsBuiltInSupportedType(x.ParameterType))
             .GroupBy(x => x.ParameterType.Name)
             .Select(x => x.First())
@@ -189,7 +189,7 @@ public class TestViewModelsFactory
                         useDefaultLogic = false;
                     }
                 }
-
+                
                 if (useDefaultLogic && TKGlobalConfig.AllowActivatingType(x.ParameterType) && TKGlobalConfig.AllowSerializingType(x.ParameterType))
                 {
                     var ctors = x.ParameterType.GetConstructors();

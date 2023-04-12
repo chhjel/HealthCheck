@@ -129,7 +129,7 @@ public abstract class TKDataExportStreamBase<TItem> : ITKDataExportStream
     /// <inheritdoc />
     public virtual object DefaultFormatValue(string propertyName, Type propertyType, object value)
     {
-        lock (_formatValueMethodCache)
+        lock(_formatValueMethodCache)
         {
             if (!_formatValueMethodCache.ContainsKey(propertyType))
             {

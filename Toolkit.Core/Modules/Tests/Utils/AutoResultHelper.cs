@@ -12,7 +12,7 @@ internal static class AutoResultHelper
         = new(@"(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}|\/)\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)");
     private static readonly Regex _absoluteUrlRegex
         = new(@"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)");
-    private static readonly string[] _imgExtensions = new[]
+    private static readonly string[] _imgExtensions = new[] 
         { "APNG", "AVIF", "GIF", "JPG", "JPEG", "PNG", "SVG", "WEBP", "BMP", "ICO", "TIFF" };
     private static readonly Type[] _stringifiableTypes = new[]
         { typeof(string), typeof(DateTime), typeof(DateTimeOffset), typeof(Guid) };
@@ -60,7 +60,7 @@ internal static class AutoResultHelper
 
         if (absoluteUrls.Any())
         {
-            foreach (var url in absoluteUrls)
+            foreach(var url in absoluteUrls)
             {
                 AddUrl(result, url);
             }

@@ -20,7 +20,7 @@ public static class TKValueConversionUtils
     /// </summary>
     public static T ConvertInputModel<T>(Dictionary<string, string> rawInput, TKStringConverter stringConverter = null,
         Dictionary<string, string> placeholders = null, Func<string, TKCustomPropertyAttribute, Func<string, string>> placeholderTransformerFactory = null)
-        where T : class, new()
+        where T: class, new()
         => ConvertInputModel(typeof(T), rawInput, stringConverter, placeholders, placeholderTransformerFactory) as T;
 
     /// <summary>
@@ -36,7 +36,7 @@ public static class TKValueConversionUtils
     /// </summary>
     public static object ConvertInputModel(Type type, Dictionary<string, string> rawInput, TKStringConverter stringConverter = null,
         Dictionary<string, string> placeholders = null, Func<string, TKCustomPropertyAttribute, Func<string, string>> placeholderTransformerFactory = null)
-        => ConvertInputModel(type,
+        => ConvertInputModel(type, 
             (rawInput == null) ? null : (propName) => rawInput?.FirstOrDefault(x => x.Key == propName).Value,
             stringConverter, placeholders, placeholderTransformerFactory);
 

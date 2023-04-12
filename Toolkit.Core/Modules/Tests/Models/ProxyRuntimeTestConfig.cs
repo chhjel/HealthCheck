@@ -78,7 +78,7 @@ public class ProxyRuntimeTestConfig
     public ProxyRuntimeTestConfig SetCustomContext<TContext>(
         Func<TContext> factory,
         Action<TestResult, TContext> resultAction
-    ) where TContext : class
+    ) where TContext: class
     {
         ContextFactory = () => factory();
         ResultAction = (result, context) => resultAction(result, context as TContext);
@@ -109,7 +109,7 @@ public class ProxyRuntimeTestConfig
     /// <para>Custom context can be set from <c>AddCustomContext</c></para>
     /// </summary>
     public ProxyRuntimeTestConfig SetInstanceFactory<T, TContext>(Func<TContext, T> factory)
-        where TContext : class
+        where TContext: class
     {
         InstanceFactoryWithContext = (context) => factory(context as TContext);
         return this;

@@ -1,6 +1,6 @@
-using QoDL.Toolkit.Core.Extensions;
 using Xunit;
 using Xunit.Abstractions;
+using QoDL.Toolkit.Core.Extensions;
 
 namespace QoDL.Toolkit.Core.Tests.Extensions;
 

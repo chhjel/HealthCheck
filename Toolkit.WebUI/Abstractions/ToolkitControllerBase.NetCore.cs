@@ -1,8 +1,4 @@
 #if NETCORE
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
 using QoDL.Toolkit.Core.Abstractions.Modules;
 using QoDL.Toolkit.Core.Attributes;
 using QoDL.Toolkit.Core.Config;
@@ -14,6 +10,10 @@ using QoDL.Toolkit.Core.Util.Modules;
 using QoDL.Toolkit.Web.Core.Utils;
 using QoDL.Toolkit.WebUI.Models;
 using QoDL.Toolkit.WebUI.Util;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -89,7 +89,7 @@ public abstract class ToolkitControllerBase<TAccessRole> : Controller
     /// Register a module that will be available.
     /// </summary>
     protected TModule UseModule<TModule>(TModule module, string name = null)
-        where TModule : IToolkitModule
+        where TModule: IToolkitModule
         => Helper.UseModule(module, name);
 
     /// <summary>
@@ -166,7 +166,7 @@ public abstract class ToolkitControllerBase<TAccessRole> : Controller
         frontEndOptions.IntegratedLoginTwoFactorCodeInputMode = Helper?.AccessConfig?.IntegratedLoginConfig?.TwoFactorCodeConfig?.TwoFactorCodeInputMode ?? TKIntegratedLoginConfig.TKLoginTwoFactorCodeInputMode.Off;
         frontEndOptions.IntegratedLoginWebAuthnMode = Helper?.AccessConfig?.IntegratedLoginConfig?.WebAuthnConfig?.WebAuthnMode ?? TKIntegratedLoginConfig.TKLoginWebAuthnMode.Off;
         frontEndOptions.IntegratedLogin2FANote = Helper?.AccessConfig?.IntegratedLoginConfig?.TwoFactorCodeConfig?.Note;
-        frontEndOptions.IntegratedLoginWebAuthnNote = Helper?.AccessConfig?.IntegratedLoginConfig?.WebAuthnConfig?.Note;
+        frontEndOptions.IntegratedLoginWebAuthnNote= Helper?.AccessConfig?.IntegratedLoginConfig?.WebAuthnConfig?.Note;
 
         var pageOptions = GetPageOptions();
         var html = Helper.CreateViewHtml(CurrentRequestAccessRoles, frontEndOptions, pageOptions);
@@ -474,7 +474,7 @@ public abstract class ToolkitControllerBase<TAccessRole> : Controller
         CurrentRequestInformation.InputStream = request.Body;
         if (request.HasFormContentType && request?.Form?.Files?.Any() == true)
         {
-            foreach (var file in request.Form.Files)
+            foreach(var file in request.Form.Files)
             {
                 CurrentRequestInformation.FormFiles.Add(new RequestFormFile
                 {
@@ -484,7 +484,7 @@ public abstract class ToolkitControllerBase<TAccessRole> : Controller
                 });
             }
         }
-
+        
         var requestInfoOverridden = Helper.ApplyTokenAccessIfDetected(CurrentRequestInformation);
         CurrentRequestAccessRoles = CurrentRequestInformation?.AccessRole;
 

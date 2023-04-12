@@ -23,7 +23,7 @@ public class CodeError
     /// <summary>
     /// New code error with the given message.
     /// </summary>
-    public CodeError(string message) : this(-1, -1, message) { }
+    public CodeError(string message) : this(-1, -1, message) {}
 
     /// <summary>
     /// New code error with the given line and message.

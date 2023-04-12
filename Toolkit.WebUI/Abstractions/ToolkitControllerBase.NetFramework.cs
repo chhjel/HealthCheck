@@ -27,8 +27,8 @@ namespace QoDL.Toolkit.WebUI.Abstractions;
 /// </summary>
 /// <typeparam name="TAccessRole">Maybe{EnumType} used for access roles.</typeparam>
 [SessionState(SessionStateBehavior.ReadOnly)]
-public abstract class ToolkitControllerBase<TAccessRole> : Controller
-    where TAccessRole : Enum
+public abstract class ToolkitControllerBase<TAccessRole>: Controller
+    where TAccessRole: Enum
 {
 #region Properties & Fields
     /// <summary>
@@ -87,7 +87,7 @@ public abstract class ToolkitControllerBase<TAccessRole> : Controller
     /// Register a module that will be available.
     /// </summary>
     protected TModule UseModule<TModule>(TModule module, string name = null)
-        where TModule : IToolkitModule
+        where TModule: IToolkitModule
         => Helper.UseModule(module, name);
 
     /// <summary>
@@ -111,7 +111,7 @@ public abstract class ToolkitControllerBase<TAccessRole> : Controller
             {
                 return CreateIntegratedLoginViewResult();
             }
-
+            
             var queryStringState = "h=" + System.Web.HttpUtility.UrlEncode($"{Request.QueryString?["h"] ?? ""}");
             var redirectTarget = Helper.AccessConfig.RedirectTargetOnNoAccessUsingRequest?.Invoke(Request, queryStringState);
             if (!string.IsNullOrWhiteSpace(redirectTarget))
@@ -166,7 +166,7 @@ public abstract class ToolkitControllerBase<TAccessRole> : Controller
         frontEndOptions.IntegratedLoginTwoFactorCodeInputMode = Helper?.AccessConfig?.IntegratedLoginConfig?.TwoFactorCodeConfig?.TwoFactorCodeInputMode ?? TKIntegratedLoginConfig.TKLoginTwoFactorCodeInputMode.Off;
         frontEndOptions.IntegratedLoginWebAuthnMode = Helper?.AccessConfig?.IntegratedLoginConfig?.WebAuthnConfig?.WebAuthnMode ?? TKIntegratedLoginConfig.TKLoginWebAuthnMode.Off;
         frontEndOptions.IntegratedLogin2FANote = Helper?.AccessConfig?.IntegratedLoginConfig?.TwoFactorCodeConfig?.Note;
-        frontEndOptions.IntegratedLoginWebAuthnNote = Helper?.AccessConfig?.IntegratedLoginConfig?.WebAuthnConfig?.Note;
+        frontEndOptions.IntegratedLoginWebAuthnNote= Helper?.AccessConfig?.IntegratedLoginConfig?.WebAuthnConfig?.Note;
 
         var pageOptions = GetPageOptions();
         var html = Helper.CreateViewHtml(CurrentRequestAccessRoles, frontEndOptions, pageOptions);
@@ -317,7 +317,7 @@ public abstract class ToolkitControllerBase<TAccessRole> : Controller
             || Helper?.AccessConfig?.IntegratedProfileConfig?.AddTotpEnabled != true
             || Helper?.HasAccessToAnyContent(CurrentRequestAccessRoles) != true)
             return CreateNoAccessResult();
-
+            
         var result = await Helper.AccessConfig.IntegratedProfileConfig.AddTotpLogic(model?.Password, model?.Secret, model?.Code);
         return CreateJsonResult(result);
     }

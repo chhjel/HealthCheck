@@ -55,7 +55,7 @@ public class TKEpiserverBlobHelper<TData>
     {
         var blob = GetBlob();
         var json = JsonConvert.SerializeObject(data);
-
+        
         using var stream = blob.OpenWrite();
         var writer = new StreamWriter(stream);
         writer.WriteLine(json);

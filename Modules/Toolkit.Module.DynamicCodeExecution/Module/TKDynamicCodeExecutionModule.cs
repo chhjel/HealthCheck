@@ -157,8 +157,8 @@ public class TKDynamicCodeExecutionModule : ToolkitModuleBase<TKDynamicCodeExecu
     public async Task<bool> DeleteScript(ToolkitModuleContext context, Guid id)
     {
         var success = (await this.Options.ScriptStorage?.DeleteScript(id));
-        context.AddAuditEvent("DeleteScript", (success)
-            ? $"Deleted script with id '{id}'."
+        context.AddAuditEvent("DeleteScript", (success) 
+            ? $"Deleted script with id '{id}'." 
             : $"Failed to delete script with id '{id}'.");
         return success;
     }
@@ -201,7 +201,7 @@ public class TKDynamicCodeExecutionModule : ToolkitModuleBase<TKDynamicCodeExecu
     public async Task<IEnumerable<IDynamicCodeCompletionData>> AutoComplete(CompletionRequest request)
     {
         if (this.Options.AutoCompleter == null || request == null) return null;
-
+        
 #if NETFULL
         var assemblyLocations = CreateExecutor().GetAssemblyLocations();
         return await Options.AutoCompleter.GetAutoCompleteSuggestionsAsync(request.Code, assemblyLocations?.ToArray(), request.Position);
@@ -245,7 +245,7 @@ public class TKDynamicCodeExecutionModule : ToolkitModuleBase<TKDynamicCodeExecu
             return DynamicCodeValidationResult.Allow();
         }
 
-        foreach (var validator in Options.Validators)
+        foreach(var validator in Options.Validators)
         {
             var result = validator.Validate(code);
             if (!result.IsAllowed)
@@ -257,18 +257,18 @@ public class TKDynamicCodeExecutionModule : ToolkitModuleBase<TKDynamicCodeExecu
         return DynamicCodeValidationResult.Allow();
     }
 
-#if NETFULL
+    #if NETFULL
     private RuntimeCodeTester CreateExecutor()
     {
         var executor = new RuntimeCodeTester(new RuntimeCodeTesterConfig()
-        {
-            PreProcessors = Options.PreProcessors,
-            AdditionalReferencedAssemblies = Options.AdditionalReferencedAssemblies
-        },
+            {
+                PreProcessors = Options.PreProcessors,
+                AdditionalReferencedAssemblies = Options.AdditionalReferencedAssemblies
+            },
             Options.TargetAssembly);
 
         return executor;
     }
-#endif
+    #endif
     #endregion
 }

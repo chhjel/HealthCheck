@@ -154,8 +154,7 @@ public class DevController : ToolkitControllerBase<RuntimeTestAccessRole>
         {
             Storage = TKIoCUtils.GetInstance<ITKMetricsStorage>()
         }));
-        UseModule(new TKReleaseNotesModule(new TKReleaseNotesModuleOptions
-        {
+        UseModule(new TKReleaseNotesModule(new TKReleaseNotesModuleOptions {
             ReleaseNotesProvider = TKIoCUtils.GetInstance<ITKReleaseNotesProvider>()
         }));
         UseModule(new TKMessagesModule(new TKMessagesModuleOptions() { MessageStorage = _memoryMessageStore }
@@ -185,8 +184,7 @@ public class DevController : ToolkitControllerBase<RuntimeTestAccessRole>
             TokenStorage = new FlatFileAccessManagerTokenStorage(@"C:\temp\AccessTokens.json")
         }));
 
-        UseModule(new TKDynamicCodeExecutionModule(new TKDynamicCodeExecutionModuleOptions()
-        {
+        UseModule(new TKDynamicCodeExecutionModule(new TKDynamicCodeExecutionModuleOptions() {
             StoreCopyOfExecutedScriptsAsAuditBlobs = true,
             TargetAssembly = typeof(DevController).Assembly,
             ScriptStorage = new FlatFileDynamicCodeScriptStorage(@"C:\temp\DCE_Scripts.json"),
@@ -290,7 +288,7 @@ public class DevController : ToolkitControllerBase<RuntimeTestAccessRole>
         {
             config.GiveRolesAccessToModuleWithFullAccess<TKTestsModule>(RuntimeTestAccessRole.WebAdmins);
         }
-
+        
         config.GiveRolesAccessToModuleWithFullAccess<TKDataExportModule>(RuntimeTestAccessRole.WebAdmins);
         config.GiveRolesAccessToModuleWithFullAccess<TKSettingsModule>(RuntimeTestAccessRole.WebAdmins);
         config.GiveRolesAccessToModuleWithFullAccess<TKRequestLogModule>(RuntimeTestAccessRole.WebAdmins);
@@ -361,8 +359,7 @@ public class DevController : ToolkitControllerBase<RuntimeTestAccessRole>
     public override ActionResult Index()
     {
         TKMetricsContext.StartTiming("QoDL.Toolkit.Index()", "QoDL.Toolkit.Index()", true);
-        EventSink.RegisterEvent("pageload", new
-        {
+        EventSink.RegisterEvent("pageload", new {
             Url = Request.RawUrl,
             User = CurrentRequestInformation?.UserName,
             SettingValue = SettingsService.GetSettings<TestSettings>().IntProp
@@ -444,7 +441,7 @@ public class DevController : ToolkitControllerBase<RuntimeTestAccessRole>
     public ActionResult GetMainScript() => LoadFile("toolkit.js");
     [HideFromRequestLog]
     public ActionResult GetMainStyle() => LoadFile("toolkit.css", "text/css");
-
+    
     //[OutputCache(Duration = 1200, VaryByParam = "none")]
     [HideFromRequestLog]
     public ActionResult GetVendorScript() => LoadFile("toolkit.vendor.js");
@@ -456,7 +453,7 @@ public class DevController : ToolkitControllerBase<RuntimeTestAccessRole>
     public ActionResult GetReleaseNotesScript() => LoadFile("releaseNotesSummary.js");
 
     [HideFromRequestLog]
-    public ActionResult GetScript([FromUri] string name) => LoadFile(name);
+    public ActionResult GetScript([FromUri]string name) => LoadFile(name);
 
     private ActionResult LoadFile(string filename, string contentType = "text/plain")
     {
@@ -465,7 +462,7 @@ public class DevController : ToolkitControllerBase<RuntimeTestAccessRole>
         if (!System.IO.File.Exists(filepath)) return Content("");
         return new FileStreamResult(System.IO.File.Open(filepath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), contentType);
     }
-
+    
     public ActionResult Logout()
     {
         ForceLogout = true;
@@ -509,7 +506,7 @@ public class DevController : ToolkitControllerBase<RuntimeTestAccessRole>
         }
         else
         {
-            ForcedRole = (RuntimeTestAccessRole)Enum.Parse(typeof(RuntimeTestAccessRole), name);
+            ForcedRole = (RuntimeTestAccessRole) Enum.Parse(typeof(RuntimeTestAccessRole), name);
             return Content($"Role set to: {ForcedRole}.");
         }
     }

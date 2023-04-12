@@ -1,5 +1,5 @@
-using Newtonsoft.Json;
 using QoDL.Toolkit.Core.Models;
+using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
 
@@ -110,8 +110,7 @@ public class TKIntegratedProfileConfig
     /// <para>Defaults to true.</para>
     /// </summary>
     public bool ShowWebAuthnElevation { get; set; } = true;
-    [JsonProperty]
-    internal bool WebAuthnElevationEnabled => ShowWebAuthnElevation
+    [JsonProperty] internal bool WebAuthnElevationEnabled => ShowWebAuthnElevation 
         && WebAuthnElevationLogic != null && CreateWebAuthnAssertionOptionsLogic != null
         && !string.IsNullOrWhiteSpace(Username);
 
@@ -140,8 +139,7 @@ public class TKIntegratedProfileConfig
     /// <para>Defaults to true.</para>
     /// </summary>
     public bool ShowAddWebAuthn { get; set; } = true;
-    [JsonProperty]
-    internal bool AddWebAuthnEnabled => ShowAddWebAuthn
+    [JsonProperty] internal bool AddWebAuthnEnabled => ShowAddWebAuthn 
         && AddWebAuthnLogic != null && CreateWebAuthnRegistrationOptionsLogic != null
         && !string.IsNullOrWhiteSpace(Username);
 

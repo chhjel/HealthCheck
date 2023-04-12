@@ -11,7 +11,7 @@ namespace QoDL.Toolkit.Dev.Common.Tests;
 )]
 public class FailedTestClass
 {
-    public FailedTestClass(object obj) { }
+    public FailedTestClass(object obj) {}
 
     [RuntimeTest]
     public TestResult FailingTestBecauseOfClassErrors()

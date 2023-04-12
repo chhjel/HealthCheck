@@ -50,7 +50,7 @@ namespace QoDL.Toolkit.Episerver.Tests.Storage
             storage.ForceBufferCallback();
 
             var items = (await storage.GetItemsPagedAsync(new TKGetDataRepeaterStreamItemsFilteredRequest
-            { PageIndex = 0, PageSize = int.MaxValue })).Items.ToList();
+                { PageIndex = 0, PageSize = int.MaxValue })).Items.ToList();
             Assert.Equal(120, items.Count);
             Assert.Equal(100, items.Count(x => x.Log.Any(l => l.Message == "Merged with new details.")));
 
@@ -78,7 +78,7 @@ namespace QoDL.Toolkit.Episerver.Tests.Storage
             storage.ForceBufferCallback();
 
             var items = (await storage.GetItemsPagedAsync(new TKGetDataRepeaterStreamItemsFilteredRequest
-            { PageIndex = 0, PageSize = int.MaxValue })).Items.ToList();
+                { PageIndex = 0, PageSize = int.MaxValue })).Items.ToList();
             Assert.Equal(50, items.Count);
         }
 
@@ -400,7 +400,7 @@ namespace QoDL.Toolkit.Episerver.Tests.Storage
             Assert.True(items.Count(x => x.Id == targetItem1.Id) == 0);
 
             storage.ForceBufferCallback();
-
+            
             await storage.DeleteItemAsync(targetItem2.Id);
 
             items = (await getItemsAsync());
@@ -507,12 +507,12 @@ namespace QoDL.Toolkit.Episerver.Tests.Storage
             public decimal SomeValue { get; set; }
             public bool AnotherThing { get; set; }
         }
-        public class StreamItem : TKDefaultDataRepeaterStreamItem<StreamItemData, StreamItem> { }
+        public class StreamItem : TKDefaultDataRepeaterStreamItem<StreamItemData, StreamItem> {}
         public class StorageImplementation : TKEpiserverBlobDataRepeaterStreamItemStorage<StreamItem>
         {
             protected override Guid ContainerId => Guid.Parse("c0254918-bb23-4ebb-9890-062ed6a11aaa");
 
-            public StorageImplementation(IBlobFactory blobFactory, Core.Abstractions.ITKCache cache) : base(blobFactory, cache) { }
+            public StorageImplementation(IBlobFactory blobFactory, Core.Abstractions.ITKCache cache) : base(blobFactory, cache) {}
         }
         public class StreamImplementation : TKDataRepeaterStreamBase<StreamItem>
         {

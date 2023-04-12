@@ -57,6 +57,6 @@ public class TestDataExportStreamHeavy : TKDataExportStreamBase<TestDataExportSt
     {
         public string Id { get; set; }
         public string Name { get; set; }
-        public RecursiveSubItem Parent { get; set; }
+        public RecursiveSubItem Parent { get;  set; }
     }
 }

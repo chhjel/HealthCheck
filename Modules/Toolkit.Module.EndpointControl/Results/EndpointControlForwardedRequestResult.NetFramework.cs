@@ -135,7 +135,7 @@ public class EndpointControlForwardedRequestResult : IEndpointControlRequestResu
     /// <summary>
     /// If an exception is thrown during <see cref="ForwardWebApiRequestAsync"/> this is called.
     /// </summary>
-    protected virtual void OnForwardWebApiRequestFailed(HttpRequestMessage request, EndpointControlForwardedRequestResultProperties options, Exception ex) { }
+    protected virtual void OnForwardWebApiRequestFailed(HttpRequestMessage request, EndpointControlForwardedRequestResultProperties options, Exception ex) {}
 
     /// <summary>
     /// Performs the forwarding.

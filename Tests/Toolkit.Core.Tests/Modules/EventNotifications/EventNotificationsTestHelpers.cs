@@ -47,8 +47,7 @@ internal static class EventNotificationsTestHelpers
                     Options = new Dictionary<string, string>()
                 }
             },
-            EventIdFilter = new EventSinkNotificationConfigFilter()
-            {
+            EventIdFilter = new EventSinkNotificationConfigFilter(){
                 CaseSensitive = true,
                 Filter = eventIdFilter,
                 MatchType = EventSinkNotificationConfigFilter.FilterMatchType.Matches
@@ -72,7 +71,7 @@ internal static class EventNotificationsTestHelpers
 
         public async Task<string> NotifyEvent(NotifierConfig notifierConfig, string eventId, Dictionary<string, string> payloadValues, object optionsObject)
         {
-            lock (NotifiedEvents)
+            lock(NotifiedEvents)
             {
                 NotifiedEvents.Add(new NotifiedTestEvent
                 {

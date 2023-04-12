@@ -29,7 +29,7 @@ public class TKDefaultSettingsService : ITKSettingsService
 
     /// <inheritdoc/>
     public TModel GetSettings<TModel>()
-        where TModel : class, new()
+        where TModel: class, new()
     {
         var type = typeof(TModel);
         var key = type.FullName;
@@ -74,7 +74,7 @@ public class TKDefaultSettingsService : ITKSettingsService
             if (!_valuesCache.ContainsKey(key))
             {
                 var definitions = EnsureDefinitionCache(type, key);
-
+                
                 // Include any missing default values
                 var values = _storage.GetValues();
                 foreach (var def in definitions)

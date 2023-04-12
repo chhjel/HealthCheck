@@ -60,8 +60,7 @@ public class TKGoToService : ITKGoToService
                         Data = item
                     });
                 }
-            }
-            catch (Exception ex)
+            } catch(Exception ex)
             {
                 result.Add(new TKGoToResolvedDataWithResolverId
                 {

@@ -45,7 +45,7 @@ public class RegisterEventTests
         testConfig.DistinctNotificationKey = "static_key";
         testConfig.DistinctNotificationCacheDuration = TimeSpan.FromMinutes(5);
 
-        for (int i = 0; i < eventCount; i++)
+        for (int i=0; i < eventCount; i++)
         {
             sink.RegisterEvent("test_event", fireAndForget: false);
         }

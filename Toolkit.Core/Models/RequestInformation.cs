@@ -83,5 +83,5 @@ public class RequestInformation<TAccessRole>
     /// <param name="userId">Optional user id reference if any. Optionally used for auditing.</param>
     /// <param name="userName">Optional user name reference if any. Optionally used for auditing.</param>
     public RequestInformation(TAccessRole accessRole, string userId = null, string userName = null)
-        : this(new Maybe<TAccessRole>(accessRole), userId, userName) { }
+        : this(new Maybe<TAccessRole>(accessRole), userId, userName) {}
 }

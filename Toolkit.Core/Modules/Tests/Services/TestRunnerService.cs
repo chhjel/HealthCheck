@@ -86,25 +86,25 @@ public class TestRunnerService
 
         if (onAuditEvent != null)
         {
-            foreach (var result in results)
+            foreach(var result in results)
             {
                 var duration = "?";
                 if (result != null)
                 {
-                    duration = result.DurationInMilliseconds < 0
-                        ? "< 0"
+                    duration = result.DurationInMilliseconds < 0 
+                        ? "< 0" 
                         : result?.DurationInMilliseconds.ToString();
                 }
                 var auditEvent = new AuditEvent()
-                {
-                    Area = "Tests",
-                    Action = "Test executed",
-                    Subject = result?.Test?.Name,
-                    Timestamp = DateTimeOffset.Now,
-                    UserId = auditUserId,
-                    UserName = auditUsername,
-                    UserAccessRoles = new List<string>()
-                }
+                    {
+                        Area = "Tests",
+                        Action = "Test executed",
+                        Subject = result?.Test?.Name,
+                        Timestamp = DateTimeOffset.Now,
+                        UserId = auditUserId,
+                        UserName = auditUsername,
+                        UserAccessRoles = new List<string>()
+                    }
                     .AddDetail("Test id", result?.Test?.Id)
                     .AddDetail("Result", result?.Test?.HideResultMessageFromAuditLog == true ? null : result?.Message)
                     .AddDetail("Duration", duration + "ms");
@@ -137,8 +137,7 @@ public class TestRunnerService
                 if (ev.Resolved)
                 {
                     await siteEventService.MarkLatestEventAsResolved(ev.EventTypeId, ev.ResolvedMessage);
-                }
-                else
+                } else
                 {
                     await siteEventService.StoreEvent(ev);
                 }
@@ -220,8 +219,7 @@ public class TestRunnerService
         try
         {
             // Abort if already running
-            if (IsCancellableTestRunning(test.Id))
-            {
+            if (IsCancellableTestRunning(test.Id)) {
                 removeCancellationTokenOnFinish = false;
                 return new TestResult()
                 {
@@ -247,8 +245,7 @@ public class TestRunnerService
                     instanceError = instanceResult.ErrorDetails;
                 }
 
-                postExecutionAction = (testResult, customContext) =>
-                {
+                postExecutionAction = (testResult, customContext) => {
                     if (testResult.AutoCreateResultDataFromObject != null)
                     {
                         resultAction?.Invoke(testResult, testResult.AutoCreateResultDataFromObject);
@@ -257,8 +254,7 @@ public class TestRunnerService
             }
             else if (test.Type == TestDefinition.TestDefinitionType.ProxyClassMethod)
             {
-                postExecutionAction = (testResult, customContext) =>
-                {
+                postExecutionAction = (testResult, customContext) => {
                     if (testResult.AutoCreateResultDataFromObject != null)
                     {
                         testResult.AllowOverrideMessage = true;
@@ -327,7 +323,7 @@ public class TestRunnerService
             }
             if (testContext?.TestResultActions?.Any() == true)
             {
-                foreach (var action in testContext.TestResultActions)
+                foreach(var action in testContext.TestResultActions)
                 {
                     action?.Invoke(result);
                 }
@@ -371,11 +367,11 @@ public class TestRunnerService
                 ITKExceptionWithTestResultData modifier = ex as ITKExceptionWithTestResultData ?? ex?.InnerException as ITKExceptionWithTestResultData;
                 modifier?.ResultModifier?.Invoke(result);
             }
-            catch (Exception mEx)
+            catch(Exception mEx)
             {
                 result.AddCodeData($"Custom result modification failed.\n\n{mEx}");
             }
-
+            
             result.AddCodeData(extraDetails, "WebException response");
             return result;
         }

@@ -1,11 +1,11 @@
 #if NETCORE
+using QoDL.Toolkit.Module.EndpointControl.Abstractions;
+using QoDL.Toolkit.Module.EndpointControl.Models;
+using QoDL.Toolkit.Module.EndpointControl.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Net.Http.Headers;
-using QoDL.Toolkit.Module.EndpointControl.Abstractions;
-using QoDL.Toolkit.Module.EndpointControl.Models;
-using QoDL.Toolkit.Module.EndpointControl.Utils;
 using System;
 using System.Net;
 
@@ -65,7 +65,7 @@ public class TKControlledEndpointAttribute : ActionFilterAttribute
             }
         }
     }
-
+    
     /// <summary>
     /// Return false to deny execution.
     /// </summary>

@@ -1,10 +1,10 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Hosting;
 using QoDL.Toolkit.Core.Config;
 using QoDL.Toolkit.Core.Modules.Metrics.Context;
 using QoDL.Toolkit.Core.Util;
 using QoDL.Toolkit.DevTest.NetCore_6._0.Config;
 using QoDL.Toolkit.Web.Core.Utils;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,8 +30,7 @@ app.MapControllerRoute("default", "{controller=Dev}/{action=Index}/{id?}");
 app.UseSession();
 app.UseAuthorization();
 
-app.UseEndpoints(x =>
-{
+app.UseEndpoints(x => {
     x.MapDefaultControllerRoute();
 });
 

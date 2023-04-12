@@ -1,13 +1,13 @@
 #if NETFULL
-using Newtonsoft.Json;
-using QoDL.Toolkit.Core.Extensions;
 using QoDL.Toolkit.Module.DynamicCodeExecution.Models;
+using QoDL.Toolkit.Core.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace QoDL.Toolkit.Module.DynamicCodeExecution.Util;
 
@@ -40,7 +40,7 @@ public static class DumpHelper
         list.Add(new DiffModel()
         {
             Title = title ?? $"'{leftDump.Title}' vs '{rightDump.Title}'",
-            Left = leftDump,
+            Left= leftDump,
             Right = rightDump
         });
         return left;
@@ -103,8 +103,7 @@ public static class DumpHelper
         {
             Error = (sender, e) =>
             {
-                if (ignoreErrors)
-                {
+                if (ignoreErrors) {
                     e.ErrorContext.Handled = true;
                 }
             }

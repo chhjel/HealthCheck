@@ -36,7 +36,7 @@ public class TKDataExportExporterXlsx : TKDataExportExporterStringifiedBase
         _worksheet = _workbook.Worksheets.Add("Data");
 
         _currentRow = 1;
-        for (int i = 0; i < headerOrder.Count; i++)
+        for (int i=0; i < headerOrder.Count; i++)
         {
             _worksheet.Cell(_currentRow, i + 1).Value = headers[headerOrder[i]];
             _worksheet.Cell(_currentRow, i + 1).Style.Font.Bold = true;

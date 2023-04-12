@@ -76,8 +76,7 @@ public class AccessConfig<TAccessRole>
     internal List<ModuleAccessData<TAccessRole>> RoleModuleAccessLevels { get; set; }
 
     internal void GiveRolesAccessToModule(Type moduleAccessOptionsEnumType, TAccessRole roles, object access, string[] categories, string[] ids = null)
-        => RoleModuleAccessLevels.Add(new ModuleAccessData<TAccessRole>
-        {
+        => RoleModuleAccessLevels.Add(new ModuleAccessData<TAccessRole> {
             Roles = roles,
             AccessOptions = access,
             AccessOptionsType = moduleAccessOptionsEnumType,

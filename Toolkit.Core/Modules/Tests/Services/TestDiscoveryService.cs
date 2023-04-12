@@ -39,7 +39,7 @@ public class TestDiscoveryService
     /// <summary>
     /// Create a new <see cref="TestDiscoveryService"/>.
     /// </summary>
-    public TestDiscoveryService() { }
+    public TestDiscoveryService() {}
 
     /// <summary>
     /// Validate tests, throws a <see cref="InvalidTestDefinitionException"/> if any tests are invalid.
@@ -266,13 +266,13 @@ public class TestDiscoveryService
         {
             return true;
         }
-
+        
         // Check for invalid setup
         if (!TKEnumUtils.IsEnumFlagOfType(rolesToCheckAgainst, new[] { typeof(int), typeof(byte) }))
         {
             throw new TKInvalidAccessRolesDefinitionException($"Access role set on test '{test.Name}' is either missing a [Flags] attribute or does not have the underlying type int or byte.");
         }
-        else if (roles.GetType() != rolesToCheckAgainst.GetType())
+        else if(roles.GetType() != rolesToCheckAgainst.GetType())
         {
             throw new TKInvalidAccessRolesDefinitionException($"Different access role types used on '{test.Name}' and in the discover tests call. " +
                 $"({rolesToCheckAgainst.GetType().Name} and {roles.GetType().Name})");

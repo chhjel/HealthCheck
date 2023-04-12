@@ -173,7 +173,7 @@ public class TKDataExportService : ITKDataExportService
             .ToList();
 
         // Handle array props
-        foreach (var includedArrayProp in includedProperties.Where(x => x.Contains('[')))
+        foreach(var includedArrayProp in includedProperties.Where(x => x.Contains('[')))
         {
             if (allowedIncludedProperties.Any(x => x.Name == includedArrayProp))
                 continue;
@@ -191,7 +191,7 @@ public class TKDataExportService : ITKDataExportService
                 && itemDef.Members.Any(m => m.NameWithCleanIndices.StartsWith($"{withStrippedIndices}.")))
             {
                 // a[] => a or a[].b[] => a[].b
-                var withoutLastIndexer = withStrippedIndices[..^2];
+                var withoutLastIndexer = withStrippedIndices.Substring(0, withStrippedIndices.Length - 2);
                 memberDefClone = itemDef.Members
                     .FirstOrDefault(m => m.NameWithCleanIndices == withoutLastIndexer)
                     ?.Clone();
@@ -217,8 +217,7 @@ public class TKDataExportService : ITKDataExportService
                 if (underlyingType != null)
                 {
                     propType = underlyingType;
-                }
-                else
+                } else
                 {
                     allowFormat = false;
                 }

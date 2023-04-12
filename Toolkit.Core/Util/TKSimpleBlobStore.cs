@@ -112,7 +112,7 @@ public class TKSimpleBlobStore
             try
             {
                 var blobs = Directory.GetFiles(BlobFolderPath, $"*{BLOB_FILE_EXTENSION}");
-                foreach (var blob in blobs)
+                foreach(var blob in blobs)
                 {
                     var blobInfo = new FileInfo(blob);
                     if (blobInfo.LastWriteTimeUtc <= threshold)
@@ -121,7 +121,7 @@ public class TKSimpleBlobStore
                     }
                 }
             }
-            catch (Exception) { /* Ignore any errors here */ }
+            catch(Exception) { /* Ignore any errors here */ }
         }
     }
 

@@ -18,7 +18,7 @@ public class Maybe<T>
     /// <summary>
     /// Without value.
     /// </summary>
-    public Maybe() { }
+    public Maybe() {}
 
     /// <summary>
     /// With value.
@@ -28,4 +28,4 @@ public class Maybe<T>
         HasValue = true;
         Value = value;
     }
-}
+	}

@@ -94,8 +94,7 @@ public class TKComparisonService : ITKComparisonService
                     DifferId = differ.GetType().Name,
                     Data = diffResult.Data
                 });
-            }
-            catch (Exception ex)
+            } catch(Exception ex)
             {
                 result.Data.Add(new TKComparisonMultiDifferSingleOutput
                 {

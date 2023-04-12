@@ -10,7 +10,7 @@ namespace QoDL.Toolkit.Core.Modules.Comparison.Abstractions;
 /// Handles instance selection and resolving.
 /// </summary>
 public abstract class TKComparisonTypeHandlerBase<TContent> : ITKComparisonTypeHandler
-    where TContent : class
+    where TContent: class
 {
     /// <inheritdoc />
     public virtual Type ContentType => typeof(TContent);
