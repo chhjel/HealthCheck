@@ -13,7 +13,7 @@
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\Toolkit.Module.DataExport.Exporter.Excel.xml</DocumentationFile>
     <OutputPath>bin\$(Configuration)\$(TargetFrameworkVersion)\</OutputPath>
     <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-Toolkit</PackageProjectUrl>
-    <AssemblyName>Toolkit.Module.DataExport.Exporter.Excel</AssemblyName>
+    <AssemblyName>QoDL.Toolkit.Module.DataExport.Exporter.Excel</AssemblyName>
   </PropertyGroup>
 
   <PropertyGroup>

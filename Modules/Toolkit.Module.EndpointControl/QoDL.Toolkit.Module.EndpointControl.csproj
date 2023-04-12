@@ -13,7 +13,7 @@
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\Toolkit.Module.EndpointControl.xml</DocumentationFile>
     <OutputPath>bin\$(Configuration)\$(TargetFrameworkVersion)\</OutputPath>
     <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-Toolkit</PackageProjectUrl>
-    <AssemblyName>Toolkit.Module.EndpointControl</AssemblyName>
+    <AssemblyName>QoDL.Toolkit.Module.EndpointControl</AssemblyName>
   </PropertyGroup>
 
   <PropertyGroup>

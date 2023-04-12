@@ -13,7 +13,7 @@
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\Toolkit.Module.RequestLog.xml</DocumentationFile>
     <OutputPath>bin\$(Configuration)\$(TargetFrameworkVersion)\</OutputPath>
     <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-Toolkit</PackageProjectUrl>
-    <AssemblyName>Toolkit.Module.RequestLog</AssemblyName>
+    <AssemblyName>QoDL.Toolkit.Module.RequestLog</AssemblyName>
   </PropertyGroup>
   
   <!-- .NET FRAMEWORK ######################## -->

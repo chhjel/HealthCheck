@@ -23,7 +23,7 @@
   <PropertyGroup>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <RootNamespace>Toolkit.WebUI.MFA.WebAuthn</RootNamespace>
-    <AssemblyName>Toolkit.WebUI.MFA.WebAuthn</AssemblyName>
+    <AssemblyName>QoDL.Toolkit.WebUI.MFA.WebAuthn</AssemblyName>
   </PropertyGroup>
 
   <!-- .NET STANDARD ######################### -->

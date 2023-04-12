@@ -13,7 +13,7 @@
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\Toolkit.Module.DataExport.SQLExecutor.xml</DocumentationFile>
     <OutputPath>bin\$(Configuration)\$(TargetFrameworkVersion)\</OutputPath>
     <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-Toolkit</PackageProjectUrl>
-    <AssemblyName>Toolkit.Module.DataExport.SQLExecutor</AssemblyName>
+    <AssemblyName>QoDL.Toolkit.Module.DataExport.SQLExecutor</AssemblyName>
   </PropertyGroup>
 
   <PropertyGroup>

@@ -23,7 +23,7 @@
   <PropertyGroup>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <RootNamespace>Toolkit.WebUI.MFA.TOTP</RootNamespace>
-    <AssemblyName>Toolkit.WebUI.MFA.TOTP</AssemblyName>
+    <AssemblyName>QoDL.Toolkit.WebUI.MFA.TOTP</AssemblyName>
   </PropertyGroup>
 
   <!-- .NET STANDARD ######################### -->
