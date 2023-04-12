@@ -73,7 +73,7 @@ public static class RequestLogUtil
                     }
                 );
 
-            foreach(var template in webformsTemplates)
+            foreach (var template in webformsTemplates)
             {
                 if (existingActionEntries.Any(x => x.EndpointId == template.EndpointId))
                 {

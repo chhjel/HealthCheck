@@ -24,7 +24,7 @@ public static class TKDumpHelper
         var data = CreateDumpData(obj, serializer);
         return CreateDump<T>(obj?.GetType(), title, data);
     }
-    
+
     private static string CreateDumpData<T>(T obj, IJsonSerializer serializer)
     {
         if (obj == null)
@@ -59,7 +59,7 @@ public static class TKDumpHelper
         {
             return "null";
         }
-        
+
         var ticks = date.Value
             .Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc))
             .TotalMilliseconds;

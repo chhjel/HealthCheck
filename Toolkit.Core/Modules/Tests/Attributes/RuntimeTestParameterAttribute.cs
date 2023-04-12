@@ -92,7 +92,8 @@ public class RuntimeTestParameterAttribute : Attribute
     /// <summary>Deprecated, use TKUIHint instead.</summary>
     [Flags]
     [Obsolete("Use QoDL.Toolkit.Core.Models.TKUIHint instead.")]
-    public enum UIHint {
+    public enum UIHint
+    {
         /// <summary></summary>
         None = 0,
         /// <summary></summary>

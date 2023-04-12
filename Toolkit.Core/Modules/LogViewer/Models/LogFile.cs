@@ -12,7 +12,9 @@ internal class LogFile
 {
     public string FilePath { get; set; }
     public DateTimeOffset LastWriteTime { get; set; }
-    public DateTimeOffset FirstEntryTime { get
+    public DateTimeOffset FirstEntryTime
+    {
+        get
         {
             if (_firstEntryTimeCache == null)
             {

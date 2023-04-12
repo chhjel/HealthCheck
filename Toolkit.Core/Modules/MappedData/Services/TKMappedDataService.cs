@@ -25,7 +25,7 @@ public class TKMappedDataService : ITKMappedDataService
     public TKMappedDataDefinitions GetDefinitions(IEnumerable<Assembly> assemblies, TKMappedDefinitionDiscoveryOptions options)
     {
         if (assemblies?.Any() != true) return new();
-        
+
         var cacheKey = string.Join("|", assemblies.Select(x => x.FullName));
         lock (_definitionCache)
         {

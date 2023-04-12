@@ -1,9 +1,9 @@
 #if NETCORE
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using QoDL.Toolkit.Core.Attributes;
 using QoDL.Toolkit.WebUI.Models;
 using QoDL.Toolkit.WebUI.Util;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -43,7 +43,7 @@ public abstract class ToolkitLoginControllerBase : Controller
     {
         if (!Enabled) return NotFound();
         await Delay();
-        
+
         var result = HandleLoginRequest(model);
         if (result == null) return NotFound();
 

@@ -53,7 +53,7 @@ public abstract class TKSingleBufferedMultiListBlobStorageBase<TData, TItem, TId
     /// <inheritdoc />
     protected override TData UpdateDataFromBuffer(TData data, Queue<BufferQueueItem> bufferedItems)
     {
-        foreach(var item in bufferedItems)
+        foreach (var item in bufferedItems)
         {
             var listId = (item.GroupId != null) ? (TId)item.GroupId : default;
 
@@ -76,7 +76,7 @@ public abstract class TKSingleBufferedMultiListBlobStorageBase<TData, TItem, TId
 
         if (MaxItemCountPerList != null)
         {
-            foreach(var list in data.Lists.Values)
+            foreach (var list in data.Lists.Values)
             {
                 if (list.Count > MaxItemCountPerList)
                 {

@@ -52,7 +52,7 @@ public class SequenceDiagramStep
     /// Direction of this step.
     /// </summary>
     public SequenceDiagramStepDirection Direction { get; set; }
-    
+
     /// <summary>
     /// Branches this step is a part of.
     /// </summary>

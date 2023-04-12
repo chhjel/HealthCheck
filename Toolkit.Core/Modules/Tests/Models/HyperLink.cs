@@ -27,5 +27,5 @@ public class HyperLink
     /// <summary>
     /// Create a new link.
     /// </summary>
-    public HyperLink() {}
+    public HyperLink() { }
 }

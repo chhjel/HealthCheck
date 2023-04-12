@@ -15,7 +15,7 @@ public class SimpleNotifier : IEventNotifier
     public HashSet<string> PlaceholdersWithOnlyNames => null;
     public Dictionary<string, Func<string>> Placeholders => null;
     public Type OptionsModelType => null;
-    
+
     public async Task<string> NotifyEvent(NotifierConfig notifierConfig, string eventId, Dictionary<string, string> payloadValues, object optionsObject)
     {
         return await Task.FromResult<string>(null);

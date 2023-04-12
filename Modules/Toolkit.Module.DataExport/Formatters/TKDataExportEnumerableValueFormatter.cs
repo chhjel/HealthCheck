@@ -37,7 +37,7 @@ public class TKDataExportEnumerableValueFormatter : TKDataExportValueFormatterBa
             }
             return string.Join(parameters.Delimiter ?? string.Empty, values);
         }
-        
+
         return value;
     }
 

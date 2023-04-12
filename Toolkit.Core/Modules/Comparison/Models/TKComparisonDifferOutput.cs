@@ -32,7 +32,7 @@ public class TKComparisonDifferOutput
     {
         leftData ??= new Dictionary<string, string>();
         rightData ??= new Dictionary<string, string>();
-        
+
         // Compute diff
         var allKeys = leftData.Keys.Union(rightData.Keys).ToArray();
         var resultingDictionary = new Dictionary<string, (string, string, bool)>();

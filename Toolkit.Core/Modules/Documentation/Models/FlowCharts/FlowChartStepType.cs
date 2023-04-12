@@ -14,17 +14,17 @@ public enum FlowChartStepType
     /// If/condition node where choices should appear from.
     /// <para>Defaults if step title ends with '?'</para>
     /// </summary>
-	    If,
+    If,
 
     /// <summary>
     /// A start of the chart.
     /// <para>Default if no other nodes point to this one.</para>
     /// </summary>
-	    Start,
+    Start,
 
     /// <summary>
     /// An end of the chart.
     /// <para>Default if this node doesn't point to any other nodes.</para>
     /// </summary>
-	    End
+    End
 }

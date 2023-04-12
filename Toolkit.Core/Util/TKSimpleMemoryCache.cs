@@ -38,7 +38,8 @@ public class TKSimpleMemoryCache : ITKCache
     private readonly Dictionary<string, SimpleMemoryCacheItem> _items = new();
     private DateTime? _lastCleanupTime = null;
 
-    private struct SimpleMemoryCacheItem {
+    private struct SimpleMemoryCacheItem
+    {
         public DateTime ExpiresAt;
         public object Value;
     }
@@ -48,11 +49,11 @@ public class TKSimpleMemoryCache : ITKCache
     /// </summary>
     public virtual T GetValue<T>(string key, T fallback = default)
     {
-        lock(_items)
+        lock (_items)
         {
             RemoveExpired();
 
-            var value = _items.ContainsKey(key) 
+            var value = _items.ContainsKey(key)
                 ? _items[key].Value
                 : fallback;
 
@@ -166,7 +167,7 @@ public class TKSimpleMemoryCache : ITKCache
 
             _lastCleanupTime = DateTime.Now;
             var keys = _items;
-            for (int i=0;i<keys.Count;i++)
+            for (int i = 0; i < keys.Count; i++)
             {
                 var key = keys.ElementAt(i).Key;
                 if (_items[key].ExpiresAt <= DateTime.Now)

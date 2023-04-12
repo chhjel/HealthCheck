@@ -49,7 +49,7 @@ public class TKDataExportModuleOptions
         }
         else
         {
-           Exporters.Add(exporter);
+            Exporters.Add(exporter);
         }
         return this;
     }

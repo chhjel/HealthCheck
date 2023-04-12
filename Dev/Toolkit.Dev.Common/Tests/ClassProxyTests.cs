@@ -55,7 +55,7 @@ public class ClassProxyTests
                     result
                         .AddCodeData(context.MemoryLogger.ToString())
                         .ForProxyResult<SomeParameterType>((value) => result.AddTextData("Is of type SomeParameterType!"));
-                        //.AddTextData(result.ProxyTestResultObject?.GetType()?.Name ?? "null", "Result type")
+                    //.AddTextData(result.ProxyTestResultObject?.GetType()?.Name ?? "null", "Result type")
                 }
             )
             .AddParameterTypeConfig<SomeParameterType>(
@@ -88,12 +88,12 @@ public class ClassProxyTests
     {
         private readonly ISomeLogger _logger;
 
-        public SomeService() {}
+        public SomeService() { }
         public SomeService(ISomeLogger logger) => _logger = logger;
 
         public async Task WithTaskReturnValue() => await Task.Delay(100);
 
-        public void WithVoidReturnValue() {}
+        public void WithVoidReturnValue() { }
 
         public SomeParameterType WithComplexReturnValue() => new(42, "Test");
 
@@ -120,7 +120,7 @@ public class ClassProxyTests
             {
                 int.Parse("asd");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger?.Error("Testing logged exception here.", ex);
             }

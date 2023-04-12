@@ -18,7 +18,7 @@ internal class ListWithExpiration<T>
 
     public bool Any(Func<T, bool> condition)
     {
-        lock(_items)
+        lock (_items)
         {
             return _items
                 .Where(x => !IsExpired(x))
@@ -62,7 +62,7 @@ internal class ListWithExpiration<T>
 
     public void RemoveExpired()
     {
-        lock(_items)
+        lock (_items)
         {
             var toRemove = new List<ListWithExpirationItem>();
             foreach (var item in _items)
@@ -73,7 +73,7 @@ internal class ListWithExpiration<T>
                 }
             }
 
-            foreach(var item in toRemove)
+            foreach (var item in toRemove)
             {
                 _items.Remove(item);
             }

@@ -58,7 +58,7 @@ public class RequestLogErrorFilterAttribute : HandleErrorAttribute
                 SourceIP = ip
             });
         }
-        catch(Exception) { /* Ignore errors here */ }
+        catch (Exception) { /* Ignore errors here */ }
     }
 }
 #endif

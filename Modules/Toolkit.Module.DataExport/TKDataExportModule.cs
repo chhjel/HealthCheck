@@ -64,7 +64,7 @@ public partial class TKDataExportModule : ToolkitModuleBase<TKDataExportModule.A
     /// Get config for this module.
     /// </summary>
     public override IToolkitModuleConfig GetModuleConfig(ToolkitModuleContext context) => new TKDataExportModuleConfig();
-    
+
     /// <summary>
     /// Different access options for this module.
     /// </summary>

@@ -42,7 +42,7 @@ public class TKSettingsModule : ToolkitModuleBase<TKSettingsModule.AccessOption>
     /// Get config for this module.
     /// </summary>
     public override IToolkitModuleConfig GetModuleConfig(ToolkitModuleContext context) => new TKSettingsModuleConfig();
-    
+
     /// <summary>
     /// Different access options for this module.
     /// </summary>

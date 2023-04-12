@@ -56,7 +56,7 @@ public class SequenceDiagramStepAttribute : Attribute
     /// Optional category to place this diagram in.
     /// </summary>
     public string UICategory { get; set; }
-    
+
     internal List<string> Branches { get; private set; }
     internal string ClassName { get; set; }
     internal string MethodName { get; set; }

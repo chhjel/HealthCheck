@@ -51,7 +51,7 @@ public class TKJobsService : ITKJobsService
     /// <inheritdoc />
     public async Task<TKPagedJobHistoryEntry> GetPagedHistoryAsync(string sourceId, string jobId, int pageIndex, int pageSize)
         => await _historyStorage.GetPagedHistoryAsync(sourceId, jobId, pageIndex, pageSize);
-    
+
     /// <inheritdoc />
     public async Task<TKPagedJobLogItems> GetPagedJobLogItemsAsync(string sourceId, string jobId, int pageIndex, int pageSize)
     {

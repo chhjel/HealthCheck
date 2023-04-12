@@ -71,7 +71,7 @@ public class HtmlPresetDataTable : IHtmlPreset
         var type = item.GetType();
         var props = GetProperties(type);
         var values = new string[props.Length];
-        for (int i=0;i<props.Length;i++)
+        for (int i = 0; i < props.Length; i++)
         {
             var prop = props[i];
             var value = prop.GetValue(item);

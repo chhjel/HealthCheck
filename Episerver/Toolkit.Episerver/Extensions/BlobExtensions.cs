@@ -27,7 +27,8 @@ public static class BlobExtensions
                 using var stream = blob.OpenRead();
                 return true;
             }
-        } catch(Exception)
+        }
+        catch (Exception)
         {
             return false;
         }

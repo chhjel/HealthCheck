@@ -20,7 +20,7 @@ public static class TKJobsUtils
     /// </summary>
     public static void StoreHistory<TJobSource, TJob>(TKJobHistoryStatus status, string summary, string data, bool dataIsHtml = false, int historyCountLimit = 100,
        TKJobsContext context = null)
-        where TJobSource: ITKJobsSource
+        where TJobSource : ITKJobsSource
         => Task.Run(() => StoreHistoryAsync<TJobSource, TJob>(status, summary, data, dataIsHtml, historyCountLimit, context));
 
     /// <summary>

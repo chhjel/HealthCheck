@@ -22,7 +22,7 @@ public class RequestLogInfoAttribute : Attribute
     /// Hide the decorated action method or controller.
     /// </summary>
     public bool Hidden { get; set; }
-    
+
     /// <summary>
     /// Optionally force this url for display.
     /// </summary>

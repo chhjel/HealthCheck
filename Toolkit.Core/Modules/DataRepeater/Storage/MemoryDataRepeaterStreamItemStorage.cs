@@ -31,7 +31,7 @@ public class MemoryDataRepeaterStreamItemStorage : ITKDataRepeaterStreamItemStor
     /// <inheritdoc />
     public Task AddItemAsync(ITKDataRepeaterStreamItem item, object hint = null)
     {
-        lock(_items)
+        lock (_items)
         {
             _items[$"{_prefix}_{item.Id}"] = item;
             return Task.CompletedTask;
@@ -73,7 +73,7 @@ public class MemoryDataRepeaterStreamItemStorage : ITKDataRepeaterStreamItemStor
         }
 
         item.Tags ??= new HashSet<string>();
-        foreach(var tag in tags)
+        foreach (var tag in tags)
         {
             item.Tags.Add(tag);
         }

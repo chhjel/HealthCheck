@@ -21,7 +21,7 @@ public class TKDataRepeaterModule : ToolkitModuleBase<TKDataRepeaterModule.Acces
         get
         {
             var cats = new HashSet<string>();
-            foreach(var stream in Options?.Service?.GetStreams() ?? Enumerable.Empty<ITKDataRepeaterStream>())
+            foreach (var stream in Options?.Service?.GetStreams() ?? Enumerable.Empty<ITKDataRepeaterStream>())
             {
                 if (stream.Categories?.Any() == true)
                 {
@@ -75,7 +75,7 @@ public class TKDataRepeaterModule : ToolkitModuleBase<TKDataRepeaterModule.Acces
     /// Get config for this module.
     /// </summary>
     public override IToolkitModuleConfig GetModuleConfig(ToolkitModuleContext context) => new TKDataRepeaterModuleConfig();
-    
+
     /// <summary>
     /// Different access options for this module.
     /// </summary>
@@ -162,7 +162,7 @@ public class TKDataRepeaterModule : ToolkitModuleBase<TKDataRepeaterModule.Acces
         var stream = GetStream(context, model.StreamId);
         var result = await stream.Storage.GetItemsPagedAsync(model);
         var items = result.Items.Select(x => Create(x, stream, checkActions: false)).Where(x => x != null).ToList();
-        
+
         return new TKDataRepeaterStreamItemsPagedViewModel
         {
             TotalCount = result.TotalCount,

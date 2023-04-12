@@ -35,7 +35,8 @@ public class OutParameterTests
         return TestResult.CreateSuccess($"Success hopefully. [{somethingStr}, {somethingInt}]");
     }
 
-    public class ComplexDumy {
+    public class ComplexDumy
+    {
         public string Value { get; set; }
     }
 }

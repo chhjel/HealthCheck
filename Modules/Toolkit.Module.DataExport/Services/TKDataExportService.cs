@@ -173,7 +173,7 @@ public class TKDataExportService : ITKDataExportService
             .ToList();
 
         // Handle array props
-        foreach(var includedArrayProp in includedProperties.Where(x => x.Contains('[')))
+        foreach (var includedArrayProp in includedProperties.Where(x => x.Contains('[')))
         {
             if (allowedIncludedProperties.Any(x => x.Name == includedArrayProp))
                 continue;
@@ -217,7 +217,8 @@ public class TKDataExportService : ITKDataExportService
                 if (underlyingType != null)
                 {
                     propType = underlyingType;
-                } else
+                }
+                else
                 {
                     allowFormat = false;
                 }

@@ -48,7 +48,7 @@ public class TKEndpointControlModule : ToolkitModuleBase<TKEndpointControlModule
     /// Get config for this module.
     /// </summary>
     public override IToolkitModuleConfig GetModuleConfig(ToolkitModuleContext context) => new TKEndpointControlModuleConfig();
-    
+
     /// <summary>
     /// Different access options for this module.
     /// </summary>

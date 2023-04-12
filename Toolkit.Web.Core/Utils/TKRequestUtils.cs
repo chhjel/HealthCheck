@@ -136,7 +136,7 @@ public static class TKRequestUtils
             {
                 return null;
             }
-            
+
             headers ??= DefaultClientIPHeaders;
             return GetIPAddress(request, _mvcIpResolvers, stripPortNumber, customResolver, headers);
         }
@@ -223,4 +223,4 @@ public static class TKRequestUtils
         }
     }
 #endif
-        }
+}

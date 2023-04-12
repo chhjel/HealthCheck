@@ -1,7 +1,7 @@
+using QoDL.Toolkit.Core.Extensions;
 using QoDL.Toolkit.Core.Models;
 using System;
 using System.Collections.Generic;
-using QoDL.Toolkit.Core.Extensions;
 
 #if NETFULL
 using System.Web;
@@ -45,7 +45,7 @@ internal static class TKRequestContextFactory
 #if NETCORE
         var context = TKIoCUtils.GetInstance<IHttpContextAccessor>()?.HttpContext;
         var request = context?.Request;
-        
+
         model.HasRequestContext = request != null;
         model.RequestExecutionStartTime = DateTimeOffset.Now; // todo
         model.Method = request?.Method;

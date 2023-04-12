@@ -45,7 +45,7 @@ public class TKReleaseNotesModule : ToolkitModuleBase<TKReleaseNotesModule.Acces
     /// Get config for this module.
     /// </summary>
     public override IToolkitModuleConfig GetModuleConfig(ToolkitModuleContext context) => new TKReleaseNotesModuleConfig();
-    
+
     /// <summary>
     /// Different access options for this module.
     /// </summary>

@@ -58,7 +58,7 @@ public class TKRequestContext
         {
             return (RequestItemGetter?.Invoke(key) ?? fallback) as T;
         }
-        catch(Exception)
+        catch (Exception)
         {
             return fallback;
         }

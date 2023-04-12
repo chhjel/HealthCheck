@@ -154,7 +154,7 @@ public class TestRunnerTests
         Assert.Equal(4, results.Count);
         Assert.True(results.All(x => x.Message.Contains("Opsie ")));
         var events = await eventService.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
-        
+
         Assert.Equal(2, events.Count);
         var siteEvent = events.First();
         var highestSeverityEvent = results.OrderByDescending(x => x.SiteEvent.Severity).First().SiteEvent;

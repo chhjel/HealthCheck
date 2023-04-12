@@ -1,8 +1,8 @@
-using QoDL.Toolkit.Module.DynamicCodeExecution.Abstractions;
-using QoDL.Toolkit.Module.DynamicCodeExecution.AutoComplete.MCA.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Recommendations;
 using Microsoft.CodeAnalysis.Text;
+using QoDL.Toolkit.Module.DynamicCodeExecution.Abstractions;
+using QoDL.Toolkit.Module.DynamicCodeExecution.AutoComplete.MCA.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -82,7 +82,7 @@ public class DynamicCodeExecutionMicrosoftCodeAnalysisAutoCompleter : IDynamicCo
 
         var xmlDoc = symbol.GetDocumentationCommentXml() ?? String.Empty;
         var kind = GetSymbolKind(symbol);
-        
+
         if (symbol is INamedTypeSymbol nts)
         {
             if (nts.Constructors.Length == 0)
@@ -95,7 +95,7 @@ public class DynamicCodeExecutionMicrosoftCodeAnalysisAutoCompleter : IDynamicCo
                 items.Add(CreateMethodCompletionData(symbol, ctr.Parameters, semanticModel, position, kind, xmlDoc, true));
             }
         }
-        else if(symbol is IMethodSymbol ms)
+        else if (symbol is IMethodSymbol ms)
         {
             items.Add(CreateMethodCompletionData(symbol, ms.Parameters, semanticModel, position, kind, xmlDoc, true));
         }
@@ -107,7 +107,7 @@ public class DynamicCodeExecutionMicrosoftCodeAnalysisAutoCompleter : IDynamicCo
         return items;
     }
 
-    private DynamicCodeExecutionAutoCompletionData CreateMethodCompletionData(ISymbol symbol, IEnumerable<IParameterSymbol> parameters, SemanticModel semanticModel, 
+    private DynamicCodeExecutionAutoCompletionData CreateMethodCompletionData(ISymbol symbol, IEnumerable<IParameterSymbol> parameters, SemanticModel semanticModel,
         int position, string kind, string xmlDoc, bool isMethod)
     {
         var name = symbol.Name;

@@ -159,7 +159,7 @@ public class TKMetricsContext : IDisposable
             }
         }
     }
-    
+
     /// <summary>
     /// Add a timer to global timing values.
     /// </summary>
@@ -209,7 +209,7 @@ public class TKMetricsContext : IDisposable
     {
         var watch = new Stopwatch();
         watch.Start();
-        
+
         var value = actionToTime();
 
         var duration = watch.ElapsedMilliseconds;

@@ -43,7 +43,7 @@ public class TKEventNotificationsModule : ToolkitModuleBase<TKEventNotifications
     /// Get config for this module.
     /// </summary>
     public override IToolkitModuleConfig GetModuleConfig(ToolkitModuleContext context) => new TKEventNotificationsModuleConfig();
-    
+
     /// <summary>
     /// Different access options for this module.
     /// </summary>
@@ -184,7 +184,7 @@ public class TKEventNotificationsModule : ToolkitModuleBase<TKEventNotifications
             context.AddAuditEvent(action: $"Notifier '{model.NotifierId}' tested.");
             return result;
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             return TKExceptionUtils.GetFullExceptionDetails(ex);
         }

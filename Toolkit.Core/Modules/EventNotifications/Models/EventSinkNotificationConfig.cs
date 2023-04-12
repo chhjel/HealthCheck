@@ -130,7 +130,7 @@ public class EventSinkNotificationConfig
             UpdateDistinctCacheIfEnabled(distinctCacheKey);
         }
     }
-    
+
     /// <summary>
     /// To clear static caches during tests.
     /// </summary>

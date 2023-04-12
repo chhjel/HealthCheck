@@ -26,7 +26,7 @@ internal static class QueryParser
                 result.Regex = regexp;
                 result.RegexPattern = input;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 result.ParseError = ex.Message;
             }
@@ -59,7 +59,7 @@ internal static class QueryParser
             result.MustContain.AddRange(exact);
             result.MustContainOneOf.AddRange(any);
         }
-        catch(Exception)
+        catch (Exception)
         {
             result.MustContain.Add(input);
         }
