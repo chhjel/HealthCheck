@@ -1,6 +1,6 @@
 <!-- src/components/modules/IPWhitelist/IPWhitelistPageComponent.vue -->
 <template>
-    <div class="i-p-whitelist">
+    <div class="ip-whitelist">
         // ToDo
     </div>
 </template>
@@ -64,7 +64,7 @@ export default class IPWhitelistPageComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-.i-p-whitelist {
+.ip-whitelist {
 
 }
 </style>

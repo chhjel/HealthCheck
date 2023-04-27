@@ -61,6 +61,7 @@ using QoDL.Toolkit.Module.EndpointControl.Services;
 using QoDL.Toolkit.Module.EndpointControl.Storage;
 using QoDL.Toolkit.Module.IPWhitelist.Abstractions;
 using QoDL.Toolkit.Module.IPWhitelist.Services;
+using QoDL.Toolkit.Module.IPWhitelist.Storage;
 using QoDL.Toolkit.WebUI.Services;
 using System;
 using System.IO;
@@ -157,6 +158,7 @@ public static class IoCConfig
 
         // IP Whitelist
         services.AddSingleton<ITKIPWhitelistService, TKIPWhitelistService>();
+        services.AddSingleton<ITKIPWhitelistRuleStorage>(x => new TKIPWhitelistRuleFlatFileStorage(@"C:\temp\tk_ipwhitelist.json"));
 
         services.AddSingleton<ITKReleaseNotesProvider>(new TKJsonFileReleaseNotesProvider(GetFilePath(@"App_Data\ReleaseNotes.json", env))
         {
