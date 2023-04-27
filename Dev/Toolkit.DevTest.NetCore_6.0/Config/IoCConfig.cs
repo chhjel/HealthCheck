@@ -59,6 +59,8 @@ using QoDL.Toolkit.Module.EndpointControl.Abstractions;
 using QoDL.Toolkit.Module.EndpointControl.Results;
 using QoDL.Toolkit.Module.EndpointControl.Services;
 using QoDL.Toolkit.Module.EndpointControl.Storage;
+using QoDL.Toolkit.Module.IPWhitelist.Abstractions;
+using QoDL.Toolkit.Module.IPWhitelist.Services;
 using QoDL.Toolkit.WebUI.Services;
 using System;
 using System.IO;
@@ -152,6 +154,9 @@ public static class IoCConfig
         services.AddSingleton<ITKJobsHistoryStorage, DummyJobsHistoryStorage>();
         services.AddSingleton<ITKJobsHistoryDetailsStorage, DummyJobsHistoryDetailsStorage>();
         services.AddSingleton<ITKJobsService, TKJobsService>();
+
+        // IP Whitelist
+        services.AddSingleton<ITKIPWhitelistService, TKIPWhitelistService>();
 
         services.AddSingleton<ITKReleaseNotesProvider>(new TKJsonFileReleaseNotesProvider(GetFilePath(@"App_Data\ReleaseNotes.json", env))
         {
