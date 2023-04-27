@@ -10,7 +10,7 @@
     <Description>Episerver related implementations.</Description>
     <Copyright>ChristianW</Copyright>
     <LangVersion>latest</LangVersion>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\Toolkit.Episerver.xml</DocumentationFile>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\QoDL.Toolkit.Episerver.xml</DocumentationFile>
     <OutputPath>bin\$(Configuration)\$(TargetFrameworkVersion)\</OutputPath>
     <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-Toolkit</PackageProjectUrl>
   </PropertyGroup>

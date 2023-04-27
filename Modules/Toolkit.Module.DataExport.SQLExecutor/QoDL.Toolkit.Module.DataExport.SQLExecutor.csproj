@@ -10,7 +10,7 @@
     <Description>Abstractions to quickly create exports from sql queries.</Description>
     <Copyright>ChristianW</Copyright>
     <LangVersion>latest</LangVersion>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\Toolkit.Module.DataExport.SQLExecutor.xml</DocumentationFile>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\QoDL.Toolkit.Module.DataExport.SQLExecutor.xml</DocumentationFile>
     <OutputPath>bin\$(Configuration)\$(TargetFrameworkVersion)\</OutputPath>
     <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-Toolkit</PackageProjectUrl>
     <AssemblyName>QoDL.Toolkit.Module.DataExport.SQLExecutor</AssemblyName>

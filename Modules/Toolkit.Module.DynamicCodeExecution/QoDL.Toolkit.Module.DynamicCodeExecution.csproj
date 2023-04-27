@@ -10,7 +10,7 @@
     <Description>Allows for dynamic code execution at runtime.</Description>
     <Copyright>ChristianW</Copyright>
     <LangVersion>latest</LangVersion>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\Toolkit.Module.DynamicCodeExecution.xml</DocumentationFile>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\QoDL.Toolkit.Module.DynamicCodeExecution.xml</DocumentationFile>
     <OutputPath>bin\$(Configuration)\$(TargetFrameworkVersion)\</OutputPath>
     <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-Toolkit</PackageProjectUrl>
     <AssemblyName>QoDL.Toolkit.Module.DynamicCodeExecution</AssemblyName>

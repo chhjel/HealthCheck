@@ -10,7 +10,7 @@
     <Description>Optional frontend assets. If package is used frontend will not be fetched from cdn.</Description>
     <Copyright>ChristianW</Copyright>
     <LangVersion>latest</LangVersion>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\Toolkit.WebUI.Assets.xml</DocumentationFile>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\QoDL.Toolkit.WebUI.Assets.xml</DocumentationFile>
     <OutputPath>bin\$(Configuration)\$(TargetFrameworkVersion)\</OutputPath>
     <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-Toolkit</PackageProjectUrl>
     <AssemblyName>QoDL.Toolkit.WebUI.Assets</AssemblyName>

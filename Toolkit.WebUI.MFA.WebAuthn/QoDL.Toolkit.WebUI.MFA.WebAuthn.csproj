@@ -11,7 +11,7 @@
     <Description>Shortcuts for adding FIDO2/WebAuthn multi-factor authentication support to HealtCheck login.</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <LangVersion>latest</LangVersion>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\Toolkit.WebUI.MFA.WebAuthn.xml</DocumentationFile>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\QoDL.Toolkit.WebUI.MFA.WebAuthn.xml</DocumentationFile>
     <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-Toolkit</PackageProjectUrl>
   </PropertyGroup>
 

@@ -10,7 +10,7 @@
     <Description>Exporter in xlsx format.</Description>
     <Copyright>ChristianW</Copyright>
     <LangVersion>latest</LangVersion>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\Toolkit.Module.DataExport.Exporter.Excel.xml</DocumentationFile>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\QoDL.Toolkit.Module.DataExport.Exporter.Excel.xml</DocumentationFile>
     <OutputPath>bin\$(Configuration)\$(TargetFrameworkVersion)\</OutputPath>
     <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-Toolkit</PackageProjectUrl>
     <AssemblyName>QoDL.Toolkit.Module.DataExport.Exporter.Excel</AssemblyName>
