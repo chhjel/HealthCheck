@@ -6,6 +6,7 @@ using QoDL.Toolkit.Module.DataExport;
 using QoDL.Toolkit.Module.DynamicCodeExecution.Module;
 using QoDL.Toolkit.Module.EndpointControl.Abstractions;
 using QoDL.Toolkit.Module.EndpointControl.Module;
+using QoDL.Toolkit.Module.IPWhitelist.Module;
 using QoDL.Toolkit.WebUI.Models;
 using Reinforced.Typings.Ast.TypeNames;
 using Reinforced.Typings.Fluent;
@@ -57,6 +58,7 @@ namespace QoDL.Toolkit.FrontendModelGenerator
             IncludeAssembly(builder, typeof(TKEndpointControlModule).Assembly);
             IncludeAssembly(builder, typeof(TKDynamicCodeExecutionModule).Assembly);
             IncludeAssembly(builder, typeof(TKDataExportModule).Assembly);
+            IncludeAssembly(builder, typeof(TKIPWhitelistModule).Assembly);
         }
 
         private static void IncludeAssembly(ConfigurationBuilder builder, Assembly assembly)

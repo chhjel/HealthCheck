@@ -9,6 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Modules\Toolkit.Module.IPWhitelist\QoDL.Toolkit.Module.IPWhitelist.csproj" />
     <ProjectReference Include="..\Toolkit.WebUI\QoDL.Toolkit.WebUI.csproj" />
     <ProjectReference Include="..\Modules\Toolkit.Module.DataExport\QoDL.Toolkit.Module.DataExport.csproj" />
     <ProjectReference Include="..\Modules\Toolkit.Module.DynamicCodeExecution\QoDL.Toolkit.Module.DynamicCodeExecution.csproj" />
