@@ -15,4 +15,9 @@ public class TKIPWhitelistModuleOptions
 
     /// <summary></summary>
     public ITKIPWhitelistRuleStorage RuleStorage { get; set; }
+
+    /// <summary>
+    /// Optional override of the title of the page shown for whitelist links.
+    /// </summary>
+    public string WhitelistLinkPageTitle { get; set; } = "Whitelist IP";
 }
