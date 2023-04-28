@@ -7,8 +7,12 @@ namespace QoDL.Toolkit.Module.IPWhitelist.Module;
 /// </summary>
 public class TKIPWhitelistModuleOptions
 {
-    /// <summary>
-    /// 
-    /// </summary>
+    /// <summary></summary>
     public ITKIPWhitelistService Service { get; set; }
+
+    /// <summary></summary>
+    public ITKIPWhitelistConfigStorage ConfigStorage { get; set; }
+
+    /// <summary></summary>
+    public ITKIPWhitelistRuleStorage RuleStorage { get; set; }
 }

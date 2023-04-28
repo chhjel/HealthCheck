@@ -16,5 +16,11 @@ public class TKIPWhitelistRule
     public DateTimeOffset? EnabledUntil { get; set; }
 
     /// <summary></summary>
+    public string Name { get; set; }
+
+    /// <summary></summary>
+    public string Note { get; set; }
+
+    /// <summary></summary>
     public List<string> Ips { get; set; }
 }

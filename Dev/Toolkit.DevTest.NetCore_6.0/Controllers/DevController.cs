@@ -116,7 +116,9 @@ public class DevController : ToolkitControllerBase<RuntimeTestAccessRole>
         ITKGoToService goToService,
         ITKMappedDataService mappeddataService,
         ITKJobsService jobsService,
-        ITKIPWhitelistService ipwhitelistService
+        ITKIPWhitelistService ipwhitelistService,
+        ITKIPWhitelistRuleStorage whitelistRuleStorage,
+        ITKIPWhitelistConfigStorage whitelistConfigStorage
     )
         : base()
     {
@@ -150,7 +152,9 @@ public class DevController : ToolkitControllerBase<RuntimeTestAccessRole>
             );
         UseModule(new TKIPWhitelistModule(new TKIPWhitelistModuleOptions
         {
-            Service = ipwhitelistService
+            Service = ipwhitelistService,
+            ConfigStorage = whitelistConfigStorage,
+            RuleStorage = whitelistRuleStorage
         }));
         UseModule(new TKJobsModule(new TKJobsModuleOptions
         {

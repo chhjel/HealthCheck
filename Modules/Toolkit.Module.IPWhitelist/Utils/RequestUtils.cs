@@ -18,7 +18,11 @@ namespace QoDL.Toolkit.Module.IPWhitelist.Utils;
 internal static class RequestUtils
 {
 #if NETCORE
+    /// <summary></summary>
     public static string GetUrl(HttpRequest request) => request?.GetDisplayUrl();
+
+    /// <summary></summary>
+    public static string GetPath(HttpRequest request) => request?.Path;
 
     /// <summary>
     /// For .Core.
@@ -47,6 +51,14 @@ internal static class RequestUtils
         var authority = request.Url.GetLeftPart(UriPartial.Authority);
         var path = request.RawUrl;
         return $"{authority}{path}";
+    }
+
+    public static string GetPath(HttpRequest request)
+    {
+        if (request == null || request.Url == null) return null;
+        else if (request.RawUrl == null) return request.Url.ToString();
+
+        return request.RawUrl;
     }
 #endif
 }

@@ -4,6 +4,7 @@ using QoDL.Toolkit.Module.IPWhitelist.Abstractions;
 using QoDL.Toolkit.Module.IPWhitelist.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace QoDL.Toolkit.Module.IPWhitelist.Storage;
@@ -31,4 +32,18 @@ public class TKIPWhitelistRuleFlatFileStorage : ITKIPWhitelistRuleStorage
 
     /// <inheritdoc />
     public Task<IEnumerable<TKIPWhitelistRule>> GetRulesAsync() => Task.FromResult(Store.GetEnumerable());
+
+    /// <inheritdoc />
+    public Task DeleteRuleAsync(Guid id)
+    {
+        Store.DeleteItem(id);
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public Task<TKIPWhitelistRule> StoreRuleAsync(TKIPWhitelistRule rule)
+    {
+        var updatedRule = Store.InsertItem(rule);
+        return Task.FromResult(updatedRule);
+    }
 }
