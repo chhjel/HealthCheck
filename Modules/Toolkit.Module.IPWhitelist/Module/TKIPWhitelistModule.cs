@@ -59,7 +59,7 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
     /// <summary></summary>
     [ToolkitModuleMethod]
     public async Task<TKIPWhitelistConfig> GetConfig()
-        => await Options.ConfigStorage.GetConfigAsync();
+        => (await Options.ConfigStorage.GetConfigAsync()) ?? new();
 
     /// <summary></summary>
     [ToolkitModuleMethod]

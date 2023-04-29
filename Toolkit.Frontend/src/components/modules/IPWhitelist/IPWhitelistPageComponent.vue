@@ -2,7 +2,7 @@
 <template>
     <div class="ip-whitelist">
         // ToDo
-        <code>{{ config }}</code>
+        <code>{{ wlconfig }}</code>
         <code>{{ rules }}</code>
         <code>{{ log }}</code>
     </div>

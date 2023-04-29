@@ -65,6 +65,7 @@ using QoDL.Toolkit.Module.IPWhitelist.Storage;
 using QoDL.Toolkit.WebUI.Services;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace QoDL.Toolkit.DevTest.NetCore_6._0.Config;
 
@@ -157,6 +158,11 @@ public static class IoCConfig
         services.AddSingleton<ITKJobsService, TKJobsService>();
 
         // IP Whitelist
+        services.AddSingleton(x => new TKIPWhitelistServiceOptions {
+            BlockedPageTitle = "Nope",
+            DisableForLocalhost = true,
+            //ShouldIgnorePath = (p) => Task.FromResult(p.Contains("_allow_"))
+        });
         services.AddSingleton<ITKIPWhitelistService, TKIPWhitelistService>();
         services.AddSingleton<ITKIPWhitelistRuleStorage>(x => new TKIPWhitelistRuleFlatFileStorage(@"C:\temp\tk_ipwhitelist.json"));
         services.AddSingleton<ITKIPWhitelistConfigStorage>(x => new TKIPWhitelistConfigFlatFileStorage(@"C:\temp\tk_ipwhitelist_config.json"));
