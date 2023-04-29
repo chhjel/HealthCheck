@@ -2,10 +2,11 @@
 using QoDL.Toolkit.Module.IPWhitelist.Models;
 using QoDL.Toolkit.Module.IPWhitelist.Utils;
 using QoDL.Toolkit.Core.Util;
-using QoDL.Toolkit.Core.Models;
 using System.Threading.Tasks;
 using System.Linq;
 using System;
+using QoDL.Toolkit.Core.Util.Collections;
+using System.Collections.Generic;
 
 #if NETFULL
 using System.Web;
@@ -41,40 +42,55 @@ public class TKIPWhitelistService : ITKIPWhitelistService
         _whitelistConfigStorage = whitelistConfigStorage;
     }
 
-    /// <summary></summary>
+    /// <inheritdoc/>
     public virtual bool IsEnabled() => Enabled;
 
 #if NETCORE
-    /// <summary></summary>
+    /// <inheritdoc/>
     public Task<TKIPWhitelistCheckResult> HandleRequestAsync(HttpContext context)
     {
         var rawIp = RequestUtils.GetIPAddress(context);
-        var requestIp = TKIPAddressUtils.ParseIP(rawIp);
         var path = RequestUtils.GetPath(context.Request);
-        return HandleRequestAsync(requestIp, path);
+        return HandleRequestAsync(rawIp, path);
     }
 #endif
 
 #if NETFULL
-    /// <summary></summary>
+    /// <inheritdoc/>
     public Task<TKIPWhitelistCheckResult> HandleRequestAsync(HttpContext context)
     {
         var rawIp = RequestUtils.GetIPAddress(new HttpRequestWrapper(context.Request));
-        var requestIp = TKIPAddressUtils.ParseIP(rawIp);
         var path = RequestUtils.GetPath(context.Request);
-        return HandleRequestAsync(requestIp, path);
+        return HandleRequestAsync(rawIp, path);
     }
 #endif
 
     /// <summary></summary>
-    public virtual async Task<TKIPWhitelistCheckResult> HandleRequestAsync(TKIPData ip, string path, bool testMode = false)
+    protected virtual async Task<TKIPWhitelistCheckResult> HandleRequestAsync(string rawIp, string path)
     {
+        var result = await IsRequestAllowedAsync(rawIp, path);
+        AddLog(new TKIPWhitelistLogItem
+        {
+            IP = rawIp,
+            Path = path,
+            Timestamp = DateTimeOffset.Now,
+            WasBlocked = result.Blocked,
+            Note = result.Blocked ? "Blocked." : result.AllowedReason
+        });
+        return result;
+    }
+
+    /// <summary></summary>
+    public virtual async Task<TKIPWhitelistCheckResult> IsRequestAllowedAsync(string rawIp, string path, bool testMode = false)
+    {
+        var ip = TKIPAddressUtils.ParseIP(rawIp);
+
         if (!testMode && (!Enabled || ip.IsLocalHost && DisableForLocalhost)) return TKIPWhitelistCheckResult.CreateAllowed("IP whitelist disabled or localhost.");
         else if (ShouldIgnorePath != null && await ShouldIgnorePath(path)) return TKIPWhitelistCheckResult.CreateAllowed($"Path '{path}' is ignored by config.");
 
         var rules = await _whitelistRuleStorage.GetRulesAsync();
         var allowingRule = rules?.FirstOrDefault(r => RuleContainsWhitelistFor(r, ip.IP));
-        if (allowingRule != null) return TKIPWhitelistCheckResult.CreateAllowed("Matching whitelist rule.", allowingRule);
+        if (allowingRule != null) return TKIPWhitelistCheckResult.CreateAllowed($"Matching whitelist rule '{allowingRule.Name}'", allowingRule);
 
         var config = await _whitelistConfigStorage.GetConfigAsync();
 
@@ -93,5 +109,23 @@ public class TKIPWhitelistService : ITKIPWhitelistService
         else if (rule?.EnabledUntil != null && rule.EnabledUntil < DateTimeOffset.Now) return false;
         // Check for IP match
         else return rule?.Ips?.Any(ruleIP => TKIPAddressUtils.IpMatchesOrIsWithinCidrRange(ip, ruleIP)) == true;
+    }
+
+    private static readonly TKLimitedList<TKIPWhitelistLogItem> _log = new(100);
+    private void AddLog(TKIPWhitelistLogItem entry)
+    {
+        lock (_log)
+        {
+            _log.Add(entry);
+        }
+    }
+
+    /// <inheritdoc/>
+    public IEnumerable<TKIPWhitelistLogItem> GetLog()
+    {
+        lock (_log)
+        {
+            return _log.ToList();
+        }
     }
 }

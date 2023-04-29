@@ -1,6 +1,7 @@
 import { TKIPWhitelistConfig } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistConfig";
 import TKServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/TKServiceBase";
 import { TKIPWhitelistRule } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistRule";
+import { TKIPWhitelistLogItem } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistLogItem";
 
 export default class IPWhitelistService extends TKServiceBase
 {
@@ -10,6 +11,13 @@ export default class IPWhitelistService extends TKServiceBase
     {
         super(endpoint, inludeQueryString);
         this.moduleId = moduleId;
+    }
+
+    public GetLog(
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<Array<TKIPWhitelistLogItem> | null> | null = null
+    ): void {
+        this.invokeModuleMethod(this.moduleId, "GetLog", null, statusObject, callbacks);
     }
     
     public GetConfig(

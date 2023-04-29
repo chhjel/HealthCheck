@@ -1,7 +1,5 @@
 using QoDL.Toolkit.Core.Abstractions.Modules;
 using QoDL.Toolkit.Core.Config;
-using QoDL.Toolkit.Core.Modules.SecureFileDownload.Models;
-using QoDL.Toolkit.Core.Util.Modules;
 using QoDL.Toolkit.Module.IPWhitelist.Models;
 using System;
 using System.Collections.Generic;
@@ -11,14 +9,14 @@ using System.Web;
 namespace QoDL.Toolkit.Module.IPWhitelist.Module;
 
 /// <summary>
-/// 
+/// Allows for blocking everything except for some whitelisted ips.
 /// </summary>
 public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessOption>
 {
     private TKIPWhitelistModuleOptions Options { get; }
 
     /// <summary>
-    /// 
+    /// Allows for blocking everything except for some whitelisted ips.
     /// </summary>
     public TKIPWhitelistModule(TKIPWhitelistModuleOptions options)
     {
@@ -60,13 +58,24 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
     #region Invokable methods
     /// <summary></summary>
     [ToolkitModuleMethod]
-    public async Task<TKIPWhitelistConfig> GetConfig(/*ToolkitModuleContext context*/)
+    public async Task<TKIPWhitelistConfig> GetConfig()
         => await Options.ConfigStorage.GetConfigAsync();
 
     /// <summary></summary>
     [ToolkitModuleMethod]
-    public async Task SaveConfig(TKIPWhitelistConfig config)
-        => await Options.ConfigStorage.SaveConfigAsync(config);
+    public async Task SaveConfig(ToolkitModuleContext context, TKIPWhitelistConfig config)
+    {
+        await Options.ConfigStorage.SaveConfigAsync(config);
+
+        // Store audit data
+        context.AddAuditEvent("Save config")
+            .AddClientConnectionDetails(context);
+    }
+
+    /// <summary></summary>
+    [ToolkitModuleMethod]
+    public IEnumerable<TKIPWhitelistLogItem> GetLog()
+        => Options.Service.GetLog();
 
     /// <summary></summary>
     [ToolkitModuleMethod]
@@ -75,13 +84,26 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
 
     /// <summary></summary>
     [ToolkitModuleMethod]
-    public async Task SaveRule(TKIPWhitelistRule rule)
-        => await Options.RuleStorage.StoreRuleAsync(rule);
+    public async Task SaveRule(ToolkitModuleContext context, TKIPWhitelistRule rule)
+    {
+        await Options.RuleStorage.StoreRuleAsync(rule);
+
+        // Store audit data
+        context.AddAuditEvent("Save rule", rule.Name)
+            .AddClientConnectionDetails(context)
+            .AddDetail("Rule Id", rule.Id.ToString());
+    }
 
     /// <summary></summary>
     [ToolkitModuleMethod]
-    public async Task DeleteRule(Guid id)
-        => await Options.RuleStorage.DeleteRuleAsync(id);
+    public async Task DeleteRule(ToolkitModuleContext context, Guid id)
+    {
+        await Options.RuleStorage.DeleteRuleAsync(id);
+
+        // Store audit data
+        context.AddAuditEvent("Delete rule", id.ToString())
+            .AddClientConnectionDetails(context);
+    }
     #endregion
 
     #region Actions
@@ -100,6 +122,21 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
         //    .AddDetail("File Id", definition.FileId)
         //    .AddDetail("Storage Id", definition.StorageId);
         return CreateWhiteListLinkPageHtml(context);
+    }
+
+    /// <summary>
+    /// Whitelist based on a generated link.
+    /// </summary>
+    [ToolkitModuleAction]
+    public object IPWLLinkActivate(ToolkitModuleContext context)
+    {
+        //// Store audit data
+        //context.AddAuditEvent("File download", definition.FileName)
+        //    .AddClientConnectionDetails(context)
+        //    .AddDetail("File Name", definition.FileName)
+        //    .AddDetail("File Id", definition.FileId)
+        //    .AddDetail("Storage Id", definition.StorageId);
+        return "OK";
     }
 
     private static string EscapeJsString(string value, bool addQuotes = true)

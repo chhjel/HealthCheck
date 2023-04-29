@@ -1,4 +1,5 @@
 using QoDL.Toolkit.Module.IPWhitelist.Models;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 #if NETFULL
@@ -34,4 +35,9 @@ public interface ITKIPWhitelistService
     /// </summary>
     Task<TKIPWhitelistCheckResult> HandleRequestAsync(HttpContext context);
 #endif
+
+    /// <summary>
+    /// Get a log of recently blocked/allowed items.
+    /// </summary>
+    IEnumerable<TKIPWhitelistLogItem> GetLog();
 }

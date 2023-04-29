@@ -2,6 +2,9 @@
 <template>
     <div class="ip-whitelist">
         // ToDo
+        <code>{{ config }}</code>
+        <code>{{ rules }}</code>
+        <code>{{ log }}</code>
     </div>
 </template>
 
@@ -16,6 +19,9 @@ import ModuleOptions from '@models/Common/ModuleOptions';
 import { StoreUtil } from "@util/StoreUtil";
 import IPWhitelistService from "@services/IPWhitelistService";
 import IdUtils from "@util/IdUtils";
+import { TKIPWhitelistLogItem } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistLogItem";
+import { TKIPWhitelistConfig } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistConfig";
+import { TKIPWhitelistRule } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistRule";
 
 @Options({
     components: {
@@ -34,17 +40,38 @@ export default class IPWhitelistPageComponent extends Vue {
     dataLoadStatus: FetchStatus = new FetchStatus();
 
     id: string = IdUtils.generateId();
+    wlconfig: TKIPWhitelistConfig | null = null;
+    rules: Array<TKIPWhitelistRule> = [];
+    log: Array<TKIPWhitelistLogItem> = [];
 
     //////////////////
     //  LIFECYCLE  //
     ////////////////
     async mounted()
     {
+        this.loadConfig();
+        this.loadRules();
+        this.loadLog();
     }
 
     ////////////////
     //  METHODS  //
     //////////////
+    loadLog(): void {
+        this.service.GetLog(this.dataLoadStatus, {
+            onSuccess: (d) => this.log = d
+        })
+    }
+    loadConfig(): void {
+        this.service.GetConfig(this.dataLoadStatus, {
+            onSuccess: (d) => this.wlconfig = d
+        })
+    }
+    loadRules(): void {
+        this.service.GetRules(this.dataLoadStatus, {
+            onSuccess: (d) => this.rules = d
+        })
+    }
 
     ////////////////
     //  GETTERS  //
