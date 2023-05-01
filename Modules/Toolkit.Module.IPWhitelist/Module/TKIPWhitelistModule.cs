@@ -3,6 +3,7 @@ using QoDL.Toolkit.Core.Config;
 using QoDL.Toolkit.Module.IPWhitelist.Models;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -98,6 +99,7 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
     [ToolkitModuleMethod]
     public async Task DeleteRule(ToolkitModuleContext context, Guid id)
     {
+        await Options.LinkStorage.DeleteRuleLinksAsync(id);
         await Options.RuleStorage.DeleteRuleAsync(id);
 
         // Store audit data
@@ -110,7 +112,33 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
     public async Task<TKIPWhitelistCheckResult> IsRequestAllowed(TKIPWhitelistTestRequest payload)
         => await Options.Service.IsRequestAllowedAsync(payload.RawIP, payload.Path, testMode: true);
 
-    // todo: TKIPWhitelistLink
+    /// <summary></summary>
+    [ToolkitModuleMethod]
+    public async Task DeleteRuleLink(ToolkitModuleContext context, Guid id)
+    {
+        await Options.LinkStorage.DeleteRuleLinkAsync(id);
+
+        // Store audit data
+        context.AddAuditEvent("Delete rule link", id.ToString())
+            .AddClientConnectionDetails(context);
+    }
+
+    /// <summary></summary>
+    [ToolkitModuleMethod]
+    public async Task<IEnumerable<TKIPWhitelistLink>> GetRuleLinks(Guid id)
+        => await Options.LinkStorage.GetRuleLinksAsync(id);
+
+    /// <summary></summary>
+    [ToolkitModuleMethod]
+    public async Task<TKIPWhitelistLink> StoreRuleLink(ToolkitModuleContext context, TKIPWhitelistLink link)
+    {
+        // Store audit data
+        context.AddAuditEvent("Create rule link", link.Name)
+            .AddClientConnectionDetails(context)
+            .AddDetail("Rule Id", link.Id.ToString());
+
+        return await Options.LinkStorage.StoreRuleLinkAsync(link);
+    }
     #endregion
 
     #region Actions

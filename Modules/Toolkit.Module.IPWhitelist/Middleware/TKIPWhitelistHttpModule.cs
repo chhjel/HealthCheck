@@ -34,7 +34,7 @@ public class TKIPWhitelistHttpModule : IHttpModule
             if (service?.IsEnabled() != true) return;
 
             var context = httpApplication.Context;
-            var result = TKAsyncUtils.RunSync(() => service.HandleRequestAsync(context));
+            var result = TKAsyncUtils.RunSync(() => service.HandleRequestAsync(context.Request));
             if (!result.Blocked) return;
 
             context.Response.Clear();

@@ -8,6 +8,7 @@ using System;
 using QoDL.Toolkit.Core.Util.Collections;
 using System.Collections.Generic;
 using System.Web;
+using System.Net.Http;
 
 #if NETCORE
 using Microsoft.AspNetCore.Http;
@@ -28,7 +29,7 @@ public class TKIPWhitelistServiceOptions
     public string BlockedPageTitle { get; set; }
 
     /// <summary>Optional check if a given url path should be ignored and not blocked.</summary>
-    public TKIPWhitelistService.PathConditionDelegate ShouldIgnorePath { get; set; }
+    public TKIPWhitelistService.PathConditionDelegate ShouldAlwaysAllowPath { get; set; }
 }
 
 /// <summary></summary>
@@ -64,10 +65,18 @@ public class TKIPWhitelistService : ITKIPWhitelistService
 
 #if NETFULL
     /// <inheritdoc/>
-    public Task<TKIPWhitelistCheckResult> HandleRequestAsync(HttpContext context)
+    public Task<TKIPWhitelistCheckResult> HandleRequestAsync(HttpRequest request)
     {
-        var rawIp = RequestUtils.GetIPAddress(new HttpRequestWrapper(context.Request));
-        var path = RequestUtils.GetPathAndQuery(context.Request);
+        var rawIp = RequestUtils.GetIPAddress(new HttpRequestWrapper(request));
+        var path = RequestUtils.GetPathAndQuery(request);
+        return HandleRequestAsync(rawIp, path);
+    }
+
+    /// <inheritdoc/>
+    public Task<TKIPWhitelistCheckResult> HandleRequestAsync(HttpRequestMessage request)
+    {
+        var rawIp = RequestUtils.GetIPAddress(request);
+        var path = RequestUtils.GetPathAndQuery(request);
         return HandleRequestAsync(rawIp, path);
     }
 #endif
@@ -118,7 +127,7 @@ public class TKIPWhitelistService : ITKIPWhitelistService
 
         if (!testMode && !_options.Enabled) return TKIPWhitelistCheckResult.CreateAllowed("IP whitelist disabled.");
         else if (!testMode && ip.IsLocalHost && _options.DisableForLocalhost) return TKIPWhitelistCheckResult.CreateAllowed("IP whitelist disabled for localhost request.");
-        else if (_options.ShouldIgnorePath != null && await _options.ShouldIgnorePath(path)) return TKIPWhitelistCheckResult.CreateAllowed($"Path '{path}' is ignored by config.");
+        else if (_options.ShouldAlwaysAllowPath != null && await _options.ShouldAlwaysAllowPath(path)) return TKIPWhitelistCheckResult.CreateAllowed($"Path '{path}' is always allowed by config.");
 
         var rules = await _whitelistRuleStorage.GetRulesAsync();
         var allowingRule = rules?.FirstOrDefault(r => RuleContainsWhitelistFor(r, ip.IP));

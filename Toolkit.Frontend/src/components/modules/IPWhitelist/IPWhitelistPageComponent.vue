@@ -8,7 +8,11 @@
         Rule edit: inputs + option to allow for links that append current ip.
         <hr>
         <code>{{ wlconfig }}</code>
+        <hr>
+        <IPWhitelistRuleComponent :config="config" :rule="currentRule" v-if="currentRule"/>
+        <hr>
         <code>{{ rules }}</code>
+        <hr>
         <code>{{ log }}</code>
     </div>
 </template>
@@ -27,10 +31,12 @@ import IdUtils from "@util/IdUtils";
 import { TKIPWhitelistLogItem } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistLogItem";
 import { TKIPWhitelistConfig } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistConfig";
 import { TKIPWhitelistRule } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistRule";
+import IPWhitelistRuleComponent from "./IPWhitelistRuleComponent.vue";
 
 @Options({
     components: {
-        FilterableListComponent
+        FilterableListComponent,
+        IPWhitelistRuleComponent
     }
 })
 export default class IPWhitelistPageComponent extends Vue {
@@ -49,6 +55,8 @@ export default class IPWhitelistPageComponent extends Vue {
     rules: Array<TKIPWhitelistRule> = [];
     log: Array<TKIPWhitelistLogItem> = [];
 
+    currentRule: TKIPWhitelistRule | null = null;
+
     //////////////////
     //  LIFECYCLE  //
     ////////////////
@@ -57,6 +65,15 @@ export default class IPWhitelistPageComponent extends Vue {
         this.loadConfig();
         this.loadRules();
         this.loadLog();
+
+        this.currentRule = {
+            Id: '00000000-0000-0000-0000-000000000000',
+            Enabled: true,
+            EnabledUntil: null,
+            Ips: [],
+            Name: 'New rule',
+            Note: ''
+        };
     }
 
     ////////////////

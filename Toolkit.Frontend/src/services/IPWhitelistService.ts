@@ -4,6 +4,7 @@ import { TKIPWhitelistRule } from "@generated/Models/Module/IPWhitelist/TKIPWhit
 import { TKIPWhitelistLogItem } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistLogItem";
 import { TKIPWhitelistCheckResult } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistCheckResult";
 import { TKIPWhitelistTestRequest } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistTestRequest";
+import { TKIPWhitelistLink } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistLink";
 
 export default class IPWhitelistService extends TKServiceBase
 {
@@ -66,5 +67,29 @@ export default class IPWhitelistService extends TKServiceBase
         callbacks: ServiceFetchCallbacks<TKIPWhitelistCheckResult> | null = null
     ): void {
         this.invokeModuleMethod(this.moduleId, "IsRequestAllowed", payload, statusObject, callbacks);
+    }
+    
+    public DeleteRuleLink(
+        linkId: string,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<null> | null = null
+    ): void {
+        this.invokeModuleMethod(this.moduleId, "DeleteRuleLink", linkId, statusObject, callbacks);
+    }
+    
+    public GetRuleLinks(
+        ruleId: string,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<Array<TKIPWhitelistLink>> | null = null
+    ): void {
+        this.invokeModuleMethod(this.moduleId, "GetRuleLinks", ruleId, statusObject, callbacks);
+    }
+    
+    public StoreRuleLink(
+        link: TKIPWhitelistLink,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<TKIPWhitelistLink> | null = null
+    ): void {
+        this.invokeModuleMethod(this.moduleId, "StoreRuleLink", link, statusObject, callbacks);
     }
 }

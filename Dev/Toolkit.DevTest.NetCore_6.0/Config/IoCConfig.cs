@@ -160,12 +160,13 @@ public static class IoCConfig
         // IP Whitelist
         services.AddSingleton(x => new TKIPWhitelistServiceOptions {
             BlockedPageTitle = "Nope",
-            DisableForLocalhost = true,
-            //ShouldIgnorePath = (p) => Task.FromResult(p.Contains("_allow_"))
+            DisableForLocalhost = false,
+            ShouldAlwaysAllowPath = (p) => Task.FromResult(!p.ToLower().Contains("/viewtest"))
         });
         services.AddSingleton<ITKIPWhitelistService, TKIPWhitelistService>();
         services.AddSingleton<ITKIPWhitelistRuleStorage>(x => new TKIPWhitelistRuleFlatFileStorage(@"C:\temp\tk_ipwhitelist.json"));
         services.AddSingleton<ITKIPWhitelistConfigStorage>(x => new TKIPWhitelistConfigFlatFileStorage(@"C:\temp\tk_ipwhitelist_config.json"));
+        services.AddSingleton<ITKIPWhitelistLinkStorage>(x => new TKIPWhitelistLinkStorageFlatFileStorage(@"C:\temp\tk_ipwhitelist_links.json"));
 
         services.AddSingleton<ITKReleaseNotesProvider>(new TKJsonFileReleaseNotesProvider(GetFilePath(@"App_Data\ReleaseNotes.json", env))
         {

@@ -60,5 +60,11 @@ internal static class RequestUtils
 
         return request.Path + request.QueryString;
     }
+
+    public static string GetPathAndQuery(HttpRequestMessage request)
+    {
+        if (request == null || request.RequestUri == null) return null;
+        else return request.RequestUri.PathAndQuery;
+    }
 #endif
 }

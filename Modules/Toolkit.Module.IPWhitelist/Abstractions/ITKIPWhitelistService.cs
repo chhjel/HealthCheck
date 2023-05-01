@@ -1,5 +1,6 @@
 using QoDL.Toolkit.Module.IPWhitelist.Models;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 #if NETFULL
@@ -26,7 +27,12 @@ public interface ITKIPWhitelistService
     /// <summary>
     /// Handle the given context and check if it should be blocked.
     /// </summary>
-    Task<TKIPWhitelistCheckResult> HandleRequestAsync(HttpContext context);
+    Task<TKIPWhitelistCheckResult> HandleRequestAsync(HttpRequest request);
+
+    /// <summary>
+    /// Handle the given context and check if it should be blocked.
+    /// </summary>
+    Task<TKIPWhitelistCheckResult> HandleRequestAsync(HttpRequestMessage request);
 #endif
 
 #if NETCORE
@@ -38,7 +44,7 @@ public interface ITKIPWhitelistService
 
     /// <summary>
     /// Check if request is allowed.
-    /// <para>Called from <see cref="HandleRequestAsync"/>, used for test mode.</para>
+    /// <para>Called from <c>HandleRequestAsync</c> used for test mode.</para>
     /// </summary>
     Task<TKIPWhitelistCheckResult> IsRequestAllowedAsync(string rawIp, string path, bool testMode = false);
 
