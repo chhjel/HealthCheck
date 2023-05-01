@@ -104,6 +104,13 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
         context.AddAuditEvent("Delete rule", id.ToString())
             .AddClientConnectionDetails(context);
     }
+
+    /// <summary></summary>
+    [ToolkitModuleMethod]
+    public async Task<TKIPWhitelistCheckResult> IsRequestAllowed(TKIPWhitelistTestRequest payload)
+        => await Options.Service.IsRequestAllowedAsync(payload.RawIP, payload.Path, testMode: true);
+
+    // todo: TKIPWhitelistLink
     #endregion
 
     #region Actions

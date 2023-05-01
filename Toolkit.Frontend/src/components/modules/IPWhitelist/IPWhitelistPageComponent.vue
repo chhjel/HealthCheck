@@ -2,6 +2,11 @@
 <template>
     <div class="ip-whitelist">
         // ToDo
+        <hr>
+        [Rules] [Config] [Log]
+        <hr>
+        Rule edit: inputs + option to allow for links that append current ip.
+        <hr>
         <code>{{ wlconfig }}</code>
         <code>{{ rules }}</code>
         <code>{{ log }}</code>
