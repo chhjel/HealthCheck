@@ -161,7 +161,7 @@ public static class IoCConfig
         services.AddSingleton(x => new TKIPWhitelistServiceOptions {
             BlockedPageTitle = "Nope",
             DisableForLocalhost = false,
-            ShouldAlwaysAllowPath = (p) => Task.FromResult(!p.ToLower().Contains("/viewtest"))
+            ShouldAlwaysAllowRequest = (r) => Task.FromResult(!r.PathAndQuery.ToLower().Contains("/viewtest"))
         });
         services.AddSingleton<ITKIPWhitelistService, TKIPWhitelistService>();
         services.AddSingleton<ITKIPWhitelistRuleStorage>(x => new TKIPWhitelistRuleFlatFileStorage(@"C:\temp\tk_ipwhitelist.json"));

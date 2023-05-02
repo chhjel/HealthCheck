@@ -29,15 +29,14 @@ public class TKIPWhitelistServiceOptions
     public string BlockedPageTitle { get; set; }
 
     /// <summary>Optional check if a given url path should be ignored and not blocked.</summary>
-    public TKIPWhitelistService.PathConditionDelegate ShouldAlwaysAllowPath { get; set; }
+    public PathConditionDelegate ShouldAlwaysAllowRequest { get; set; }
+    /// <summary></summary>
+    public delegate Task<bool> PathConditionDelegate(TKIPWhitelistRequestData request);
 }
 
 /// <summary></summary>
 public class TKIPWhitelistService : ITKIPWhitelistService
 {
-    /// <summary></summary>
-    public delegate Task<bool> PathConditionDelegate(string path);
-
     private readonly TKIPWhitelistServiceOptions _options;
     private readonly ITKIPWhitelistRuleStorage _whitelistRuleStorage;
     private readonly ITKIPWhitelistConfigStorage _whitelistConfigStorage;
@@ -57,9 +56,13 @@ public class TKIPWhitelistService : ITKIPWhitelistService
     /// <inheritdoc/>
     public Task<TKIPWhitelistCheckResult> HandleRequestAsync(HttpContext context)
     {
-        var rawIp = RequestUtils.GetIPAddress(context);
-        var path = RequestUtils.GetPathAndQuery(context.Request);
-        return HandleRequestAsync(rawIp, path);
+        var data = new TKIPWhitelistRequestData
+        {
+            IP = RequestUtils.GetIPAddress(context),
+            PathAndQuery = RequestUtils.GetPathAndQuery(context.Request),
+            Context = context
+        };
+        return HandleRequestAsync(data);
     }
 #endif
 
@@ -67,34 +70,42 @@ public class TKIPWhitelistService : ITKIPWhitelistService
     /// <inheritdoc/>
     public Task<TKIPWhitelistCheckResult> HandleRequestAsync(HttpRequest request)
     {
-        var rawIp = RequestUtils.GetIPAddress(new HttpRequestWrapper(request));
-        var path = RequestUtils.GetPathAndQuery(request);
-        return HandleRequestAsync(rawIp, path);
+        var data = new TKIPWhitelistRequestData
+        {
+            IP = RequestUtils.GetIPAddress(new HttpRequestWrapper(request)),
+            PathAndQuery = RequestUtils.GetPathAndQuery(request),
+            Request = request
+        };
+        return HandleRequestAsync(data);
     }
 
     /// <inheritdoc/>
     public Task<TKIPWhitelistCheckResult> HandleRequestAsync(HttpRequestMessage request)
     {
-        var rawIp = RequestUtils.GetIPAddress(request);
-        var path = RequestUtils.GetPathAndQuery(request);
-        return HandleRequestAsync(rawIp, path);
+        var data = new TKIPWhitelistRequestData
+        {
+            IP = RequestUtils.GetIPAddress(request),
+            PathAndQuery = RequestUtils.GetPathAndQuery(request),
+            WebApiRequest = request
+        };
+        return HandleRequestAsync(data);
     }
 #endif
 
     /// <summary></summary>
-    protected virtual async Task<TKIPWhitelistCheckResult> HandleRequestAsync(string rawIp, string path)
+    protected virtual async Task<TKIPWhitelistCheckResult> HandleRequestAsync(TKIPWhitelistRequestData request)
     {
-        var result = await IsRequestAllowedAsync(rawIp, path);
+        var result = await IsRequestAllowedAsync(request);
         AddLog(new TKIPWhitelistLogItem
         {
-            IP = rawIp,
-            Path = path,
+            IP = request.IP,
+            Path = request.PathAndQuery,
             Timestamp = DateTimeOffset.Now,
             WasBlocked = result.Blocked,
             Note = result.Blocked ? "Blocked." : result.AllowedReason
         });
 
-        result.Response = CreateBlockedPageHtml(result);
+        result.Response = string.IsNullOrWhiteSpace(result.Response) ? string.Empty : CreateBlockedPageHtml(result);
         return result;
     }
 
@@ -121,13 +132,13 @@ public class TKIPWhitelistService : ITKIPWhitelistService
 </html>";
 
     /// <summary></summary>
-    public virtual async Task<TKIPWhitelistCheckResult> IsRequestAllowedAsync(string rawIp, string path, bool testMode = false)
+    public virtual async Task<TKIPWhitelistCheckResult> IsRequestAllowedAsync(TKIPWhitelistRequestData request, bool testMode = false)
     {
-        var ip = TKIPAddressUtils.ParseIP(rawIp, acceptLocalhostString: true);
+        var ip = TKIPAddressUtils.ParseIP(request.IP, acceptLocalhostString: true);
 
         if (!testMode && !_options.Enabled) return TKIPWhitelistCheckResult.CreateAllowed("IP whitelist disabled.");
         else if (!testMode && ip.IsLocalHost && _options.DisableForLocalhost) return TKIPWhitelistCheckResult.CreateAllowed("IP whitelist disabled for localhost request.");
-        else if (_options.ShouldAlwaysAllowPath != null && await _options.ShouldAlwaysAllowPath(path)) return TKIPWhitelistCheckResult.CreateAllowed($"Path '{path}' is always allowed by config.");
+        else if (_options.ShouldAlwaysAllowRequest != null && await _options.ShouldAlwaysAllowRequest(request)) return TKIPWhitelistCheckResult.CreateAllowed($"Request was allowed by ShouldAlwaysAllowRequest-config.");
 
         var rules = await _whitelistRuleStorage.GetRulesAsync();
         var allowingRule = rules?.FirstOrDefault(r => RuleContainsWhitelistFor(r, ip.IP));

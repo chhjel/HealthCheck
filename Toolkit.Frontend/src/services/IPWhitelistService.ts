@@ -35,7 +35,7 @@ export default class IPWhitelistService extends TKServiceBase
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<any> | null = null
     ): void {
-        this.invokeModuleMethod(this.moduleId, "SaveConfig", payload, statusObject, callbacks);
+        this.invokeModuleMethod(this.moduleId, "SaveConfig", payload, statusObject, callbacks, false);
     }
     
     public GetRules(
@@ -48,7 +48,7 @@ export default class IPWhitelistService extends TKServiceBase
     public SaveRule(
         payload: TKIPWhitelistRule,
         statusObject: FetchStatus | null = null,
-        callbacks: ServiceFetchCallbacks<any> | null = null
+        callbacks: ServiceFetchCallbacks<TKIPWhitelistRule> | null = null
     ): void {
         this.invokeModuleMethod(this.moduleId, "SaveRule", payload, statusObject, callbacks);
     }
@@ -58,7 +58,7 @@ export default class IPWhitelistService extends TKServiceBase
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<any> | null = null
     ): void {
-        this.invokeModuleMethod(this.moduleId, "DeleteRule", id, statusObject, callbacks);
+        this.invokeModuleMethod(this.moduleId, "DeleteRule", id, statusObject, callbacks, false);
     }
     
     public IsRequestAllowed(

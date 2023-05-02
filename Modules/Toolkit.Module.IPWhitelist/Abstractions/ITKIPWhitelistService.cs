@@ -46,7 +46,7 @@ public interface ITKIPWhitelistService
     /// Check if request is allowed.
     /// <para>Called from <c>HandleRequestAsync</c> used for test mode.</para>
     /// </summary>
-    Task<TKIPWhitelistCheckResult> IsRequestAllowedAsync(string rawIp, string path, bool testMode = false);
+    Task<TKIPWhitelistCheckResult> IsRequestAllowedAsync(TKIPWhitelistRequestData request, bool testMode = false);
 
     /// <summary>
     /// Get a log of recently blocked/allowed items.

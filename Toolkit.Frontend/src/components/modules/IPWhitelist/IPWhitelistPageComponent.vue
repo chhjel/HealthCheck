@@ -1,19 +1,22 @@
 <!-- src/components/modules/IPWhitelist/IPWhitelistPageComponent.vue -->
 <template>
     <div class="ip-whitelist">
-        // ToDo
-        <hr>
-        [Rules] [Config] [Log]
-        <hr>
-        Rule edit: inputs + option to allow for links that append current ip.
-        <hr>
-        <code>{{ wlconfig }}</code>
-        <hr>
-        <IPWhitelistRuleComponent :config="config" :rule="currentRule" v-if="currentRule"/>
-        <hr>
-        <code>{{ rules }}</code>
-        <hr>
-        <code>{{ log }}</code>
+        <tabs-component :labels="['Whitelist', 'Config', 'Log']" v-model:value="currentTab" class="mt-3" :disabled="isLoading">
+            <template #Whitelist>
+                <h2>Whitelist</h2>
+                <code>{{ rules }}</code>
+                <IPWhitelistRuleComponent :config="config" :rule="currentRule" v-if="currentRule"/>
+            </template>
+            <!-- <template #Bypass><h2>Bypass</h2></template> -->
+            <template #Config>
+                <h2>Config</h2>
+                <IPWhitelistConfigComponent :config="config" />
+            </template>
+            <template #Log>
+                <h2>Log</h2>
+                <code>{{ log }}</code>
+            </template>
+        </tabs-component>
     </div>
 </template>
 
@@ -29,14 +32,19 @@ import { StoreUtil } from "@util/StoreUtil";
 import IPWhitelistService from "@services/IPWhitelistService";
 import IdUtils from "@util/IdUtils";
 import { TKIPWhitelistLogItem } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistLogItem";
-import { TKIPWhitelistConfig } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistConfig";
 import { TKIPWhitelistRule } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistRule";
 import IPWhitelistRuleComponent from "./IPWhitelistRuleComponent.vue";
+import TabsComponent from "@components/Common/Basic/TabsComponent.vue";
+import StringUtils from "@util/StringUtils";
+import { RouteLocationNormalized } from "vue-router";
+import IPWhitelistConfigComponent from "./IPWhitelistConfigComponent.vue";
 
 @Options({
     components: {
         FilterableListComponent,
-        IPWhitelistRuleComponent
+        IPWhitelistRuleComponent,
+        IPWhitelistConfigComponent,
+        TabsComponent
     }
 })
 export default class IPWhitelistPageComponent extends Vue {
@@ -51,20 +59,22 @@ export default class IPWhitelistPageComponent extends Vue {
     dataLoadStatus: FetchStatus = new FetchStatus();
 
     id: string = IdUtils.generateId();
-    wlconfig: TKIPWhitelistConfig | null = null;
     rules: Array<TKIPWhitelistRule> = [];
     log: Array<TKIPWhitelistLogItem> = [];
 
     currentRule: TKIPWhitelistRule | null = null;
+    currentTab: string = '';
+    routeListener: Function | null = null;
 
     //////////////////
     //  LIFECYCLE  //
     ////////////////
     async mounted()
     {
-        this.loadConfig();
         this.loadRules();
         this.loadLog();
+        this.setInitialTab();
+        this.routeListener = this.$router.afterEach((t, f, err) => this.onRouteChanged(t, f));
 
         this.currentRule = {
             Id: '00000000-0000-0000-0000-000000000000',
@@ -74,25 +84,53 @@ export default class IPWhitelistPageComponent extends Vue {
             Name: 'New rule',
             Note: ''
         };
+
     }
 
     ////////////////
     //  METHODS  //
     //////////////
+    setInitialTab(): void {
+        const tabFromHash = StringUtils.stringOrFirstOfArray(this.$route.params.tab) || null;
+        this.currentTab = tabFromHash || 'Whitelist';
+    }
+
     loadLog(): void {
         this.service.GetLog(this.dataLoadStatus, {
             onSuccess: (d) => this.log = d
-        })
-    }
-    loadConfig(): void {
-        this.service.GetConfig(this.dataLoadStatus, {
-            onSuccess: (d) => this.wlconfig = d
         })
     }
     loadRules(): void {
         this.service.GetRules(this.dataLoadStatus, {
             onSuccess: (d) => this.rules = d
         })
+    }
+
+    updateUrl(): void {
+        let routeParams: any = {};
+        routeParams['tab'] = this.currentTab;
+
+        if (this.currentTab == 'Whitelist' && this.currentRule != null && this.currentRule.Id != null)
+        {
+            routeParams['id'] = this.currentRule.Id;
+        }
+
+        this.$router.push({ name: this.config.Id, params: routeParams })
+    }
+    
+    onRouteChanged(to: RouteLocationNormalized, from: RouteLocationNormalized): void {
+        if (!to.path.toLowerCase().startsWith('/ipwhitelist/')) return;
+
+        this.currentTab = StringUtils.stringOrFirstOfArray(to.params.tab) || 'Whitelist';
+
+        const oldIdFromHash = StringUtils.stringOrFirstOfArray(from.params.id) || null;
+        const newIdFromHash = StringUtils.stringOrFirstOfArray(to.params.id) || null;
+        const idChanged = oldIdFromHash != newIdFromHash;
+
+        if (idChanged)
+        {
+            // this.setActiveType(matchingStream, false);
+        }
     }
 
     ////////////////
@@ -109,11 +147,20 @@ export default class IPWhitelistPageComponent extends Vue {
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
+    @Watch("currentTab")
+    onTabChanged(): void {
+        if (this.$route.params.tab != this.currentTab) {
+            this.updateUrl();
+        }
+    }
 }
 </script>
 
 <style scoped lang="scss">
 .ip-whitelist {
-
+    h2 {
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
 }
 </style>

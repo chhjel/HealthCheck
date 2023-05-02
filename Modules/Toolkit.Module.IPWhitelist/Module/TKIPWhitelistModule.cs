@@ -3,9 +3,12 @@ using QoDL.Toolkit.Core.Config;
 using QoDL.Toolkit.Module.IPWhitelist.Models;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Threading.Tasks;
 using System.Web;
+
+#if NETCORE
+using Microsoft.AspNetCore.Http;
+#endif
 
 namespace QoDL.Toolkit.Module.IPWhitelist.Module;
 
@@ -85,14 +88,16 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
 
     /// <summary></summary>
     [ToolkitModuleMethod]
-    public async Task SaveRule(ToolkitModuleContext context, TKIPWhitelistRule rule)
+    public async Task<TKIPWhitelistRule> SaveRule(ToolkitModuleContext context, TKIPWhitelistRule rule)
     {
-        await Options.RuleStorage.StoreRuleAsync(rule);
+        rule = await Options.RuleStorage.StoreRuleAsync(rule);
 
         // Store audit data
         context.AddAuditEvent("Save rule", rule.Name)
             .AddClientConnectionDetails(context)
             .AddDetail("Rule Id", rule.Id.ToString());
+
+        return rule;
     }
 
     /// <summary></summary>
@@ -110,7 +115,19 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
     /// <summary></summary>
     [ToolkitModuleMethod]
     public async Task<TKIPWhitelistCheckResult> IsRequestAllowed(TKIPWhitelistTestRequest payload)
-        => await Options.Service.IsRequestAllowedAsync(payload.RawIP, payload.Path, testMode: true);
+    {
+        var data = new TKIPWhitelistRequestData {
+            IP = payload.RawIP,
+            PathAndQuery = payload.Path,
+#if NETCORE
+            Context = (TKGlobalConfig.GetDefaultInstanceResolver()?.Invoke(typeof(IHttpContextAccessor)) as IHttpContextAccessor)?.HttpContext
+#endif
+#if NETFULL
+            Request = HttpContext.Current.Request
+#endif
+        };
+        return await Options.Service.IsRequestAllowedAsync(data, testMode: true);
+    }
 
     /// <summary></summary>
     [ToolkitModuleMethod]
@@ -139,7 +156,7 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
 
         return await Options.LinkStorage.StoreRuleLinkAsync(link);
     }
-    #endregion
+#endregion
 
     #region Actions
     /// <summary>
