@@ -1,20 +1,27 @@
-<!-- src/components/modules/IPWhitelist/IPWhitelistPageComponent.vue -->
+<!-- src/components/modules/IPWhitelist/IPWhitelistTestComponent.vue -->
 <template>
-    <div class="ip-whitelist-config">
-        <BlockComponent title="Blocked response">
-            <div v-if="wlconfig">
-                <textarea-component v-model:value="wlconfig.DefaultResponse"
-                    label="Response content"
-                    class="mb-3 mt-3" />
-                <text-field-component v-model:value="wlconfig.DefaultHttpStatusCode"
-                    label="Status code"
-                    type="number"
-                    class="mb-3" />
-            </div>
+    <div class="ip-whitelist-test">
+        <BlockComponent>
+            <p>Test a given IP and url against the current whitelist rules.</p>
+
+            <text-field-component v-model:value="ipToTest" label="IP address to check" class="mb-3" />
+            <text-field-component v-model:value="pathToTest" label="Path and querystring to check" class="mb-3" />
             
             <btn-component @disabled="isLoading"
                 color="primary" class="mt-2"
-                @click="saveConfig">Save</btn-component>
+                @click="testIp">Test</btn-component>
+
+            <div v-if="result" class="result">
+                <div v-if="result.Blocked" class="blocked">
+                    Request was blocked with status code '{{ result.HttpStatusCode }}'.
+                </div>
+                <div v-if="!result.Blocked" class="allowed">
+                    <div>{{ result.AllowedReason }}</div>
+                    <div v-if="result.AllowingRule">
+                        <btn-component @click="gotoRule(result.AllowingRule)">{{ result.AllowingRule.Name }}</btn-component>
+                    </div>
+                </div>
+            </div>
         </BlockComponent>
     </div>
 </template>
@@ -28,12 +35,13 @@ import { StoreUtil } from "@util/StoreUtil";
 import IPWhitelistService from "@services/IPWhitelistService";
 import IdUtils from "@util/IdUtils";
 import ModuleConfig from "@models/Common/ModuleConfig";
-import { TKIPWhitelistConfig } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistConfig";
 import BlockComponent from "@components/Common/Basic/BlockComponent.vue";
 import BtnComponent from "@components/Common/Basic/BtnComponent.vue";
 import TextFieldComponent from "@components/Common/Basic/TextFieldComponent.vue";
 import TextareaComponent from "@components/Common/Basic/TextareaComponent.vue";
 import ValueUtils from "@util/ValueUtils";
+import { TKIPWhitelistCheckResult } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistCheckResult";
+import { TKIPWhitelistRule } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistRule";
 
 @Options({
     components: {
@@ -43,7 +51,7 @@ import ValueUtils from "@util/ValueUtils";
         TextFieldComponent
     }
 })
-export default class IPWhitelistConfigComponent extends Vue {
+export default class IPWhitelistTestComponent extends Vue {
     @Prop({ required: true })
     config!: ModuleConfig;
     
@@ -55,27 +63,32 @@ export default class IPWhitelistConfigComponent extends Vue {
     dataLoadStatus: FetchStatus = new FetchStatus();
 
     id: string = IdUtils.generateId();
-    wlconfig: TKIPWhitelistConfig | null = null;
+    ipToTest: string = '';
+    pathToTest: string = '/';
+    
+    result: TKIPWhitelistCheckResult | null = null;
 
     //////////////////
     //  LIFECYCLE  //
     ////////////////
     async mounted()
     {
-        this.loadConfig();
     }
 
     ////////////////
     //  METHODS  //
     //////////////
-    loadConfig(): void {
-        this.service.GetConfig(this.dataLoadStatus, {
-            onSuccess: (d) => this.wlconfig = d
-        })
+    testIp(): void {
+        this.service.IsRequestAllowed({
+            RawIP: this.ipToTest,
+            Path: this.pathToTest
+        }, this.dataLoadStatus, {
+            onSuccess: (d) => this.result = d
+        });
     }
 
-    saveConfig(): void {
-        this.service.SaveConfig(this.wlconfig, this.dataLoadStatus);
+    gotoRule(rule: TKIPWhitelistRule): void {
+        this.$emit('ruleSelected', rule);
     }
 
     ////////////////
@@ -96,7 +109,21 @@ export default class IPWhitelistConfigComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-.ip-whitelist-config {
+.ip-whitelist-test {
+    .result {
+        font-weight: 600;
+        .allowed, .blocked {
+            margin-top: 30px;
+            padding: 20px;
+            display: inline-block;
+        }
 
+        .allowed {
+            border: 2px solid var(--color--success-lighten2);
+        }
+        .blocked {
+            border: 2px solid var(--color--error-lighten2);
+        }
+    }
 }
 </style>

@@ -1,3 +1,4 @@
+import { TKIPWhitelistCidrTest } from './../generated/Models/Module/IPWhitelist/TKIPWhitelistCidrTest';
 import { TKIPWhitelistConfig } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistConfig";
 import TKServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/TKServiceBase";
 import { TKIPWhitelistRule } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistRule";
@@ -67,6 +68,14 @@ export default class IPWhitelistService extends TKServiceBase
         callbacks: ServiceFetchCallbacks<TKIPWhitelistCheckResult> | null = null
     ): void {
         this.invokeModuleMethod(this.moduleId, "IsRequestAllowed", payload, statusObject, callbacks);
+    }
+    
+    public IpMatchesCidr(
+        payload: TKIPWhitelistCidrTest,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<boolean> | null = null
+    ): void {
+        this.invokeModuleMethod(this.moduleId, "IpMatchesCidr", payload, statusObject, callbacks);
     }
     
     public DeleteRuleLink(

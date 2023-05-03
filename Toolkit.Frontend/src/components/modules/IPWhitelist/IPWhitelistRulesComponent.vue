@@ -1,21 +1,14 @@
 <!-- src/components/modules/IPWhitelist/IPWhitelistPageComponent.vue -->
 <template>
-    <div class="ip-whitelist-config">
-        <BlockComponent title="Blocked response">
-            <div v-if="wlconfig">
-                <textarea-component v-model:value="wlconfig.DefaultResponse"
-                    label="Response content"
-                    class="mb-3 mt-3" />
-                <text-field-component v-model:value="wlconfig.DefaultHttpStatusCode"
-                    label="Status code"
-                    type="number"
-                    class="mb-3" />
+    <div class="ip-whitelist-rules">
+        <div v-if="!rules || rules.length == 0">- No whitelist rules created yet -</div>
+        <div v-else>
+            <div v-for="rule in rules" :key="`rule-${rule.Id}-${id}`"
+                @click="onRuleClicked(rule)">
+                <div>{{ rule.Name }}</div>
+                <code>{{ rule }}</code>
             </div>
-            
-            <btn-component @disabled="isLoading"
-                color="primary" class="mt-2"
-                @click="saveConfig">Save</btn-component>
-        </BlockComponent>
+        </div>
     </div>
 </template>
 
@@ -23,59 +16,48 @@
 import { Vue, Prop, Watch, Ref } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import FilterableListComponent from '@components/Common/FilterableListComponent.vue';
 import { FetchStatus } from '@services/abstractions/TKServiceBase';
 import { StoreUtil } from "@util/StoreUtil";
 import IPWhitelistService from "@services/IPWhitelistService";
 import IdUtils from "@util/IdUtils";
+import { TKIPWhitelistRule } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistRule";
 import ModuleConfig from "@models/Common/ModuleConfig";
-import { TKIPWhitelistConfig } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistConfig";
-import BlockComponent from "@components/Common/Basic/BlockComponent.vue";
-import BtnComponent from "@components/Common/Basic/BtnComponent.vue";
-import TextFieldComponent from "@components/Common/Basic/TextFieldComponent.vue";
-import TextareaComponent from "@components/Common/Basic/TextareaComponent.vue";
 import ValueUtils from "@util/ValueUtils";
 
 @Options({
     components: {
-        BlockComponent,
-        BtnComponent,
-        TextareaComponent,
-        TextFieldComponent
+        FilterableListComponent
     }
 })
-export default class IPWhitelistConfigComponent extends Vue {
+export default class IPWhitelistRuleComponent extends Vue {
     @Prop({ required: true })
     config!: ModuleConfig;
     
+    @Prop({ required: true })
+    rules!: Array<TKIPWhitelistRule>;
+
     @Prop({ required: false, default: false })
     loading!: string | boolean;
-
+    
     // Service
     service: IPWhitelistService = new IPWhitelistService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
     dataLoadStatus: FetchStatus = new FetchStatus();
 
     id: string = IdUtils.generateId();
-    wlconfig: TKIPWhitelistConfig | null = null;
 
     //////////////////
     //  LIFECYCLE  //
     ////////////////
     async mounted()
     {
-        this.loadConfig();
     }
 
     ////////////////
     //  METHODS  //
     //////////////
-    loadConfig(): void {
-        this.service.GetConfig(this.dataLoadStatus, {
-            onSuccess: (d) => this.wlconfig = d
-        })
-    }
-
-    saveConfig(): void {
-        this.service.SaveConfig(this.wlconfig, this.dataLoadStatus);
+    onRuleClicked(rule: TKIPWhitelistRule): void {
+        this.$emit('ruleClicked', rule);
     }
 
     ////////////////
@@ -96,7 +78,7 @@ export default class IPWhitelistConfigComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-.ip-whitelist-config {
+.ip-whitelist-rules {
 
 }
 </style>

@@ -39,7 +39,7 @@ const TeleportFix = teleport_ as {
 }
 @Options({
     components: { TeleportFix },
-    emits: ['close']
+    emits: ['close', 'update:value']
 })
 export default class DialogComponent extends Vue {
     @Prop({ required: true })

@@ -1,5 +1,6 @@
 using QoDL.Toolkit.Core.Abstractions.Modules;
 using QoDL.Toolkit.Core.Config;
+using QoDL.Toolkit.Core.Util;
 using QoDL.Toolkit.Module.IPWhitelist.Models;
 using System;
 using System.Collections.Generic;
@@ -111,6 +112,11 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
         context.AddAuditEvent("Delete rule", id.ToString())
             .AddClientConnectionDetails(context);
     }
+
+    /// <summary></summary>
+    [ToolkitModuleMethod]
+    public bool IpMatchesCidr(TKIPWhitelistCidrTest payload)
+        => TKIPAddressUtils.IpMatchesOrIsWithinCidrRange(payload.IP, payload.IPWithOptionalCidr);
 
     /// <summary></summary>
     [ToolkitModuleMethod]

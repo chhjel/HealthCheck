@@ -42,7 +42,7 @@ public class TKIPWhitelistRuleFlatFileStorage : ITKIPWhitelistRuleStorage
     /// <inheritdoc />
     public Task<TKIPWhitelistRule> StoreRuleAsync(TKIPWhitelistRule rule)
     {
-        var updatedRule = Store.InsertItem(rule);
+        var updatedRule = Store.InsertOrUpdateItem(rule);
         return Task.FromResult(updatedRule);
     }
 }

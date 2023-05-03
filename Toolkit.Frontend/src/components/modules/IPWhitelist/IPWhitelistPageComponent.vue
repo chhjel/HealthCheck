@@ -1,16 +1,28 @@
 <!-- src/components/modules/IPWhitelist/IPWhitelistPageComponent.vue -->
 <template>
     <div class="ip-whitelist">
-        <tabs-component :labels="['Whitelist', 'Config', 'Log']" v-model:value="currentTab" class="mt-3" :disabled="isLoading">
+        <tabs-component :labels="['Whitelist', 'Test', 'Config', 'Log']" v-model:value="currentTab" class="mt-3" :disabled="isLoading">
             <template #Whitelist>
                 <h2>Whitelist</h2>
-                <code>{{ rules }}</code>
-                <IPWhitelistRuleComponent :config="config" :rule="currentRule" v-if="currentRule"/>
+                <div v-if="currentRule == null">
+                    <btn-component @click="onNewRuleClicked" :disabled="isLoading">New rule</btn-component>
+                    <IPWhitelistRulesComponent :config="config" :rules="rules" :loading="isLoading"
+                        @ruleClicked="r => setCurrentRule(r)" />
+                </div>
+                <div v-if="currentRule">
+                    <a href="#" @click.stop.prevent="onGoBackToRulesClicked" :disabled="isLoading">&lt;&lt;&lt; Back</a>
+                    <IPWhitelistRuleComponent :config="config" :rule="currentRule" :loading="isLoading" class="mt-2" />
+                    <btn-component @click="onSaveRuleClicked(currentRule)" :disabled="isLoading" color="primary">Save</btn-component>
+                </div>
+            </template>
+            <template #Test>
+                <h2>Test</h2>
+                <IPWhitelistTestComponent :config="config" :loading="isLoading" @ruleSelected="onRuleSelectedInTest" />
             </template>
             <!-- <template #Bypass><h2>Bypass</h2></template> -->
             <template #Config>
                 <h2>Config</h2>
-                <IPWhitelistConfigComponent :config="config" />
+                <IPWhitelistConfigComponent :config="config" :loading="isLoading" />
             </template>
             <template #Log>
                 <h2>Log</h2>
@@ -34,17 +46,23 @@ import IdUtils from "@util/IdUtils";
 import { TKIPWhitelistLogItem } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistLogItem";
 import { TKIPWhitelistRule } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistRule";
 import IPWhitelistRuleComponent from "./IPWhitelistRuleComponent.vue";
+import IPWhitelistRulesComponent from "./IPWhitelistRulesComponent.vue";
 import TabsComponent from "@components/Common/Basic/TabsComponent.vue";
 import StringUtils from "@util/StringUtils";
 import { RouteLocationNormalized } from "vue-router";
 import IPWhitelistConfigComponent from "./IPWhitelistConfigComponent.vue";
+import BtnComponent from "@components/Common/Basic/BtnComponent.vue";
+import IPWhitelistTestComponent from "./IPWhitelistTestComponent.vue";
 
 @Options({
     components: {
         FilterableListComponent,
         IPWhitelistRuleComponent,
+        IPWhitelistRulesComponent,
         IPWhitelistConfigComponent,
-        TabsComponent
+        IPWhitelistTestComponent,
+        TabsComponent,
+        BtnComponent
     }
 })
 export default class IPWhitelistPageComponent extends Vue {
@@ -73,18 +91,7 @@ export default class IPWhitelistPageComponent extends Vue {
     {
         this.loadRules();
         this.loadLog();
-        this.setInitialTab();
         this.routeListener = this.$router.afterEach((t, f, err) => this.onRouteChanged(t, f));
-
-        this.currentRule = {
-            Id: '00000000-0000-0000-0000-000000000000',
-            Enabled: true,
-            EnabledUntil: null,
-            Ips: [],
-            Name: 'New rule',
-            Note: ''
-        };
-
     }
 
     ////////////////
@@ -93,6 +100,13 @@ export default class IPWhitelistPageComponent extends Vue {
     setInitialTab(): void {
         const tabFromHash = StringUtils.stringOrFirstOfArray(this.$route.params.tab) || null;
         this.currentTab = tabFromHash || 'Whitelist';
+        
+        if (this.currentTab == 'Whitelist') {
+            const idFromHash = StringUtils.stringOrFirstOfArray(this.$route.params.id) || null;
+            if (idFromHash && this.rules.some(r => r.Id == idFromHash)) {
+                this.setCurrentRule(this.rules.find(r => r.Id == idFromHash));
+            }
+        }
     }
 
     loadLog(): void {
@@ -102,7 +116,10 @@ export default class IPWhitelistPageComponent extends Vue {
     }
     loadRules(): void {
         this.service.GetRules(this.dataLoadStatus, {
-            onSuccess: (d) => this.rules = d
+            onSuccess: (d) => {
+                this.rules = d;
+                this.setInitialTab();
+            }
         })
     }
 
@@ -127,10 +144,46 @@ export default class IPWhitelistPageComponent extends Vue {
         const newIdFromHash = StringUtils.stringOrFirstOfArray(to.params.id) || null;
         const idChanged = oldIdFromHash != newIdFromHash;
 
-        if (idChanged)
-        {
-            // this.setActiveType(matchingStream, false);
+        if (idChanged  && this.rules.some(r => r.Id == newIdFromHash)) {
+            this.setCurrentRule(this.rules.find(r => r.Id == newIdFromHash), false);
         }
+    }
+
+    setCurrentRule(rule: TKIPWhitelistRule, updateUrl: boolean = true): void {
+        if (this.currentRule?.Id == rule?.Id) return;
+        
+        this.currentRule = rule;
+
+        if (updateUrl) this.updateUrl();
+    }
+
+    onNewRuleClicked(): void {
+        this.setCurrentRule({
+            Id: '00000000-0000-0000-0000-000000000000',
+            Enabled: true,
+            EnabledUntil: null,
+            Ips: [],
+            Name: 'New rule',
+            Note: ''
+        }, false);
+    }
+
+    onSaveRuleClicked(rule: TKIPWhitelistRule): void {
+        this.service.SaveRule(rule, this.dataLoadStatus, {
+            onSuccess: (d) => {
+                this.rules.push(d);
+                this.setCurrentRule(d);
+            }
+        });
+    }
+
+    onGoBackToRulesClicked(): void {
+        this.setCurrentRule(null);
+    }
+
+    onRuleSelectedInTest(rule: TKIPWhitelistRule): void {
+        this.currentTab = 'Whitelist';
+        this.setCurrentRule(rule);
     }
 
     ////////////////
