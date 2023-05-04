@@ -19,4 +19,7 @@ public interface ITKIPWhitelistLinkStorage
 
     /// <summary></summary>
     Task<TKIPWhitelistLink> StoreRuleLinkAsync(TKIPWhitelistLink link);
+
+    /// <summary></summary>
+    Task<TKIPWhitelistLink> GetRuleLinkFromSecretAsync(Guid ruleId, string secret);
 }

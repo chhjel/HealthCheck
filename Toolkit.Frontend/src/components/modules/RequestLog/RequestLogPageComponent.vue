@@ -61,7 +61,7 @@
                     Filtered to source IP: {{ filteredIPAddress }}
                     <icon-component size="20px">delete</icon-component>
                 </a>
-                <btn-component small @click="resetFilters" class="reset-filters-button">Reset filters</btn-component>
+                <btn-component @click="resetFilters" class="reset-filters-button">Reset filters</btn-component>
                 <br />
 
                 <!-- Versions:

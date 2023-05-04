@@ -24,6 +24,13 @@ export default class IPWhitelistService extends TKServiceBase
         this.invokeModuleMethod(this.moduleId, "GetLog", null, statusObject, callbacks);
     }
     
+    public ClearRequestLog(
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<any> | null = null
+    ): void {
+        this.invokeModuleMethod(this.moduleId, "ClearRequestLog", null, statusObject, callbacks, false);
+    }
+
     public GetConfig(
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<TKIPWhitelistConfig | null> | null = null
@@ -83,7 +90,7 @@ export default class IPWhitelistService extends TKServiceBase
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<null> | null = null
     ): void {
-        this.invokeModuleMethod(this.moduleId, "DeleteRuleLink", linkId, statusObject, callbacks);
+        this.invokeModuleMethod(this.moduleId, "DeleteRuleLink", linkId, statusObject, callbacks, false);
     }
     
     public GetRuleLinks(

@@ -12,6 +12,9 @@ public interface ITKIPWhitelistRuleStorage
     Task<IEnumerable<TKIPWhitelistRule>> GetRulesAsync();
 
     /// <summary></summary>
+    Task<TKIPWhitelistRule> GetRuleAsync(Guid id);
+
+    /// <summary></summary>
     Task DeleteRuleAsync(Guid id);
 
     /// <summary></summary>

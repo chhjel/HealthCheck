@@ -37,7 +37,7 @@
             ></switch-component>
             
             <btn-component v-if="allowDelete"
-                small flat
+                flat
                 color="error"
                 class="filter-action-button"
                 @click="remove()"
@@ -46,7 +46,7 @@
             </btn-component>
 
             <btn-component
-                small flat
+                flat
                 color="secondary"
                 class="filter-action-button"
                 @click="isMatchingOnStringified = !isMatchingOnStringified"

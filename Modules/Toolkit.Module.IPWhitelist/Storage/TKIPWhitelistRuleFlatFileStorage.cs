@@ -33,6 +33,9 @@ public class TKIPWhitelistRuleFlatFileStorage : ITKIPWhitelistRuleStorage
     public Task<IEnumerable<TKIPWhitelistRule>> GetRulesAsync() => Task.FromResult(Store.GetEnumerable());
 
     /// <inheritdoc />
+    public Task<TKIPWhitelistRule> GetRuleAsync(Guid id) => Task.FromResult(Store.GetItem(id));
+
+    /// <inheritdoc />
     public Task DeleteRuleAsync(Guid id)
     {
         Store.DeleteItem(id);

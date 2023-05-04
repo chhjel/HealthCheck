@@ -7,7 +7,7 @@
             </tooltip-component>
         
             <tooltip-component v-if="localValue" tooltip="Copy to clipboard">
-                <btn-component flat small icon color="primary" v-if="localValue" class="mr-0" @click="copyToClipboard">
+                <btn-component flat icon color="primary" v-if="localValue" class="mr-0" @click="copyToClipboard">
                     <icon-component small>content_copy</icon-component>
                 </btn-component>
             </tooltip-component>

@@ -3,9 +3,20 @@
     <div class="ip-whitelist-config">
         <BlockComponent title="Blocked response">
             <div v-if="wlconfig">
-                <textarea-component v-model:value="wlconfig.DefaultResponse"
-                    label="Response content"
-                    class="mb-3 mt-3" />
+                <InputHeaderComponent name="Response content" description="Supports html." class="mt-3" />
+                <editor-component
+                    class="editor"
+                    :language="'html'"
+                    v-model:value="wlconfig.DefaultResponse"
+                    :read-only="isLoading"
+                    ref="editor" />
+                
+                <CheckboxComponent 
+                    v-model:value="wlconfig.UseDefaultResponseWrapper"
+                    label="Use default response page wrapper"
+                    title="If true, a default page html will be wrapped around the content above."
+                    class="mb-3" />
+                
                 <text-field-component v-model:value="wlconfig.DefaultHttpStatusCode"
                     label="Status code"
                     type="number"
@@ -15,6 +26,7 @@
             <btn-component @disabled="isLoading"
                 color="primary" class="mt-2"
                 @click="saveConfig">Save</btn-component>
+            <FeedbackComponent ref="saveConfigFeedback" />
         </BlockComponent>
     </div>
 </template>
@@ -34,13 +46,20 @@ import BtnComponent from "@components/Common/Basic/BtnComponent.vue";
 import TextFieldComponent from "@components/Common/Basic/TextFieldComponent.vue";
 import TextareaComponent from "@components/Common/Basic/TextareaComponent.vue";
 import ValueUtils from "@util/ValueUtils";
+import FeedbackComponent from "@components/Common/Basic/FeedbackComponent.vue";
+import CheckboxComponent from "@components/Common/Basic/CheckboxComponent.vue";
+import EditorComponent from "@components/Common/EditorComponent.vue";
+import InputHeaderComponent from "@components/Common/Basic/InputHeaderComponent.vue";
 
 @Options({
     components: {
         BlockComponent,
         BtnComponent,
         TextareaComponent,
-        TextFieldComponent
+        TextFieldComponent,
+        EditorComponent,
+        InputHeaderComponent,
+        FeedbackComponent
     }
 })
 export default class IPWhitelistConfigComponent extends Vue {
@@ -49,6 +68,9 @@ export default class IPWhitelistConfigComponent extends Vue {
     
     @Prop({ required: false, default: false })
     loading!: string | boolean;
+
+    @Ref() readonly editor!: EditorComponent;
+    @Ref() readonly saveConfigFeedback!: FeedbackComponent;
 
     // Service
     service: IPWhitelistService = new IPWhitelistService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
@@ -63,6 +85,12 @@ export default class IPWhitelistConfigComponent extends Vue {
     async mounted()
     {
         this.loadConfig();
+
+        this.refreshEditorSize();
+        this.$nextTick(() => this.refreshEditorSize());
+        setTimeout(() => {
+            this.refreshEditorSize();
+        }, 100);
     }
 
     ////////////////
@@ -75,7 +103,19 @@ export default class IPWhitelistConfigComponent extends Vue {
     }
 
     saveConfig(): void {
-        this.service.SaveConfig(this.wlconfig, this.dataLoadStatus);
+        this.saveConfigFeedback.show('Saving..');
+        this.service.SaveConfig(this.wlconfig, this.dataLoadStatus, {
+            onSuccess: d => {
+                this.saveConfigFeedback.show('Saved');
+            }
+        });
+    }
+
+    refreshEditorSize(): void {
+        if (this.editor)
+        {
+            this.editor.refreshSize();
+        }
     }
 
     ////////////////
@@ -97,6 +137,9 @@ export default class IPWhitelistConfigComponent extends Vue {
 
 <style scoped lang="scss">
 .ip-whitelist-config {
-
+    .editor {
+        width: 100%;
+        height: 400px;
+    }
 }
 </style>

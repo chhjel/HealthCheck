@@ -11,8 +11,10 @@
                 </div>
                 <div v-if="currentRule">
                     <a href="#" @click.stop.prevent="onGoBackToRulesClicked" :disabled="isLoading">&lt;&lt;&lt; Back</a>
-                    <IPWhitelistRuleComponent :config="config" :rule="currentRule" :loading="isLoading" class="mt-2" />
+                    <IPWhitelistRuleComponent :config="config" :rule="currentRule" :loading="isLoading" class="mt-2 mb-3" />
                     <btn-component @click="onSaveRuleClicked(currentRule)" :disabled="isLoading" color="primary">Save</btn-component>
+                    <btn-component @click="onDeleteRuleClicked(currentRule)" :disabled="isLoading" :loading="isLoading" color="error">Delete</btn-component>
+                    <FeedbackComponent ref="saveRuleFeedback" />
                 </div>
             </template>
             <template #Test>
@@ -26,7 +28,7 @@
             </template>
             <template #Log>
                 <h2>Log</h2>
-                <code>{{ log }}</code>
+                <IPWhitelistLogComponent :config="config" :loading="isLoading" @ruleSelected="onRuleSelectedInTest" />
             </template>
         </tabs-component>
     </div>
@@ -43,7 +45,6 @@ import ModuleOptions from '@models/Common/ModuleOptions';
 import { StoreUtil } from "@util/StoreUtil";
 import IPWhitelistService from "@services/IPWhitelistService";
 import IdUtils from "@util/IdUtils";
-import { TKIPWhitelistLogItem } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistLogItem";
 import { TKIPWhitelistRule } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistRule";
 import IPWhitelistRuleComponent from "./IPWhitelistRuleComponent.vue";
 import IPWhitelistRulesComponent from "./IPWhitelistRulesComponent.vue";
@@ -53,6 +54,8 @@ import { RouteLocationNormalized } from "vue-router";
 import IPWhitelistConfigComponent from "./IPWhitelistConfigComponent.vue";
 import BtnComponent from "@components/Common/Basic/BtnComponent.vue";
 import IPWhitelistTestComponent from "./IPWhitelistTestComponent.vue";
+import IPWhitelistLogComponent from "./IPWhitelistLogComponent.vue";
+import FeedbackComponent from "@components/Common/Basic/FeedbackComponent.vue";
 
 @Options({
     components: {
@@ -61,8 +64,10 @@ import IPWhitelistTestComponent from "./IPWhitelistTestComponent.vue";
         IPWhitelistRulesComponent,
         IPWhitelistConfigComponent,
         IPWhitelistTestComponent,
+        IPWhitelistLogComponent,
         TabsComponent,
-        BtnComponent
+        BtnComponent,
+        FeedbackComponent
     }
 })
 export default class IPWhitelistPageComponent extends Vue {
@@ -72,13 +77,14 @@ export default class IPWhitelistPageComponent extends Vue {
     @Prop({ required: true })
     options!: ModuleOptions<any>;
 
+    @Ref() readonly saveRuleFeedback!: FeedbackComponent;
+
     // Service
     service: IPWhitelistService = new IPWhitelistService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
     dataLoadStatus: FetchStatus = new FetchStatus();
 
     id: string = IdUtils.generateId();
     rules: Array<TKIPWhitelistRule> = [];
-    log: Array<TKIPWhitelistLogItem> = [];
 
     currentRule: TKIPWhitelistRule | null = null;
     currentTab: string = '';
@@ -90,7 +96,6 @@ export default class IPWhitelistPageComponent extends Vue {
     async mounted()
     {
         this.loadRules();
-        this.loadLog();
         this.routeListener = this.$router.afterEach((t, f, err) => this.onRouteChanged(t, f));
     }
 
@@ -109,11 +114,6 @@ export default class IPWhitelistPageComponent extends Vue {
         }
     }
 
-    loadLog(): void {
-        this.service.GetLog(this.dataLoadStatus, {
-            onSuccess: (d) => this.log = d
-        })
-    }
     loadRules(): void {
         this.service.GetRules(this.dataLoadStatus, {
             onSuccess: (d) => {
@@ -169,10 +169,28 @@ export default class IPWhitelistPageComponent extends Vue {
     }
 
     onSaveRuleClicked(rule: TKIPWhitelistRule): void {
+        this.saveRuleFeedback.show('Saving..');
         this.service.SaveRule(rule, this.dataLoadStatus, {
             onSuccess: (d) => {
-                this.rules.push(d);
+                this.saveRuleFeedback.show('Saved');
+                const index = this.rules.findIndex(x => x.Id == d.Id);
+                if (index == -1) {
+                    this.rules.push(d);
+                } else {
+                    this.rules[index] = d;
+                }
                 this.setCurrentRule(d);
+            }
+        });
+    }
+
+    onDeleteRuleClicked(rule: TKIPWhitelistRule): void {
+        if (!confirm(`Delete rule '${rule.Name}'?`)) return;
+
+        this.service.DeleteRule(rule.Id, this.dataLoadStatus, {
+            onSuccess: (d) => {
+                this.rules = this.rules.filter(x => x.Id != rule.Id);
+                this.setCurrentRule(null);
             }
         });
     }

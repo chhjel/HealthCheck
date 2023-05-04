@@ -20,6 +20,7 @@
             <input-header-component name="Disabled after" />
             <date-picker-component v-model:value="rule.EnabledUntil"
                 :disabled="isLoading" 
+                :clearable="true"
                 class="mb-3"/>
         </block-component>
 
@@ -27,7 +28,7 @@
             <ul>
                 <li v-for="(ip, x) in rule.Ips" :key="`ip-${id}-${ip}-${x}`">
                     <code>{{ ip }}</code>
-                    <btn-component @click="onRemoveIPClicked(ip)" :disabled="isLoading" color="error" class="ml-3">Remove</btn-component>
+                    <btn-component @click="onRemoveIPClicked(ip)" :disabled="isLoading" color="error" class="ml-3" small>Remove</btn-component>
                 </li>
             </ul>
             <div v-if="!rule.Ips || rule.Ips.length == 0">- no addresses added yet -</div>
@@ -36,7 +37,14 @@
         </block-component>
 
         <block-component class="mt-4" title="Links">
-            <code>{{ links }}</code>
+            <div v-for="link in links" :key="`link-${id}-${link.Id}`">
+                <code @click="showAddLinkDialog(link)">{{ link }}</code>
+            </div>
+            
+            <div v-if="isNewUnsaved">Links can be added after the rule has been saved.</div>
+            <div v-else class="mt-3">
+                <btn-component @click="showAddLinkDialog(null)" :disabled="isLoading" color="primary">Add new link</btn-component>
+            </div>
         </block-component>
         
         <dialog-component v-model:value="addIpDialogVisible"
@@ -80,6 +88,39 @@
                 <div class="mb-3">{{ cidrTestResult }}</div>
             </div>
         </dialog-component>
+        
+        <dialog-component v-model:value="addLinkDialogVisible"
+            max-width="620"
+            :persistent="dataLoadStatus.inProgress">
+            <template #header>Add new link</template>
+            <template #footer>
+                <btn-component color="primary" :disabled="isLoading" :loading="isLoading"
+                    @click="onSaveLinkClicked">Save</btn-component>
+                <btn-component color="error" v-if="isLinkSaved" :disabled="isLoading" :loading="isLoading"
+                    @click="onDeleteLinkClicked">Delete</btn-component>
+                <btn-component color="secondary" :disabled="isLoading" :loading="isLoading"
+                    @click="hideLinkDialog">Cancel</btn-component>
+                <FeedbackComponent ref="saveLinkFeedback" />
+            </template>
+            <div v-if="currentLink">
+                <p>Create a link that grants access to adding IPs to this rule.</p>
+                <text-field-component v-model:value="currentLink.Name"
+                    label="Name"
+                    class="mb-3"
+                    :disabled="isLoading" />
+                <textarea-component v-model:value="currentLink.Note"
+                    label="Note shown on link open"
+                    class="mb-3"
+                    :disabled="isLoading" />
+                <input-header-component name="Link expires at" />
+                <date-picker-component v-model:value="currentLink.InvitationExpiresAt" :disabled="isLoading" :clearable="true" class="mb-3"/>
+
+                <h4>Link</h4>
+                <div class="wl-link">
+                    {{ currentLinkUrl }}
+                </div>
+            </div>
+        </dialog-component>
     </div>
 </template>
 
@@ -105,6 +146,8 @@ import DatePickerComponent from "@components/Common/Basic/DatePickerComponent.vu
 import InputHeaderComponent from "@components/Common/Basic/InputHeaderComponent.vue";
 import DialogComponent from "@components/Common/Basic/DialogComponent.vue";
 import EditorComponent from "@components/Common/EditorComponent.vue";
+import FeedbackComponent from "@components/Common/Basic/FeedbackComponent.vue";
+import IPWhitelistLinkUtils from "@util/IPWhitelist/IPWhitelistLinkUtils";
 
 @Options({
     components: {
@@ -117,7 +160,8 @@ import EditorComponent from "@components/Common/EditorComponent.vue";
         DatePickerComponent,
         InputHeaderComponent,
         DialogComponent,
-        EditorComponent
+        EditorComponent,
+        FeedbackComponent
     }
 })
 export default class IPWhitelistRuleComponent extends Vue {
@@ -131,6 +175,7 @@ export default class IPWhitelistRuleComponent extends Vue {
     loading!: string | boolean;
 
     @Ref() readonly editor!: EditorComponent;
+    @Ref() readonly saveLinkFeedback!: FeedbackComponent;
 
     // Service
     service: IPWhitelistService = new IPWhitelistService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
@@ -144,6 +189,8 @@ export default class IPWhitelistRuleComponent extends Vue {
     cidrTestIp: string = '';
     cidrTestCidr: string = '';
     cidrTestResult: string = '';
+    addLinkDialogVisible: boolean = false;
+    currentLink: TKIPWhitelistLink | null = null;
 
     //////////////////
     //  LIFECYCLE  //
@@ -157,6 +204,8 @@ export default class IPWhitelistRuleComponent extends Vue {
         setTimeout(() => {
             this.refreshEditorSize();
         }, 100);
+
+        // this.showAddLinkDialog(null);
     }
 
     ////////////////
@@ -185,6 +234,19 @@ export default class IPWhitelistRuleComponent extends Vue {
 
     get isLoading(): boolean {
         return this.dataLoadStatus.inProgress || ValueUtils.IsToggleTrue(this.loading);
+    }
+
+    get isNewUnsaved(): boolean {
+        return this.rule.Id == '00000000-0000-0000-0000-000000000000';
+    }
+
+    get isLinkSaved(): boolean {
+        return this.currentLink && this.currentLink.Id != '00000000-0000-0000-0000-000000000000';
+    }
+
+    get currentLinkUrl(): string {
+        if (!this.currentLink) return '';
+        else return IPWhitelistLinkUtils.getAbsoluteLinkUrl(this.globalOptions.EndpointBase, this.currentLink.RuleId, this.currentLink.Secret);
     }
 
     ///////////////////////
@@ -223,6 +285,49 @@ export default class IPWhitelistRuleComponent extends Vue {
                 onSuccess: matches => this.cidrTestResult = matches ? 'Matches!' : 'Does not match.'
             });
     }
+
+    showAddLinkDialog(link: TKIPWhitelistLink | null): void {
+        this.addLinkDialogVisible = true;
+        this.currentLink = link || {
+            Id: '00000000-0000-0000-0000-000000000000',
+            RuleId: this.rule.Id,
+            Secret: IdUtils.generateId(),
+            InvitationExpiresAt: null,
+            Name: 'New link',
+            Note: ''
+        };
+    }
+
+    hideLinkDialog(): void {
+        this.currentLink = null;
+        this.addLinkDialogVisible = false;
+    }
+
+    onSaveLinkClicked(): void {
+        this.saveLinkFeedback.show('Saving..');
+        this.service.StoreRuleLink(this.currentLink, this.dataLoadStatus, {
+            onSuccess: (d) => {
+                this.saveLinkFeedback.show('Saved');
+                const index = this.links.findIndex(x => x.Id == d.Id);
+                if (index == -1) {
+                    this.links.push(d);
+                } else {
+                    this.links[index] = d;
+                }
+                this.currentLink = d;
+            }
+        });
+    }
+
+    onDeleteLinkClicked(): void {
+        if (!confirm(`Delete link '${this.currentLink.Name}'?`)) return;
+        this.service.DeleteRuleLink(this.currentLink.Id, this.dataLoadStatus, {
+            onSuccess: (d) => {
+                this.links = this.links.filter(x => x.Id != this.currentLink.Id);
+                this.hideLinkDialog();
+            }
+        });
+    }
 }
 </script>
 
@@ -233,6 +338,16 @@ export default class IPWhitelistRuleComponent extends Vue {
             color: var(--color--primary-darken1) !important;
         }
     }
+}
+
+.wl-link {
+    padding: 10px;
+    font-family: monospace;
+    font-weight: 600;
+    margin-top: 5px;
+    display: block;
+    border: 2px solid #d1d1d1;
+    background-color: #eee;
 }
 
 .editor {

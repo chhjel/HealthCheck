@@ -60,7 +60,7 @@
                 class="clear-button"
                 @click="onClearClicked"
                 :disabled="disabled"
-                flat icon small>
+                flat icon>
                 <icon-component color="#757575">clear</icon-component>
             </btn-component>
         </div>

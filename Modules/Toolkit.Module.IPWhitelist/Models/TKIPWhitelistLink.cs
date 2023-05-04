@@ -18,9 +18,6 @@ public class TKIPWhitelistLink
     public DateTimeOffset? InvitationExpiresAt { get; set; }
 
     /// <summary></summary>
-    public DateTimeOffset? AccessExpiresAt { get; set; }
-
-    /// <summary></summary>
     public string Name { get; set; }
 
     /// <summary></summary>

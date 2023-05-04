@@ -52,4 +52,9 @@ public interface ITKIPWhitelistService
     /// Get a log of recently blocked/allowed items.
     /// </summary>
     IEnumerable<TKIPWhitelistLogItem> GetLog();
+
+    /// <summary>
+    /// Clear request logs.
+    /// </summary>
+    void ClearLogs();
 }

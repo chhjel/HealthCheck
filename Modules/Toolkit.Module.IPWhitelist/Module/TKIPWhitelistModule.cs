@@ -2,8 +2,10 @@ using QoDL.Toolkit.Core.Abstractions.Modules;
 using QoDL.Toolkit.Core.Config;
 using QoDL.Toolkit.Core.Util;
 using QoDL.Toolkit.Module.IPWhitelist.Models;
+using QoDL.Toolkit.Web.Core.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -73,7 +75,7 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
         await Options.ConfigStorage.SaveConfigAsync(config);
 
         // Store audit data
-        context.AddAuditEvent("Save config")
+        context.AddAuditEvent("Save IP whitelist config")
             .AddClientConnectionDetails(context);
     }
 
@@ -81,6 +83,14 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
     [ToolkitModuleMethod]
     public IEnumerable<TKIPWhitelistLogItem> GetLog()
         => Options.Service.GetLog();
+
+    /// <summary></summary>
+    [ToolkitModuleMethod]
+    public bool ClearRequestLog()
+    {
+        Options.Service.ClearLogs();
+        return true;
+    }
 
     /// <summary></summary>
     [ToolkitModuleMethod]
@@ -94,7 +104,7 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
         rule = await Options.RuleStorage.StoreRuleAsync(rule);
 
         // Store audit data
-        context.AddAuditEvent("Save rule", rule.Name)
+        context.AddAuditEvent("Save IP whitelist rule", rule.Name)
             .AddClientConnectionDetails(context)
             .AddDetail("Rule Id", rule.Id.ToString());
 
@@ -109,14 +119,23 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
         await Options.RuleStorage.DeleteRuleAsync(id);
 
         // Store audit data
-        context.AddAuditEvent("Delete rule", id.ToString())
+        context.AddAuditEvent("Delete IP whitelist rule", id.ToString())
             .AddClientConnectionDetails(context);
     }
 
     /// <summary></summary>
     [ToolkitModuleMethod]
     public bool IpMatchesCidr(TKIPWhitelistCidrTest payload)
-        => TKIPAddressUtils.IpMatchesOrIsWithinCidrRange(payload.IP, payload.IPWithOptionalCidr);
+    {
+        try
+        {
+            return TKIPAddressUtils.IpMatchesOrIsWithinCidrRange(payload.IP, payload.IPWithOptionalCidr);
+        }
+        catch(Exception)
+        {
+            return false;
+        }
+    }
 
     /// <summary></summary>
     [ToolkitModuleMethod]
@@ -142,7 +161,7 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
         await Options.LinkStorage.DeleteRuleLinkAsync(id);
 
         // Store audit data
-        context.AddAuditEvent("Delete rule link", id.ToString())
+        context.AddAuditEvent("Delete IP whitelist rule link", id.ToString())
             .AddClientConnectionDetails(context);
     }
 
@@ -156,7 +175,7 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
     public async Task<TKIPWhitelistLink> StoreRuleLink(ToolkitModuleContext context, TKIPWhitelistLink link)
     {
         // Store audit data
-        context.AddAuditEvent("Create rule link", link.Name)
+        context.AddAuditEvent("Create IP whitelist rule link", link.Name)
             .AddClientConnectionDetails(context)
             .AddDetail("Rule Id", link.Id.ToString());
 
@@ -166,12 +185,16 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
 
     #region Actions
     /// <summary>
-    /// Whitelist based on a generated link.
+    /// Whitelist based on a generated link - page display.
     /// </summary>
     [ToolkitModuleAction]
-    public object IPWLLink(ToolkitModuleContext context, string url)
+    public async Task<object> IPWLLink(ToolkitModuleContext context, string url)
     {
-        //return null;
+        (Guid? ruleId, string secret) = ParseRuleIdSecretFromActionUrl(url);
+        if (ruleId == null) return null;
+        
+        var link = await Options.LinkStorage.GetRuleLinkFromSecretAsync(ruleId.Value, secret);
+        if (link == null || link.InvitationExpiresAt < DateTimeOffset.Now) return null;
 
         //// Store audit data
         //context.AddAuditEvent("File download", definition.FileName)
@@ -179,22 +202,70 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
         //    .AddDetail("File Name", definition.FileName)
         //    .AddDetail("File Id", definition.FileId)
         //    .AddDetail("Storage Id", definition.StorageId);
-        return CreateWhiteListLinkPageHtml(context);
+        return CreateWhiteListLinkPageHtml(context, link);
     }
 
     /// <summary>
-    /// Whitelist based on a generated link.
+    /// Whitelist based on a generated link - whitelist action.
     /// </summary>
     [ToolkitModuleAction]
-    public object IPWLLinkActivate(ToolkitModuleContext context)
+    public async Task<object> IPWLLinkActivate(ToolkitModuleContext context, string url)
     {
-        //// Store audit data
-        //context.AddAuditEvent("File download", definition.FileName)
-        //    .AddClientConnectionDetails(context)
-        //    .AddDetail("File Name", definition.FileName)
-        //    .AddDetail("File Id", definition.FileId)
-        //    .AddDetail("Storage Id", definition.StorageId);
-        return "OK";
+        if (context?.Request?.IsPOST != true) return null;
+
+        var ipFromHeader = context.Request.Headers["x-add-ip"]?.Trim();
+        if (string.IsNullOrWhiteSpace(ipFromHeader)) return null;
+
+        (Guid? ruleId, string secret) = ParseRuleIdSecretFromActionUrl(url);
+        if (ruleId == null) return null;
+
+        var link = await Options.LinkStorage.GetRuleLinkFromSecretAsync(ruleId.Value, secret);
+        if (link == null || link.InvitationExpiresAt < DateTimeOffset.Now) return createResult(false, "Link expired");
+
+        var rule = await Options.RuleStorage.GetRuleAsync(link.RuleId);
+        if (rule == null) return createResult(false, "Matching whitelist rule not found.");
+        else if (!rule.Enabled) return createResult(false, "Matching whitelist rule found but is disabled.");
+        else if (rule.EnabledUntil < DateTimeOffset.Now) return createResult(false, "Matching whitelist rule found but is disabled (enabled-until expired).");
+
+        var alreadyExists = rule.Ips.Any(x => x.Equals(ipFromHeader, StringComparison.CurrentCultureIgnoreCase));
+        if (alreadyExists) return createResult(true, "IP already whitelisted.");
+
+        rule.Ips.Add(ipFromHeader);
+        await Options.RuleStorage.StoreRuleAsync(rule);
+
+        // Store audit data
+        context.AddAuditEvent("IP whitelisted using link", link.Name)
+            .AddClientConnectionDetails(context)
+            .AddDetail("Rule id", link.RuleId.ToString())
+            .AddDetail("Link id", link.Id.ToString());
+
+        return createResult(true, "IP added");
+
+        static string createResult(bool success, string note)
+        {
+            return
+                "{\n" +
+                $"  \"success\": {success.ToString().ToLower()},\n" +
+                $"  \"note\": {EscapeJsString(note)}\n" +
+                "}";
+        }
+    }
+
+    private static (Guid? ruleId, string secret) ParseRuleIdSecretFromActionUrl(string url)
+    {
+        var urlPath = url;
+        if (urlPath?.Contains('?') == true) urlPath = urlPath.Split('?')[0].Trim();
+
+        var lastSegment = urlPath?.Split('/')?.Where(x => !string.IsNullOrWhiteSpace(x))?.LastOrDefault() ?? string.Empty;
+        var urlSegments = lastSegment.Split(new[] { '_' }, 2).Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+        if (urlSegments.Count < 2) return (null, null);
+
+        if (!Guid.TryParse(urlSegments[urlSegments.Count - 2], out var ruleId)) return (null, null);
+
+        var secret = urlSegments[urlSegments.Count - 1];
+        if (string.IsNullOrWhiteSpace(secret)) return (null, null);
+
+        return (ruleId, secret);
     }
 
     private static string EscapeJsString(string value, bool addQuotes = true)
@@ -203,14 +274,24 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
     /// <summary>
     /// Create the html to show for the download file page when not downloading directly.
     /// </summary>
-    protected virtual string CreateWhiteListLinkPageHtml(ToolkitModuleContext context)
+    protected virtual string CreateWhiteListLinkPageHtml(ToolkitModuleContext context, TKIPWhitelistLink link)
     {
-        var downloadLink = "asd";
-
         var title = Options.WhitelistLinkPageTitle ?? "";
 
         var cssTagsHtml = TKAssetGlobalConfig.CreateCssTags(context.CssUrls);
         var jsTagsHtml = TKAssetGlobalConfig.CreateJavaScriptTags(context.JavaScriptUrls);
+        var currentIp = string.Empty;
+
+        try
+        {
+#if NETFULL
+            if (HttpContext.Current?.Request != null) currentIp = TKRequestUtils.GetIPAddress(new HttpContextWrapper(HttpContext.Current).Request);
+#elif NETCORE
+            var accessor = TKGlobalConfig.GetDefaultInstanceResolver()?.Invoke(typeof(IHttpContextAccessor)) as IHttpContextAccessor;
+            if (accessor?.HttpContext != null) currentIp = TKRequestUtils.GetIPAddress(accessor.HttpContext);
+#endif
+        }
+        catch (Exception) { }
 
         return $@"
 <!doctype html>
@@ -224,16 +305,14 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
 </head>
 
 <body>
-    <div id=""app-download""></div>
+    <div id=""ipwl-link""></div>
 
     <script>
         window.__ipwl_data = {{
-            definitionValidationError: {EscapeJsString("")},
-            download: {{
-                name: {EscapeJsString("")},
-                filename: {EscapeJsString("")},
-                downloadLink: {EscapeJsString(downloadLink)}
-            }}
+            currentIp: {EscapeJsString(currentIp)},
+            ruleId: {EscapeJsString(link.RuleId.ToString())},
+            secret: {EscapeJsString(link.Secret)},
+            note: {EscapeJsString(link.Note)}
         }};
     </script>
     {jsTagsHtml}

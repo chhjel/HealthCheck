@@ -10,5 +10,6 @@ export interface TKIPWhitelistCheckResult
 	AllowingRule: TKIPWhitelistRule;
 	AllowedReason: string;
 	Response: string;
+	UseDefaultResponseWrapper: boolean;
 	HttpStatusCode: number;
 }

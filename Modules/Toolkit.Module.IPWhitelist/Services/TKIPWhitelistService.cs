@@ -1,14 +1,14 @@
-﻿using QoDL.Toolkit.Module.IPWhitelist.Abstractions;
+﻿using QoDL.Toolkit.Core.Util;
+using QoDL.Toolkit.Core.Util.Collections;
+using QoDL.Toolkit.Module.IPWhitelist.Abstractions;
 using QoDL.Toolkit.Module.IPWhitelist.Models;
 using QoDL.Toolkit.Module.IPWhitelist.Utils;
-using QoDL.Toolkit.Core.Util;
-using System.Threading.Tasks;
-using System.Linq;
 using System;
-using QoDL.Toolkit.Core.Util.Collections;
 using System.Collections.Generic;
-using System.Web;
+using System.Linq;
 using System.Net.Http;
+using System.Threading.Tasks;
+using System.Web;
 
 #if NETCORE
 using Microsoft.AspNetCore.Http;
@@ -111,7 +111,10 @@ public class TKIPWhitelistService : ITKIPWhitelistService
 
     /// <summary>Optionally override blocked page html.</summary>
     protected virtual string CreateBlockedPageHtml(TKIPWhitelistCheckResult result)
-    => $@"
+    {
+        if (!result.UseDefaultResponseWrapper) return result.Response;
+
+        return $@"
 <!doctype html>
 <html>
 <head>
@@ -120,6 +123,9 @@ public class TKIPWhitelistService : ITKIPWhitelistService
     <meta name=""robots"" content=""noindex"">
     <meta name=""viewport"" content=""width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui"">
     <meta name=""robots"" content=""noindex"">
+    <style>
+        a {{ color: #ffc182; }}
+    </style>
 </head>
 
 <body style=""margin: 0; background-color: #121212; color: #eee; font-family: sans-serif; font-size: 22px;"">
@@ -130,6 +136,7 @@ public class TKIPWhitelistService : ITKIPWhitelistService
     </div>
 </body>
 </html>";
+    }
 
     /// <summary></summary>
     public virtual async Task<TKIPWhitelistCheckResult> IsRequestAllowedAsync(TKIPWhitelistRequestData request, bool testMode = false)
@@ -148,7 +155,8 @@ public class TKIPWhitelistService : ITKIPWhitelistService
 
         return TKIPWhitelistCheckResult.CreateBlocked(
             config?.DefaultResponse ?? "⛔ 403 ⛔",
-            config?.DefaultHttpStatusCode ?? (int)System.Net.HttpStatusCode.Forbidden
+            config?.DefaultHttpStatusCode ?? (int)System.Net.HttpStatusCode.Forbidden,
+            config?.UseDefaultResponseWrapper != null ? config.UseDefaultResponseWrapper : true
         );
     }
 
@@ -160,24 +168,65 @@ public class TKIPWhitelistService : ITKIPWhitelistService
         // Rule expired => nope
         else if (rule?.EnabledUntil != null && rule.EnabledUntil < DateTimeOffset.Now) return false;
         // Check for IP match
-        else return rule?.Ips?.Any(ruleIP => TKIPAddressUtils.IpMatchesOrIsWithinCidrRange(ip, ruleIP)) == true;
+        else return rule?.Ips?.Any(ruleIP =>
+        {
+            try
+            {
+                return TKIPAddressUtils.IpMatchesOrIsWithinCidrRange(ip, ruleIP);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }) == true;
     }
 
-    private static readonly TKLimitedList<TKIPWhitelistLogItem> _log = new(100);
+    #region Request logs
+    private static readonly object _logLock = new();
+    private static readonly TKLimitedList<TKIPWhitelistLogItem> _allowedLog = new(500);
+    private static readonly TKLimitedList<TKIPWhitelistLogItem> _blockedLog = new(500);
+
+    /// <summary>
+    /// Override the default request log limit (latest 500 allowed, 500 blocked).
+    /// </summary>
+    public static void SetLogSize(int maxCount)
+    {
+        lock (_logLock)
+        {
+            _allowedLog.MaxItemLimit = maxCount;
+            _blockedLog.MaxItemLimit = maxCount;
+        }
+    }
+
+    /// <inheritdoc />
+    public void ClearLogs()
+    {
+        lock (_logLock)
+        {
+            _allowedLog.Clear();
+            _blockedLog.Clear();
+        }
+    }
+
     private static void AddLog(TKIPWhitelistLogItem entry)
     {
-        lock (_log)
+        lock (_logLock)
         {
-            _log.Add(entry);
+            if (entry.WasBlocked) _blockedLog.Add(entry);
+            else _allowedLog.Add(entry);
         }
     }
 
     /// <inheritdoc/>
     public IEnumerable<TKIPWhitelistLogItem> GetLog()
     {
-        lock (_log)
+        lock (_logLock)
         {
-            return _log.ToList();
+            return _allowedLog
+                .Concat(_blockedLog)
+                .OrderByDescending(x => x.Timestamp)
+                .ToList();
         }
     }
+    #endregion
 }

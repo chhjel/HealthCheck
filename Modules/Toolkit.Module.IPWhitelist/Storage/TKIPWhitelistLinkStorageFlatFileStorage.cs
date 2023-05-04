@@ -33,7 +33,7 @@ public class TKIPWhitelistLinkStorageFlatFileStorage : ITKIPWhitelistLinkStorage
     /// <inheritdoc />
     public Task<TKIPWhitelistLink> StoreRuleLinkAsync(TKIPWhitelistLink link)
     {
-        var updatedLink = Store.InsertItem(link);
+        var updatedLink = Store.InsertOrUpdateItem(link);
         return Task.FromResult(updatedLink);
     }
 
@@ -54,4 +54,8 @@ public class TKIPWhitelistLinkStorageFlatFileStorage : ITKIPWhitelistLinkStorage
         Store.DeleteWhere(x => x.RuleId == ruleId);
         return Task.CompletedTask;
     }
+
+    /// <inheritdoc />
+    public Task<TKIPWhitelistLink> GetRuleLinkFromSecretAsync(Guid ruleId, string secret)
+        => Task.FromResult(Store.GetEnumerable().FirstOrDefault(x => x.RuleId == ruleId && x.Secret == secret));
 }

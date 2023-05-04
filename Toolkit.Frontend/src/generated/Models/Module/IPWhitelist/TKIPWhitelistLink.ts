@@ -8,7 +8,6 @@ export interface TKIPWhitelistLink
 	RuleId: string;
 	Secret: string;
 	InvitationExpiresAt: Date;
-	AccessExpiresAt: Date;
 	Name: string;
 	Note: string;
 }

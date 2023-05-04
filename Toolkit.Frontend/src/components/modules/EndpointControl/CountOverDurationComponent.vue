@@ -23,7 +23,7 @@
                 />
 
             <btn-component
-                dark small flat
+                dark flat
                 color="error"
                 class="mt-3"
                 @click="remove()"
