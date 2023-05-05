@@ -8,6 +8,7 @@
                 :disabled="isLoading" />
             <textarea-component v-model:value="rule.Note"
                 label="Note"
+                description="Internal note only shown in this interface."
                 class="mb-3"
                 :disabled="isLoading" />
             <switch-component
@@ -21,6 +22,7 @@
             <date-picker-component v-model:value="rule.EnabledUntil"
                 :disabled="isLoading" 
                 :clearable="true"
+                placeholder="No expiration"
                 class="mb-3"/>
         </block-component>
 
@@ -136,15 +138,28 @@
                     label="Note shown on link open"
                     class="mb-3"
                     :disabled="isLoading" />
+                <text-field-component v-model:value="currentLink.Password"
+                    label="Password (optional)"
+                    description="Optional password required to use the link. Password can be seen here later."
+                    class="mb-3"
+                    :disabled="isLoading" />
                 <input-header-component name="Link expires at" />
-                <date-picker-component v-model:value="currentLink.InvitationExpiresAt" :disabled="isLoading" :clearable="true" class="mb-3"/>
+                <date-picker-component v-model:value="currentLink.InvitationExpiresAt" :disabled="isLoading" :clearable="true"
+                    placeholder="No expiration"
+                    class="mb-3"/>
 
                 <h4>Link</h4>
-                <div class="wl-link">
-                    {{ currentLinkUrl }}
+                <div class="wl-link-wrapper">
+                    <div class="wl-link">{{ currentLinkUrl }}</div>
+                    <btn-component @click="copyLinkToClipboard" color="secondary" round small title="Copy to clipboard">
+                        <icon-component>content_copy</icon-component>
+                    </btn-component>
                 </div>
+                <FeedbackComponent ref="linkClipboardFeedback" reserve />
             </div>
         </dialog-component>
+        
+        <textarea style="display:none;" ref="copyValue" :value="currentLinkUrl" />
     </div>
 </template>
 
@@ -176,6 +191,8 @@ import { TKIPWhitelistIP } from "@generated/Models/Module/IPWhitelist/TKIPWhitel
 import SelectComponent from "@components/Common/Basic/SelectComponent.vue";
 import { TKIPWhitelistLogItem } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistLogItem";
 import LinqUtils from "@util/LinqUtils";
+import ClipboardUtil from "@util/ClipboardUtil";
+import IconComponent from "@components/Common/Basic/IconComponent.vue";
 
 @Options({
     components: {
@@ -190,7 +207,8 @@ import LinqUtils from "@util/LinqUtils";
         DialogComponent,
         EditorComponent,
         FeedbackComponent,
-        SelectComponent
+        SelectComponent,
+        IconComponent
     }
 })
 export default class IPWhitelistRuleComponent extends Vue {
@@ -206,6 +224,7 @@ export default class IPWhitelistRuleComponent extends Vue {
     @Ref() readonly editor!: EditorComponent;
     @Ref() readonly saveLinkFeedback!: FeedbackComponent;
     @Ref() readonly saveIpFeedback!: FeedbackComponent;
+    @Ref() readonly linkClipboardFeedback!: FeedbackComponent;
 
     // Service
     service: IPWhitelistService = new IPWhitelistService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
@@ -374,13 +393,14 @@ export default class IPWhitelistRuleComponent extends Vue {
 
     showAddLinkDialog(link: TKIPWhitelistLink | null): void {
         this.addLinkDialogVisible = true;
-        this.currentLink = link || {
+        this.currentLink = JSON.parse(JSON.stringify(link)) || {
             Id: '00000000-0000-0000-0000-000000000000',
             RuleId: this.rule.Id,
             Secret: IdUtils.generateId(),
             InvitationExpiresAt: null,
             Name: 'New link',
-            Note: ''
+            Note: '',
+            Password: ''
         };
     }
 
@@ -400,7 +420,7 @@ export default class IPWhitelistRuleComponent extends Vue {
                 } else {
                     this.links[index] = d;
                 }
-                this.currentLink = d;
+                this.currentLink = JSON.parse(JSON.stringify(d));
             }
         });
     }
@@ -433,6 +453,16 @@ export default class IPWhitelistRuleComponent extends Vue {
         
         const expirationDate = new Date(link.InvitationExpiresAt);
         return expirationDate.getTime() < new Date().getTime();
+    }
+
+    copyLinkToClipboard(): void {
+        let copySourceElement = this.$refs.copyValue as HTMLTextAreaElement;
+        const err = ClipboardUtil.putDataOnClipboard(copySourceElement);
+        if (err) {
+            this.linkClipboardFeedback.show('Something failed');
+        } else {
+            this.linkClipboardFeedback.show('Link put on clipboard', 3000);
+        }
     }
 }
 </script>
@@ -478,6 +508,11 @@ export default class IPWhitelistRuleComponent extends Vue {
             }
         }
     }
+}
+
+.wl-link-wrapper {
+    display: flex;
+    align-items: center;
 }
 
 .wl-link {

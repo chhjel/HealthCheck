@@ -213,6 +213,10 @@ export default class BtnComponent extends Vue {
             font-size: 11px;
         }
     }
+    &.small.round {
+        min-width: 40px;
+        min-height: 40px;
+    }
     &.x-small { }
 }
 </style>

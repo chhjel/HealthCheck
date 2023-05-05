@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using QoDL.Toolkit.Module.IPWhitelist.Utils;
+using Newtonsoft.Json;
 
 #if NETCORE
 using Microsoft.AspNetCore.Http;
@@ -267,12 +268,6 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
         var link = await Options.LinkStorage.GetRuleLinkFromSecretAsync(ruleId.Value, secret);
         if (link == null || link.InvitationExpiresAt < DateTimeOffset.Now) return null;
 
-        //// Store audit data
-        //context.AddAuditEvent("File download", definition.FileName)
-        //    .AddClientConnectionDetails(context)
-        //    .AddDetail("File Name", definition.FileName)
-        //    .AddDetail("File Id", definition.FileId)
-        //    .AddDetail("Storage Id", definition.StorageId);
         return CreateWhiteListLinkPageHtml(context, link);
     }
 
@@ -285,6 +280,7 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
         if (context?.Request?.IsPOST != true) return null;
 
         var ipFromHeader = context.Request.Headers["x-add-ip"]?.Trim();
+        var pwdFromHeader = context.Request.Headers["x-pwd"]?.Trim();
         if (string.IsNullOrWhiteSpace(ipFromHeader)) return null;
         var ips = ipFromHeader.Split('_').Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
         if (ips.Count == 0) return null;
@@ -294,6 +290,11 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
 
         var link = await Options.LinkStorage.GetRuleLinkFromSecretAsync(ruleId.Value, secret);
         if (link == null || link.InvitationExpiresAt < DateTimeOffset.Now) return createResult(false, "Link expired");
+        else if (!string.IsNullOrWhiteSpace(link.Password) && link.Password != pwdFromHeader)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            return createResult(false, "Wrong password");
+        }
 
         var rule = await Options.RuleStorage.GetRuleAsync(link.RuleId);
         if (rule == null) return createResult(false, "Matching whitelist rule not found.");
@@ -403,7 +404,8 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
             currentIp: {EscapeJsString(currentIp)},
             ruleId: {EscapeJsString(link.RuleId.ToString())},
             secret: {EscapeJsString(link.Secret)},
-            note: {EscapeJsString(link.Note)}
+            note: {EscapeJsString(link.Note)},
+            hasPassword: {(!string.IsNullOrWhiteSpace(link.Password) ? true.ToString().ToLower() : false.ToString().ToLower())}
         }};
     </script>
     {jsTagsHtml}

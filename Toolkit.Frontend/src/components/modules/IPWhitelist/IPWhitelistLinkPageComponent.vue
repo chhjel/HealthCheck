@@ -13,6 +13,14 @@
                 :read-only="isLoading"
                 ref="editor" />
 
+            <text-field-component
+                v-model:value="pwdInput"
+                label="Password"
+                type="password"
+                v-if="datax.hasPassword"
+                class="mt-3 mb-2"
+                />
+
             <btn-component color="primary" class="mt-3"
                 @click.prevent="onAddIpClicked"
                 :disabled="isLoading">
@@ -42,7 +50,8 @@ interface ConfigFromWindow
     currentIp: string,
     ruleId: string,
     secret: string,
-    note: string
+    note: string,
+    hasPassword: boolean
 }
 interface AddIPResult {
     success: boolean;
@@ -67,9 +76,11 @@ export default class IPWhitelistLinkPageComponent extends Vue {
         currentIp: '',
         ruleId: '',
         secret: '',
-        note: ''
+        note: '',
+        hasPassword: false
     };
     ipInput: string = '';
+    pwdInput: string = '';
 
     //////////////////
     //  LIFECYCLE  //
@@ -115,7 +126,11 @@ export default class IPWhitelistLinkPageComponent extends Vue {
     //  EVENT HANDLERS  //
     /////////////////////
     onAddIpClicked(): void {
-        this.feedback.show('Adding..');
+        if (this.datax.hasPassword) {
+            this.feedback.show('Authorizing..');
+        } else {
+            this.feedback.show('Adding..');
+        }
 
         if (this.loadStatus.inProgress) {
             return;
@@ -141,7 +156,8 @@ export default class IPWhitelistLinkPageComponent extends Vue {
             },
             true,
             {
-                'x-add-ip': ips.join('_')
+                'x-add-ip': ips.join('_'),
+                'x-pwd': this.pwdInput
             });
     }
 }

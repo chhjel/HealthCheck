@@ -10,4 +10,5 @@ export interface TKIPWhitelistLink
 	InvitationExpiresAt: Date;
 	Name: string;
 	Note: string;
+	Password: string;
 }

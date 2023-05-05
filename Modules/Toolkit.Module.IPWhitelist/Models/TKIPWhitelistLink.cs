@@ -22,4 +22,7 @@ public class TKIPWhitelistLink
 
     /// <summary></summary>
     public string Note { get; set; }
+
+    /// <summary></summary>
+    public string Password { get; set; }
 }
