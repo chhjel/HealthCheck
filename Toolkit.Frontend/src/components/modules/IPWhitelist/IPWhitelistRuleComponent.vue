@@ -41,8 +41,14 @@
         </block-component>
 
         <block-component class="mt-4" title="Links">
-            <div v-for="link in links" :key="`link-${id}-${link.Id}`">
-                <code @click="showAddLinkDialog(link)">{{ link }}</code>
+            <div class="ip-whitelist-rule__links">
+                <div v-for="link in sortedLinks" :key="`link-${id}-${link.Id}`"
+                    @click="showAddLinkDialog(link)"
+                    class="ip-whitelist-rule__link hoverable-lift-light"
+                    :class="getLinkClasses(link)">
+                    <div class="ip-whitelist-rule__link__name">{{ link.Name }}</div>
+                    <div class="ip-whitelist-rule__link__note" v-if="link.Note"><p>{{ link.Note }}</p></div>
+                </div>
             </div>
             
             <div v-if="isNewUnsaved">Links can be added after the rule has been saved.</div>
@@ -98,6 +104,7 @@
                 <btn-component color="secondary" :disabled="isLoading" :loading="isLoading" @click="cidrTestDialogVisible = false">Close</btn-component>
             </template>
             <div>
+                <p>Check if a given IP matches a given CIDR notation.</p>
                 <text-field-component v-model:value="cidrTestIp"
                     label="IP" class="mb-3" :disabled="isLoading" />
                 <text-field-component v-model:value="cidrTestCidr"
@@ -168,6 +175,7 @@ import IPWhitelistLinkUtils from "@util/IPWhitelist/IPWhitelistLinkUtils";
 import { TKIPWhitelistIP } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistIP";
 import SelectComponent from "@components/Common/Basic/SelectComponent.vue";
 import { TKIPWhitelistLogItem } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistLogItem";
+import LinqUtils from "@util/LinqUtils";
 
 @Options({
     components: {
@@ -294,6 +302,17 @@ export default class IPWhitelistRuleComponent extends Vue {
         ips.sort();
         return Array.from(new Set(ips));
     }
+
+    get sortedLinks(): Array<TKIPWhitelistLink> {
+        let sorted = this.links.map(x => x);
+        sorted.sort((a, b) =>  LinqUtils.SortByThenBy(a, b,
+            x => this.linkIsExpired(x) ? 0 : 1,
+            x => x.Name,
+            false, true
+            ));
+        return sorted;
+    }
+
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
@@ -402,6 +421,19 @@ export default class IPWhitelistRuleComponent extends Vue {
             this.newIpAddressInputValue += "\n" + ip;
         }
     }
+
+    getLinkClasses(link: TKIPWhitelistLink): any {
+        let classes: any = {};
+        classes['disabled'] = this.linkIsExpired(link);
+        return classes;
+    }
+
+    linkIsExpired(link: TKIPWhitelistLink): boolean {
+        if (link.InvitationExpiresAt == null) return false;
+        
+        const expirationDate = new Date(link.InvitationExpiresAt);
+        return expirationDate.getTime() < new Date().getTime();
+    }
 }
 </script>
 
@@ -415,6 +447,35 @@ export default class IPWhitelistRuleComponent extends Vue {
             margin-left: 13px;
             color: #565656;
             font-size: 13px;
+        }
+    }
+
+    &__links {
+
+    }
+    &__link {
+        cursor: pointer;
+        margin-bottom: 5px;
+        margin-top: 5px;
+        border: 1px solid var(--color--accent-darken1);
+        padding: 5px 10px;
+        min-height: 30px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+
+        &__name {
+            font-weight: 600;
+        }
+        &__note {
+            padding: 4px 0;
+            p {
+                margin: 0;
+                font-size: 13px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
         }
     }
 }
