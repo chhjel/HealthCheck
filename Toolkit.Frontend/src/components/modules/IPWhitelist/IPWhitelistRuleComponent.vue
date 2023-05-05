@@ -75,7 +75,7 @@
                 <FeedbackComponent ref="saveIpFeedback" />
             </template>
             <div>
-                <p>Add any number of addresses, one per line. Supports CIDR notation.</p>
+                <p>Add any number of addresses, one per line. Supports IPv4 CIDR notation.</p>
                 <editor-component
                     class="editor"
                     :language="'text'"
@@ -106,7 +106,7 @@
                 <btn-component color="secondary" :disabled="isLoading" :loading="isLoading" @click="cidrTestDialogVisible = false">Close</btn-component>
             </template>
             <div>
-                <p>Check if a given IP matches a given CIDR notation.</p>
+                <p>Check if a given IP matches a given IPv4 CIDR notation.</p>
                 <text-field-component v-model:value="cidrTestIp"
                     label="IP" class="mb-3" :disabled="isLoading" />
                 <text-field-component v-model:value="cidrTestCidr"
