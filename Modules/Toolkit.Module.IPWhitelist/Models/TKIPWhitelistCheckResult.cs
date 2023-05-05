@@ -12,13 +12,14 @@ public class TKIPWhitelistCheckResult
         };
 
     /// <summary></summary>
-    public static TKIPWhitelistCheckResult CreateBlocked(string response, int? httpStatusCode, bool useDefaultResponseWrapper)
+    public static TKIPWhitelistCheckResult CreateBlocked(string response, int? httpStatusCode, bool useDefaultResponseWrapper, string defaultResponseTitle)
         => new()
         {
             Blocked = true,
             Response = response,
             UseDefaultResponseWrapper = useDefaultResponseWrapper,
-            HttpStatusCode = httpStatusCode
+            HttpStatusCode = httpStatusCode,
+            DefaultResponseTitle = defaultResponseTitle
         };
 
     /// <summary></summary>
@@ -35,6 +36,9 @@ public class TKIPWhitelistCheckResult
 
     /// <summary></summary>
     public bool UseDefaultResponseWrapper { get; set; }
+
+    /// <summary></summary>
+    public string DefaultResponseTitle { get; set; }
 
     /// <summary></summary>
     public int? HttpStatusCode { get; set; }

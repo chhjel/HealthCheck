@@ -159,7 +159,6 @@ public static class IoCConfig
 
         // IP Whitelist
         services.AddSingleton(x => new TKIPWhitelistServiceOptions {
-            BlockedPageTitle = "Nope",
             DisableForLocalhost = false,
             ShouldAlwaysAllowRequest = (r) => Task.FromResult(!r.PathAndQuery.ToLower().Contains("/viewtest"))
         });

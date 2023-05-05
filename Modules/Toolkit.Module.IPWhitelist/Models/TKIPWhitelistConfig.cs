@@ -4,6 +4,9 @@
 public class TKIPWhitelistConfig
 {
     /// <summary></summary>
+    public string DefaultResponseTitle { get; set; } = "403";
+
+    /// <summary></summary>
     public string DefaultResponse { get; set; } = "⛔ 403 ⛔";
 
     /// <summary></summary>

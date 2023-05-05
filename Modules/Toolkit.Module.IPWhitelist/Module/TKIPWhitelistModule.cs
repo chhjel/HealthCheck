@@ -229,8 +229,16 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
     public async Task<List<TKIPWhitelistIP>> StoreRuleIPs(ToolkitModuleContext context, List<TKIPWhitelistIP> ips)
     {
         var updatedIps = new List<TKIPWhitelistIP>();
+        if (!ips.Any()) return updatedIps;
+
+        var rule = await Options.RuleStorage.GetRuleAsync(ips[0].RuleId);
+        var existingIps = await Options.IPStorage.GetRuleIPsAsync(rule.Id);
+
         foreach (var ip in ips)
         {
+            var exists = existingIps.Any(x => x.IP.Equals(ip.IP, StringComparison.InvariantCultureIgnoreCase));
+            if (exists) continue;
+
             ip.Note = $"Added by '{context.UserName}'";
 
             // Store audit data

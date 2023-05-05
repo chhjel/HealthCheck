@@ -17,10 +17,16 @@
                     title="If true, a default page html will be wrapped around the content above."
                     class="mb-3" />
                 
+                <text-field-component v-model:value="wlconfig.DefaultResponseTitle"
+                    v-if="wlconfig.UseDefaultResponseWrapper"
+                    label="Title"
+                    class="mb-3" />
+                
                 <text-field-component v-model:value="wlconfig.DefaultHttpStatusCode"
                     label="Status code"
                     type="number"
                     class="mb-3" />
+                    
             </div>
             
             <btn-component @disabled="isLoading"

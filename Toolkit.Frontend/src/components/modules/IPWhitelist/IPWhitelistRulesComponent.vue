@@ -2,13 +2,22 @@
 <template>
     <div class="ip-whitelist-rules">
         <div v-if="!rules || rules.length == 0">- No whitelist rules created yet -</div>
-        <div v-else>
+        <div v-else class="ip-whitelist-rules__list">
             <div v-for="rule in rules" :key="`rule-${rule.Id}-${id}`"
-                @click="onRuleClicked(rule)">
+                @click="onRuleClicked(rule)"
+                class="ip-whitelist-rules__item"
+                :class="getRuleClasses(rule)">
                 <div>{{ rule.Name }}</div>
-                <code>{{ rule }}</code>
+                <div>{{ rule.Note }}</div>
+                <div>Enabled: {{ rule.Enabled }}</div>
+                <div>EnabledUntil: {{ rule.EnabledUntil }}</div>
+                <hr/>
             </div>
         </div>
+        <hr/>
+        <div>todo: show note w/ ellipsis</div>
+        <div>todo: show expired/when it expires</div>
+        <div>todo: show as disabled if disabled or expired</div>
     </div>
 </template>
 
@@ -60,6 +69,19 @@ export default class IPWhitelistRuleComponent extends Vue {
         this.$emit('ruleClicked', rule);
     }
 
+    getRuleClasses(rule: TKIPWhitelistRule): any {
+        let classes: any = {};
+        classes['disabled'] = !rule.Enabled || this.ruleIsExpired(rule);
+        return classes;
+    }
+
+    ruleIsExpired(rule: TKIPWhitelistRule): boolean {
+        if (rule.EnabledUntil == null) return false;
+        
+        const expirationDate = new Date(rule.EnabledUntil);
+        return expirationDate.getTime() < new Date().getTime();
+    }
+
     ////////////////
     //  GETTERS  //
     //////////////
@@ -78,7 +100,12 @@ export default class IPWhitelistRuleComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-/* .ip-whitelist-rules {
+.ip-whitelist-rules {
+    &__list {
 
-} */
+    }
+    &__item {
+        cursor: pointer;
+    }
+}
 </style>

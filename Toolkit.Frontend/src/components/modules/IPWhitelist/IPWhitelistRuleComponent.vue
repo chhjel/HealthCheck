@@ -67,13 +67,25 @@
                 <FeedbackComponent ref="saveIpFeedback" />
             </template>
             <div>
-                <p>Add any number of addresses, one per line. Supports CIDR format.</p>
+                <p>Add any number of addresses, one per line. Supports CIDR notation.</p>
                 <editor-component
                     class="editor"
                     :language="'text'"
                     v-model:value="newIpAddressInputValue"
                     :read-only="isLoading"
                     ref="editor" />
+                
+                <select-component
+                    label="Add recent ip"
+                    placeholder="- select ip to add -"
+                    noDataText="- no recent ips -"
+                    v-model:value="selectedRecentIp"
+                    :items="recentIps"
+                    :disabled="isLoading"
+                    allowInput
+                    v-on:change="onRecentIpSelected"
+                    class="mt-3">
+                </select-component>
             </div>
         </dialog-component>
         
@@ -154,6 +166,8 @@ import EditorComponent from "@components/Common/EditorComponent.vue";
 import FeedbackComponent from "@components/Common/Basic/FeedbackComponent.vue";
 import IPWhitelistLinkUtils from "@util/IPWhitelist/IPWhitelistLinkUtils";
 import { TKIPWhitelistIP } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistIP";
+import SelectComponent from "@components/Common/Basic/SelectComponent.vue";
+import { TKIPWhitelistLogItem } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistLogItem";
 
 @Options({
     components: {
@@ -167,7 +181,8 @@ import { TKIPWhitelistIP } from "@generated/Models/Module/IPWhitelist/TKIPWhitel
         InputHeaderComponent,
         DialogComponent,
         EditorComponent,
-        FeedbackComponent
+        FeedbackComponent,
+        SelectComponent
     }
 })
 export default class IPWhitelistRuleComponent extends Vue {
@@ -199,6 +214,8 @@ export default class IPWhitelistRuleComponent extends Vue {
     cidrTestResult: string = '';
     addLinkDialogVisible: boolean = false;
     currentLink: TKIPWhitelistLink | null = null;
+    selectedRecentIp: string = '';
+    log: Array<TKIPWhitelistLogItem> = [];
 
     //////////////////
     //  LIFECYCLE  //
@@ -207,6 +224,7 @@ export default class IPWhitelistRuleComponent extends Vue {
     {
         this.loadLinks();
         this.loadIps();
+        this.loadLog();
         
         this.refreshEditorSize();
         this.$nextTick(() => this.refreshEditorSize());
@@ -232,6 +250,12 @@ export default class IPWhitelistRuleComponent extends Vue {
         this.service.GetRuleIPs(this.rule.Id, this.dataLoadStatus, {
             onSuccess: (d) => this.ips = d
         });
+    }
+
+    loadLog(): void {
+        this.service.GetLog(this.dataLoadStatus, {
+            onSuccess: (d) => this.log = d
+        })
     }
 
     refreshEditorSize(): void {
@@ -265,6 +289,11 @@ export default class IPWhitelistRuleComponent extends Vue {
         else return IPWhitelistLinkUtils.getAbsoluteLinkUrl(this.globalOptions.EndpointBase, this.currentLink.RuleId, this.currentLink.Secret);
     }
 
+    get recentIps(): Array<string> {
+        let ips = this.log.map(x => x.IP);
+        ips.sort();
+        return Array.from(new Set(ips));
+    }
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
@@ -365,6 +394,13 @@ export default class IPWhitelistRuleComponent extends Vue {
                 this.hideLinkDialog();
             }
         });
+    }
+
+    onRecentIpSelected(ip: string): void {
+        if (typeof ip != 'string') return;
+        if (!this.newIpAddressInputValue.includes(ip)) {
+            this.newIpAddressInputValue += "\n" + ip;
+        }
     }
 }
 </script>

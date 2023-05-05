@@ -4,6 +4,7 @@
 
 export interface TKIPWhitelistConfig
 {
+	DefaultResponseTitle: string;
 	DefaultResponse: string;
 	UseDefaultResponseWrapper: boolean;
 	DefaultHttpStatusCode: number;

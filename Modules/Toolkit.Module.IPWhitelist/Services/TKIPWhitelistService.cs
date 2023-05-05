@@ -29,9 +29,6 @@ public class TKIPWhitelistServiceOptions
     /// <summary>Defaults to true</summary>
     public bool DisableForLocalhost { get; set; } = true;
 
-    /// <summary></summary>
-    public string BlockedPageTitle { get; set; }
-
     /// <summary>
     /// Defaults to true, whitelists urls to add new whitelist ips.
     /// </summary>
@@ -135,7 +132,7 @@ public class TKIPWhitelistService : ITKIPWhitelistService
 <!doctype html>
 <html>
 <head>
-    <title>{HttpUtility.HtmlEncode(_options.BlockedPageTitle ?? "403")}</title>
+    <title>{HttpUtility.HtmlEncode(result.DefaultResponseTitle ?? "403")}</title>
     <meta charset=""utf-8"">
     <meta name=""robots"" content=""noindex"">
     <meta name=""viewport"" content=""width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui"">
@@ -175,16 +172,18 @@ public class TKIPWhitelistService : ITKIPWhitelistService
         return TKIPWhitelistCheckResult.CreateBlocked(
             config?.DefaultResponse ?? "⛔ 403 ⛔",
             config?.DefaultHttpStatusCode ?? (int)System.Net.HttpStatusCode.Forbidden,
-            config?.UseDefaultResponseWrapper != null ? config.UseDefaultResponseWrapper : true
+            config?.UseDefaultResponseWrapper != null ? config.UseDefaultResponseWrapper : true,
+            config?.DefaultResponseTitle ?? "403"
         );
     }
 
-    private static List<string> _whitelistLinkUrls = new List<string>
+    private static readonly List<string> _whitelistLinkUrls = new()
     {
         "/IPWLLink/",
         "/IPWLLinkActivate/",
         "/GetMainStyle",
-        "/GetMainScript"
+        "/GetMainScript",
+        "/GetAsset"
     };
     private bool RequestIsWhitelistLink(TKIPWhitelistRequestData request)
         => _whitelistLinkUrls.Any(x => request?.Path?.ToLower()?.Contains(x.ToLower()) == true);
@@ -211,7 +210,6 @@ public class TKIPWhitelistService : ITKIPWhitelistService
         await _ipCacheLock.WaitAsync();
         try
         {
-            _ipCache.Clear();
             _ipsCachedAt = DateTimeOffset.UtcNow.AddDays(-1);
         }
         finally
