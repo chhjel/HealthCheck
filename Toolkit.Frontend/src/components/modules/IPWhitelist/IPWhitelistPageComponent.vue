@@ -5,7 +5,7 @@
             <template #Whitelist>
                 <h2>Whitelist</h2>
                 <div v-if="currentRule == null">
-                    <btn-component @click="onNewRuleClicked" :disabled="isLoading">New rule</btn-component>
+                    <btn-component @click="onNewRuleClicked" :disabled="isLoading" color="primary">New rule</btn-component>
                     <IPWhitelistRulesComponent :config="config" :rules="rules" :loading="isLoading"
                         @ruleClicked="r => setCurrentRule(r)" />
                 </div>
@@ -152,7 +152,7 @@ export default class IPWhitelistPageComponent extends Vue {
     setCurrentRule(rule: TKIPWhitelistRule, updateUrl: boolean = true): void {
         if (this.currentRule?.Id == rule?.Id) return;
         
-        this.currentRule = rule;
+        this.currentRule = JSON.parse(JSON.stringify(rule));
 
         if (updateUrl) this.updateUrl();
     }
