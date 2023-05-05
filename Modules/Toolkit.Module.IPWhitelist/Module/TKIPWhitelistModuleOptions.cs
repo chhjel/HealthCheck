@@ -19,6 +19,9 @@ public class TKIPWhitelistModuleOptions
     /// <summary></summary>
     public ITKIPWhitelistLinkStorage LinkStorage { get; set; }
 
+    /// <summary></summary>
+    public ITKIPWhitelistIPStorage IPStorage { get; set; }
+
     /// <summary>
     /// Optional override of the title of the page shown for whitelist links.
     /// </summary>

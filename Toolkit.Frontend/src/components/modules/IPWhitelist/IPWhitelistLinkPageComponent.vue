@@ -4,17 +4,19 @@
         <div class="content-root">
 
             <p v-if="datax.note" class="note">{{ datax.note }}</p>
-
-            <text-field-component
+            
+            <p>Add any number of addresses, one per line. Supports CIDR format.</p>
+            <editor-component
+                class="editor"
+                :language="'text'"
                 v-model:value="ipInput"
-                :disabled="isLoading"
-                placeholder="Enter ip.."
-                class="pt-0 mt-2" />
+                :read-only="isLoading"
+                ref="editor" />
 
             <btn-component color="primary" class="mt-3"
                 @click.prevent="onAddIpClicked"
                 :disabled="isLoading">
-                <span style="white-space: normal;">Add IP</span>
+                <span style="white-space: normal;">Add IPs</span>
             </btn-component>
             
             <div>
@@ -33,6 +35,7 @@ import TextFieldComponent from "@components/Common/Basic/TextFieldComponent.vue"
 import BtnComponent from "@components/Common/Basic/BtnComponent.vue";
 import FeedbackComponent from "@components/Common/Basic/FeedbackComponent.vue";
 import UrlUtils from "@util/UrlUtils";
+import EditorComponent from "@components/Common/EditorComponent.vue";
 
 interface ConfigFromWindow
 {
@@ -51,10 +54,12 @@ interface AddIPResult {
         BlockComponent,
         TextFieldComponent,
         BtnComponent,
-        FeedbackComponent
+        FeedbackComponent,
+        EditorComponent
     }
 })
 export default class IPWhitelistLinkPageComponent extends Vue {
+    @Ref() readonly editor!: EditorComponent;
     @Ref() readonly feedback!: FeedbackComponent;
 
     loadStatus: FetchStatus = new FetchStatus();
@@ -73,6 +78,12 @@ export default class IPWhitelistLinkPageComponent extends Vue {
     {
         this.loadData();
         this.ipInput = this.datax.currentIp || '';
+        
+        this.refreshEditorSize();
+        this.$nextTick(() => this.refreshEditorSize());
+        setTimeout(() => {
+            this.refreshEditorSize();
+        }, 100);
     }
 
     created(): void {
@@ -93,6 +104,13 @@ export default class IPWhitelistLinkPageComponent extends Vue {
         this.datax = (<any>window).__ipwl_data;
     }
 
+    refreshEditorSize(): void {
+        if (this.editor)
+        {
+            this.editor.refreshSize();
+        }
+    }
+
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
@@ -105,19 +123,25 @@ export default class IPWhitelistLinkPageComponent extends Vue {
 
         let url = UrlUtils.getRelativeToCurrent(`../IPWLLinkActivate/${this.datax.ruleId}_${this.datax.secret}`);
         let payload = {};
+        const ips = this.ipInput.split('\n')
+            .map(x => x.replace(/\r/g, '').trim())
+            .filter(x => x.length > 0);
+        if (ips.length == 0) {
+            this.feedback.show('Enter some ips first');
+            return;
+        }
 
         let service = new TKServiceBase('', false);
         service.fetchExt<AddIPResult>(url, 'POST', payload, this.loadStatus,
             {
                 onSuccess: (result) => {
-                    console.log(result);
-                    if (result?.note) this.feedback.show(result.note);
+                    if (result?.note) this.feedback.show(result.note, 4000);
                     else this.feedback.show('Something failed.');
                 }
             },
             true,
             {
-                'x-add-ip': this.ipInput
+                'x-add-ip': ips.join('_')
             });
     }
 }
@@ -127,7 +151,7 @@ export default class IPWhitelistLinkPageComponent extends Vue {
 .ipwl-page {
     height: 100%;
     text-align: center;
-    padding: 5px 20px;
+    padding: 5px 15px;
     margin: 0 auto;
     max-width: 1280px;
     width: calc(100% - 40px); // - padding (20+20)
@@ -144,13 +168,11 @@ export default class IPWhitelistLinkPageComponent extends Vue {
     .note {
         font-weight: 600;
     }
-}
-</style>
 
-<style lang="scss">
-.ipwl-page {
-    .input {
-        text-align: center !important;
+    .editor {
+        width: 100%;
+        height: 200px;
+        text-align: left;
     }
 }
 </style>

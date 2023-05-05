@@ -2,11 +2,10 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-export interface TKIPWhitelistRule
+export interface TKIPWhitelistIP
 {
 	Id: string;
-	Enabled: boolean;
-	EnabledUntil: Date;
-	Name: string;
+	RuleId: string;
+	IP: string;
 	Note: string;
 }

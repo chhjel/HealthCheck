@@ -3,11 +3,13 @@ using QoDL.Toolkit.Core.Config;
 using QoDL.Toolkit.Core.Util;
 using QoDL.Toolkit.Module.IPWhitelist.Models;
 using QoDL.Toolkit.Web.Core.Utils;
+using QoDL.Toolkit.Core.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
+using QoDL.Toolkit.Module.IPWhitelist.Utils;
 
 #if NETCORE
 using Microsoft.AspNetCore.Http;
@@ -39,6 +41,7 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
         if (Options.Service == null) issues.Add("Options.Service must be set.");
         if (Options.RuleStorage == null) issues.Add("Options.RuleStorage must be set.");
         if (Options.ConfigStorage == null) issues.Add("Options.ConfigStorage must be set.");
+        if (Options.IPStorage == null) issues.Add("Options.IPStorage must be set.");
         return issues;
     }
 
@@ -115,8 +118,10 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
     [ToolkitModuleMethod]
     public async Task DeleteRule(ToolkitModuleContext context, Guid id)
     {
+        await Options.IPStorage.DeleteRuleIPsAsync(id);
         await Options.LinkStorage.DeleteRuleLinksAsync(id);
         await Options.RuleStorage.DeleteRuleAsync(id);
+        await Options.Service.InvalidateIPCacheAsync();
 
         // Store audit data
         context.AddAuditEvent("Delete IP whitelist rule", id.ToString())
@@ -141,9 +146,13 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
     [ToolkitModuleMethod]
     public async Task<TKIPWhitelistCheckResult> IsRequestAllowed(TKIPWhitelistTestRequest payload)
     {
+        var pathOnly = payload.Path;
+        if (pathOnly.Contains("?")) pathOnly = pathOnly.Split('?')[0];
+
         var data = new TKIPWhitelistRequestData {
             IP = payload.RawIP,
             PathAndQuery = payload.Path,
+            Path = pathOnly,
 #if NETCORE
             Context = (TKGlobalConfig.GetDefaultInstanceResolver()?.Invoke(typeof(IHttpContextAccessor)) as IHttpContextAccessor)?.HttpContext
 #endif
@@ -167,8 +176,25 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
 
     /// <summary></summary>
     [ToolkitModuleMethod]
+    public async Task DeleteRuleIP(ToolkitModuleContext context, Guid id)
+    {
+        await Options.IPStorage.DeleteRuleIPAsync(id);
+        await Options.Service.InvalidateIPCacheAsync();
+
+        // Store audit data
+        context.AddAuditEvent("Delete IP whitelist IP", id.ToString())
+            .AddClientConnectionDetails(context);
+    }
+
+    /// <summary></summary>
+    [ToolkitModuleMethod]
     public async Task<IEnumerable<TKIPWhitelistLink>> GetRuleLinks(Guid id)
         => await Options.LinkStorage.GetRuleLinksAsync(id);
+
+    /// <summary></summary>
+    [ToolkitModuleMethod]
+    public async Task<IEnumerable<TKIPWhitelistIP>> GetRuleIPs(Guid id)
+        => await Options.IPStorage.GetRuleIPsAsync(id);
 
     /// <summary></summary>
     [ToolkitModuleMethod]
@@ -181,7 +207,44 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
 
         return await Options.LinkStorage.StoreRuleLinkAsync(link);
     }
-#endregion
+
+    /// <summary></summary>
+    [ToolkitModuleMethod]
+    public async Task<TKIPWhitelistIP> StoreRuleIP(ToolkitModuleContext context, TKIPWhitelistIP ip)
+    {
+        ip.Note = $"Added by '{context.UserName}'";
+
+        // Store audit data
+        context.AddAuditEvent("Add IP whitelist IP", ip.IP)
+            .AddClientConnectionDetails(context)
+            .AddDetail("IP Id", ip.Id.ToString());
+
+        var updatedIp = await Options.IPStorage.StoreRuleIPAsync(ip);
+        await Options.Service.InvalidateIPCacheAsync();
+        return updatedIp;
+    }
+
+    /// <summary></summary>
+    [ToolkitModuleMethod]
+    public async Task<List<TKIPWhitelistIP>> StoreRuleIPs(ToolkitModuleContext context, List<TKIPWhitelistIP> ips)
+    {
+        var updatedIps = new List<TKIPWhitelistIP>();
+        foreach (var ip in ips)
+        {
+            ip.Note = $"Added by '{context.UserName}'";
+
+            // Store audit data
+            context.AddAuditEvent("Add IP whitelist IP", ip.IP)
+                .AddClientConnectionDetails(context)
+                .AddDetail("IP Id", ip.Id.ToString());
+
+            updatedIps.Add(await Options.IPStorage.StoreRuleIPAsync(ip));
+        }
+
+        await Options.Service.InvalidateIPCacheAsync();
+        return updatedIps;
+    }
+    #endregion
 
     #region Actions
     /// <summary>
@@ -215,6 +278,8 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
 
         var ipFromHeader = context.Request.Headers["x-add-ip"]?.Trim();
         if (string.IsNullOrWhiteSpace(ipFromHeader)) return null;
+        var ips = ipFromHeader.Split('_').Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+        if (ips.Count == 0) return null;
 
         (Guid? ruleId, string secret) = ParseRuleIdSecretFromActionUrl(url);
         if (ruleId == null) return null;
@@ -227,11 +292,26 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
         else if (!rule.Enabled) return createResult(false, "Matching whitelist rule found but is disabled.");
         else if (rule.EnabledUntil < DateTimeOffset.Now) return createResult(false, "Matching whitelist rule found but is disabled (enabled-until expired).");
 
-        var alreadyExists = rule.Ips.Any(x => x.Equals(ipFromHeader, StringComparison.CurrentCultureIgnoreCase));
-        if (alreadyExists) return createResult(true, "IP already whitelisted.");
+        var addedCount = 0;
+        var existingCount = 0;
+        var ruleIps = await Options.IPStorage.GetRuleIPsAsync(rule.Id);
+        foreach(var ip in ips)
+        {
+            var alreadyExists = ruleIps.Any(x => x.IP.Equals(ip, StringComparison.CurrentCultureIgnoreCase));
+            if (alreadyExists)
+            {
+                existingCount++;
+                continue;
+            }
 
-        rule.Ips.Add(ipFromHeader);
-        await Options.RuleStorage.StoreRuleAsync(rule);
+            await Options.IPStorage.StoreRuleIPAsync(new TKIPWhitelistIP { IP = ip, Note = $"Added from link '{link.Name}'.", RuleId = rule.Id });
+            addedCount++;
+        }
+
+        if (addedCount > 0)
+        {
+            await Options.Service.InvalidateIPCacheAsync();
+        }
 
         // Store audit data
         context.AddAuditEvent("IP whitelisted using link", link.Name)
@@ -239,7 +319,10 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
             .AddDetail("Rule id", link.RuleId.ToString())
             .AddDetail("Link id", link.Id.ToString());
 
-        return createResult(true, "IP added");
+        if (addedCount > 0 && existingCount > 0) return createResult(true, $"Whitelisted {addedCount} new IPs, {existingCount} already whitelisted.");
+        else if (addedCount > 0) return createResult(true, $"Whitelisted {addedCount} new IPs");
+        else if (existingCount > 0) return createResult(true, $"No new IPs whitelisted, {existingCount} IPs already whitelisted.");
+        else return createResult(true, $"No new IPs added");
 
         static string createResult(bool success, string note)
         {

@@ -167,6 +167,7 @@ public static class IoCConfig
         services.AddSingleton<ITKIPWhitelistRuleStorage>(x => new TKIPWhitelistRuleFlatFileStorage(@"C:\temp\tk_ipwhitelist.json"));
         services.AddSingleton<ITKIPWhitelistConfigStorage>(x => new TKIPWhitelistConfigFlatFileStorage(@"C:\temp\tk_ipwhitelist_config.json"));
         services.AddSingleton<ITKIPWhitelistLinkStorage>(x => new TKIPWhitelistLinkStorageFlatFileStorage(@"C:\temp\tk_ipwhitelist_links.json"));
+        services.AddSingleton<ITKIPWhitelistIPStorage>(x => new TKIPWhitelistIPStorageFlatFileStorage(@"C:\temp\tk_ipwhitelist_ips.json"));
 
         services.AddSingleton<ITKReleaseNotesProvider>(new TKJsonFileReleaseNotesProvider(GetFilePath(@"App_Data\ReleaseNotes.json", env))
         {

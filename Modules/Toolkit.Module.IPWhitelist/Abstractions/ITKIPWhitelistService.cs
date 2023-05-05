@@ -57,4 +57,9 @@ public interface ITKIPWhitelistService
     /// Clear request logs.
     /// </summary>
     void ClearLogs();
+
+    /// <summary>
+    /// Invalidate any cached IPs.
+    /// </summary>
+    Task InvalidateIPCacheAsync();
 }

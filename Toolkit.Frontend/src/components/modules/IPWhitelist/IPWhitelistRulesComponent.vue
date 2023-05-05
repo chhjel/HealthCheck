@@ -78,7 +78,7 @@ export default class IPWhitelistRuleComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-.ip-whitelist-rules {
+/* .ip-whitelist-rules {
 
-}
+} */
 </style>

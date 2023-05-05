@@ -1,12 +1,16 @@
-﻿using QoDL.Toolkit.Core.Util;
+﻿using QoDL.Toolkit.Core.Extensions;
+using QoDL.Toolkit.Core.Util;
 using QoDL.Toolkit.Core.Util.Collections;
 using QoDL.Toolkit.Module.IPWhitelist.Abstractions;
 using QoDL.Toolkit.Module.IPWhitelist.Models;
 using QoDL.Toolkit.Module.IPWhitelist.Utils;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -28,7 +32,15 @@ public class TKIPWhitelistServiceOptions
     /// <summary></summary>
     public string BlockedPageTitle { get; set; }
 
-    /// <summary>Optional check if a given url path should be ignored and not blocked.</summary>
+    /// <summary>
+    /// Defaults to true, whitelists urls to add new whitelist ips.
+    /// </summary>
+    public bool AlwaysAllowWhitelistLinkUrls { get; set; } = true;
+
+    /// <summary>
+    /// Optional check if a given url path should be ignored and not blocked.
+    /// <para>Should contain logic to allow e.g. login and toolkit endpoints if needed.</para>
+    /// </summary>
     public PathConditionDelegate ShouldAlwaysAllowRequest { get; set; }
     /// <summary></summary>
     public delegate Task<bool> PathConditionDelegate(TKIPWhitelistRequestData request);
@@ -40,13 +52,15 @@ public class TKIPWhitelistService : ITKIPWhitelistService
     private readonly TKIPWhitelistServiceOptions _options;
     private readonly ITKIPWhitelistRuleStorage _whitelistRuleStorage;
     private readonly ITKIPWhitelistConfigStorage _whitelistConfigStorage;
+    private readonly ITKIPWhitelistIPStorage _whitelistIPStorage;
 
     /// <summary></summary>
-    public TKIPWhitelistService(TKIPWhitelistServiceOptions options, ITKIPWhitelistRuleStorage whitelistRuleStorage, ITKIPWhitelistConfigStorage whitelistConfigStorage)
+    public TKIPWhitelistService(TKIPWhitelistServiceOptions options, ITKIPWhitelistRuleStorage whitelistRuleStorage, ITKIPWhitelistConfigStorage whitelistConfigStorage, ITKIPWhitelistIPStorage whitelistIPStorage)
     {
         _options = options;
         _whitelistRuleStorage = whitelistRuleStorage;
         _whitelistConfigStorage = whitelistConfigStorage;
+        _whitelistIPStorage = whitelistIPStorage;
     }
 
     /// <inheritdoc/>
@@ -59,6 +73,7 @@ public class TKIPWhitelistService : ITKIPWhitelistService
         var data = new TKIPWhitelistRequestData
         {
             IP = RequestUtils.GetIPAddress(context),
+            Path = RequestUtils.GetPath(context.Request),
             PathAndQuery = RequestUtils.GetPathAndQuery(context.Request),
             Context = context
         };
@@ -73,6 +88,7 @@ public class TKIPWhitelistService : ITKIPWhitelistService
         var data = new TKIPWhitelistRequestData
         {
             IP = RequestUtils.GetIPAddress(new HttpRequestWrapper(request)),
+            Path = RequestUtils.GetPath(request),
             PathAndQuery = RequestUtils.GetPathAndQuery(request),
             Request = request
         };
@@ -85,6 +101,7 @@ public class TKIPWhitelistService : ITKIPWhitelistService
         var data = new TKIPWhitelistRequestData
         {
             IP = RequestUtils.GetIPAddress(request),
+            Path = RequestUtils.GetPath(request),
             PathAndQuery = RequestUtils.GetPathAndQuery(request),
             WebApiRequest = request
         };
@@ -145,9 +162,11 @@ public class TKIPWhitelistService : ITKIPWhitelistService
 
         if (!testMode && !_options.Enabled) return TKIPWhitelistCheckResult.CreateAllowed("IP whitelist disabled.");
         else if (!testMode && ip.IsLocalHost && _options.DisableForLocalhost) return TKIPWhitelistCheckResult.CreateAllowed("IP whitelist disabled for localhost request.");
+        else if (_options.AlwaysAllowWhitelistLinkUrls && RequestIsWhitelistLink(request)) return TKIPWhitelistCheckResult.CreateAllowed("Request seems to be a whitelist link url and was allowed by AlwaysAllowWhitelistLinkUrls-config.");
         else if (_options.ShouldAlwaysAllowRequest != null && await _options.ShouldAlwaysAllowRequest(request)) return TKIPWhitelistCheckResult.CreateAllowed($"Request was allowed by ShouldAlwaysAllowRequest-config.");
 
         var rules = await _whitelistRuleStorage.GetRulesAsync();
+        await EnsureIPsCachedAsync();
         var allowingRule = rules?.FirstOrDefault(r => RuleContainsWhitelistFor(r, ip.IP));
         if (allowingRule != null) return TKIPWhitelistCheckResult.CreateAllowed($"Matching whitelist rule '{allowingRule.Name}'", allowingRule);
 
@@ -160,6 +179,16 @@ public class TKIPWhitelistService : ITKIPWhitelistService
         );
     }
 
+    private static List<string> _whitelistLinkUrls = new List<string>
+    {
+        "/IPWLLink/",
+        "/IPWLLinkActivate/",
+        "/GetMainStyle",
+        "/GetMainScript"
+    };
+    private bool RequestIsWhitelistLink(TKIPWhitelistRequestData request)
+        => _whitelistLinkUrls.Any(x => request?.Path?.ToLower()?.Contains(x.ToLower()) == true);
+
     /// <summary></summary>
     protected virtual bool RuleContainsWhitelistFor(TKIPWhitelistRule rule, string ip)
     {
@@ -168,18 +197,54 @@ public class TKIPWhitelistService : ITKIPWhitelistService
         // Rule expired => nope
         else if (rule?.EnabledUntil != null && rule.EnabledUntil < DateTimeOffset.Now) return false;
         // Check for IP match
-        else return rule?.Ips?.Any(ruleIP =>
-        {
-            try
-            {
-                return TKIPAddressUtils.IpMatchesOrIsWithinCidrRange(ip, ruleIP);
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }) == true;
+        else return GetRuleIPsCached(rule).TryAny(ruleIP => TKIPAddressUtils.IpMatchesOrIsWithinCidrRange(ip, ruleIP.IP)) == true;
     }
+
+    #region IP cache
+    private static readonly SemaphoreSlim _ipCacheLock = new(1, 1);
+    private static DateTimeOffset _ipsCachedAt = DateTimeOffset.UtcNow.AddDays(-1);
+    private static readonly ConcurrentDictionary<Guid, List<TKIPWhitelistIP>> _ipCache = new();
+    
+    /// <inheritdoc />
+    public async Task InvalidateIPCacheAsync()
+    {
+        await _ipCacheLock.WaitAsync();
+        try
+        {
+            _ipCache.Clear();
+            _ipsCachedAt = DateTimeOffset.UtcNow.AddDays(-1);
+        }
+        finally
+        {
+            _ipCacheLock.Release();
+        }
+    }
+
+    private async Task EnsureIPsCachedAsync()
+    {
+        await _ipCacheLock.WaitAsync();
+        try
+        {
+            if ((DateTimeOffset.UtcNow - _ipsCachedAt) > TimeSpan.FromSeconds(30))
+            {
+                var ips = await _whitelistIPStorage.GetAllIPsAsync();
+                _ipCache.Clear();
+                foreach (var ip in ips)
+                {
+                    if (!_ipCache.ContainsKey(ip.RuleId)) _ipCache[ip.RuleId] = new();
+                    _ipCache[ip.RuleId].Add(ip);
+                }
+            }
+        }
+        finally
+        {
+            _ipCacheLock.Release();
+        }
+    }
+
+    private IEnumerable<TKIPWhitelistIP> GetRuleIPsCached(TKIPWhitelistRule rule)
+        => _ipCache.TryGetValue(rule.Id, out var list) ? list : Enumerable.Empty<TKIPWhitelistIP>();
+    #endregion
 
     #region Request logs
     private static readonly object _logLock = new();

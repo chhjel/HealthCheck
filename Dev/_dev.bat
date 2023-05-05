@@ -5,7 +5,7 @@ cls
 cd ..
 
 :: Start Visual Studio
-start Toolkit.sln
+start QoDL.Toolkit.sln
 
 cd Toolkit.Frontend
 

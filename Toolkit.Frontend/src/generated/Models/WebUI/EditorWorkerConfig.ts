@@ -7,4 +7,5 @@ export interface EditorWorkerConfig
 	EditorWorkerUrl: string;
 	JsonWorkerUrl: string;
 	SqlWorkerUrl: string;
+	HtmlWorkerUrl: string;
 }

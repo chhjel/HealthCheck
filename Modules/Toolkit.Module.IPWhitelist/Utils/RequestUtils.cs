@@ -22,6 +22,9 @@ internal static class RequestUtils
     public static string GetUrl(HttpRequest request) => request?.GetDisplayUrl();
 
     /// <summary></summary>
+    public static string GetPath(HttpRequest request) => request?.Path;
+
+    /// <summary></summary>
     public static string GetPathAndQuery(HttpRequest request) => request?.Path + request?.QueryString;
 
     /// <summary>
@@ -53,12 +56,22 @@ internal static class RequestUtils
         return $"{authority}{path}";
     }
 
+    public static string GetPath(HttpRequest request)
+    {
+        if (request == null || request.Url == null) return null;
+        return request.Path;
+    }
+
     public static string GetPathAndQuery(HttpRequest request)
     {
         if (request == null || request.Url == null) return null;
-        else if (request.RawUrl == null) return request.Url.ToString();
-
         return request.Path + request.QueryString;
+    }
+
+    public static string GetPath(HttpRequestMessage request)
+    {
+        if (request == null || request.RequestUri == null) return null;
+        else return request.RequestUri.AbsolutePath;
     }
 
     public static string GetPathAndQuery(HttpRequestMessage request)

@@ -6,6 +6,7 @@ import { TKIPWhitelistLogItem } from "@generated/Models/Module/IPWhitelist/TKIPW
 import { TKIPWhitelistCheckResult } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistCheckResult";
 import { TKIPWhitelistTestRequest } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistTestRequest";
 import { TKIPWhitelistLink } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistLink";
+import { TKIPWhitelistIP } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistIP";
 
 export default class IPWhitelistService extends TKServiceBase
 {
@@ -107,5 +108,37 @@ export default class IPWhitelistService extends TKServiceBase
         callbacks: ServiceFetchCallbacks<TKIPWhitelistLink> | null = null
     ): void {
         this.invokeModuleMethod(this.moduleId, "StoreRuleLink", link, statusObject, callbacks);
+    }
+    
+    public DeleteRuleIP(
+        ipId: string,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<null> | null = null
+    ): void {
+        this.invokeModuleMethod(this.moduleId, "DeleteRuleIP", ipId, statusObject, callbacks, false);
+    }
+    
+    public GetRuleIPs(
+        ruleId: string,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<Array<TKIPWhitelistIP>> | null = null
+    ): void {
+        this.invokeModuleMethod(this.moduleId, "GetRuleIPs", ruleId, statusObject, callbacks);
+    }
+    
+    public StoreRuleIP(
+        ip: TKIPWhitelistIP,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<TKIPWhitelistIP> | null = null
+    ): void {
+        this.invokeModuleMethod(this.moduleId, "StoreRuleIP", ip, statusObject, callbacks);
+    }
+    
+    public StoreRuleIPs(
+        ips: Array<TKIPWhitelistIP>,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<Array<TKIPWhitelistIP>> | null = null
+    ): void {
+        this.invokeModuleMethod(this.moduleId, "StoreRuleIPs", ips, statusObject, callbacks);
     }
 }

@@ -1,22 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace QoDL.Toolkit.Module.IPWhitelist.Models;
 
 /// <summary></summary>
-public class TKIPWhitelistRule
+public class TKIPWhitelistIP
 {
     /// <summary></summary>
     public Guid Id { get; set; }
 
     /// <summary></summary>
-    public bool Enabled { get; set; }
+    public Guid RuleId { get; set; }
 
     /// <summary></summary>
-    public DateTimeOffset? EnabledUntil { get; set; }
-
-    /// <summary></summary>
-    public string Name { get; set; }
+    public string IP { get; set; }
 
     /// <summary></summary>
     public string Note { get; set; }
