@@ -51,6 +51,7 @@ internal class ConfigInitializer : ITKExtModuleInitializer
         TKAssetGlobalConfig.DefaultEditorWorkerUrl = "[base]/GetAsset?n=editor.worker.js&v=[TKVERSION]";
         TKAssetGlobalConfig.DefaultJsonWorkerUrl = "[base]/GetAsset?n=json.worker.js&v=[TKVERSION]";
         TKAssetGlobalConfig.DefaultSqlWorkerUrl = "[base]/GetAsset?n=sql.worker.js&v=[TKVERSION]";
+        TKAssetGlobalConfig.DefaultHtmlWorkerUrl = "[base]/GetAsset?n=html.worker.js&v=[TKVERSION]";
     }
 
     private static readonly Regex _cssUrlRegex = new(@"(?<prefix>url\()(?<url>[^\)]+)(?<suffix>\))");

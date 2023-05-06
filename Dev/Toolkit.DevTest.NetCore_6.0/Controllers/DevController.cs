@@ -65,6 +65,8 @@ using QoDL.Toolkit.Module.DynamicCodeExecution.Storage;
 using QoDL.Toolkit.Module.DynamicCodeExecution.Validators;
 using QoDL.Toolkit.Module.EndpointControl.Abstractions;
 using QoDL.Toolkit.Module.EndpointControl.Module;
+using QoDL.Toolkit.Module.IPWhitelist.Abstractions;
+using QoDL.Toolkit.Module.IPWhitelist.Module;
 using QoDL.Toolkit.WebUI.Abstractions;
 using QoDL.Toolkit.WebUI.MFA.TOTP;
 using QoDL.Toolkit.WebUI.MFA.WebAuthn;
@@ -113,7 +115,12 @@ public class DevController : ToolkitControllerBase<RuntimeTestAccessRole>
         ITKComparisonService comparisonService,
         ITKGoToService goToService,
         ITKMappedDataService mappeddataService,
-        ITKJobsService jobsService
+        ITKJobsService jobsService,
+        ITKIPWhitelistService ipwhitelistService,
+        ITKIPWhitelistRuleStorage whitelistRuleStorage,
+        ITKIPWhitelistConfigStorage whitelistConfigStorage,
+        ITKIPWhitelistLinkStorage whitelistLinkStorage,
+        ITKIPWhitelistIPStorage whitelistIPStorage
     )
         : base()
     {
@@ -145,6 +152,14 @@ public class DevController : ToolkitControllerBase<RuntimeTestAccessRole>
                 .ConfigureGroup(RuntimeTestConstants.Group.AlmostBottomGroup, uiOrder: -20)
                 .ConfigureGroup(RuntimeTestConstants.Group.BottomGroup, uiOrder: -50)
             );
+        UseModule(new TKIPWhitelistModule(new TKIPWhitelistModuleOptions
+        {
+            Service = ipwhitelistService,
+            ConfigStorage = whitelistConfigStorage,
+            RuleStorage = whitelistRuleStorage,
+            LinkStorage = whitelistLinkStorage,
+            IPStorage = whitelistIPStorage
+        }));
         UseModule(new TKJobsModule(new TKJobsModuleOptions
         {
             Service = jobsService
@@ -330,6 +345,7 @@ public class DevController : ToolkitControllerBase<RuntimeTestAccessRole>
 
         config.GiveRolesAccessToModule(RuntimeTestAccessRole.SystemAdmins, TestModuleB.TestModuleBAccessOption.NumberOne);
 
+        config.GiveRolesAccessToModuleWithFullAccess<TKIPWhitelistModule>(RuntimeTestAccessRole.WebAdmins);
         config.GiveRolesAccessToModuleWithFullAccess<TKJobsModule>(RuntimeTestAccessRole.WebAdmins);
         config.GiveRolesAccessToModuleWithFullAccess<TKMappedDataModule>(RuntimeTestAccessRole.WebAdmins);
         config.GiveRolesAccessToModuleWithFullAccess<TKReleaseNotesModule>(RuntimeTestAccessRole.WebAdmins);

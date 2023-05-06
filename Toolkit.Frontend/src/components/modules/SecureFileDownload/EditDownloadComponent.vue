@@ -85,7 +85,7 @@
                 <br />
 
                 <div v-if="selectedFile != null">
-                    <btn-component small color="primary"
+                    <btn-component color="primary"
                         @click="uploadSelectedFile"
                         :loading="uploadResult && uploadResult.inProgress"
                         :disabled="!allowChanges">Upload selected file</btn-component>
@@ -94,7 +94,7 @@
                     <fetch-status-progress-component :status="uploadLoadStatus" class="ml-2 mr-2" style="margin-top: -4px; width: 178px;" />
                 </div>
                 
-                <btn-component small class="error"
+                <btn-component class="error"
                     v-if="internalDownload.HasUploadedFile"
                     @click="removeUploadedFile"
                     :disabled="!allowChanges">Delete uploaded file '{{ internalDownload.OriginalFileName }}'</btn-component>

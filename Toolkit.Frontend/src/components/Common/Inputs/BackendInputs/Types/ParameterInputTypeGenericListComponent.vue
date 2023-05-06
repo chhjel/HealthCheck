@@ -39,7 +39,7 @@
                 </template>
             </draggable>
         </div>
-        <btn-component v-if="!isReadOnlyList" small color="primary" @click="addNewItem()" :disabled="readonly" class="ml-0">
+        <btn-component v-if="!isReadOnlyList" color="primary" @click="addNewItem()" :disabled="readonly" class="ml-0">
             <icon-component>add</icon-component>
         </btn-component>
     </div>

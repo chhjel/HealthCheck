@@ -4,6 +4,7 @@ using QoDL.Toolkit.Core.Config;
 using QoDL.Toolkit.Core.Modules.Metrics.Context;
 using QoDL.Toolkit.Core.Util;
 using QoDL.Toolkit.DevTest.NetCore_6._0.Config;
+using QoDL.Toolkit.Module.IPWhitelist.Middleware;
 using QoDL.Toolkit.Web.Core.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +13,8 @@ var builder = WebApplication.CreateBuilder(args);
 IoCConfig.Configure(builder.Services, builder.Environment);
 
 var app = builder.Build();
+
+app.UseTKIPWhitelistMiddleware();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

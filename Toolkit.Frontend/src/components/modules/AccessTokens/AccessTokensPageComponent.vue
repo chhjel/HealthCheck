@@ -131,7 +131,7 @@
                         </span>
                     </div>
                     
-                    <btn-component color="error" small
+                    <btn-component color="error"
                         v-if="canDeleteToken"
                         :loading="loadStatus.inProgress"
                         :disabled="loadStatus.inProgress"

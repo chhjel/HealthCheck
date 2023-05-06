@@ -81,6 +81,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QoDL.Toolkit.WebApi.Core", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QoDL.Toolkit.Module.DataExport.SQLExecutor", "Modules\Toolkit.Module.DataExport.SQLExecutor\QoDL.Toolkit.Module.DataExport.SQLExecutor.csproj", "{B77B1BE3-B107-41B9-88F0-D494FC0CFB6D}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QoDL.Toolkit.Module.IPWhitelist", "Modules\Toolkit.Module.IPWhitelist\QoDL.Toolkit.Module.IPWhitelist.csproj", "{68923F3F-A155-42BC-B6E1-C3987F885500}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QoDL.Toolkit.Episerver.IPWhitelist", "Episerver\Toolkit.Episerver.IPWhitelist\QoDL.Toolkit.Episerver.IPWhitelist.csproj", "{56A88BC8-F61B-4497-9012-D55046F073ED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -198,6 +202,14 @@ Global
 		{B77B1BE3-B107-41B9-88F0-D494FC0CFB6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B77B1BE3-B107-41B9-88F0-D494FC0CFB6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B77B1BE3-B107-41B9-88F0-D494FC0CFB6D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68923F3F-A155-42BC-B6E1-C3987F885500}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68923F3F-A155-42BC-B6E1-C3987F885500}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68923F3F-A155-42BC-B6E1-C3987F885500}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68923F3F-A155-42BC-B6E1-C3987F885500}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56A88BC8-F61B-4497-9012-D55046F073ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56A88BC8-F61B-4497-9012-D55046F073ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56A88BC8-F61B-4497-9012-D55046F073ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56A88BC8-F61B-4497-9012-D55046F073ED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -223,6 +235,8 @@ Global
 		{238DC1B6-1BCA-4110-839F-F7A947806692} = {B26DDE73-0369-4977-A004-3CCDE2B38825}
 		{1A1FE586-26F9-4202-81DB-D154707E536F} = {23FF7575-64C7-43DC-9FDB-1FE4BF5A1D3F}
 		{B77B1BE3-B107-41B9-88F0-D494FC0CFB6D} = {3FDC5685-F607-4E31-981B-1D23817E5E2E}
+		{68923F3F-A155-42BC-B6E1-C3987F885500} = {3FDC5685-F607-4E31-981B-1D23817E5E2E}
+		{56A88BC8-F61B-4497-9012-D55046F073ED} = {DFA1DC1E-CEA9-4C53-9677-A203B2B045E4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F29D958F-997A-4DDE-B100-586ADFF9A3D3}

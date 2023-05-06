@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Modules\Toolkit.Module.IPWhitelist\QoDL.Toolkit.Module.IPWhitelist.csproj" />
     <ProjectReference Include="..\..\Toolkit.Core\QoDL.Toolkit.Core.csproj" />
     <ProjectReference Include="..\..\Toolkit.WebUI.Assets\QoDL.Toolkit.WebUI.Assets.csproj" />
     <ProjectReference Include="..\..\Toolkit.WebUI.MFA.TOTP\QoDL.Toolkit.WebUI.MFA.TOTP.csproj" />

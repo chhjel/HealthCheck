@@ -14,7 +14,7 @@
             :class="{ 'diff-component__editor__fullscreen': (isFullscreen) }"
             ></div>
 
-        <btn-component absolute dark icon flat small top right
+        <btn-component absolute dark icon flat top right
             color="success"
             class="editor-fullscreen-button"
             title="Fullscreen"
@@ -160,6 +160,7 @@ export default class DiffComponent extends Vue {
                     case 'editorWorkerService': return this.processUrl(this.globalOptions.EditorConfig.EditorWorkerUrl);
                     case 'json': return this.processUrl(this.globalOptions.EditorConfig.JsonWorkerUrl);
                     case 'sql': return this.processUrl(this.globalOptions.EditorConfig.SqlWorkerUrl);
+                    case 'html': return this.processUrl(this.globalOptions.EditorConfig.HtmlWorkerUrl);
                 }
                 return `/tk/unknown/monaco/worker/${label}.js`;
             }

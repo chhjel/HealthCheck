@@ -113,4 +113,21 @@ public static class CollectionExtensions
             yield return item;
         }
     }
+
+    /// <summary>
+    /// Same as <c>Any</c>, but ignores exceptions (per item) and returns false instead.
+    /// </summary>
+    public static bool TryAny<T>(this IEnumerable<T> en, Func<T, bool> predicate)
+    {
+        return en?.Any(x =>
+        {
+            try
+            {
+                if (predicate(x)) return true;
+            }
+            catch (Exception) {}
+
+            return false;
+        }) == true;
+    }
 }

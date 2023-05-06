@@ -24,6 +24,7 @@ public static class DevConfig
             TKAssetGlobalConfig.DefaultEditorWorkerUrl = "[base]/getscript?name=editor.worker.js";
             TKAssetGlobalConfig.DefaultJsonWorkerUrl = "[base]/getscript?name=json.worker.js";
             TKAssetGlobalConfig.DefaultSqlWorkerUrl = "[base]/getscript?name=sql.worker.js";
+            TKAssetGlobalConfig.DefaultHtmlWorkerUrl = "[base]/getscript?name=html.worker.js";
         }
     }
 }

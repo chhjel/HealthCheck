@@ -36,6 +36,7 @@ import createTKRouter from './index_routes';
 
 // Special pages
 import DownloadPageComponent from '@components/modules/SecureFileDownload/DownloadPageComponent.vue';
+import IPWhitelistLinkPageComponent from '@components/modules/IPWhitelist/IPWhitelistLinkPageComponent.vue';
 
 // Extensions
 import "@util/extensions/StringExtensions";
@@ -77,6 +78,16 @@ else if (document.getElementById("app-download") !== null)
 
 	let props = { moduleConfig: moduleConfig };
 	const app = createApp(DownloadPageComponent, props)
+		.use(shadow);
+	registerGlobalComponents(app);
+	app.mount(appElement);
+}
+else if (document.getElementById("ipwl-link") !== null)
+{
+	const appElement = document.getElementById("ipwl-link");
+
+	let props = { moduleConfig: moduleConfig };
+	const app = createApp(IPWhitelistLinkPageComponent, props)
 		.use(shadow);
 	registerGlobalComponents(app);
 	app.mount(appElement);

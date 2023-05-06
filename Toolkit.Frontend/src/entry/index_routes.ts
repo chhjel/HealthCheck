@@ -22,6 +22,7 @@ import ComparisonPageComponent from '../components/modules/Comparison/Comparison
 import GoToPageComponent from '../components/modules/GoTo/GoToPageComponent.vue';
 import MappedDataPageComponent from '../components/modules/MappedData/MappedDataPageComponent.vue';
 import JobsPageComponent from '../components/modules/Jobs/JobsPageComponent.vue';
+import IPWhitelistPageComponent from '../components/modules/IPWhitelist/IPWhitelistPageComponent.vue';
 // [tool:pageImport]
 import CustomPageComponent from '../components/modules/Custom/CustomPageComponent.vue';
 import NoPageAvailablePageComponent from '../components/NoPageAvailablePageComponent.vue';
@@ -56,6 +57,7 @@ export default function createTKRouter(moduleConfig: Array<ModuleConfig>): Route
     'GoToPageComponent': GoToPageComponent,
     'MappedDataPageComponent': MappedDataPageComponent,
     'JobsPageComponent': JobsPageComponent,
+    'IPWhitelistPageComponent': IPWhitelistPageComponent,
     // [tool:pageRecord]
     'CustomPageComponent': CustomPageComponent
 };

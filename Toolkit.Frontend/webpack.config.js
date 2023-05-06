@@ -129,7 +129,7 @@ module.exports.plugins = [
     maxChunks: 1
   }),
   new MonacoWebpackPlugin({
-    languages: [ 'csharp', 'json', 'xml', 'sql' ],
+    languages: [ 'csharp', 'json', 'xml', 'sql', 'html' ],
     // filename: '[name].worker.js'
     publicPath: '/'
   }),

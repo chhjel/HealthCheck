@@ -57,6 +57,11 @@ public static class TKAssetGlobalConfig
     /// </summary>
     public static string DefaultSqlWorkerUrl { get; set; } = "blob:https://unpkg.com/christianw-toolkit@2/sql.worker.js";
 
+    /// <summary>
+    /// Sets global default value for <c>TKFrontEndOptions.EditorConfig</c><c>.DefaultHtmlWorkerUrl</c>.
+    /// </summary>
+    public static string DefaultHtmlWorkerUrl { get; set; } = "blob:https://unpkg.com/christianw-toolkit@2/html.worker.js";
+
     /// <summary></summary>
     public static string DefaultMetricsSummaryJavascriptUrl { get; set; } = "https://unpkg.com/christianw-toolkit@2/metrics.js";
 

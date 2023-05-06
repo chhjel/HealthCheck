@@ -12,6 +12,7 @@ Available modules:
 * Tests module that allows given backend methods to be executed in a UI to check the status of integrations, run utility methods and other things.
 * Messages module where latest sent messages from the system can be viewed, optionally along with any error message. Can be used for e.g. outgoing mail and sms.
 * Endpoint Control module to set request limits for decorated endpoints, as well as viewing some request statistics.
+* IP Whitelist module to handle blocking everything except for configurable whitelisted ips & sections of the site.
 * Overview module where registed events that can be shown in a status interface, e.g. showing the stability of integrations.
 * Audit module where actions from other modules are logged.
 * Data repeater module that can store and retry sending/recieving data with modifications.
@@ -1966,6 +1967,50 @@ Built in custom types:
 
 ---------
 
+## Module: IP Whitelist
+
+Requires an additional nuget package installed [![Nuget](https://img.shields.io/nuget/v/QoDL.Toolkit.Module.IPWhitelist?label=QoDL.Toolkit.Module.IPWhitelist&logo=nuget)](https://www.nuget.org/packages/QoDL.Toolkit.Module.IPWhitelist).
+
+Supports multiple ways of blocking requests:
+
+* `TKIPWhitelistMiddleware` middleware for .net core.
+* `TKIPWhitelistHttpModule` http module for .net framework.
+* `TKIPWhitelistApiAttribute` filter attribute for .net framework webapi.
+* `TKIPWhitelistAttribute` filter attribute for .net framework mvc.
+
+### Setup
+
+```csharp
+UseModule(new TKIPWhitelistModule(new TKIPWhitelistModuleOptions
+{
+    Service = ITKIPWhitelistService implementation,
+    ConfigStorage = ITKIPWhitelistConfigStorage implementation,
+    RuleStorage = ITKIPWhitelistRuleStorage implementation,
+    LinkStorage = ITKIPWhitelistLinkStorage implementation,
+    IPStorage = ITKIPWhitelistIPStorage implementation
+}));
+```
+
+```csharp
+// Built in implementations
+
+// TKIPWhitelistService can be scoped or singleton depending on your DI framework
+...RegisterSingleton(x => new TKIPWhitelistServiceOptions {
+    DisableForLocalhost = true,
+    // e.g. whitelist login
+    ShouldAlwaysAllowRequest = (r) => Task.FromResult(!r.Path.StartsWith("/login"))
+});
+...RegisterSingleton<ITKIPWhitelistService, TKIPWhitelistService>();
+
+// Flatfile storages should be registered as singletons
+... new TKIPWhitelistConfigFlatFileStorage("e:\etc\wl_config.json");
+... new TKIPWhitelistIPFlatFileStorage(@"e:\etc\wl_ips.json");
+... new TKIPWhitelistLinkFlatFileStorage(@"e:\etc\wl_links.json");
+... new TKIPWhitelistRuleFlatFileStorage(@"e:\etc\wl_rules.json");
+```
+
+---------
+
 ## Module: Downloads
 
 The downloads module allow files to be made available for download, optionally protected by password, expiration date and download count limit. Downloads are tracked in the audit log. Built-in implementations: `FlatFileSecureFileDownloadDefinitionStorage` for download definition storage, and 3 file storage implementations: `FolderFileStorage`, `UrlFileStorage` and `TKEpiserverBlobFileStorage` (in epi package).
@@ -2315,10 +2360,16 @@ The storage implementations are not optimized for load balanced environments, if
 <p>
 
 ```csharp
-    // Cache required by most of the epi blob implementations below
-    context.Services.AddSingleton<ITKCache, TKSimpleMemoryCache>();
-    // Alternative (not much tested yet): context.Services.AddSingleton<ITKCache, TKSimpleMemoryCacheForEpiLoadBalanced>();
+    // Cache required by most of the epi blob implementations below. Choose one.
 
+    // For single server instances
+    context.Services.AddSingleton<ITKCache, TKSimpleMemoryCache>();
+
+    // For multiple server instances
+    context.Services.AddSingleton<ITKCache, TKSimpleMemoryCacheForEpiLoadBalanced>();
+```
+
+```csharp
     // Audit log (defaults to storing the last 10000 events/30 days)
     context.Services.AddSingleton<IAuditEventStorage, TKEpiserverBlobAuditEventStorage>();
     // Messages
@@ -2349,6 +2400,12 @@ The storage implementations are not optimized for load balanced environments, if
 
     // DataExport
     context.Services.AddSingleton<ITKDataExportPresetStorage, TKEpiserverBlobDataExportPresetStorage>();
+
+    // IP Whitelist
+    context.Services.AddSingleton<ITKIPWhitelistRuleStorage, TKEpiserverBlobIPWhitelistRuleStorage>();
+    context.Services.AddSingleton<ITKIPWhitelistConfigStorage, TKEpiserverBlobIPWhitelistConfigStorage>();
+    context.Services.AddSingleton<ITKIPWhitelistLinkStorage, TKEpiserverBlobIPWhitelistLinkStorage>();
+    context.Services.AddSingleton<ITKIPWhitelistIPStorage, TKEpiserverBlobIPWhitelistIPStorage>();
 
     // DataRepeater
     // Example setup:

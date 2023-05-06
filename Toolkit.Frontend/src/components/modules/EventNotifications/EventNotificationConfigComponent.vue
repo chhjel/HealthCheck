@@ -121,12 +121,12 @@
 
                 <div style="display: flex; align-items: baseline; flex-direction: row; flex-wrap: nowrap;">
                     <h3 class="notifier-title">{{ notifierConfig.Notifier.Name }}</h3>
-                    <btn-component color="error" right flat small class="ml-3"
+                    <btn-component color="error" right flat class="ml-3"
                         @click="removeValidNotifierConfig(ncindex)"
                         :disabled="!allowChanges">
                         Remove
                     </btn-component>
-                    <btn-component color="secondary" right flat small class="ml-1"
+                    <btn-component color="secondary" right flat class="ml-1"
                         @click="showNotifierTest(ncindex)"
                         :disabled="!allowChanges">
                         Test..

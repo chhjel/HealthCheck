@@ -13,15 +13,15 @@
         </component>
 
         <div v-if="clean == false" class="data-dump-actions pt-0">
-          <btn-component outline small color="accent" class="data-dump-action-button mt-2 mr-2"
+          <btn-component outline color="accent" class="data-dump-action-button mt-2 mr-2"
             v-if="showCopyButton"
             @click="putDataOnClipboard">Copy</btn-component>
         
-          <btn-component outline small color="accent" class="data-dump-action-button mt-2"
+          <btn-component outline color="accent" class="data-dump-action-button mt-2"
             @click="downloadData" 
             v-if="showDownloadButton">Download '{{ resultData.DownloadFileName }}'</btn-component>
 
-          <btn-component outline small color="accent" class="data-dump-action-button mt-2 mr-2" v-if="showFullscreenButton" @click="showFullscreen=true">Fullscreen</btn-component>
+          <btn-component outline color="accent" class="data-dump-action-button mt-2 mr-2" v-if="showFullscreenButton" @click="showFullscreen=true">Fullscreen</btn-component>
           <dialog-component v-model:value="showFullscreen" fullscreen hide-overlay :dark="isDialogDarkFor(resultData.Type)">
             <template #header>
               {{ fullscreenTitle }}

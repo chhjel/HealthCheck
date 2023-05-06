@@ -205,7 +205,18 @@ export default class BtnComponent extends Vue {
 
     // Sizes
     &.large { }
-    &.small { }
+    &.small {
+        min-width: 40px;
+        min-height: 24px;
+        .btn-component__contents {
+            padding: 5px;
+            font-size: 11px;
+        }
+    }
+    &.small.round {
+        min-width: 40px;
+        min-height: 40px;
+    }
     &.x-small { }
 }
 </style>

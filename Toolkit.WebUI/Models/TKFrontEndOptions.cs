@@ -142,15 +142,24 @@ public class TKFrontEndOptions
         /// </summary>
         public string SqlWorkerUrl { get; set; }
 
+        /// <summary>
+        /// Url to the sql worker script.
+        /// <para>Can be prefixed with "blob:" to proxy it through a generated blob url.</para>
+        /// <para>[base] can be used as a replacement for <c>EndpointBase</c></para>
+        /// </summary>
+        public string HtmlWorkerUrl { get; set; }
+
         internal void SetDefaults(string endpointBase)
         {
             EditorWorkerUrl ??= TKAssetGlobalConfig.DefaultEditorWorkerUrl ?? "";
             JsonWorkerUrl ??= TKAssetGlobalConfig.DefaultJsonWorkerUrl ?? "";
             SqlWorkerUrl ??= TKAssetGlobalConfig.DefaultSqlWorkerUrl ?? "";
+            HtmlWorkerUrl ??= TKAssetGlobalConfig.DefaultHtmlWorkerUrl ?? "";
 
             EditorWorkerUrl = EditorWorkerUrl.Replace("[base]", endpointBase.TrimEnd('/'));
             JsonWorkerUrl = JsonWorkerUrl.Replace("[base]", endpointBase.TrimEnd('/'));
             SqlWorkerUrl = SqlWorkerUrl.Replace("[base]", endpointBase.TrimEnd('/'));
+            HtmlWorkerUrl = HtmlWorkerUrl.Replace("[base]", endpointBase.TrimEnd('/'));
         }
     }
 

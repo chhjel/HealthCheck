@@ -74,7 +74,6 @@ public static class TKRequestUtils
 #endif
 
 #if NETCORE
-
     /// <summary>
     /// Attempt to get client IP address.
     /// </summary>

@@ -59,9 +59,13 @@ using QoDL.Toolkit.Module.EndpointControl.Abstractions;
 using QoDL.Toolkit.Module.EndpointControl.Results;
 using QoDL.Toolkit.Module.EndpointControl.Services;
 using QoDL.Toolkit.Module.EndpointControl.Storage;
+using QoDL.Toolkit.Module.IPWhitelist.Abstractions;
+using QoDL.Toolkit.Module.IPWhitelist.Services;
+using QoDL.Toolkit.Module.IPWhitelist.Storage;
 using QoDL.Toolkit.WebUI.Services;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace QoDL.Toolkit.DevTest.NetCore_6._0.Config;
 
@@ -152,6 +156,17 @@ public static class IoCConfig
         services.AddSingleton<ITKJobsHistoryStorage, DummyJobsHistoryStorage>();
         services.AddSingleton<ITKJobsHistoryDetailsStorage, DummyJobsHistoryDetailsStorage>();
         services.AddSingleton<ITKJobsService, TKJobsService>();
+
+        // IP Whitelist
+        services.AddSingleton(x => new TKIPWhitelistServiceOptions {
+            DisableForLocalhost = false,
+            ShouldAlwaysAllowRequest = (r) => Task.FromResult(!r.PathAndQuery.ToLower().Contains("/viewtest"))
+        });
+        services.AddSingleton<ITKIPWhitelistService, TKIPWhitelistService>();
+        services.AddSingleton<ITKIPWhitelistRuleStorage>(x => new TKIPWhitelistRuleFlatFileStorage(@"C:\temp\tk_ipwhitelist.json"));
+        services.AddSingleton<ITKIPWhitelistConfigStorage>(x => new TKIPWhitelistConfigFlatFileStorage(@"C:\temp\tk_ipwhitelist_config.json"));
+        services.AddSingleton<ITKIPWhitelistLinkStorage>(x => new TKIPWhitelistLinkFlatFileStorage(@"C:\temp\tk_ipwhitelist_links.json"));
+        services.AddSingleton<ITKIPWhitelistIPStorage>(x => new TKIPWhitelistIPFlatFileStorage(@"C:\temp\tk_ipwhitelist_ips.json"));
 
         services.AddSingleton<ITKReleaseNotesProvider>(new TKJsonFileReleaseNotesProvider(GetFilePath(@"App_Data\ReleaseNotes.json", env))
         {
