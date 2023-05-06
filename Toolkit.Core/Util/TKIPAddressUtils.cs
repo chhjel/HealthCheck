@@ -108,9 +108,6 @@ public static class TKIPAddressUtils
     /// <summary>
     /// Checks if the given IP is within the given CIDR, throwing an exception if the IP is invalid.
     /// </summary>
-    /// <param name="checkIp"></param>
-    /// <param name="cidrIp"></param>
-    /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
     public static bool IpAddressIsInRange(string checkIp, string cidrIp)
     {

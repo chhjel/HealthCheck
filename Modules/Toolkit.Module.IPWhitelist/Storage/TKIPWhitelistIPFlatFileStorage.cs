@@ -11,15 +11,15 @@ using System.Threading.Tasks;
 namespace QoDL.Toolkit.Module.IPWhitelist.Storage;
 
 /// <summary></summary>
-public class TKIPWhitelistIPStorageFlatFileStorage : ITKIPWhitelistIPStorage
+public class TKIPWhitelistIPFlatFileStorage : ITKIPWhitelistIPStorage
 {
     private TKSimpleDataStoreWithId<TKIPWhitelistIP, Guid> Store { get; }
 
     /// <summary>
-    /// Create a new <see cref="TKIPWhitelistIPStorageFlatFileStorage"/> with the given file path.
+    /// Create a new <see cref="TKIPWhitelistIPFlatFileStorage"/> with the given file path.
     /// </summary>
     /// <param name="filepath">Filepath to where the data will be stored.</param>
-    public TKIPWhitelistIPStorageFlatFileStorage(string filepath)
+    public TKIPWhitelistIPFlatFileStorage(string filepath)
     {
         Store = new TKSimpleDataStoreWithId<TKIPWhitelistIP, Guid>(
             filepath,
