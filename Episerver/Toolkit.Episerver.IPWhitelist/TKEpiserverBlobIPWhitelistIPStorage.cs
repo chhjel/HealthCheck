@@ -18,6 +18,9 @@ namespace QoDL.Toolkit.Episerver.IPWhitelist;
 public class TKEpiserverBlobIPWhitelistIPStorage
     : TKSingleBufferedListBlobStorageBase<TKEpiserverBlobIPWhitelistIPStorage.TKEpiserverBlobIPWhitelistIPBlobData, TKIPWhitelistIP>, ITKIPWhitelistIPStorage
 {
+    /// <inheritdoc />
+    public bool SupportsCache { get; } = true;
+
     /// <summary>
     /// Container id used if not overridden.
     /// </summary>

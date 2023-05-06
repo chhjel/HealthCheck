@@ -50,14 +50,19 @@ public class TKIPWhitelistService : ITKIPWhitelistService
     private readonly ITKIPWhitelistRuleStorage _whitelistRuleStorage;
     private readonly ITKIPWhitelistConfigStorage _whitelistConfigStorage;
     private readonly ITKIPWhitelistIPStorage _whitelistIPStorage;
+    private TimeSpan _ipCacheDuration = TimeSpan.FromSeconds(30);
 
     /// <summary></summary>
-    public TKIPWhitelistService(TKIPWhitelistServiceOptions options, ITKIPWhitelistRuleStorage whitelistRuleStorage, ITKIPWhitelistConfigStorage whitelistConfigStorage, ITKIPWhitelistIPStorage whitelistIPStorage)
+    public TKIPWhitelistService(TKIPWhitelistServiceOptions options, ITKIPWhitelistRuleStorage whitelistRuleStorage,
+        ITKIPWhitelistConfigStorage whitelistConfigStorage, ITKIPWhitelistIPStorage whitelistIPStorage)
     {
         _options = options;
         _whitelistRuleStorage = whitelistRuleStorage;
         _whitelistConfigStorage = whitelistConfigStorage;
         _whitelistIPStorage = whitelistIPStorage;
+
+        // Even if the ip storage supports caching we cache it for a very short time to keep the logic the same.
+        if (whitelistIPStorage.SupportsCache) _ipCacheDuration = TimeSpan.FromSeconds(3);
     }
 
     /// <inheritdoc/>
@@ -223,7 +228,7 @@ public class TKIPWhitelistService : ITKIPWhitelistService
         await _ipCacheLock.WaitAsync();
         try
         {
-            if ((DateTimeOffset.UtcNow - _ipsCachedAt) > TimeSpan.FromSeconds(30))
+            if ((DateTimeOffset.UtcNow - _ipsCachedAt) > _ipCacheDuration)
             {
                 var ips = await _whitelistIPStorage.GetAllIPsAsync();
                 _ipCache.Clear();

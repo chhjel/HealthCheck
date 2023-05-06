@@ -8,6 +8,9 @@ namespace QoDL.Toolkit.Module.IPWhitelist.Abstractions;
 /// <summary></summary>
 public interface ITKIPWhitelistIPStorage
 {
+    /// <summary>Returns true if the implementation is using a cache.</summary>
+    bool SupportsCache { get; }
+
     /// <summary></summary>
     Task<IEnumerable<TKIPWhitelistIP>> GetAllIPsAsync();
 

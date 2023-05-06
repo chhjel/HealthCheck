@@ -13,6 +13,9 @@ namespace QoDL.Toolkit.Module.IPWhitelist.Storage;
 /// <summary></summary>
 public class TKIPWhitelistIPFlatFileStorage : ITKIPWhitelistIPStorage
 {
+    /// <inheritdoc />
+    public bool SupportsCache { get; } = false;
+
     private TKSimpleDataStoreWithId<TKIPWhitelistIP, Guid> Store { get; }
 
     /// <summary>
