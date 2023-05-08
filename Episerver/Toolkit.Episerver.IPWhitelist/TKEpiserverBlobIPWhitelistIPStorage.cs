@@ -16,7 +16,7 @@ namespace QoDL.Toolkit.Episerver.IPWhitelist;
 /// Stores data in blob storage.
 /// </summary>
 public class TKEpiserverBlobIPWhitelistIPStorage
-    : TKSingleBufferedListBlobStorageBase<TKEpiserverBlobIPWhitelistIPStorage.TKEpiserverBlobIPWhitelistIPBlobData, TKIPWhitelistIP>, ITKIPWhitelistIPStorage
+    : TKSingleBufferedDictionaryBlobStorageBase<TKEpiserverBlobIPWhitelistIPStorage.TKEpiserverBlobIPWhitelistIPBlobData, TKIPWhitelistIP, Guid>, ITKIPWhitelistIPStorage
 {
     /// <inheritdoc />
     public bool SupportsCache { get; } = true;
@@ -24,7 +24,7 @@ public class TKEpiserverBlobIPWhitelistIPStorage
     /// <summary>
     /// Container id used if not overridden.
     /// </summary>
-    protected virtual Guid DefaultContainerId => Guid.Parse("888862ab-4f43-4fcd-a681-54adec6dbab3");
+    protected virtual Guid DefaultContainerId => Guid.Parse("888862ab-8f43-4fcd-a681-54adec6dbab3");
 
     /// <summary>
     /// Defaults to the default provider if null.
@@ -73,14 +73,14 @@ public class TKEpiserverBlobIPWhitelistIPStorage
     /// <inheritdoc />
     public Task DeleteRuleIPAsync(Guid id)
     {
-        RemoveMatching(x => x.Id == id);
+        RemoveItem(id);
         return Task.CompletedTask;
     }
 
     /// <inheritdoc />
     public Task DeleteRuleIPsAsync(Guid ruleId)
     {
-        RemoveMatching(x => x.RuleId == ruleId);
+        RemoveAllItems(x => x.RuleId == ruleId);
         return Task.CompletedTask;
     }
 
@@ -99,9 +99,9 @@ public class TKEpiserverBlobIPWhitelistIPStorage
     /// <summary>
     /// Model stored in blob storage.
     /// </summary>
-    public class TKEpiserverBlobIPWhitelistIPBlobData : IBufferedBlobListStorageData
+    public class TKEpiserverBlobIPWhitelistIPBlobData : IBufferedBlobDictionaryStorageData
     {
         /// <inheritdoc />
-        public List<TKIPWhitelistIP> Items { get; set; } = new();
+        public Dictionary<Guid, TKIPWhitelistIP> Items { get; set; }
     }
 }

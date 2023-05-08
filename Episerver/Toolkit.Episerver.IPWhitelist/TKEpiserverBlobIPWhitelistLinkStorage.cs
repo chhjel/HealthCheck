@@ -16,12 +16,12 @@ namespace QoDL.Toolkit.Episerver.IPWhitelist;
 /// Stores data in blob storage.
 /// </summary>
 public class TKEpiserverBlobIPWhitelistLinkStorage
-    : TKSingleBufferedListBlobStorageBase<TKEpiserverBlobIPWhitelistLinkStorage.TKEpiserverBlobIPWhitelistLinkBlobData, TKIPWhitelistLink>, ITKIPWhitelistLinkStorage
+    : TKSingleBufferedDictionaryBlobStorageBase<TKEpiserverBlobIPWhitelistLinkStorage.TKEpiserverBlobIPWhitelistLinkBlobData, TKIPWhitelistLink, Guid>, ITKIPWhitelistLinkStorage
 {
     /// <summary>
     /// Container id used if not overridden.
     /// </summary>
-    protected virtual Guid DefaultContainerId => Guid.Parse("8888c69d-11d5-444a-8283-e33853a60e37");
+    protected virtual Guid DefaultContainerId => Guid.Parse("8888c69d-81d5-444a-8283-e33853a60e37");
 
     /// <summary>
     /// Defaults to the default provider if null.
@@ -66,14 +66,14 @@ public class TKEpiserverBlobIPWhitelistLinkStorage
     /// <inheritdoc />
     public Task DeleteRuleLinkAsync(Guid id)
     {
-        RemoveMatching(x => x.Id == id);
+        RemoveItem(id);
         return Task.CompletedTask;
     }
 
     /// <inheritdoc />
     public Task DeleteRuleLinksAsync(Guid ruleId)
     {
-        RemoveMatching(x => x.RuleId == ruleId);
+        RemoveAllItems(x => x.RuleId == ruleId);
         return Task.CompletedTask;
     }
 
@@ -90,17 +90,15 @@ public class TKEpiserverBlobIPWhitelistLinkStorage
 
     /// <inheritdoc />
     public Task<TKIPWhitelistLink> GetRuleLinkFromSecretAsync(Guid ruleId, string secret)
-    {
-        throw new NotImplementedException();
-    }
+        => Task.FromResult(GetItems().FirstOrDefault(x => x.RuleId == ruleId && x.Secret == secret));
     #endregion
 
     /// <summary>
     /// Model stored in blob storage.
     /// </summary>
-    public class TKEpiserverBlobIPWhitelistLinkBlobData : IBufferedBlobListStorageData
+    public class TKEpiserverBlobIPWhitelistLinkBlobData : IBufferedBlobDictionaryStorageData
     {
         /// <inheritdoc />
-        public List<TKIPWhitelistLink> Items { get; set; } = new();
+        public Dictionary<Guid, TKIPWhitelistLink> Items { get; set; }
     }
 }

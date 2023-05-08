@@ -15,12 +15,12 @@ namespace QoDL.Toolkit.Episerver.IPWhitelist;
 /// Stores data in blob storage.
 /// </summary>
 public class TKEpiserverBlobIPWhitelistRuleStorage
-    : TKSingleBufferedListBlobStorageBase<TKEpiserverBlobIPWhitelistRuleStorage.TKEpiserverBlobIPWhitelistRuleBlobData, TKIPWhitelistRule>, ITKIPWhitelistRuleStorage
+    : TKSingleBufferedDictionaryBlobStorageBase<TKEpiserverBlobIPWhitelistRuleStorage.TKEpiserverBlobIPWhitelistRuleBlobData, TKIPWhitelistRule, Guid>, ITKIPWhitelistRuleStorage
 {
     /// <summary>
     /// Container id used if not overridden.
     /// </summary>
-    protected virtual Guid DefaultContainerId => Guid.Parse("88889df5-e229-4363-95a9-1354a4914426");
+    protected virtual Guid DefaultContainerId => Guid.Parse("88889df5-8229-4363-95a9-1354a4914426");
 
     /// <summary>
     /// Defaults to the default provider if null.
@@ -69,7 +69,7 @@ public class TKEpiserverBlobIPWhitelistRuleStorage
     /// <inheritdoc />
     public Task DeleteRuleAsync(Guid id)
     {
-        RemoveMatching(x => x.Id == id);
+        RemoveItem(id);
         return Task.CompletedTask;
     }
 
@@ -88,9 +88,9 @@ public class TKEpiserverBlobIPWhitelistRuleStorage
     /// <summary>
     /// Model stored in blob storage.
     /// </summary>
-    public class TKEpiserverBlobIPWhitelistRuleBlobData : IBufferedBlobListStorageData
+    public class TKEpiserverBlobIPWhitelistRuleBlobData : IBufferedBlobDictionaryStorageData
     {
         /// <inheritdoc />
-        public List<TKIPWhitelistRule> Items { get; set; } = new();
+        public Dictionary<Guid, TKIPWhitelistRule> Items { get; set; }
     }
 }
