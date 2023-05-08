@@ -132,6 +132,7 @@ jobs:
     displayName: 'Yarn install'
   - script: cd Toolkit.Frontend/ && yarn build
     displayName: 'Yarn build'
+    retryCountOnTaskFailure: 2
   
   - task: ArchiveFiles@2
     displayName: Pack down frontend files for use in Toolkit.WebUI.Assets

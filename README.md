@@ -1971,6 +1971,8 @@ Built in custom types:
 
 Requires an additional nuget package installed [![Nuget](https://img.shields.io/nuget/v/QoDL.Toolkit.Module.IPWhitelist?label=QoDL.Toolkit.Module.IPWhitelist&logo=nuget)](https://www.nuget.org/packages/QoDL.Toolkit.Module.IPWhitelist).
 
+Blocks everything except for whitelisted requests. Supports CIDR notations, generating links that can be used to add new ip's to whitelist, log of recently blocked ips, etc.
+
 Supports multiple ways of blocking requests:
 
 * `TKIPWhitelistMiddleware` middleware for .net core.

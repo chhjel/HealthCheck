@@ -8,7 +8,7 @@
     <Company>ChristianW</Company>
     <Version>1.0.1</Version>
     <Copyright>ChristianW</Copyright>
-    <Description>Shortcuts for adding FIDO2/WebAuthn multi-factor authentication support to HealtCheck login.</Description>
+    <Description>Shortcuts for adding FIDO2/WebAuthn multi-factor authentication support to Toolkit login.</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <LangVersion>latest</LangVersion>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\QoDL.Toolkit.WebUI.MFA.WebAuthn.xml</DocumentationFile>
