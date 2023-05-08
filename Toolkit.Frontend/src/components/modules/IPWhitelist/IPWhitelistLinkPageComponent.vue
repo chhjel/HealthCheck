@@ -5,7 +5,7 @@
 
             <p v-if="datax.note" class="note">{{ datax.note }}</p>
             
-            <p>Add any number of addresses, one per line. Supports IPv4 CIDR notation.</p>
+            <p>Add any number of addresses, one per line. Supports IPv4 and IPv6 CIDR notations.</p>
             <editor-component
                 class="editor"
                 :language="'text'"
