@@ -31,6 +31,7 @@
                 <IPWhitelistLogComponent :config="config" :loading="isLoading" @ruleSelected="onRuleSelectedInTest" />
             </template>
         </tabs-component>
+        <fetch-status-progress-component :status="dataLoadStatus" class="mt-2" />
     </div>
 </template>
 
@@ -56,6 +57,7 @@ import BtnComponent from "@components/Common/Basic/BtnComponent.vue";
 import IPWhitelistTestComponent from "./IPWhitelistTestComponent.vue";
 import IPWhitelistLogComponent from "./IPWhitelistLogComponent.vue";
 import FeedbackComponent from "@components/Common/Basic/FeedbackComponent.vue";
+import FetchStatusProgressComponent from "@components/Common/Basic/FetchStatusProgressComponent.vue";
 
 @Options({
     components: {
@@ -67,7 +69,8 @@ import FeedbackComponent from "@components/Common/Basic/FeedbackComponent.vue";
         IPWhitelistLogComponent,
         TabsComponent,
         BtnComponent,
-        FeedbackComponent
+        FeedbackComponent,
+        FetchStatusProgressComponent
     }
 })
 export default class IPWhitelistPageComponent extends Vue {

@@ -3,6 +3,8 @@
     <div class="ip-whitelist-log">
         <btn-component @click="clearRequestLog" :disabled="isLoading" color="error">Clear</btn-component>
         
+        <fetch-status-progress-component :status="dataLoadStatus" class="mt-2" />
+        
         <h3>Latest blocked requests</h3>
         <code>{{ blockedLog }}</code>
         
@@ -27,13 +29,15 @@ import TextareaComponent from "@components/Common/Basic/TextareaComponent.vue";
 import ValueUtils from "@util/ValueUtils";
 import { TKIPWhitelistRule } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistRule";
 import { TKIPWhitelistLogItem } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistLogItem";
+import FetchStatusProgressComponent from "@components/Common/Basic/FetchStatusProgressComponent.vue";
 
 @Options({
     components: {
         BlockComponent,
         BtnComponent,
         TextareaComponent,
-        TextFieldComponent
+        TextFieldComponent,
+        FetchStatusProgressComponent
     }
 })
 export default class IPWhitelistLogComponent extends Vue {

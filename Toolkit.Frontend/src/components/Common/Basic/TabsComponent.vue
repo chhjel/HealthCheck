@@ -70,6 +70,7 @@ export default class TabsComponent extends Vue {
     }
 
     onTabClicked(label: string): void {
+        if (this.isDisabled) return;
         this.localValue = label;
     }
 

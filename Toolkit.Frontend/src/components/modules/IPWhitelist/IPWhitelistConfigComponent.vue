@@ -26,13 +26,13 @@
                     label="Status code"
                     type="number"
                     class="mb-3" />
-                    
             </div>
             
-            <btn-component @disabled="isLoading"
+            <btn-component :disabled="isLoading"
                 color="primary" class="mt-2"
                 @click="saveConfig">Save</btn-component>
             <FeedbackComponent ref="saveConfigFeedback" />
+            <fetch-status-progress-component :status="dataLoadStatus" class="mt-2" />
         </BlockComponent>
     </div>
 </template>
@@ -56,6 +56,7 @@ import FeedbackComponent from "@components/Common/Basic/FeedbackComponent.vue";
 import CheckboxComponent from "@components/Common/Basic/CheckboxComponent.vue";
 import EditorComponent from "@components/Common/EditorComponent.vue";
 import InputHeaderComponent from "@components/Common/Basic/InputHeaderComponent.vue";
+import FetchStatusProgressComponent from "@components/Common/Basic/FetchStatusProgressComponent.vue";
 
 @Options({
     components: {
@@ -65,7 +66,8 @@ import InputHeaderComponent from "@components/Common/Basic/InputHeaderComponent.
         TextFieldComponent,
         EditorComponent,
         InputHeaderComponent,
-        FeedbackComponent
+        FeedbackComponent,
+        FetchStatusProgressComponent
     }
 })
 export default class IPWhitelistConfigComponent extends Vue {

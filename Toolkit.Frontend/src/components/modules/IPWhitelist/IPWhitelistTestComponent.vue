@@ -7,9 +7,11 @@
             <text-field-component v-model:value="ipToTest" label="IP address to check" class="mb-3" />
             <text-field-component v-model:value="pathToTest" label="Path and querystring to check" class="mb-3" />
             
-            <btn-component @disabled="isLoading"
+            <btn-component :disabled="isLoading"
                 color="primary" class="mt-2"
                 @click="testIp">Test</btn-component>
+
+            <fetch-status-progress-component :status="dataLoadStatus" class="mt-2" />
 
             <div v-if="result" class="result">
                 <div v-if="result.Blocked" class="blocked">
@@ -42,13 +44,15 @@ import TextareaComponent from "@components/Common/Basic/TextareaComponent.vue";
 import ValueUtils from "@util/ValueUtils";
 import { TKIPWhitelistCheckResult } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistCheckResult";
 import { TKIPWhitelistRule } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistRule";
+import FetchStatusProgressComponent from "@components/Common/Basic/FetchStatusProgressComponent.vue";
 
 @Options({
     components: {
         BlockComponent,
         BtnComponent,
         TextareaComponent,
-        TextFieldComponent
+        TextFieldComponent,
+        FetchStatusProgressComponent
     }
 })
 export default class IPWhitelistTestComponent extends Vue {
@@ -112,8 +116,9 @@ export default class IPWhitelistTestComponent extends Vue {
 .ip-whitelist-test {
     .result {
         font-weight: 600;
+
         .allowed, .blocked {
-            margin-top: 30px;
+            margin-top: 20px;
             padding: 20px;
             display: inline-block;
         }

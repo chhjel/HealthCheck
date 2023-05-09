@@ -6,6 +6,7 @@
             :value="progress"
             :height="height"
             :color="color"
+            indeterminate
         />
     </div>
 </template>
