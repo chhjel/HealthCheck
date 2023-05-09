@@ -43,6 +43,7 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
         if (Options.RuleStorage == null) issues.Add("Options.RuleStorage must be set.");
         if (Options.ConfigStorage == null) issues.Add("Options.ConfigStorage must be set.");
         if (Options.IPStorage == null) issues.Add("Options.IPStorage must be set.");
+        if (Options.LinkStorage == null) issues.Add("Options.LinkStorage must be set.");
         return issues;
     }
 
@@ -279,8 +280,8 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
     {
         if (context?.Request?.IsPOST != true) return null;
 
-        var ipFromHeader = context.Request.Headers["x-add-ip"]?.Trim();
-        var pwdFromHeader = context.Request.Headers["x-pwd"]?.Trim();
+        var ipFromHeader = context.Request.Headers.Where(x => x.Key?.ToLower() == "x-add-ip")?.FirstOrDefault().Value?.Trim();
+        var pwdFromHeader = context.Request.Headers.Where(x => x.Key?.ToLower() == "x-pwd")?.FirstOrDefault().Value?.Trim();
         if (string.IsNullOrWhiteSpace(ipFromHeader)) return null;
         var ips = ipFromHeader.Split('_').Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
         if (ips.Count == 0) return null;
