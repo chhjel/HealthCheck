@@ -81,7 +81,7 @@ export default class IPWhitelistRuleComponent extends Vue {
     getRuleIcon(rule: TKIPWhitelistRule): string {
         if (!rule.Enabled) return 'do_not_disturb_on';
         else if (this.ruleIsExpired(rule)) return 'timer_off';
-        else return '';
+        else return 'playlist_add_check';
     }
 
     getRuleMetaText(rule: TKIPWhitelistRule): string {

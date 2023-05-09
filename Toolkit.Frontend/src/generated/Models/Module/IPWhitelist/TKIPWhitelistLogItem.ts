@@ -6,6 +6,7 @@ export interface TKIPWhitelistLogItem
 {
 	Timestamp: Date;
 	IP: string;
+	Method: string;
 	Path: string;
 	WasBlocked: boolean;
 	Note: string;

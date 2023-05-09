@@ -12,6 +12,9 @@ public class TKIPWhitelistLogItem
     public string IP { get; set; }
 
     /// <summary></summary>
+    public string Method { get; set; }
+
+    /// <summary></summary>
     public string Path { get; set; }
 
     /// <summary></summary>

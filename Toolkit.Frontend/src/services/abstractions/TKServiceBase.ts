@@ -109,7 +109,7 @@ export default class TKServiceBase
         url = `${url}${queryStringIfEnabled}`;
 
         let payloadJson = (payload == null) ? null : JSON.stringify(payload);
-        fetch(url, {
+        let promise = fetch(url, {
             credentials: 'include',
             method: method,
             body: payloadJson,
@@ -130,9 +130,16 @@ export default class TKServiceBase
             }
             
             return response;
-        })
-        // .then(response => new Promise<Array<T>>(resolve => setTimeout(() => resolve(response), 3000)))
-        .then((data: T) => {
+        });
+
+        if (window?.location?.href?.includes('__tk_simulate_slow=true') == true) {
+            promise = promise.then(response => new Promise<Array<T>>(resolve => setTimeout(() => resolve(response), 3000)));
+        }
+        if (window?.location?.href?.includes('__tk_simulate_slow_f=true') == true) {
+            promise = promise.then(response => new Promise<Array<T>>(resolve => setTimeout(() => resolve(response), 60000)));
+        }
+
+        promise.then((data: T) => {
             if (statusObject != null)
             {
                 statusObject.inProgress = false;

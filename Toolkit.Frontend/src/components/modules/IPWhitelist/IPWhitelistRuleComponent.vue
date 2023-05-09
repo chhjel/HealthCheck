@@ -24,6 +24,7 @@
                 :clearable="true"
                 placeholder="No expiration"
                 class="mb-3"/>
+            <slot></slot>
         </block-component>
 
         <block-component class="mt-4 ip-list" title="IP Addresses">
@@ -58,6 +59,8 @@
                 <btn-component @click="showAddLinkDialog(null)" :disabled="isLoading" color="primary">Add new link</btn-component>
             </div>
         </block-component>
+        
+        <fetch-status-progress-component :status="dataLoadStatus" class="mt-2" />
         
         <dialog-component v-model:value="addIpDialogVisible"
             max-width="620"
@@ -94,6 +97,8 @@
                     v-on:change="onRecentIpSelected"
                     class="mt-3">
                 </select-component>
+                
+                <fetch-status-progress-component :status="dataLoadStatus" class="mt-2" />
             </div>
         </dialog-component>
         
@@ -112,6 +117,7 @@
                 <text-field-component v-model:value="cidrTestCidr"
                     label="Rule IP/CIDR" class="mb-3" :disabled="isLoading" />
                 <div class="mb-3">{{ cidrTestResult }}</div>
+                <fetch-status-progress-component :status="dataLoadStatus" class="mt-2" />
             </div>
         </dialog-component>
         
@@ -156,6 +162,7 @@
                     </btn-component>
                 </div>
                 <FeedbackComponent ref="linkClipboardFeedback" reserve />
+                <fetch-status-progress-component :status="dataLoadStatus" class="mt-2" />
             </div>
         </dialog-component>
         
@@ -193,6 +200,7 @@ import { TKIPWhitelistLogItem } from "@generated/Models/Module/IPWhitelist/TKIPW
 import LinqUtils from "@util/LinqUtils";
 import ClipboardUtil from "@util/ClipboardUtil";
 import IconComponent from "@components/Common/Basic/IconComponent.vue";
+import FetchStatusProgressComponent from "@components/Common/Basic/FetchStatusProgressComponent.vue";
 
 @Options({
     components: {
@@ -208,7 +216,8 @@ import IconComponent from "@components/Common/Basic/IconComponent.vue";
         EditorComponent,
         FeedbackComponent,
         SelectComponent,
-        IconComponent
+        IconComponent,
+        FetchStatusProgressComponent
     }
 })
 export default class IPWhitelistRuleComponent extends Vue {
@@ -387,7 +396,7 @@ export default class IPWhitelistRuleComponent extends Vue {
                 IP: this.cidrTestIp,
                 IPWithOptionalCidr: this.cidrTestCidr
             }, this.dataLoadStatus, {
-                onSuccess: matches => this.cidrTestResult = matches ? 'Matches!' : 'Does not match.'
+                onSuccess: matches => this.cidrTestResult = matches ? 'IP is in CIDR range' : 'IP is not in the given CIDR range'
             });
     }
 

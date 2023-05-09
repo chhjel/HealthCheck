@@ -5,6 +5,7 @@
 export interface TKIPWhitelistRequestData
 {
 	IP: string;
+	Method: string;
 	Path: string;
 	PathAndQuery: string;
 	Request: any;

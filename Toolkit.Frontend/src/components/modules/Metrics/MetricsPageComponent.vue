@@ -6,10 +6,12 @@
             <h1>Metrics</h1>
             <p>Debug metrics to verify performance of code, values might be a bit delayed until the tracker is disposed.</p>
 
-            <btn-component :disabled="loadStatus.inProgress" @click="loadData" class="mb-3">
+            <btn-component :disabled="loadStatus.inProgress" @click="loadData" class="mb-3 ml-0">
                 <icon-component size="20px" class="mr-2">refresh</icon-component>
                 Refresh
             </btn-component>
+            
+            <text-field-component v-model:value="filterText" label="Filter" class="mb-3" />
 
             <!-- LOAD PROGRESS -->
             <progress-linear-component
@@ -27,7 +29,7 @@
 
             <div v-if="hasData" class="metrics">
                 <div v-if="globalCounters.length > 0">
-                    <h2>Global counters</h2>
+                    <h2>Global counters ({{ globalCounters.length }})</h2>
                     <ul>
                         <li v-for="(item, itemIndex) in globalCounters"
                             :key="`gcounter-${itemIndex}`">
@@ -39,7 +41,7 @@
                 </div>
 
                 <div v-if="globalValues.length > 0" class="mt-4">
-                    <h2>Global values</h2>
+                    <h2>Global values ({{ globalValues.length }})</h2>
                     <ul v-if="globalValues.length > 0">
                         <li v-for="(item, itemIndex) in globalValues"
                             :key="`gvalue-${itemIndex}`">
@@ -63,7 +65,7 @@
                 </div>
 
                 <div v-if="globalNotes.length > 0" class="mt-4">
-                    <h2>Global notes</h2>
+                    <h2>Global notes ({{ globalNotes.length }})</h2>
                     <ul>
                         <li v-for="(item, itemIndex) in globalNotes"
                             :key="`gnote-${itemIndex}`">
@@ -112,6 +114,7 @@ export default class MetricsPageComponent extends Vue {
 
     // UI STATE
     loadStatus: FetchStatus = new FetchStatus();
+    filterText: string = '';
 
     //////////////////
     //  LIFECYCLE  //
@@ -146,7 +149,8 @@ export default class MetricsPageComponent extends Vue {
                     value: this.datax!.GlobalCounters[x]
                 };
             })
-            .sort((a, b) => LinqUtils.SortBy(a, b, x => x.key));
+            .sort((a, b) => LinqUtils.SortBy(a, b, x => x.key))
+            .filter(x => this.valueMatchesFilter(x.key));
     }
 
     get globalValues(): Array<any> {
@@ -161,7 +165,8 @@ export default class MetricsPageComponent extends Vue {
                     values: this.datax!.GlobalValues[x]
                 };
             })
-            .sort((a, b) => LinqUtils.SortBy(a, b, x => x.key));
+            .sort((a, b) => LinqUtils.SortBy(a, b, x => x.key))
+            .filter(x => this.valueMatchesFilter(x.key));
     }
 
     get globalNotes(): Array<any> {
@@ -176,12 +181,18 @@ export default class MetricsPageComponent extends Vue {
                     note: this.datax!.GlobalNotes[x]
                 };
             })
-            .sort((a, b) => LinqUtils.SortBy(a, b, x => x.id));
+            .sort((a, b) => LinqUtils.SortBy(a, b, x => x.id))
+            .filter(x => this.valueMatchesFilter(x.id) || this.valueMatchesFilter(x.note?.Note));
     }
 
     ////////////////
     //  METHODS  //
     //////////////
+    valueMatchesFilter(value: string): boolean {
+        if (this.filterText.trim().length == 0) return true;
+        else return value?.toLowerCase()?.includes(this.filterText.toLowerCase());
+    }
+
     loadData(): void {
         this.service.GetMetrics(this.loadStatus, { onSuccess: (data) => this.onDataRetrieved(data) });
     }

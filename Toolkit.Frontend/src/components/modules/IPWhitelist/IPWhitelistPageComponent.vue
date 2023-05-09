@@ -11,10 +11,11 @@
                 </div>
                 <div v-if="currentRule">
                     <a href="#" @click.stop.prevent="onGoBackToRulesClicked" :disabled="isLoading">&lt;&lt;&lt; Back</a>
-                    <IPWhitelistRuleComponent :config="config" :rule="currentRule" :loading="isLoading" class="mt-2 mb-3" />
-                    <btn-component @click="onSaveRuleClicked(currentRule)" :disabled="isLoading" color="primary">Save</btn-component>
-                    <btn-component @click="onDeleteRuleClicked(currentRule)" :disabled="isLoading" :loading="isLoading" color="error">Delete</btn-component>
-                    <FeedbackComponent ref="saveRuleFeedback" />
+                    <IPWhitelistRuleComponent :config="config" :rule="currentRule" :loading="isLoading" class="mt-2 mb-3">
+                        <btn-component @click="onSaveRuleClicked(currentRule)" :disabled="isLoading" color="primary">Save</btn-component>
+                        <btn-component @click="onDeleteRuleClicked(currentRule)" :disabled="isLoading" :loading="isLoading" color="error">Delete</btn-component>
+                        <FeedbackComponent ref="saveRuleFeedback" />
+                    </IPWhitelistRuleComponent>
                 </div>
             </template>
             <template #Test>
@@ -31,6 +32,7 @@
                 <IPWhitelistLogComponent :config="config" :loading="isLoading" @ruleSelected="onRuleSelectedInTest" />
             </template>
         </tabs-component>
+        <fetch-status-progress-component :status="dataLoadStatus" class="mt-2" />
     </div>
 </template>
 
@@ -56,6 +58,7 @@ import BtnComponent from "@components/Common/Basic/BtnComponent.vue";
 import IPWhitelistTestComponent from "./IPWhitelistTestComponent.vue";
 import IPWhitelistLogComponent from "./IPWhitelistLogComponent.vue";
 import FeedbackComponent from "@components/Common/Basic/FeedbackComponent.vue";
+import FetchStatusProgressComponent from "@components/Common/Basic/FetchStatusProgressComponent.vue";
 
 @Options({
     components: {
@@ -67,7 +70,8 @@ import FeedbackComponent from "@components/Common/Basic/FeedbackComponent.vue";
         IPWhitelistLogComponent,
         TabsComponent,
         BtnComponent,
-        FeedbackComponent
+        FeedbackComponent,
+        FetchStatusProgressComponent
     }
 })
 export default class IPWhitelistPageComponent extends Vue {

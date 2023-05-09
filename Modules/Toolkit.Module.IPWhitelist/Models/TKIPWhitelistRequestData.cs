@@ -16,6 +16,9 @@ public class TKIPWhitelistRequestData
     public string IP { get; set; }
 
     /// <summary>Full path without querystring</summary>
+    public string Method { get; set; }
+
+    /// <summary>Full path without querystring</summary>
     public string Path { get; set; }
 
     /// <summary>Full path and querystring</summary>
