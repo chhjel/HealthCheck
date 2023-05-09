@@ -5,6 +5,7 @@
         <btn-component @click="clearRequestLog" :disabled="isLoading" color="error">Clear</btn-component>
 
         <fetch-status-progress-component :status="dataLoadStatus" class="mt-2" />
+        <text-field-component v-model:value="filterText" label="Filter" class="mb-3" />
         
         <h3 class="mt-2">Latest blocked requests ({{ blockedLog.length }})</h3>
         <div class="request-log-list">
@@ -82,6 +83,7 @@ export default class IPWhitelistLogComponent extends Vue {
 
     id: string = IdUtils.generateId();
     log: Array<TKIPWhitelistLogItem> = [];
+    filterText: string = '';
 
     //////////////////
     //  LIFECYCLE  //
@@ -115,17 +117,23 @@ export default class IPWhitelistLogComponent extends Vue {
         return DateUtils.FormatDate(val, 'dd.MM HH:mm:ss');;
     }
 
+    itemMatchesFilter(item: TKIPWhitelistLogItem): boolean {
+        if (this.filterText.trim().length == 0) return true;
+        else return item.IP?.toLowerCase()?.includes(this.filterText.toLowerCase())
+            || item.Path?.toLowerCase()?.includes(this.filterText.toLowerCase());
+    }
+
     ////////////////
     //  GETTERS  //
     //////////////
     get allowedLog(): Array<TKIPWhitelistLogItem> {
         if (!this.log) return [];
-        else return this.log.filter(x => !x.WasBlocked);
+        else return this.log.filter(x => !x.WasBlocked && this.itemMatchesFilter(x));
     }
 
     get blockedLog(): Array<TKIPWhitelistLogItem> {
         if (!this.log) return [];
-        else return this.log.filter(x => x.WasBlocked);
+        else return this.log.filter(x => x.WasBlocked && this.itemMatchesFilter(x));
     }
 
     get globalOptions(): FrontEndOptionsViewModel {
