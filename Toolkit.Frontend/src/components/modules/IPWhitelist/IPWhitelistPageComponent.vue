@@ -11,10 +11,11 @@
                 </div>
                 <div v-if="currentRule">
                     <a href="#" @click.stop.prevent="onGoBackToRulesClicked" :disabled="isLoading">&lt;&lt;&lt; Back</a>
-                    <IPWhitelistRuleComponent :config="config" :rule="currentRule" :loading="isLoading" class="mt-2 mb-3" />
-                    <btn-component @click="onSaveRuleClicked(currentRule)" :disabled="isLoading" color="primary">Save</btn-component>
-                    <btn-component @click="onDeleteRuleClicked(currentRule)" :disabled="isLoading" :loading="isLoading" color="error">Delete</btn-component>
-                    <FeedbackComponent ref="saveRuleFeedback" />
+                    <IPWhitelistRuleComponent :config="config" :rule="currentRule" :loading="isLoading" class="mt-2 mb-3">
+                        <btn-component @click="onSaveRuleClicked(currentRule)" :disabled="isLoading" color="primary">Save</btn-component>
+                        <btn-component @click="onDeleteRuleClicked(currentRule)" :disabled="isLoading" :loading="isLoading" color="error">Delete</btn-component>
+                        <FeedbackComponent ref="saveRuleFeedback" />
+                    </IPWhitelistRuleComponent>
                 </div>
             </template>
             <template #Test>

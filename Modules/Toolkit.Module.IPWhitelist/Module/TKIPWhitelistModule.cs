@@ -154,6 +154,7 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
         var data = new TKIPWhitelistRequestData {
             IP = payload.RawIP,
             PathAndQuery = payload.Path,
+            Method = "GET",
             Path = pathOnly,
 #if NETCORE
             Context = (TKGlobalConfig.GetDefaultInstanceResolver()?.Invoke(typeof(IHttpContextAccessor)) as IHttpContextAccessor)?.HttpContext

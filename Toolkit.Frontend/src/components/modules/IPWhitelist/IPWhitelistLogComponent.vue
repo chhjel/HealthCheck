@@ -1,15 +1,43 @@
 <!-- src/components/modules/IPWhitelist/IPWhitelistLogComponent.vue -->
 <template>
     <div class="ip-whitelist-log">
+        <btn-component @click="loadLog" :disabled="isLoading" color="primary">Refresh</btn-component>
         <btn-component @click="clearRequestLog" :disabled="isLoading" color="error">Clear</btn-component>
-        
+
         <fetch-status-progress-component :status="dataLoadStatus" class="mt-2" />
         
-        <h3>Latest blocked requests</h3>
-        <code>{{ blockedLog }}</code>
+        <h3 class="mt-2">Latest blocked requests ({{ blockedLog.length }})</h3>
+        <div class="request-log-list">
+            <div v-for="item in blockedLog"
+                :key="`request-item-${id}-${item.Timestamp}-${item.Path}-${item.WasBlocked}`"
+                class="request-log-item blocked">
+                <div class="request-log-item__row">
+                    <div class="request-log-item__timestamp">{{ formatDate(item.Timestamp) }}</div>
+                    <div class="request-log-item__method">{{ item.Method }}</div>
+                    <div class="request-log-item__path">{{ item.Path }}</div>
+                </div>
+                <div class="request-log-item__row">
+                    <div class="request-log-item__ip">{{ item.IP }}</div>
+                </div>
+            </div>
+        </div>
         
-        <h3>Latest allowed requests</h3>
-        <code>{{ allowedLog }}</code>
+        <h3 class="mt-4">Latest allowed requests ({{ allowedLog.length }})</h3>
+        <div class="request-log-list">
+            <div v-for="item in allowedLog"
+                :key="`request-item-${id}-${item.Timestamp}-${item.Path}-${item.WasBlocked}`"
+                class="request-log-item allowed">
+                <div class="request-log-item__row">
+                    <div class="request-log-item__timestamp">{{ formatDate(item.Timestamp) }}</div>
+                    <div class="request-log-item__method">{{ item.Method }}</div>
+                    <div class="request-log-item__path">{{ item.Path }}</div>
+                </div>
+                <div class="request-log-item__row">
+                    <div class="request-log-item__ip">{{ item.IP }}</div>
+                    <div class="request-log-item__note">{{ item.Note }}</div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -30,6 +58,7 @@ import ValueUtils from "@util/ValueUtils";
 import { TKIPWhitelistRule } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistRule";
 import { TKIPWhitelistLogItem } from "@generated/Models/Module/IPWhitelist/TKIPWhitelistLogItem";
 import FetchStatusProgressComponent from "@components/Common/Basic/FetchStatusProgressComponent.vue";
+import DateUtils from "@util/DateUtils";
 
 @Options({
     components: {
@@ -72,6 +101,7 @@ export default class IPWhitelistLogComponent extends Vue {
     }
 
     clearRequestLog(): void {
+        if (!confirm('Delete all log entries?')) return;
         this.service.ClearRequestLog(this.dataLoadStatus, {
             onSuccess: d => this.loadLog()
         });
@@ -79,6 +109,10 @@ export default class IPWhitelistLogComponent extends Vue {
 
     gotoRule(rule: TKIPWhitelistRule): void {
         this.$emit('ruleSelected', rule);
+    }
+    
+    public formatDate(val: string | Date): string | null {
+        return DateUtils.FormatDate(val, 'dd.MM HH:mm:ss');;
     }
 
     ////////////////
@@ -110,5 +144,48 @@ export default class IPWhitelistLogComponent extends Vue {
 
 <style scoped lang="scss">
 .ip-whitelist-log {
+    .request-log-item {
+        border-left: 4px solid;
+        padding-left: 10px;
+        margin-left: 2px;
+        padding-top: 3px;
+        padding-bottom: 3px;
+        border-bottom: 1px solid var(--color--accent-darken1) !important;
+        font-family: monospace;
+
+        &.allowed {
+            border-color: var(--color--success-lighten1);
+        }
+        &.blocked {
+            border-color: var(--color--error-lighten4);
+        }
+
+        &__row {
+            display: flex;
+            flex-wrap: nowrap;
+        }
+
+        &__timestamp {
+            width: 120px;
+            font-weight: 600;
+        }
+        &__method {
+            font-weight: 600;
+            margin-right: 4px;
+        }
+        /* &__path { } */
+        &__ip {
+            min-width: 100px;
+            margin-right: 20px;
+            margin-top: 2px;
+            font-size: 12px;
+            color: var(--color--primary-base);
+        }
+        &__note {
+            margin-top: 2px;
+            font-size: 11px;
+            color: var(--color--primary-base);
+        }
+    }
 }
 </style>

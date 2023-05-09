@@ -24,6 +24,7 @@
                 :clearable="true"
                 placeholder="No expiration"
                 class="mb-3"/>
+            <slot></slot>
         </block-component>
 
         <block-component class="mt-4 ip-list" title="IP Addresses">

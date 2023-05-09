@@ -30,11 +30,6 @@ public class TKIPWhitelistServiceOptions
     public bool DisableForLocalhost { get; set; } = true;
 
     /// <summary>
-    /// Defaults to true, whitelists urls to add new whitelist ips.
-    /// </summary>
-    public bool AlwaysAllowWhitelistLinkUrls { get; set; } = true;
-
-    /// <summary>
     /// Optional check if a given url path should be ignored and not blocked.
     /// <para>Should contain logic to allow e.g. login and toolkit endpoints if needed.</para>
     /// </summary>
@@ -75,6 +70,7 @@ public class TKIPWhitelistService : ITKIPWhitelistService
         var data = new TKIPWhitelistRequestData
         {
             IP = RequestUtils.GetIPAddress(context),
+            Method = context?.Request?.Method,
             Path = RequestUtils.GetPath(context.Request),
             PathAndQuery = RequestUtils.GetPathAndQuery(context.Request),
             Context = context
@@ -90,6 +86,7 @@ public class TKIPWhitelistService : ITKIPWhitelistService
         var data = new TKIPWhitelistRequestData
         {
             IP = RequestUtils.GetIPAddress(new HttpRequestWrapper(request)),
+            Method = request?.HttpMethod,
             Path = RequestUtils.GetPath(request),
             PathAndQuery = RequestUtils.GetPathAndQuery(request),
             Request = request
@@ -103,6 +100,7 @@ public class TKIPWhitelistService : ITKIPWhitelistService
         var data = new TKIPWhitelistRequestData
         {
             IP = RequestUtils.GetIPAddress(request),
+            Method = request?.Method?.Method,
             Path = RequestUtils.GetPath(request),
             PathAndQuery = RequestUtils.GetPathAndQuery(request),
             WebApiRequest = request
@@ -118,6 +116,7 @@ public class TKIPWhitelistService : ITKIPWhitelistService
         AddLog(new TKIPWhitelistLogItem
         {
             IP = request.IP,
+            Method = request.Method,
             Path = request.PathAndQuery,
             Timestamp = DateTimeOffset.Now,
             WasBlocked = result.Blocked,
@@ -164,7 +163,6 @@ public class TKIPWhitelistService : ITKIPWhitelistService
 
         if (!testMode && !_options.Enabled) return TKIPWhitelistCheckResult.CreateAllowed("IP whitelist disabled.");
         else if (!testMode && ip.IsLocalHost && _options.DisableForLocalhost) return TKIPWhitelistCheckResult.CreateAllowed("IP whitelist disabled for localhost request.");
-        else if (_options.AlwaysAllowWhitelistLinkUrls && RequestIsWhitelistLink(request)) return TKIPWhitelistCheckResult.CreateAllowed("Request seems to be a whitelist link url and was allowed by AlwaysAllowWhitelistLinkUrls-config.");
         else if (_options.ShouldAlwaysAllowRequest != null && await _options.ShouldAlwaysAllowRequest(request)) return TKIPWhitelistCheckResult.CreateAllowed($"Request was allowed by ShouldAlwaysAllowRequest-config.");
 
         var rules = await _whitelistRuleStorage.GetRulesAsync();
@@ -181,17 +179,6 @@ public class TKIPWhitelistService : ITKIPWhitelistService
             config?.DefaultResponseTitle ?? "403"
         );
     }
-
-    private static readonly List<string> _whitelistLinkUrls = new()
-    {
-        "/IPWLLink/",
-        "/IPWLLinkActivate/",
-        "/GetMainStyle",
-        "/GetMainScript",
-        "/GetAsset"
-    };
-    private bool RequestIsWhitelistLink(TKIPWhitelistRequestData request)
-        => _whitelistLinkUrls.Any(x => request?.Path?.ToLower()?.Contains(x.ToLower()) == true);
 
     /// <summary></summary>
     protected virtual bool RuleContainsWhitelistFor(TKIPWhitelistRule rule, string ip)
