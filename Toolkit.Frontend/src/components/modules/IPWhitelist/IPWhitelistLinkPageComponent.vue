@@ -28,7 +28,7 @@
             </btn-component>
             
             <div>
-                <FeedbackComponent ref="feedback" />
+                <FeedbackComponent ref="feedback" duration="60000" />
             </div>
         </div>
     </div>
