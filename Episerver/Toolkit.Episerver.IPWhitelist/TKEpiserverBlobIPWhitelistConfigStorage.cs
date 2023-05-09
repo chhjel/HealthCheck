@@ -15,12 +15,12 @@ namespace QoDL.Toolkit.Episerver.IPWhitelist;
 /// Stores data in blob storage.
 /// </summary>
 public class TKEpiserverBlobIPWhitelistConfigStorage
-    : TKSingleBufferedListBlobStorageBase<TKEpiserverBlobIPWhitelistConfigStorage.TKEpiserverBlobIPWhitelistConfigBlobData, TKIPWhitelistConfig>, ITKIPWhitelistConfigStorage
+    : TKSingleBufferedDictionaryBlobStorageBase<TKEpiserverBlobIPWhitelistConfigStorage.TKEpiserverBlobIPWhitelistConfigBlobData, TKIPWhitelistConfig, Guid>, ITKIPWhitelistConfigStorage
 {
     /// <summary>
     /// Container id used if not overridden.
     /// </summary>
-    protected virtual Guid DefaultContainerId => Guid.Parse("8888b32c-bf8b-433b-b77a-4ba60f51cf9c");
+    protected virtual Guid DefaultContainerId => Guid.Parse("8888b32c-8f8b-433b-b77a-4ba60f51cf9c");
 
     /// <summary>
     /// Defaults to the default provider if null.
@@ -73,9 +73,9 @@ public class TKEpiserverBlobIPWhitelistConfigStorage
     /// <summary>
     /// Model stored in blob storage.
     /// </summary>
-    public class TKEpiserverBlobIPWhitelistConfigBlobData : IBufferedBlobListStorageData
+    public class TKEpiserverBlobIPWhitelistConfigBlobData : IBufferedBlobDictionaryStorageData
     {
         /// <inheritdoc />
-        public List<TKIPWhitelistConfig> Items { get; set; } = new();
+        Dictionary<Guid, TKIPWhitelistConfig> IBufferedBlobDictionaryStorageData.Items { get; set; } = new();
     }
 }

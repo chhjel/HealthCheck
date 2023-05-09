@@ -21,7 +21,7 @@ public class TKEpiserverBlobIPWhitelistLinkStorage
     /// <summary>
     /// Container id used if not overridden.
     /// </summary>
-    protected virtual Guid DefaultContainerId => Guid.Parse("8888c69d-81d5-444a-8283-e33853a60e37");
+    protected virtual Guid DefaultContainerId => Guid.Parse("8888c69d-88d5-444a-8283-e33853a60e37");
 
     /// <summary>
     /// Defaults to the default provider if null.
@@ -99,6 +99,6 @@ public class TKEpiserverBlobIPWhitelistLinkStorage
     public class TKEpiserverBlobIPWhitelistLinkBlobData : IBufferedBlobDictionaryStorageData
     {
         /// <inheritdoc />
-        public Dictionary<Guid, TKIPWhitelistLink> Items { get; set; }
+        public Dictionary<Guid, TKIPWhitelistLink> Items { get; set; } = new();
     }
 }

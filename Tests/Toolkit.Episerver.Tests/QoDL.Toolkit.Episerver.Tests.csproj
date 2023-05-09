@@ -23,7 +23,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Episerver\Toolkit.Episerver.DynamicCodeExecution\Toolkit.Episerver.DynamicCodeExecution\QoDL.Toolkit.Episerver.DynamicCodeExecution.csproj" />
     <ProjectReference Include="..\..\Episerver\Toolkit.Episerver.EndpointControl\QoDL.Toolkit.Episerver.EndpointControl.csproj" />
+    <ProjectReference Include="..\..\Episerver\Toolkit.Episerver.IPWhitelist\QoDL.Toolkit.Episerver.IPWhitelist.csproj" />
     <ProjectReference Include="..\..\Episerver\Toolkit.Episerver\QoDL.Toolkit.Episerver.csproj" />
+    <ProjectReference Include="..\..\Modules\Toolkit.Module.IPWhitelist\QoDL.Toolkit.Module.IPWhitelist.csproj" />
     <ProjectReference Include="..\..\Toolkit.WebUI\QoDL.Toolkit.WebUI.csproj" />
   </ItemGroup>
 
