@@ -5,6 +5,7 @@ using QoDL.Toolkit.Core.Modules.Metrics.Context;
 using QoDL.Toolkit.Core.Modules.Metrics.Services;
 using QoDL.Toolkit.Core.Modules.ReleaseNotes.Abstractions;
 using QoDL.Toolkit.Core.Modules.ReleaseNotes.Providers;
+using QoDL.Toolkit.Core.Util;
 using QoDL.Toolkit.Dev.Common.Config;
 using QoDL.Toolkit.Dev.Common.DataExport;
 using QoDL.Toolkit.DevTest._TestImplementation.EndpointControl;
@@ -17,6 +18,9 @@ using QoDL.Toolkit.Module.EndpointControl.Models;
 using QoDL.Toolkit.Module.EndpointControl.Results;
 using QoDL.Toolkit.Module.EndpointControl.Services;
 using QoDL.Toolkit.Module.EndpointControl.Storage;
+using QoDL.Toolkit.Module.IPWhitelist.Abstractions;
+using QoDL.Toolkit.Module.IPWhitelist.Services;
+using QoDL.Toolkit.Module.IPWhitelist.Storage;
 using QoDL.Toolkit.Module.RequestLog.Util;
 using QoDL.Toolkit.RequestLog.Enums;
 using QoDL.Toolkit.RequestLog.Services;
@@ -24,6 +28,7 @@ using QoDL.Toolkit.WebUI.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web.Hosting;
 using System.Web.Http;
 using System.Web.Mvc;
@@ -148,7 +153,35 @@ public class WebApiApplication : System.Web.HttpApplication
             {
                 return _dataExportPresetStorage;
             }
-            return null;
+            else if (_singletons.TryGetValue(type, out var singleton))
+            {
+                if (singleton is Func<object> func) return func();
+                else return singleton;
+            }
+            else return null;
         };
     }
+
+    private static Dictionary<Type, object> _singletons = new Dictionary<Type, object>
+    {
+        // IP Whitelist
+        { typeof(ITKIPWhitelistService), new Func<object>(() => {
+                var opts = new TKIPWhitelistServiceOptions {
+                    DisableForLocalhost = false,
+                    ShouldAlwaysAllowRequest = (r) => Task.FromResult(!r.PathAndQuery.ToLower().Contains("/viewtest"))
+                };
+                return TKIoCUtils.GetInstanceExt(typeof(TKIPWhitelistService), forcedParameterValues: new object[]{
+                    opts,
+                    typeof(ITKIPWhitelistRuleStorage),
+                    typeof(ITKIPWhitelistConfigStorage),
+                    typeof(ITKIPWhitelistLinkStorage),
+                    typeof(ITKIPWhitelistIPStorage)
+                });
+            })
+        },
+        { typeof(ITKIPWhitelistRuleStorage), new TKIPWhitelistRuleFlatFileStorage(@"C:\temp\tk_ipwhitelist.json") },
+        { typeof(ITKIPWhitelistConfigStorage), new TKIPWhitelistConfigFlatFileStorage(@"C:\temp\tk_ipwhitelist_config.json") },
+        { typeof(ITKIPWhitelistLinkStorage), new TKIPWhitelistLinkFlatFileStorage(@"C:\temp\tk_ipwhitelist_links.json") },
+        { typeof(ITKIPWhitelistIPStorage), new TKIPWhitelistIPFlatFileStorage(@"C:\temp\tk_ipwhitelist_ips.json") }
+    };
 }

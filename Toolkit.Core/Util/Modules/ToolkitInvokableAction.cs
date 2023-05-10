@@ -83,7 +83,7 @@ public class ToolkitInvokableAction
     /// <summary>
     /// Invoke the method with the given serialized parameter. Returns a serialized response.
     /// </summary>
-    public async Task<object> Invoke(IToolkitModule instance, ToolkitModuleContext context, string url)
+    public object Invoke(IToolkitModule instance, ToolkitModuleContext context, string url)
     {
         List<object> parameters = new();
         if (HasContextParameter)
@@ -95,18 +95,14 @@ public class ToolkitInvokableAction
             parameters.Add(url);
         }
 
-        var result = Method.Invoke(instance, (parameters.Count == 0) ? null : parameters.ToArray());
-        if (result is Task resultTask)
+        if (IsAsync)
         {
-            var task = Task.Run(() => resultTask);
-            await task.ConfigureAwait(false);
-            task.Wait();
-
-            var resultProperty = resultTask.GetType().GetProperty("Result");
-            result = resultProperty.GetValue(resultTask);
+            return TKAsyncUtils.InvokeAsyncSync(Method, instance, (parameters.Count == 0) ? null : parameters.ToArray());
         }
-
-        return result;
+        else
+        {
+            return Method.Invoke(instance, (parameters.Count == 0) ? null : parameters.ToArray());
+        }
     }
 
     private static Type GetReturnType(MethodInfo method)

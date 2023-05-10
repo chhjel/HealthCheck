@@ -58,6 +58,9 @@ using QoDL.Toolkit.Module.DynamicCodeExecution.Storage;
 using QoDL.Toolkit.Module.DynamicCodeExecution.Validators;
 using QoDL.Toolkit.Module.EndpointControl.Abstractions;
 using QoDL.Toolkit.Module.EndpointControl.Module;
+using QoDL.Toolkit.Module.IPWhitelist.Abstractions;
+using QoDL.Toolkit.Module.IPWhitelist.Module;
+using QoDL.Toolkit.Module.IPWhitelist.Services;
 using QoDL.Toolkit.RequestLog.Services;
 using QoDL.Toolkit.WebUI.Abstractions;
 using QoDL.Toolkit.WebUI.MFA.TOTP;
@@ -115,13 +118,6 @@ public class DevController : ToolkitControllerBase<RuntimeTestAccessRole>
             typeof(RuntimeTestConstants).Assembly
         };
 
-        UseModule(new TKDataExportModule(new TKDataExportModuleOptions
-        {
-            Service = TKIoCUtils.GetInstance<ITKDataExportService>(),
-            PresetStorage = TKIoCUtils.GetInstance<ITKDataExportPresetStorage>()
-        }
-            .AddExporter(new TKDataExportExporterXlsx())
-        ));
         UseModule(new TKTestsModuleExt(new TKTestsModuleOptions()
         {
             AssembliesContainingTests = assemblies,
@@ -150,6 +146,21 @@ public class DevController : ToolkitControllerBase<RuntimeTestAccessRole>
                 .ConfigureGroup(RuntimeTestConstants.Group.AlmostBottomGroup, uiOrder: -20)
                 .ConfigureGroup(RuntimeTestConstants.Group.BottomGroup, uiOrder: -50)
             );
+        UseModule(new TKDataExportModule(new TKDataExportModuleOptions
+        {
+            Service = TKIoCUtils.GetInstance<ITKDataExportService>(),
+            PresetStorage = TKIoCUtils.GetInstance<ITKDataExportPresetStorage>()
+        }
+            .AddExporter(new TKDataExportExporterXlsx())
+        ));
+        UseModule(new TKIPWhitelistModule(new TKIPWhitelistModuleOptions
+        {
+            Service = TKIoCUtils.GetInstance<TKIPWhitelistService>(),
+            ConfigStorage = TKIoCUtils.GetInstance<ITKIPWhitelistConfigStorage>(),
+            RuleStorage = TKIoCUtils.GetInstance<ITKIPWhitelistRuleStorage>(),
+            LinkStorage = TKIoCUtils.GetInstance<ITKIPWhitelistLinkStorage>(),
+            IPStorage = TKIoCUtils.GetInstance<ITKIPWhitelistIPStorage>()
+        }));
         UseModule(new TKMetricsModule(new TKMetricsModuleOptions()
         {
             Storage = TKIoCUtils.GetInstance<ITKMetricsStorage>()
@@ -291,6 +302,7 @@ public class DevController : ToolkitControllerBase<RuntimeTestAccessRole>
             config.GiveRolesAccessToModuleWithFullAccess<TKTestsModule>(RuntimeTestAccessRole.WebAdmins);
         }
 
+        config.GiveRolesAccessToModuleWithFullAccess<TKIPWhitelistModule>(RuntimeTestAccessRole.WebAdmins);
         config.GiveRolesAccessToModuleWithFullAccess<TKDataExportModule>(RuntimeTestAccessRole.WebAdmins);
         config.GiveRolesAccessToModuleWithFullAccess<TKSettingsModule>(RuntimeTestAccessRole.WebAdmins);
         config.GiveRolesAccessToModuleWithFullAccess<TKRequestLogModule>(RuntimeTestAccessRole.WebAdmins);

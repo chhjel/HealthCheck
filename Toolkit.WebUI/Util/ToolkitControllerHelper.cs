@@ -236,7 +236,7 @@ internal class ToolkitControllerHelper<TAccessRole>
         var context = CreateModuleContext(requestInfo, accessRoles, module.Name, module.Id, module.Module, sensitiveDataStripper);
         try
         {
-            var result = await action.Invoke(module.Module, context, url).ConfigureAwait(false);
+            var result = action.Invoke(module.Module, context, url);
             return new InvokeModuleActionResult()
             {
                 HasAccess = true,

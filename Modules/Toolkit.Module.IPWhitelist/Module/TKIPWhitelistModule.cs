@@ -294,7 +294,7 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
         if (link == null || link.InvitationExpiresAt < DateTimeOffset.Now) return createResult(false, "Link expired");
         else if (!string.IsNullOrWhiteSpace(link.Password) && link.Password != pwdFromHeader)
         {
-            await Task.Delay(TimeSpan.FromSeconds(1));
+            await Task.Delay(TimeSpan.FromSeconds(0.5));
             return createResult(false, "Wrong password");
         }
 
@@ -374,18 +374,7 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
 
         var cssTagsHtml = TKAssetGlobalConfig.CreateCssTags(context.CssUrls);
         var jsTagsHtml = TKAssetGlobalConfig.CreateJavaScriptTags(context.JavaScriptUrls);
-        var currentIp = string.Empty;
-
-        try
-        {
-#if NETFULL
-            if (HttpContext.Current?.Request != null) currentIp = TKRequestUtils.GetIPAddress(new HttpContextWrapper(HttpContext.Current).Request);
-#elif NETCORE
-            var accessor = TKGlobalConfig.GetDefaultInstanceResolver()?.Invoke(typeof(IHttpContextAccessor)) as IHttpContextAccessor;
-            if (accessor?.HttpContext != null) currentIp = TKRequestUtils.GetIPAddress(accessor.HttpContext);
-#endif
-        }
-        catch (Exception) { }
+        var currentIp = context?.Request?.ClientIP;
 
         return $@"
 <!doctype html>

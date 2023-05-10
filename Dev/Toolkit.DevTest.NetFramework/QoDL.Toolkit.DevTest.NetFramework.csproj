@@ -168,6 +168,10 @@
     <Content Include="WebFormsTest\SomeTestWebFormsPage.aspx" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Modules\Toolkit.Module.IPWhitelist\QoDL.Toolkit.Module.IPWhitelist.csproj">
+      <Project>{68923f3f-a155-42bc-b6e1-c3987f885500}</Project>
+      <Name>QoDL.Toolkit.Module.IPWhitelist</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Toolkit.Core\QoDL.Toolkit.Core.csproj">
       <Project>{df551db9-32a9-4519-b19c-2f306a486448}</Project>
       <Name>QoDL.Toolkit.Core</Name>
