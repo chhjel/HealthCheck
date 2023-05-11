@@ -168,7 +168,7 @@ public class WebApiApplication : System.Web.HttpApplication
         { typeof(ITKIPWhitelistService), new Func<object>(() => {
                 var opts = new TKIPWhitelistServiceOptions {
                     DisableForLocalhost = false,
-                    ShouldAlwaysAllowRequest = (r) => Task.FromResult(!r.PathAndQuery.ToLower().Contains("/viewtest"))
+                    ShouldAlwaysAllowRequest = (r) => Task.FromResult(new TKIPWhitelistServiceOptions.PathConditionResult(!r.PathAndQuery.ToLower().Contains("/viewtest"))),
                 };
                 return TKIoCUtils.GetInstanceExt(typeof(TKIPWhitelistService), forcedParameterValues: new object[]{
                     opts,
