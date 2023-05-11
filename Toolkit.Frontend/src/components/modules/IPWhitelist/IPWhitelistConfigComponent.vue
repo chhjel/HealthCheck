@@ -1,6 +1,17 @@
 <!-- src/components/modules/IPWhitelist/IPWhitelistPageComponent.vue -->
 <template>
     <div class="ip-whitelist-config">
+        <div class="top-section" v-if="wlconfig">
+            <switch-component
+                v-model:value="wlconfig.Enabled" 
+                :disabled="isLoading"
+                label="Whitelisting module enabled"
+                falseLabel="Whitelisting module disabled"
+                color="secondary"
+                class="mr-2 mb-3"
+            ></switch-component>
+        </div>
+
         <BlockComponent title="Blocked response">
             <div v-if="wlconfig">
                 <InputHeaderComponent name="Response content" description="Supports html." class="mt-3" />
@@ -13,27 +24,32 @@
                 
                 <CheckboxComponent 
                     v-model:value="wlconfig.UseDefaultResponseWrapper"
+                    :disabled="isLoading"
                     label="Use default response page wrapper"
                     title="If true, a default page html will be wrapped around the content above."
                     class="mb-3" />
                 
                 <text-field-component v-model:value="wlconfig.DefaultResponseTitle"
                     v-if="wlconfig.UseDefaultResponseWrapper"
+                    :disabled="isLoading"
                     label="Title"
                     class="mb-3" />
                 
                 <text-field-component v-model:value="wlconfig.DefaultHttpStatusCode"
+                    :disabled="isLoading"
                     label="Status code"
                     type="number"
                     class="mb-3" />
             </div>
+        </BlockComponent>
             
+        <div class="bottom-section mt-3">
             <btn-component :disabled="isLoading"
                 color="primary" class="mt-2"
                 @click="saveConfig">Save</btn-component>
             <FeedbackComponent ref="saveConfigFeedback" />
             <fetch-status-progress-component :status="dataLoadStatus" class="mt-2" />
-        </BlockComponent>
+        </div>
     </div>
 </template>
 
