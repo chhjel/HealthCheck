@@ -28,6 +28,37 @@ namespace QoDL.Toolkit.Episerver.Tests.Storage
             Assert.Equal("b", config.DefaultResponse);
         }
 
+        [Fact]
+        public async Task StoreConfig_WithBuffer_ShouldResultInSingleConfig()
+        {
+            var blob = new MockBlob(new Uri("https://mock.blob"), "{}");
+            var storage = CreateStorage(() => blob);
+            storage.BlobUpdateBufferDuration = TimeSpan.FromDays(1);
+
+            TKIPWhitelistConfig createConfig(string value)
+                => new TKIPWhitelistConfig() { DefaultResponse = value };
+
+            await storage.SaveConfigAsync(createConfig("a"));
+            await storage.SaveConfigAsync(createConfig("b"));
+
+            var config = await storage.GetConfigAsync();
+            Assert.NotNull(config);
+            Assert.Equal("b", config.DefaultResponse);
+
+            storage.ForceBufferCallback();
+
+            config = await storage.GetConfigAsync();
+            Assert.NotNull(config);
+            Assert.Equal("b", config.DefaultResponse);
+
+            config.DefaultResponse = "c";
+            await storage.SaveConfigAsync(config);
+
+            config = await storage.GetConfigAsync();
+            Assert.NotNull(config);
+            Assert.Equal("c", config.DefaultResponse);
+        }
+
         private TKEpiserverBlobIPWhitelistConfigStorage CreateStorage(Func<MockBlob> blobFactory = null, string blobJson = null)
         {
             var cache = EpiBlobTestHelpers.CreateMockCache();

@@ -76,6 +76,6 @@ public class TKEpiserverBlobIPWhitelistConfigStorage
     public class TKEpiserverBlobIPWhitelistConfigBlobData : IBufferedBlobDictionaryStorageData
     {
         /// <inheritdoc />
-        Dictionary<Guid, TKIPWhitelistConfig> IBufferedBlobDictionaryStorageData.Items { get; set; } = new();
+        public Dictionary<Guid, TKIPWhitelistConfig> Items { get; set; } = new();
     }
 }
