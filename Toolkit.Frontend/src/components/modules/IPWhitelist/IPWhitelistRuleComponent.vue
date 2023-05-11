@@ -131,7 +131,7 @@
                 <btn-component color="error" v-if="isLinkSaved" :disabled="isLoading" :loading="isLoading"
                     @click="onDeleteLinkClicked">Delete</btn-component>
                 <btn-component color="secondary" :disabled="isLoading" :loading="isLoading"
-                    @click="hideLinkDialog">Cancel</btn-component>
+                    @click="hideLinkDialog">Close</btn-component>
                 <FeedbackComponent ref="saveLinkFeedback" />
             </template>
             <div v-if="currentLink">
@@ -532,6 +532,7 @@ export default class IPWhitelistRuleComponent extends Vue {
     display: block;
     border: 2px solid #d1d1d1;
     background-color: #eee;
+    overflow-wrap: anywhere;
 }
 
 .editor {

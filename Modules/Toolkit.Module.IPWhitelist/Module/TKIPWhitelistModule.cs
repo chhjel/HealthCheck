@@ -2,11 +2,15 @@ using QoDL.Toolkit.Core.Abstractions.Modules;
 using QoDL.Toolkit.Core.Config;
 using QoDL.Toolkit.Core.Util;
 using QoDL.Toolkit.Module.IPWhitelist.Models;
+using QoDL.Toolkit.Web.Core.Utils;
+using QoDL.Toolkit.Core.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
+using QoDL.Toolkit.Module.IPWhitelist.Utils;
+using Newtonsoft.Json;
 
 #if NETCORE
 using Microsoft.AspNetCore.Http;
@@ -383,7 +387,7 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
     {cssTagsHtml}
 </head>
 
-<body>
+<body style=""background-color: #eee;color: #333;"">
     <div id=""ipwl-link""></div>
 
     <script>
