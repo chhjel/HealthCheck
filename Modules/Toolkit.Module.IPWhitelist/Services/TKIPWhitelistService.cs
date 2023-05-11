@@ -23,8 +23,8 @@ namespace QoDL.Toolkit.Module.IPWhitelist.Services;
 /// <summary></summary>
 public class TKIPWhitelistServiceOptions
 {
-    /// <summary>Defaults to true</summary>
-    public bool Enabled { get; set; } = true;
+    /// <summary>Defaults to true. Null or false = disabled.</summary>
+    public Func<bool> Enabled { get; set; } = () => true;
 
     /// <summary>Defaults to true</summary>
     public bool DisableForLocalhost { get; set; } = true;
@@ -36,6 +36,14 @@ public class TKIPWhitelistServiceOptions
     public PathConditionDelegate ShouldAlwaysAllowRequest { get; set; }
     /// <summary></summary>
     public delegate Task<bool> PathConditionDelegate(TKIPWhitelistRequestData request);
+
+    /// <summary>
+    /// Optional filter for what is included in the request log.
+    /// <para>Defaults to null, including everything.</para>
+    /// </summary>
+    public LogFilterDelegate ShouldIncludeRequestInLog { get; set; }
+    /// <summary></summary>
+    public delegate bool LogFilterDelegate(TKIPWhitelistLogItem entry);
 }
 
 /// <summary></summary>
@@ -61,7 +69,13 @@ public class TKIPWhitelistService : ITKIPWhitelistService
     }
 
     /// <inheritdoc/>
-    public virtual bool IsEnabled() => _options.Enabled;
+    public virtual bool IsEnabled()
+    {
+        if (_options.Enabled?.Invoke() != true) return false;
+        
+        var config = TKAsyncUtils.RunSync(_whitelistConfigStorage.GetConfigAsync) ?? new();
+        return config?.Enabled == true;
+    }
 
 #if NETCORE
     /// <inheritdoc/>
@@ -161,7 +175,7 @@ public class TKIPWhitelistService : ITKIPWhitelistService
     {
         var ip = TKIPAddressUtils.ParseIP(request.IP, acceptLocalhostString: true);
 
-        if (!testMode && !_options.Enabled) return TKIPWhitelistCheckResult.CreateAllowed("IP whitelist disabled.");
+        if (!testMode && !IsEnabled()) return TKIPWhitelistCheckResult.CreateAllowed("IP whitelist disabled.");
         else if (!testMode && ip.IsLocalHost && _options.DisableForLocalhost) return TKIPWhitelistCheckResult.CreateAllowed("IP whitelist disabled for localhost request.");
         else if (_options.ShouldAlwaysAllowRequest != null && await _options.ShouldAlwaysAllowRequest(request)) return TKIPWhitelistCheckResult.CreateAllowed($"Request was allowed by ShouldAlwaysAllowRequest-config.");
 
@@ -263,8 +277,13 @@ public class TKIPWhitelistService : ITKIPWhitelistService
         }
     }
 
-    private static void AddLog(TKIPWhitelistLogItem entry)
+    private void AddLog(TKIPWhitelistLogItem entry)
     {
+        try
+        {
+            if (_options.ShouldIncludeRequestInLog?.Invoke(entry) == false) return;
+        } catch(Exception) {}
+
         lock (_logLock)
         {
             if (entry.WasBlocked) _blockedLog.Add(entry);

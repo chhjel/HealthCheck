@@ -158,9 +158,11 @@ public static class IoCConfig
         services.AddSingleton<ITKJobsService, TKJobsService>();
 
         // IP Whitelist
-        services.AddSingleton(x => new TKIPWhitelistServiceOptions {
+        services.AddSingleton(x => new TKIPWhitelistServiceOptions
+        {
             DisableForLocalhost = false,
-            ShouldAlwaysAllowRequest = (r) => Task.FromResult(!r.PathAndQuery.ToLower().Contains("/viewtest"))
+            ShouldAlwaysAllowRequest = (r) => Task.FromResult(!r.PathAndQuery.ToLower().Contains("/viewtest")),
+            ShouldIncludeRequestInLog = (e) => e.Path?.Contains("_ignored_") == false
         });
         services.AddSingleton<ITKIPWhitelistService, TKIPWhitelistService>();
         services.AddSingleton<ITKIPWhitelistRuleStorage>(x => new TKIPWhitelistRuleFlatFileStorage(@"C:\temp\tk_ipwhitelist.json"));

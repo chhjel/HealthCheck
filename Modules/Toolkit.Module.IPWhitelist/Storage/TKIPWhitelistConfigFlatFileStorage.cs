@@ -12,6 +12,8 @@ namespace QoDL.Toolkit.Module.IPWhitelist.Storage;
 public class TKIPWhitelistConfigFlatFileStorage : ITKIPWhitelistConfigStorage
 {
     private TKSimpleDataStoreWithId<TKIPWhitelistConfig, Guid> Store { get; }
+    private TKIPWhitelistConfig _cache;
+    private readonly object _cacheLock = new();
 
     /// <summary>
     /// Create a new <see cref="TKIPWhitelistConfigFlatFileStorage"/> with the given file path.
@@ -31,12 +33,28 @@ public class TKIPWhitelistConfigFlatFileStorage : ITKIPWhitelistConfigStorage
 
     /// <inheritdoc />
     public Task<TKIPWhitelistConfig> GetConfigAsync()
-        => Task.FromResult(Store.GetEnumerable().FirstOrDefault());
+    {
+        lock (_cacheLock)
+        {
+            if (_cache != null)
+            {
+                return Task.FromResult(_cache);
+            }
+
+            var config = Store.GetEnumerable().FirstOrDefault();
+            _cache = config;
+            return Task.FromResult(config);
+        }
+    }
 
     /// <inheritdoc />
     public Task SaveConfigAsync(TKIPWhitelistConfig config)
     {
-        Store.InsertOrUpdateItem(config);
+        var updatedConfig = Store.InsertOrUpdateItem(config);
+        lock (_cacheLock)
+        {
+            _cache = updatedConfig;
+        }
         return Task.CompletedTask;
     }
 }
