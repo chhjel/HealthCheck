@@ -1,7 +1,7 @@
 <!-- src/components/modules/IPWhitelist/IPWhitelistLinkPageComponent.vue -->
 <template>
     <div class="ipwl-page">
-        <div class="content-root">
+        <div class="ipwl-page__content-root">
 
             <p v-if="datax.note" class="note">{{ datax.note }}</p>
             
@@ -172,13 +172,19 @@ export default class IPWhitelistLinkPageComponent extends Vue {
     max-width: 1280px;
     width: calc(100% - 40px); // - padding (20+20)
     
-    .content-root {
+    &__content-root {
         max-width: 800px;
         margin: 0 auto;
-
         margin-top: 50px;
-        border: 4px solid var(--color--primary-base);
+        padding: 50px;
+
+        background-color: #fff;
+        border: 4px solid var(--color--info-darken1);
         box-shadow: 0 0 16px 2px #919191;
+            
+        @media (max-width: 600px) {
+            padding: 10px;
+        }
     }
 
     .note {

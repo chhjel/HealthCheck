@@ -161,7 +161,7 @@ public static class IoCConfig
         services.AddSingleton(x => new TKIPWhitelistServiceOptions
         {
             DisableForLocalhost = false,
-            ShouldAlwaysAllowRequest = (r) => Task.FromResult(!r.PathAndQuery.ToLower().Contains("/viewtest")),
+            ShouldAlwaysAllowRequest = (r) => Task.FromResult(new TKIPWhitelistServiceOptions.PathConditionResult(!r.PathAndQuery.ToLower().Contains("/viewtest"), "Anything but /viewtest is allowed")),
             ShouldIncludeRequestInLog = (e) => e.Path?.Contains("_ignored_") == false
         });
         services.AddSingleton<ITKIPWhitelistService, TKIPWhitelistService>();

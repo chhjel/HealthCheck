@@ -7,15 +7,15 @@ using QoDL.Toolkit.Module.IPWhitelist.Utils;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 
 #if NETCORE
 using Microsoft.AspNetCore.Http;
+#elif NETFULL
+using System.Net.Http;
 #endif
 
 namespace QoDL.Toolkit.Module.IPWhitelist.Services;
@@ -35,7 +35,22 @@ public class TKIPWhitelistServiceOptions
     /// </summary>
     public PathConditionDelegate ShouldAlwaysAllowRequest { get; set; }
     /// <summary></summary>
-    public delegate Task<bool> PathConditionDelegate(TKIPWhitelistRequestData request);
+    public delegate Task<PathConditionResult> PathConditionDelegate(TKIPWhitelistRequestData request);
+    /// <summary></summary>
+    public class PathConditionResult
+    {
+        /// <summary></summary>
+        public bool AlwaysAllow { get; set; }
+        
+        /// <summary></summary>
+        public string AllowReason { get; set; }
+
+        /// <summary></summary>
+        public PathConditionResult() { }
+
+        /// <summary></summary>
+        public PathConditionResult(bool alwaysAllow, string allowReason = null) { AlwaysAllow = alwaysAllow; AllowReason = allowReason; }
+    }
 
     /// <summary>
     /// Optional filter for what is included in the request log.
@@ -177,7 +192,17 @@ public class TKIPWhitelistService : ITKIPWhitelistService
 
         if (!testMode && !IsEnabled()) return TKIPWhitelistCheckResult.CreateAllowed("IP whitelist disabled.");
         else if (!testMode && ip.IsLocalHost && _options.DisableForLocalhost) return TKIPWhitelistCheckResult.CreateAllowed("IP whitelist disabled for localhost request.");
-        else if (_options.ShouldAlwaysAllowRequest != null && await _options.ShouldAlwaysAllowRequest(request)) return TKIPWhitelistCheckResult.CreateAllowed($"Request was allowed by ShouldAlwaysAllowRequest-config.");
+
+        if (_options.ShouldAlwaysAllowRequest != null)
+        {
+            var alwaysAllowResult = await _options.ShouldAlwaysAllowRequest(request);
+            if (alwaysAllowResult?.AlwaysAllow == true)
+            {
+                return TKIPWhitelistCheckResult.CreateAllowed(string.IsNullOrWhiteSpace(alwaysAllowResult.AllowReason) 
+                    ? $"Request was allowed by ShouldAlwaysAllowRequest-config."
+                    : alwaysAllowResult.AllowReason);
+            }
+        }
 
         var rules = await _whitelistRuleStorage.GetRulesAsync();
         await EnsureIPsCachedAsync();

@@ -4,13 +4,13 @@
 public class TKIPWhitelistConfig
 {
     /// <summary></summary>
-    public bool Enabled { get; set; } = true;
+    public bool Enabled { get; set; }
 
     /// <summary></summary>
     public string DefaultResponseTitle { get; set; } = "403";
 
     /// <summary></summary>
-    public string DefaultResponse { get; set; } = "⛔ 403 ⛔";
+    public string DefaultResponse { get; set; } = "Access to the requested resource is forbidden. Your IP address has not been whitelisted and therefore you are unable to access this resource.";
 
     /// <summary></summary>
     public bool UseDefaultResponseWrapper { get; set; } = true;

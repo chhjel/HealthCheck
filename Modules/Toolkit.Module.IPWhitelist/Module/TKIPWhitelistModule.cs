@@ -387,7 +387,7 @@ public class TKIPWhitelistModule : ToolkitModuleBase<TKIPWhitelistModule.AccessO
     {cssTagsHtml}
 </head>
 
-<body>
+<body style=""background-color: #eee;color: #333;"">
     <div id=""ipwl-link""></div>
 
     <script>

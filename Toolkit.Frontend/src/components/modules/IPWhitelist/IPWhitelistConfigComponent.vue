@@ -12,35 +12,33 @@
             ></switch-component>
         </div>
 
-        <BlockComponent title="Blocked response">
-            <div v-if="wlconfig">
-                <InputHeaderComponent name="Response content" description="Supports html." class="mt-3" />
-                <editor-component
-                    class="editor"
-                    :language="'html'"
-                    v-model:value="wlconfig.DefaultResponse"
-                    :read-only="isLoading"
-                    ref="editor" />
-                
-                <CheckboxComponent 
-                    v-model:value="wlconfig.UseDefaultResponseWrapper"
-                    :disabled="isLoading"
-                    label="Use default response page wrapper"
-                    title="If true, a default page html will be wrapped around the content above."
-                    class="mb-3" />
-                
-                <text-field-component v-model:value="wlconfig.DefaultResponseTitle"
-                    v-if="wlconfig.UseDefaultResponseWrapper"
-                    :disabled="isLoading"
-                    label="Title"
-                    class="mb-3" />
-                
-                <text-field-component v-model:value="wlconfig.DefaultHttpStatusCode"
-                    :disabled="isLoading"
-                    label="Status code"
-                    type="number"
-                    class="mb-3" />
-            </div>
+        <BlockComponent title="Blocked response" v-if="wlconfig">
+            <InputHeaderComponent name="Response content" description="Supports html." class="mt-3" />
+            <editor-component
+                class="editor"
+                :language="'html'"
+                v-model:value="wlconfig.DefaultResponse"
+                :read-only="isLoading"
+                ref="editor" />
+            
+            <CheckboxComponent 
+                v-model:value="wlconfig.UseDefaultResponseWrapper"
+                :disabled="isLoading"
+                label="Use default response page wrapper"
+                title="If true, a default page html will be wrapped around the content above."
+                class="mb-3" />
+            
+            <text-field-component v-model:value="wlconfig.DefaultResponseTitle"
+                v-if="wlconfig.UseDefaultResponseWrapper"
+                :disabled="isLoading"
+                label="Title"
+                class="mb-3" />
+            
+            <text-field-component v-model:value="wlconfig.DefaultHttpStatusCode"
+                :disabled="isLoading"
+                label="Status code"
+                type="number"
+                class="mb-3" />
         </BlockComponent>
             
         <div class="bottom-section mt-3">
