@@ -7,6 +7,7 @@ using QoDL.Toolkit.Core.Modules.Tests.Attributes;
 using QoDL.Toolkit.Core.Modules.Tests.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace QoDL.Toolkit.Dev.Common.Tests.Modules;
@@ -122,7 +123,46 @@ public class SiteEventTests
         return TestResult.CreateSuccess("Hopefully worked.");
     }
 
-    public async Task AddEvent()
+    [RuntimeTest]
+    public TestResult SimulateSiteEventResolveJob()
+    {
+        var count = 0;
+        var resolved = 0;
+        var unresolvedEvents = TKSiteEventUtils.TryGetAllUnresolvedEvents();
+        foreach (var unresolvedEvent in unresolvedEvents)
+        {
+            count++;
+            var timeSince = DateTimeOffset.Now - (unresolvedEvent.Timestamp + TimeSpan.FromMinutes(unresolvedEvent.Duration));
+            if (timeSince > TimeSpan.FromMinutes(15))
+            {
+                resolved++;
+                TKSiteEventUtils.TryMarkEventAsResolved(unresolvedEvent.Id, "Seems to be fixed now.");
+            }
+        }
+        return TestResult.CreateSuccess($"Job simulated {count} unresolved events, {resolved} attempted resolved.");
+    }
+
+    [RuntimeTest]
+    public TestResult AddEventsInParallel(int count)
+    {
+        Parallel.ForEach(Enumerable.Range(1, count), i =>
+        {
+            Task.Run(() => AddEvent("event_parallel_test"));
+        });
+        return TestResult.CreateSuccess($"Success maybe?");
+    }
+
+    [RuntimeTest]
+    public TestResult TryMarkAllEventsAsResolved(string eventTypeId = "event_parallel_test", int parallelCount = 100)
+    {
+        Parallel.ForEach(Enumerable.Range(1, parallelCount), i =>
+        {
+            TKSiteEventUtils.TryMarkAllEventsAsResolved(eventTypeId, "Resolved");
+        });
+        return TestResult.CreateSuccess($"Success maybe?");
+    }
+
+    public async Task AddEvent(string eventTypeId = null)
     {
         CreateSomeData(out string title, out string description);
         var severity = SiteEventSeverity.Information;
@@ -140,7 +180,7 @@ public class SiteEventTests
         }
 
         var ev = new SiteEvent(
-            severity, $"Error type {_rand.Next(10000)}",
+            severity, eventTypeId ?? $"Error type {_rand.Next(10000)}",
             title, description,
             duration: _rand.Next(1, 90)
         )

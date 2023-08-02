@@ -1,6 +1,5 @@
 using QoDL.Toolkit.Core.Modules.EventNotifications.Abstractions;
 using QoDL.Toolkit.Core.Modules.Settings.Abstractions;
-using QoDL.Toolkit.Core.Modules.SiteEvents.Utils;
 using QoDL.Toolkit.Core.Modules.Tests.Attributes;
 using QoDL.Toolkit.Core.Modules.Tests.Models;
 using QoDL.Toolkit.Dev.Common.Settings;
@@ -27,6 +26,7 @@ public class EventNotificationTests
         _settingsService = settingsService;
     }
 
+    [RuntimeTest]
     public TestResult TestParallel(int count = 50, string id = "event_parallel_test")
     {
         Task.Run(() =>
@@ -73,24 +73,5 @@ public class EventNotificationTests
         };
         _eventDataSink.RegisterEvent("pageload", payload);
         return TestResult.CreateSuccess($"Registered variant #{variant}");
-    }
-
-    [RuntimeTest]
-    public TestResult SimulateSiteEventResolveJob()
-    {
-        var count = 0;
-        var resolved = 0;
-        var unresolvedEvents = TKSiteEventUtils.TryGetAllUnresolvedEvents();
-        foreach (var unresolvedEvent in unresolvedEvents)
-        {
-            count++;
-            var timeSince = DateTimeOffset.Now - (unresolvedEvent.Timestamp + TimeSpan.FromMinutes(unresolvedEvent.Duration));
-            if (timeSince > TimeSpan.FromMinutes(15))
-            {
-                resolved++;
-                TKSiteEventUtils.TryMarkEventAsResolved(unresolvedEvent.Id, "Seems to be fixed now.");
-            }
-        }
-        return TestResult.CreateSuccess($"Job simulated {count} unresolved events, {resolved} attempted resolved.");
     }
 }
