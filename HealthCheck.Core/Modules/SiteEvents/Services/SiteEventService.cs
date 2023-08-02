@@ -109,7 +109,7 @@ namespace HealthCheck.Core.Modules.SiteEvents.Services
                 return false;
             }
 
-            foreach (var e in events)
+            foreach (var e in events.ToArray())
             {
                 ResolveEvent(resolveMessage, config, e);
                 await Storage.UpdateEvent(e);
