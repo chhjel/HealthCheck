@@ -12,7 +12,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <LangVersion>latest</LangVersion>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\QoDL.Toolkit.WebUI.xml</DocumentationFile>
-    <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-Toolkit</PackageProjectUrl>
+	<PackageProjectUrl>https://github.com/chhjel/HealthCheck</PackageProjectUrl>
   </PropertyGroup>
 
   <PropertyGroup>
