@@ -5,7 +5,7 @@ using System;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace QoDL.Toolkit.Core.Tests.Extensions;
+namespace QoDL.Toolkit.Core.Tests.Utils;
 
 public class TKIoCUtilsTests
 {

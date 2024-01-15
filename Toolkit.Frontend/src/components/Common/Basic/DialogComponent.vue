@@ -228,7 +228,7 @@ export default class DialogComponent extends Vue {
             this.mouseIsDownWithinModal = false;
             return;
         }
-        else if (!this.persistent) this.close();
+        else if (!this.isPersistent) this.close();
         else this.shake();
     }
     

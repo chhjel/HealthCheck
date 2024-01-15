@@ -58,6 +58,8 @@ public class TKOptimizelyJobsSource : ITKJobsSource
         foreach (var plugin in plugIns)
         {
             var job = jobs.FirstOrDefault(j => j.TypeName == plugin.TypeName && j.AssemblyName == plugin.AssemblyName);
+            if (job == null) continue;
+
             var pluginAttr = plugin.GetAttribute<ScheduledPlugInAttribute>();
             var jobAttr = plugin.PlugInType.GetCustomAttribute<TKJobAttribute>(true);
             var lastLog = (await _jobLogRepo.GetAsync(job.ID, 0, 1)).PagedResult.FirstOrDefault();
@@ -192,6 +194,12 @@ public class TKOptimizelyJobsSource : ITKJobsSource
 
     private async Task<TKJobStatus> CreateStatus(PlugInDescriptor plugin, ScheduledJob job)
     {
+        if (job == null) return new TKJobStatus
+        {
+            JobId = "[unknown]",
+            Status = TKJobHistoryStatus.Warning
+        };
+
         var lastLog = (await _jobLogRepo.GetAsync(job.ID, 0, 1)).PagedResult.FirstOrDefault();
         var isRunning = job.IsRunning && job.SecondsAfterLastPing < 30;
         var startedAt = ToDateTimeOffset(job.LastExecution);
