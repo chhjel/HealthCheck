@@ -12,7 +12,7 @@
     <LangVersion>latest</LangVersion>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\QoDL.Toolkit.Module.DataExport.xml</DocumentationFile>
     <OutputPath>bin\$(Configuration)\$(TargetFrameworkVersion)\</OutputPath>
-    <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-Toolkit</PackageProjectUrl>
+	<PackageProjectUrl>https://github.com/chhjel/HealthCheck</PackageProjectUrl>
     <AssemblyName>QoDL.Toolkit.Module.DataExport</AssemblyName>
   </PropertyGroup>
 
